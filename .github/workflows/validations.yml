@@ -1,0 +1,36 @@
+name: Node CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js 13.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 13.x
+    - name: Run tests
+      run: |
+        yarn --frozen-lockfile
+        yarn test
+      env:
+        CI: true   
+
+  type-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js 13.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 13.x
+    - name: Run typecheck
+      run: |
+        yarn --frozen-lockfile
+        yarn tsc --noEmit
+      env:
+        CI: true   
