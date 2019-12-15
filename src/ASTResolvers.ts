@@ -14,7 +14,8 @@ import {
   ThrownValue,
   TESNumber,
   ESNumber,
-  ESNull
+  ESNull,
+  isOr
 } from "./types";
 import { evaluate, evaluateThrowableIterator } from "./evaluate";
 import {
@@ -538,6 +539,36 @@ export const UnaryExpressionResolver: ASTResolver<
   return unaryOperatorResolver!(argType, afterArgExecContext);
 };
 
+export const ConditionalExpressionResolver: ASTResolver<
+  ESTree.ConditionalExpression,
+  Any
+> = function*(expression, execContext) {
+  const [testType, afterTestExecContext] = yield evaluate(
+    expression.test,
+    execContext
+  );
+  if (isOr(testType)) {
+    const consequentExecutionContext = given(
+      afterTestExecContext,
+      equals(testType, ESBoolean(true))
+    );
+    const consequentEvaluationResult = evaluate(
+      expression.consequent,
+      consequentExecutionContext
+    );
+    const alternateExecutionContext = given(
+      afterTestExecContext,
+      equals(testType, ESBoolean(false))
+    );
+    const alternameEvaluationResult = evaluate(
+      expression.alternate,
+      alternateExecutionContext
+    );
+    return reduce(consequentEvaluationResult, alternameEvaluationResult);
+  }
+  return unimplemented();
+};
+
 export const ASTResolvers = new Map<string, ASTResolver<any, any>>([
   ["Literal", LiteralResolver],
   ["Identifier", IdentifierResolver],
@@ -562,5 +593,6 @@ export const ASTResolvers = new Map<string, ASTResolver<any, any>>([
   ["ThrowStatement", ThrowStatementResolver],
   ["DoWhileStatement", DoWhileStatementResolver],
   ["UpdateExpression", UpdateExpressionResolver],
-  ["UnaryExpression", UnaryExpressionResolver]
+  ["UnaryExpression", UnaryExpressionResolver],
+  ["ConditionalExpression", ConditionalExpressionResolver]
 ]);
