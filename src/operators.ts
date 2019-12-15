@@ -10,7 +10,8 @@ import {
   ESNumber,
   isESBoolean,
   Type,
-  Undefined
+  Undefined,
+  Or
 } from "./types";
 import { ESString, TESString } from "./string/String";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
@@ -61,6 +62,12 @@ export function minus(left: Any, right: Any) {
 }
 
 export function greaterThan(left: Any, right: Any) {
+  if (isESNumber(left) && typeof left.value === "undefined") {
+    if (isESNumber(right) && typeof right.value === "undefined") {
+      return Or(ESBoolean(true), ESBoolean(false));
+    }
+  }
+
   return (
     unsafeCast<GreaterThanEquals>(left).gte >
     unsafeCast<number>(unsafeCast<TESNumber>(right).value)

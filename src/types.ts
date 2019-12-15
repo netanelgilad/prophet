@@ -170,6 +170,27 @@ export function isESBoolean(arg: Any): arg is TESBoolean {
   return unsafeCast<Type<string>>(arg).type === "boolean";
 }
 
+export interface TOr<TLeft extends Any = Any, TRight extends Any = Any> {
+  type: "Or";
+  left: TLeft;
+  right: TRight;
+}
+
+export function Or<TLeft extends Any = Any, TRight extends Any = Any>(
+  left: TLeft,
+  right: TRight
+) {
+  return {
+    type: "Or",
+    left,
+    right
+  };
+}
+
+export function isOr(arg: Any): arg is TOr {
+  return unsafeCast<Type<string>>(arg).type == "Or";
+}
+
 export type Any =
   | Type<string>
   | typeof NotANumber
@@ -181,6 +202,7 @@ export type Any =
   | TESObject
   | FunctionBinding
   | TESBoolean
+  | TOr
   | TThrownValue;
 
 export type ExpressionEvaluationResult = TThrownValue | Any;
