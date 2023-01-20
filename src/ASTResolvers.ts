@@ -538,6 +538,15 @@ export const UnaryExpressionResolver: ASTResolver<
   return unaryOperatorResolver!(argType, afterArgExecContext);
 };
 
+export const ConditionalExpressionResolver: ASTResolver<ESTree.ConditionalExpression, Any> = function*(expression, execContext)  {
+  const [testResultType, afterTestExecContext] = yield evaluate(
+    expression.test,
+    execContext
+  );
+
+  
+}
+
 export const ASTResolvers = new Map<string, ASTResolver<any, any>>([
   ["Literal", LiteralResolver],
   ["Identifier", IdentifierResolver],
@@ -562,5 +571,6 @@ export const ASTResolvers = new Map<string, ASTResolver<any, any>>([
   ["ThrowStatement", ThrowStatementResolver],
   ["DoWhileStatement", DoWhileStatementResolver],
   ["UpdateExpression", UpdateExpressionResolver],
-  ["UnaryExpression", UnaryExpressionResolver]
+  ["UnaryExpression", UnaryExpressionResolver],
+  ["ConditionalExpression", ConditionalExpressionResolver]
 ]);
