@@ -45,7 +45,7 @@ export function setVariablesInScope(
 ) {
   let result = execContext;
   for (const [name, type] of Object.entries(variables)) {
-    execContext = setVariableInScope(result, name, type);
+    result = setVariableInScope(result, name, type);
   }
 
   return result;
