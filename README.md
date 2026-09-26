@@ -23,6 +23,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/lexical-environments.sp
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-exceptions.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/arithmetic-bounds.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts test/commonjs-symbolic.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.spec.ts test/commonjs-loader-symbolic.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -53,8 +54,12 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts
   module scope, wrapper parameters, returns, and throws against real `.cjs`
   execution in pinned Node. [Symbolic module specs](test/commonjs-symbolic.spec.ts)
   prove bounds through an exported closure and preserve initializer effects when
-  the module can throw. Source execution is implemented; file/package loading,
-  caching, and cycles remain future layers.
+  the module can throw.
+- [CommonJS loading](test/commonjs-loader-compat.spec.ts) compares an explicitly
+  supplied graph of `.cjs` files against Node: relative/absolute requests, cache
+  identity, cycles, and failed-load retry. [Symbolic loader specs](test/commonjs-loader-symbolic.spec.ts)
+  keep cache state and effects associated with each execution path and prove
+  bounds through a function that loads a validator with `require`.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
 `src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
@@ -84,8 +89,8 @@ unmodified, pinned published build of `tiny-invariant`:
    suite checked against a pinned Node runtime. Cover module execution, exports,
    caching, cycles, resolution, and failures in separate increments. Test262
    covers ECMAScript; Node's host APIs require their own compatibility tests.
-   The supplied-source execution and export layer is now covered; `require`
-   loading, cache/cycles, and resolution are the next increments.
+   Supplied-source execution and exact `.cjs` loading with cache/cycles are now
+   covered. Broader resolution and the host APIs needed by the package come next.
 5. **Real dependency:** add the Error, string, environment, and remaining
    semantics required by the pinned library; execute its actual source in a
    spec. The first package proof must state its supported Node subset.
@@ -272,7 +277,7 @@ operands are not inferred; for example, treating two occurrences of a bounded
 input independently can leave `input - input === 0` unknown. These are precision
 limits rather than restrictions on concrete arithmetic execution.
 
-## CommonJS source execution
+## CommonJS execution and loading
 
 `evaluateCommonJS(source, filename, context)` executes supplied source and returns
 `[exportsOrCompletion, context]`. Supply an already resolved, absolute filename;
@@ -304,10 +309,40 @@ Its spec proves that `Math.random() * 60 + 20` succeeds with a result in [0, 1],
 while 100 throws. Separate specs cover conditional exports, captured state,
 mixed normal/throwing initializers, and exactly-once effects per path.
 
-This first layer exposes a callable `require` binding but rejects loading calls.
-Only `module.exports` is modeled on the module object; other module/require
-fields report an unmodeled-host-property error instead of becoming `undefined`.
-The guard stays with the object across aliases, closures, and eval. Implicit
+`createCommonJSLoader(files).load(filename, context)` adds cached loading from an
+immutable map of absolute `.cjs` filenames to source strings. It returns the same
+`[exportsOrCompletion, context]` shape. The supplied files represent a complete
+snapshot with no symlinks, package metadata, or other file types. No host files
+are read. Relative and absolute exact `.cjs` requests work; package lookup,
+extension searching, JSON, directories, and built-ins remain explicit gaps.
+The entry is loaded as a required file, not as Node's process entry point.
+
+The loader can analyze a consumer of the validator above:
+
+```js
+module.exports = function(value) {
+  const normalize = require("./lib/normalize.cjs");
+  return normalize(value);
+};
+```
+
+The numeric guarantee survives the `require` call. Each loaded module enters
+the cache before its body executes, so cycles see its current partial exports.
+Successful loads are reused; a failed initializer is removed while its effects
+and successful dependencies remain. Cache state lives in the execution context's
+persistent heap. A conditional load affects only its own paths, and resuming an
+earlier context resumes that earlier cache state. Finite choices of request names
+are explored with their branch conditions; an unrestricted symbolic name stops
+analysis explicitly.
+
+The loader exposes `module.exports`, `id`, `filename`, `path`, and `loaded`.
+Writes to metadata other than `exports`, other module fields, and extra require
+APIs stop analysis until their behavior is modeled. Loader-generated argument
+and missing-module errors expose `name` and `code`; other fields, including
+`message`, `stack`, and `requireStack`, are explicit gaps. Cycle diagnostics and
+Node's temporary warning prototypes are not modeled. The standalone
+`evaluateCommonJS` still models only `module.exports` and rejects require calls.
+These guards stay with the objects across aliases, closures, and eval. Implicit
 `arguments` objects similarly have a persistent unsupported binding until their
 mapped/unmapped behavior is implemented. Explicit shadowing and replacement work;
 a join that might retain the implicit object conservatively rejects later reads.

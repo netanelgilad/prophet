@@ -38,15 +38,6 @@ function parseWrapper(source: string): ESTree.FunctionExpression {
 export function evaluateCommonJS(
   source: string, filename: string, caller: TExecutionContext
 ): BranchResult {
-  if (!isAbsolute(filename)) throw new Error("CommonJS execution requires an absolute filename");
-  let wrapper: ESTree.FunctionExpression;
-  try {
-    wrapper = parseWrapper(source);
-  } catch (error) {
-    if (error.name !== "SyntaxError") throw error;
-    return [bindingError("SyntaxError", error.message), caller];
-  }
-
   const exported = ESObject();
   const module: WithProperties = {
     ...ESObject({ exports: exported }), unknownProperties: "CommonJS module metadata"
@@ -58,6 +49,24 @@ export function evaluateCommonJS(
     properties: {},
     unknownProperties: "CommonJS require API"
   };
+  return executeCommonJS(source, filename, caller, module, require);
+}
+
+// The loader supplies the module record and its scoped require so that the
+// same record can enter the cache before any source executes (including cycles).
+export function executeCommonJS(
+  source: string, filename: string, caller: TExecutionContext,
+  module: WithProperties, require: FunctionBinding
+): BranchResult {
+  if (!isAbsolute(filename)) throw new Error("CommonJS execution requires an absolute filename");
+  let wrapper: ESTree.FunctionExpression;
+  try {
+    wrapper = parseWrapper(source);
+  } catch (error) {
+    if (error.name !== "SyntaxError") throw error;
+    return [bindingError("SyntaxError", error.message), caller];
+  }
+  const exported = getProperties(module, caller).exports;
   const path = normalize(filename);
   const args = [exported, require, module, ESString(path), ESString(dirname(path))];
 
