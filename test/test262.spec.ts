@@ -32,6 +32,27 @@ const activeCorpus = [
   "language/statements/if/if-const-else-stmt.js",
   "language/statements/if/if-const-no-else.js",
 
+  // Arithmetic primitives, signs, and left-to-right operand evaluation.
+  // IEEE boundary files requiring Number constants/isNaN remain a runtime gap;
+  // the harness does not substitute host implementations for missing built-ins.
+  "language/expressions/addition/S11.6.1_A1.js",
+  "language/expressions/addition/S11.6.1_A2.4_T1.js",
+  "language/expressions/subtraction/S11.6.2_A1.js",
+  "language/expressions/subtraction/S11.6.2_A2.4_T1.js",
+  "language/expressions/subtraction/S11.6.2_A2.4_T2.js",
+  "language/expressions/multiplication/S11.5.1_A1.js",
+  "language/expressions/multiplication/S11.5.1_A2.4_T1.js",
+  "language/expressions/multiplication/S11.5.1_A2.4_T2.js",
+  "language/expressions/division/S11.5.2_A1.js",
+  "language/expressions/division/S11.5.2_A2.4_T1.js",
+  "language/expressions/division/S11.5.2_A2.4_T2.js",
+  "language/expressions/division/S11.5.2_A4_T2.js",
+  "language/expressions/unary-plus/S11.4.6_A1.js",
+  "language/expressions/unary-plus/S9.3_A4.1_T2.js",
+  "language/expressions/unary-plus/11.4.6-2-1.js",
+  "language/expressions/unary-minus/S11.4.7_A1.js",
+  "language/expressions/unary-minus/11.4.7-4-1.js",
+
   // Lexical environments, captured bindings, and declaration instantiation.
   "language/statements/block/scope-lex-open.js",
   "language/statements/block/scope-lex-close.js",
