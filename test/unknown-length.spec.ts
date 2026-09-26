@@ -2,7 +2,7 @@ import { evaluateCode, nodeInitialExecutionContext } from "../src";
 import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
 import { symbolicNumberArray } from "../src/array/symbolic";
 import { Array as ESArray } from "../src/array/Array";
-import { ESNumber, TESBoolean } from "../src/types";
+import { ESNumber, TESBoolean, TESNumber } from "../src/types";
 import { randomNumber } from "../src/symbolic";
 import { getInferredSummaries } from "../src/Function/summaries";
 
@@ -11,6 +11,14 @@ const minimum = `
     if (a.length === 1) return a[0];
     const rest = reduce(a.slice(1));
     return a[0] < rest ? a[0] : rest;
+  }
+`;
+const maximum = `
+  function choose(a) {
+    if (a.length === 1) return a[0];
+    const rest = choose(a.slice(1));
+    if (a[0] > rest) return a[0];
+    return rest;
   }
 `;
 
@@ -28,11 +36,14 @@ test("unknown-length minimum is inferred from execution and reused", () => {
     const proof = result <= input[0];
     const strict = result < input[0];
     const unrelated = Math.random() < result;
+    const length = input.length;
   `);
   expect(result.x).toMatchObject({ value: false });
   expect(result.proof).toMatchObject({ value: true });
   expect((result.strict as TESBoolean).value).toBeUndefined();
   expect((result.unrelated as TESBoolean).value).toBeUndefined();
+  expect(result.length).toMatchObject({ type: "number" });
+  expect((result.length as TESNumber).value).toBeUndefined();
   const summaries = getInferredSummaries(result.reduce);
   expect(summaries).toHaveLength(1);
   expect(summaries[0].facts).toEqual(["finite", "notNaN", "lower"]);
@@ -41,22 +52,41 @@ test("unknown-length minimum is inferred from execution and reused", () => {
 });
 
 test("the same inference discovers maximum expressed with if and early returns", () => {
-  const result = run(`
-    function choose(a) {
-      if (a.length === 1) return a[0];
-      const rest = choose(a.slice(1));
-      if (a[0] > rest) return a[0];
-      return rest;
-    }
+  const result = run(maximum + `
     const result = choose(input);
     const proof = input[0] <= result;
     const wrong = result < input[0];
+    const aboveMaximum = input[0] > result;
     const uncertain = result <= input[0];
   `);
   expect(result.proof).toMatchObject({ value: true });
   expect(result.wrong).toMatchObject({ value: false });
+  expect(result.aboveMaximum).toMatchObject({ value: false });
   expect((result.uncertain as TESBoolean).value).toBeUndefined();
-  expect(getInferredSummaries(result.choose)[0].facts).toEqual(["finite", "notNaN", "upper"]);
+  const summaries = getInferredSummaries(result.choose);
+  expect(summaries).toHaveLength(1);
+  expect(summaries[0].facts).toEqual(["finite", "notNaN", "upper"]);
+  expect(summaries[0].proof).toEqual({ baseExecutions: 1, stepExecutions: 2, recursiveCalls: 2 });
+  expect(summaries[0].applications).toBe(1);
+});
+
+test("minimum and maximum keep separate summaries for the same unknown-length input", () => {
+  const result = run(minimum + maximum + `
+    const x = input[0] < reduce(input);
+    const aboveMaximum = input[0] > choose(input);
+    const strict = reduce(input) < input[0];
+    const length = input.length;
+  `);
+  expect(result.x).toMatchObject({ value: false });
+  expect(result.aboveMaximum).toMatchObject({ value: false });
+  expect((result.strict as TESBoolean).value).toBeUndefined();
+  expect((result.length as TESNumber).value).toBeUndefined();
+  const [lower] = getInferredSummaries(result.reduce);
+  const [upper] = getInferredSummaries(result.choose);
+  expect(lower.facts).toEqual(["finite", "notNaN", "lower"]);
+  expect(upper.facts).toEqual(["finite", "notNaN", "upper"]);
+  expect(lower.applications).toBe(2);
+  expect(upper.applications).toBe(1);
 });
 
 test("universal bounds cover later elements and slices without enumerating the array", () => {

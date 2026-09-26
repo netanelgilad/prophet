@@ -1,13 +1,33 @@
-import { readFileSync } from "fs";
-import { join } from "path";
 import { evaluateCode, nodeInitialExecutionContext } from "../src";
 import { TESBoolean, isThrownValue } from "../src/types";
 
-const example = readFileSync(join(__dirname, "../examples/symbolic-routing.js"), "utf8");
 const scope = (code: string) => evaluateCode(code, nodeInitialExecutionContext)[1].value.scope;
 
 test("routing preserves relationships between string returns, early exits, and aliased writes", () => {
-  const result = scope(example);
+  const result = scope(`
+    function route(score, record) {
+      if (score < 0.5) {
+        record.lane = "left";
+        record.accepted = true;
+        return "left";
+      }
+      record.lane = "right";
+      record.accepted = false;
+      return "right";
+    }
+
+    const score = Math.random();
+    const record = { lane: "pending", accepted: false };
+    const alias = record;
+    const lane = route(score, record);
+
+    const consistent = lane === alias.lane;
+    const valid = score < 0.5
+      ? lane === "left" && alias.accepted
+      : lane === "right" && !alias.accepted;
+    const impossible = score < 0.5 && lane === "right";
+    const uncertain = lane === "left";
+  `);
   expect(result.consistent).toMatchObject({ type: "boolean", value: true });
   expect(result.valid).toMatchObject({ type: "boolean", value: true });
   expect(result.impossible).toMatchObject({ type: "boolean", value: false });
