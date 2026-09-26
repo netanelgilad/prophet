@@ -6,9 +6,9 @@ that can be replayed in ordinary JavaScript. This includes programs that interac
 with their environment, not just functions that return values.
 
 The shared VM already handles selected symbolic branches, mutable objects,
-closures, return/throw paths, recursive summaries, and numeric bounds. The goals
-below are future work, not claims of implemented coverage. Each increment belongs
-in the PR stack and starts with specs.
+closures, return/throw paths, recursive summaries, numeric bounds, and CommonJS
+supplied-source execution. Broader host compatibility and server analysis remain
+future work. Each increment belongs in the PR stack and starts with specs.
 
 ## CommonJS and require are a compatibility milestone
 
@@ -60,6 +60,14 @@ cache/cycles/failures, then the resolution and host support needed by the pinned
 package. Track the supported subset at each step. CommonJS compatibility is a
 continuing goal; broader Node support is not a prerequisite for the first scoped
 package proof.
+
+Current progress: `evaluateCommonJS` executes supplied source with private scope,
+named wrapper parameters, receiver/export semantics, and normal/throwing paths.
+The [local compatibility suite](../test/commonjs/README.md) runs against pinned
+Node v24.21.0. It does not yet load files through `require`, resolve packages,
+cache modules, or handle cycles. Module metadata, implicit arguments, and global
+eval declarations are explicit analysis gaps; no complete upstream Node test is
+claimed as passing yet. Cache/loading and resolution remain the next layers.
 
 ## First published dependency proof
 

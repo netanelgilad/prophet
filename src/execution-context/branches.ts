@@ -89,6 +89,9 @@ export function mergeContexts(
           typeof b.initialized === "boolean" ? ESBoolean(b.initialized) : b.initialized
         ) as TESBoolean;
         merged.set(name, { ...a,
+          // Until the implicit value is modeled, a read remains unsupported
+          // if either path can retain it. A later overwrite clears the marker.
+          unmodeled: a.unmodeled || b.unmodeled,
           initialized: typeof initialized === "boolean" ? initialized :
             initialized.value === undefined ? initialized : initialized.value,
           value: a.value === b.value ? a.value : select(a.value, b.value)

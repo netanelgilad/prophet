@@ -72,6 +72,17 @@ const activeCorpus = [
   "language/statements/function/S13_A6_T2.js",
   "language/statements/variable/S14_A1.js",
 
+  // Formal parameter names cannot be redeclared lexically in the same
+  // function body. Parse-negative cases do not imply generator/async runtime
+  // support; each complete upstream source must fail before evaluation.
+  "language/statements/async-function/early-errors-declaration-formals-body-duplicate.js",
+  "language/expressions/async-function/early-errors-expression-formals-body-duplicate.js",
+  "language/expressions/async-arrow-function/early-errors-arrow-formals-body-duplicate.js",
+  "language/expressions/async-generator/early-errors-expression-formals-body-duplicate-let.js",
+  "language/expressions/async-generator/early-errors-expression-formals-body-duplicate-const.js",
+  "language/expressions/object/method-definition/generator-param-redecl-let.js",
+  "language/expressions/object/method-definition/generator-param-redecl-const.js",
+
   // Eval inherits lexical lookup and isolates strict declarations.
   "language/eval-code/direct/lex-env-heritage.js",
   "language/eval-code/direct/var-env-var-strict-source.js",

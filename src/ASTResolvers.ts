@@ -84,6 +84,7 @@ function readMember(object: Any, name: string, context: TExecutionContext): Bran
   }
   const properties = getProperties(unsafeCast<WithProperties>(object), context);
   assert(properties, "Cannot read a property of null or undefined");
+  assertModeledProperty(object, name, properties);
   const property = Object.prototype.hasOwnProperty.call(properties, name) ? properties[name] : Undefined;
   if (isArray(object) && isArrayIndex(name) &&
       getArrayElements(object as TArray<any>, context) === undefined &&
@@ -210,6 +211,7 @@ function assignMember(object: Any, name: string, assigned: Any, context: TExecut
   if (choice) return evaluateBranches(choice.condition, context,
     branch => assignMember(choice.consequent, name, assigned, branch),
     branch => assignMember(choice.alternate, name, assigned, branch));
+  assertModeledProperty(object, name, getProperties(unsafeCast<WithProperties>(object), context));
   assert(!(isESNumber(object) || isESString(object) || isESBoolean(object)),
     "Property assignment on primitive values is not yet supported");
   assert(!getSymbolicArrayShape(object, context), "Writes to symbolic array snapshots are not yet supported");
@@ -227,6 +229,13 @@ function assignMember(object: Any, name: string, assigned: Any, context: TExecut
     return tuple(assigned, writeArrayElements(array, elements, context));
   }
   return tuple(assigned, writeProperty(unsafeCast<WithProperties>(object), name, assigned, context));
+}
+
+function assertModeledProperty(object: Any, name: string, properties: { [name: string]: Any }): void {
+  const reason = (object as WithProperties).unknownProperties;
+  if (reason && !Object.prototype.hasOwnProperty.call(properties, name)) {
+    throw new Error(`Unmodeled host property '${name}': ${reason}`);
+  }
 }
 
 export const ReturnStatementResolver: ASTResolver<ESTree.ReturnStatement> = (ast, context) =>

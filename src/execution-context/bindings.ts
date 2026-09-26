@@ -17,7 +17,10 @@ export function readBinding(context: TExecutionContext, name: string): BranchRes
     if (context.value.validateBinding) {
       context.value.validateBinding(resolved.environment, name, context, "read");
     }
-    const available = (branch: TExecutionContext): BranchResult => [resolved.binding.value, branch];
+    const available = (branch: TExecutionContext): BranchResult => {
+      if (resolved.binding.unmodeled) throw new Error(resolved.binding.unmodeled);
+      return [resolved.binding.value, branch];
+    };
     const unavailable = (branch: TExecutionContext): BranchResult => [
       bindingError("ReferenceError", `Cannot access '${name}' before initialization`), branch
     ];
@@ -68,7 +71,9 @@ export function assignBinding(
         if (binding.kind === "name" && !branch.value.strict) return [value, branch];
         return [bindingError("TypeError", `Assignment to constant binding '${name}'`), branch];
       }
-      return [value, putBinding(branch, resolved.environment, name, { ...binding, initialized: true, value })];
+      return [value, putBinding(branch, resolved.environment, name, {
+        ...binding, initialized: true, value, unmodeled: undefined
+      })];
     };
     return typeof binding.initialized === "boolean"
       ? (binding.initialized ? available : unavailable)(context)

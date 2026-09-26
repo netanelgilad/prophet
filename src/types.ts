@@ -105,7 +105,13 @@ export type WithProperties<
   KnownProperties extends {
     [name: string]: Any;
   } = {}
-> = { properties: { [name: string]: Any } & KnownProperties };
+> = {
+  properties: { [name: string]: Any } & KnownProperties;
+  // A partial host object has modeled fields, but other fields are unknown,
+  // not absent. Access must report the missing model instead of inventing
+  // undefined values or assuming ordinary writable data properties.
+  unknownProperties?: string;
+};
 
 export function ValueIdentifier() {
   return {} as object;

@@ -10,6 +10,9 @@ the current implementation supports a limited subset of JavaScript.
 Behavior examples live in `test/*.spec.ts`, alongside their interpreted source,
 input setup, and assertions. Run a specific spec directly through the existing
 test command; do not add standalone demo files, runners, or per-example scripts.
+Use **Node v24.21.0**, the pinned CommonJS reference and CI release. If Jest runs
+on another release, set `PROPHET_NODE_BINARY` to a v24.21.0 executable for the
+compatibility oracle. A mismatch fails explicitly rather than skipping coverage.
 
 ```sh
 node .yarn/releases/yarn-3.1.1.cjs install --immutable
@@ -19,6 +22,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/lexical-environments.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-exceptions.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/arithmetic-bounds.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts test/commonjs-symbolic.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -45,10 +49,17 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/arithmetic-bounds.spec.
   `range(0, 10)`, scaling by 1000 may pass or throw, and adding 11 to that scaled
   value always throws. A separate normalization function proves a [0, 1] output
   for inputs bounded by its caller's branch.
+- [CommonJS source execution](test/commonjs-compat.spec.ts) compares exports,
+  module scope, wrapper parameters, returns, and throws against real `.cjs`
+  execution in pinned Node. [Symbolic module specs](test/commonjs-symbolic.spec.ts)
+  prove bounds through an exported closure and preserve initializer effects when
+  the module can throw. Source execution is implemented; file/package loading,
+  caching, and cycles remain future layers.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
 `src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
-for inspection; persistent environment records hold the actual binding state.
+for inspection; unmodeled implicit bindings are omitted from that projection.
+Persistent environment records hold the actual binding state and analysis gaps.
 Each interpreted `Math.random()` produces a fresh unknown number in [0, 1).
 
 ## Next practical target
@@ -73,6 +84,8 @@ unmodified, pinned published build of `tiny-invariant`:
    suite checked against a pinned Node runtime. Cover module execution, exports,
    caching, cycles, resolution, and failures in separate increments. Test262
    covers ECMAScript; Node's host APIs require their own compatibility tests.
+   The supplied-source execution and export layer is now covered; `require`
+   loading, cache/cycles, and resolution are the next increments.
 5. **Real dependency:** add the Error, string, environment, and remaining
    semantics required by the pinned library; execute its actual source in a
    spec. The first package proof must state its supported Node subset.
@@ -259,6 +272,56 @@ operands are not inferred; for example, treating two occurrences of a bounded
 input independently can leave `input - input === 0` unknown. These are precision
 limits rather than restrictions on concrete arithmetic execution.
 
+## CommonJS source execution
+
+`evaluateCommonJS(source, filename, context)` executes supplied source and returns
+`[exportsOrCompletion, context]`. Supply an already resolved, absolute filename;
+the API does not read files, resolve packages, or cache executions. Calling it
+twice creates two module instances, unlike repeated `require` calls in Node.
+
+The five named wrapper parameters are `exports`, `require`, `module`,
+`__filename`, and `__dirname`. The receiver and initial `exports` refer to the
+same object as `module.exports`. Reassigning `exports` or `module` changes a local
+parameter; normal completion reads exports from the original module object.
+Top-level return stops initialization but does not supply the export value.
+Throwing and symbolic completion paths preserve their state through ordinary
+VM continuations. Caller scope, receiver, and strictness are restored; exported
+closures retain their private bindings. The module sees modeled global-object
+properties, not the caller's lexical bindings.
+
+For example, this module can already be analyzed:
+
+```js
+const low = 20;
+const high = 80;
+module.exports = function(value) {
+  if (!(value >= low && value <= high)) throw "range";
+  return (value - low) / (high - low);
+};
+```
+
+Its spec proves that `Math.random() * 60 + 20` succeeds with a result in [0, 1],
+while 100 throws. Separate specs cover conditional exports, captured state,
+mixed normal/throwing initializers, and exactly-once effects per path.
+
+This first layer exposes a callable `require` binding but rejects loading calls.
+Only `module.exports` is modeled on the module object; other module/require
+fields report an unmodeled-host-property error instead of becoming `undefined`.
+The guard stays with the object across aliases, closures, and eval. Implicit
+`arguments` objects similarly have a persistent unsupported binding until their
+mapped/unmapped behavior is implemented. Explicit shadowing and replacement work;
+a join that might retain the implicit object conservatively rejects later reads.
+
+Direct eval in module scope and indirect eval of modeled global properties work.
+Sloppy eval that would introduce global var/function declarations is explicitly
+unsupported in a module's host environment until object-backed global bindings
+are modeled. Strict eval declarations remain local. These are temporary coverage
+gaps, not restrictions on JavaScript or Node.
+
+See [the compatibility suite](test/commonjs/README.md) for the pinned Node source
+revision, independent oracle setup, and upstream-test blockers. Its local specs
+do not establish complete Node loader compatibility or upstream Node conformance.
+
 ## Validation and current limits
 
 ```sh
@@ -267,12 +330,14 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **129 strict/sloppy variants of 65 complete,
+The active Test262 baseline runs **143 strict/sloppy variants of 72 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
 eval environments, expression evaluation order, catch/finally precedence,
-arithmetic primitives, and unary signs. Further arithmetic boundary cases need
+arithmetic primitives, unary signs, and parameter/lexical-declaration early
+errors. Parse-negative cases do not imply runtime support for their syntax.
+Further arithmetic boundary cases need
 the missing `Number` constants and global `isNaN`; the harness does not supply
 host substitutes for those runtime gaps.
 Historical unsupported selections remain explicitly skipped. This is

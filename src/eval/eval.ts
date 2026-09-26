@@ -40,6 +40,9 @@ export function evaluateEval(args: Any[], caller: TExecutionContext, direct: boo
     while (variableEnvironment.kind !== "function" && variableEnvironment.kind !== "global") {
       variableEnvironment = variableEnvironment.parent!;
     }
+    if (variableEnvironment.unmodeledGlobalDeclarations && variableNames(statements).size) {
+      throw new Error(variableEnvironment.unmodeledGlobalDeclarations);
+    }
     // Sloppy eval may add vars to its caller, but cannot cross a lexical
     // declaration between its call site and that variable environment.
     for (const name of Array.from(variableNames(statements))) {
