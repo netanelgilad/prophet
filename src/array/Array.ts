@@ -2,12 +2,14 @@ import { reverse } from "./reverse";
 import { join } from "./join";
 import { slice } from "./slice";
 import { ESNumber, TESNumber } from "../types";
+import { SymbolicArrayShape } from "./symbolic";
 
 // Shape describes the sequence, not whether its elements are known values.
 export type ArrayShape =
   | { kind: "elements" }
   | { kind: "segments" }
-  | { kind: "unknown" };
+  | { kind: "unknown" }
+  | SymbolicArrayShape;
 
 export type TArray<T> = {
   value?: Array<T> | Array<TArray<T>>;
@@ -57,10 +59,9 @@ function calculateLength(
   }
   if (summary.exact) return ESNumber(summary.minimum);
   const length = ESNumber();
-  // Array lengths are integers too; the current fact vocabulary does not yet
-  // express integrality. Keep the supported bounds in the shared fact language.
   length.knowledge = [
     { kind: "finite", subject: length },
+    { kind: "integer", subject: length },
     { kind: "order", left: ESNumber(summary.minimum), right: length, strict: false },
     { kind: "order", left: length, right: ESNumber(0xffffffff), strict: false }
   ];
@@ -71,6 +72,9 @@ function summarizeLength(
   value: Array<any> | undefined,
   shape: ArrayShape
 ): { minimum: number; exact: boolean } {
+  if (shape.kind === "symbolic") {
+    return { minimum: shape.minimumLength, exact: shape.minimumLength === shape.maximumLength };
+  }
   if (shape.kind === "unknown" || value === undefined) {
     return { minimum: 0, exact: false };
   }

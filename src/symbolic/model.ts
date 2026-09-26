@@ -28,12 +28,28 @@ export type OrderFact = {
   strict: boolean;
 };
 
+// Regions refer to an immutable collection snapshot. Their half-open offsets
+// let facts about a collection also apply to reads from one of its subregions.
+export type CollectionRegion = {
+  id: object;
+  start: number;
+  end?: number;
+};
+
 // All entries in Knowledge hold simultaneously. A vocabulary of small facts,
 // rather than a variant for every possible combination of known properties.
 export type Fact =
   | OrderFact
   | { kind: "truth"; condition: TESBoolean; truth: boolean }
-  | { kind: "finite" | "notNaN"; subject: TESNumber };
+  | { kind: "finite" | "notNaN" | "integer"; subject: TESNumber }
+  | { kind: "member"; collection: CollectionRegion; element: TESNumber }
+  | {
+      kind: "every-element-order";
+      collection: CollectionRegion;
+      bound: TESNumber;
+      // lower: bound <= every element; upper: every element <= bound.
+      direction: "lower" | "upper";
+    };
 
 export type Knowledge = ReadonlyArray<Fact>;
 

@@ -10,6 +10,7 @@
     "test:min": "jest --runInBand test/min.spec.ts",
     "example:min": "node scripts/run-example.cjs examples/recursive-min.js x",
     "example:routing": "node scripts/run-example.cjs examples/symbolic-routing.js consistent valid impossible uncertain",
+    "example:unknown-length": "node scripts/run-example.cjs --symbolic-random-array d examples/unknown-length.js x aboveMaximum strict length min max",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
