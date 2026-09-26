@@ -23,6 +23,18 @@ valid proofs and results that must remain unknown; use independent concrete
 checks when useful. Implement reusable operations and inference rules, never
 recognition of a sample function's name or source.
 
+Host APIs need their own compatibility specs. CommonJS/`require` and Node APIs
+are outside Test262: follow a pinned Node release's behavior, use suitable
+complete upstream cases, and compare local fixture specs with that Node runtime.
+Keep host coverage and language coverage distinct, and record unsupported cases.
+See [the proof roadmap](docs/roadmap.md) for the module-loader acceptance criteria
+and the goal of modeling side-effecting functions through a simple Express server.
+External effects must preserve path conditions, ordering, state changes, return
+values, and failures. Validate models against independent concrete behavior;
+do not execute real external writes during symbolic exploration or silently
+treat unknown effects as pure. Direct handler tests are a stepping stone, not
+evidence that Express itself has been analyzed.
+
 Treat narrowed input domains, unsupported-analysis errors, and skipped tests as
 explicit implementation gaps. Do not silently narrow an input to make a proof
 pass. When expanding a supported case, replace its rejection spec with assertions

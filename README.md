@@ -69,15 +69,26 @@ unmodified, pinned published build of `tiny-invariant`:
 3. **Computed inputs:** retain numeric bounds through arithmetic so validators
    can analyze transformed inputs. Covered by the arithmetic specs, including
    rounding, overflow, signed zero, and cases that must remain unknown.
-4. **Real dependency:** add the module, Error, callback, and other semantics
-   required by the pinned library; execute its actual source in a spec. This is
-   the next practical target.
-5. **Replayable counterexamples:** generate a concrete violating input, then
+4. **CommonJS compatibility:** model `require` and module state with a dedicated
+   suite checked against a pinned Node runtime. Cover module execution, exports,
+   caching, cycles, resolution, and failures in separate increments. Test262
+   covers ECMAScript; Node's host APIs require their own compatibility tests.
+5. **Real dependency:** add the Error, string, environment, and remaining
+   semantics required by the pinned library; execute its actual source in a
+   spec. The first package proof must state its supported Node subset.
+6. **Replayable counterexamples:** generate a concrete violating input, then
    independently replay it against that same source. Sample testing alone must
    never establish a universal proof.
+7. **External effects and servers:** model side-effecting functions, including
+   ordered responses, logs, writes, failures, and eventually async callbacks.
+   Progress from an effectful handler to a pinned Express server and its real
+   dependencies. Prove that rejected requests never write, successful requests
+   write once and respond once, and failure paths preserve the modeled effects.
 
 Each step belongs in the PR stack with focused specs and relevant Test262 cases.
 Full JavaScript conformance and broader symbolic domains remain parallel goals.
+The [detailed roadmap](docs/roadmap.md) records CommonJS compatibility criteria,
+external-effect modeling requirements, and the first Express proof targets.
 
 ## Spec-first development
 
