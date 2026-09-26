@@ -4978,6 +4978,7 @@ __metadata:
     source-map-support: ^0.5.10
     test262: "https://github.com/tc39/test262"
     test262-harness: ^5.0.0
+    test262-parser: 2.2.0
     ts-node: ^8.0.3
     ts-toolbelt: ^4.13.5
     typescript: ^3.3.3333
@@ -5960,7 +5961,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"test262-parser@npm:^2.0.7":
+"test262-parser@npm:2.2.0, test262-parser@npm:^2.0.7":
   version: 2.2.0
   resolution: "test262-parser@npm:2.2.0"
   dependencies:

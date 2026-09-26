@@ -1,36 +1,40 @@
 name: Validations
 
-on: [push]
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+env:
+  CI: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js 13.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 13.x
-    - name: Run tests
-      run: |
-        yarn --frozen-lockfile
-        yarn test
-      env:
-        CI: true   
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Use Node.js 24 LTS
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.x
+          package-manager-cache: false
+      - name: Install pinned dependencies
+        run: node .yarn/releases/yarn-3.1.1.cjs install --immutable
+      - name: Run tests
+        run: node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 
   type-check:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js 13.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 13.x
-    - name: Run typecheck
-      run: |
-        yarn --frozen-lockfile
-        yarn tsc --noEmit
-      env:
-        CI: true   
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Use Node.js 24 LTS
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.x
+          package-manager-cache: false
+      - name: Install pinned dependencies
+        run: node .yarn/releases/yarn-3.1.1.cjs install --immutable
+      - name: Run typecheck
+        run: node .yarn/releases/yarn-3.1.1.cjs typecheck
