@@ -5,7 +5,7 @@
 | Shared concrete/symbolic VM | `revive-symbolic-min` | `master` | [#23](https://github.com/netanelgilad/prophet/pull/23) |
 | Test262 baseline and CI | `stack/test262-baseline` | `revive-symbolic-min` | [#24](https://github.com/netanelgilad/prophet/pull/24) |
 | Unknown-length recursion | `stack/unknown-length-recursion` | `stack/test262-baseline` | [#25](https://github.com/netanelgilad/prophet/pull/25) |
-| Spec-first development workflow | `stack/spec-first-workflow` | `stack/unknown-length-recursion` | To be published |
+| Spec-first development workflow | `stack/spec-first-workflow` | `stack/unknown-length-recursion` | [#26](https://github.com/netanelgilad/prophet/pull/26) |
 
 Current development tip: `stack/spec-first-workflow`.
 
