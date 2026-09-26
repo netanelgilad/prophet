@@ -1,22 +1,17 @@
-import { isArray, Any } from "../types";
-import { TArray, Array } from "./Array";
+import { tuple } from "@deaven/tuple";
+import { Any } from "../types";
+import { TArray } from "./Array";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
+import { getArrayElements, writeArrayElements } from "../execution-context/Heap";
 
 export function* reverse(
   self: TArray<any>,
   _args: Array<Any>,
   execContext: TExecutionContext
 ) {
-  return [
-    Array(
-      (self.value as Array<TArray<any>>).reverse().map(part => {
-        if (isArray(part) && part.value) {
-          return Array(part.value.reverse(), part.concrete);
-        }
-        return part;
-      }),
-      self.concrete
-    ),
-    execContext
-  ];
+  const elements = getArrayElements(self, execContext);
+  if (elements === undefined) {
+    throw new Error("Array.reverse requires an array with known element positions");
+  }
+  return tuple(self, writeArrayElements(self, elements.slice().reverse(), execContext));
 }

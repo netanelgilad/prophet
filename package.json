@@ -6,7 +6,11 @@
   "author": "Netanel Gilad <netanelgilad@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:min": "jest --runInBand test/min.spec.ts",
+    "example:min": "node scripts/run-example.cjs examples/recursive-min.js x",
+    "example:routing": "node scripts/run-example.cjs examples/symbolic-routing.js consistent valid impossible uncertain",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@deaven/bottomdash": "^1.0.0",

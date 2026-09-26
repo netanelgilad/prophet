@@ -13,6 +13,7 @@ import { isESObject } from "../Object";
 import { ESFunction, isESFunction } from "../Function/Function";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { unimplemented } from "@deaven/unimplemented";
+import { assume, choiceOf, Knowledge, resolveBoolean, selectValue } from "../symbolic";
 
 export function ESBoolean(value?: boolean): TESBoolean {
   return {
@@ -23,17 +24,28 @@ export function ESBoolean(value?: boolean): TESBoolean {
   };
 }
 
-export function coerceToBoolean(val: Any): TESBoolean {
+export function coerceToBoolean(val: Any, knowledge: Knowledge = []): TESBoolean {
   if (isESBoolean(val)) {
-    return val;
+    const resolved = resolveBoolean(val, knowledge);
+    return resolved === undefined ? val : ESBoolean(resolved);
+  }
+
+  const choice = choiceOf(val);
+  if (choice) {
+    const resolved = resolveBoolean(choice.condition, knowledge);
+    if (resolved !== undefined) {
+      return coerceToBoolean(resolved ? choice.consequent : choice.alternate,
+        assume(knowledge, choice.condition, resolved));
+    }
+    return selectValue(choice.condition,
+      coerceToBoolean(choice.consequent, assume(knowledge, choice.condition, true)),
+      coerceToBoolean(choice.alternate, assume(knowledge, choice.condition, false)), knowledge) as TESBoolean;
   }
 
   if (isESNumber(val)) {
     return typeof val.value === "number"
-      ? val.value === 0
-        ? ESBoolean(false)
-        : ESBoolean(true)
-      : ESBoolean();
+      ? ESBoolean(Boolean(val.value))
+      : { ...ESBoolean(), expression: { kind: "truthy", operand: val } };
   }
 
   if (isESNull(val) || isUndefined(val)) {
@@ -45,12 +57,14 @@ export function coerceToBoolean(val: Any): TESBoolean {
       ? val.value === ""
         ? ESBoolean(false)
         : ESBoolean(true)
-      : unimplemented();
+      : { ...ESBoolean(), expression: { kind: "truthy", operand: val } };
   }
 
   if (isESObject(val)) {
     return ESBoolean(true);
   }
+
+  if ((val as { type?: string }).type === "array") return ESBoolean(true);
 
   if (isESFunction(val)) {
     return ESBoolean(true);
@@ -64,7 +78,7 @@ export const ESBooleanConstructor = ESFunction(function*(
   args: Any[],
   execContext
 ) {
-  return [coerceToBoolean(args[0] || Undefined), execContext] as [
+  return [coerceToBoolean(args[0] || Undefined, execContext.value.knowledge), execContext] as [
     Any,
     TExecutionContext
   ];

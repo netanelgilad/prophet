@@ -2,7 +2,9 @@ import {
   isThrownValue,
   EvaluationResult,
   isReturnValue,
-  ExpressionEvaluationResult
+  ExpressionEvaluationResult,
+  Undefined,
+  Any
 } from "./types";
 import { ASTResolvers } from "./ASTResolvers";
 import assert from "assert";
@@ -13,6 +15,8 @@ import {
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { parseECMACompliant } from "./parseECMACompliant";
 import { ESTree, parseScript } from "cherow";
+import { isForkedCompletion } from "./execution-context/Completion";
+import { mergeBranchResults, BranchResult } from "./execution-context/branches";
 
 export class ASTEvaluationError extends Error {
   constructor(err: Error, public ast: ESTree.Node) {
@@ -88,10 +92,40 @@ export function evaluateThrowableIterator<
   while (
     !isThrownValue(currentEvaluationResult.value[0]) &&
     !isReturnValue(currentEvaluationResult.value[0]) &&
+    !isForkedCompletion(currentEvaluationResult.value[0]) &&
     !currentEvaluationResult.done
   ) {
     currentEvaluationResult = itr.next(currentEvaluationResult.value);
   }
 
   return currentEvaluationResult.value;
+}
+
+export function evaluateStatements(
+  statements: ESTree.Statement[], context: TExecutionContext
+): BranchResult {
+  const resume = (result: BranchResult, next: number): BranchResult => {
+    const value = result[0];
+    if (isForkedCompletion(value)) {
+      return mergeBranchResults(value.condition, value.base,
+        resume(value.consequent, next), resume(value.alternate, next));
+    }
+    if (isReturnValue(value) || isThrownValue(value)) return result;
+    if (next === statements.length) return [Undefined, result[1]];
+    return resume(evaluate(statements[next], result[1]), next + 1);
+  };
+  return resume([Undefined, context], 0);
+}
+
+export function mapCompletions(
+  result: BranchResult,
+  transform: (value: Any, context: TExecutionContext) => BranchResult
+): BranchResult {
+  const value = result[0];
+  if (isForkedCompletion(value)) {
+    return mergeBranchResults(value.condition, value.base,
+      mapCompletions(value.consequent, transform),
+      mapCompletions(value.alternate, transform));
+  }
+  return transform(value, result[1]);
 }

@@ -1,59 +1,88 @@
 import { reverse } from "./reverse";
 import { join } from "./join";
-import { Number, TESNumber, GreaterThanEquals } from "../types";
-import { unsafeCast } from "@deaven/unsafe-cast.macro";
+import { slice } from "./slice";
+import { ESNumber, TESNumber } from "../types";
+
+// Shape describes the sequence, not whether its elements are known values.
+export type ArrayShape =
+  | { kind: "elements" }
+  | { kind: "segments" }
+  | { kind: "unknown" };
 
 export type TArray<T> = {
   value?: Array<T> | Array<TArray<T>>;
-  concrete?: boolean;
+  shape: ArrayShape;
 };
 
 export function Array<T>(
   value?: Array<T> | Array<TArray<T>>,
-  concrete?: boolean
+  shapeKind?: "elements" | "segments"
 ) {
+  const shape: ArrayShape = {
+    kind: value === undefined ? "unknown" : shapeKind || "elements"
+  };
+  const elements: { [index: number]: T | TArray<T> } = {};
+  if (shape.kind === "elements" && value) {
+    value.forEach((element: T | TArray<T>, index: number) => {
+      elements[index] = element;
+    });
+  }
+
   return {
     type: "array",
-    properties: {
+    properties: Object.assign(elements, {
       reverse: {
         implementation: reverse
       },
       join: {
         implementation: join
       },
-      length: calculateLength(value, concrete)
-    },
+      slice: {
+        implementation: slice
+      },
+      length: calculateLength(value, shape)
+    }),
     value,
-    concrete
+    shape
   };
 }
 
 function calculateLength(
-  value?: string | Array<TArray<any>>,
-  concrete?: boolean
-): typeof Number | TESNumber | GreaterThanEquals {
-  if (!value) {
-    return Number;
+  value: Array<any> | undefined,
+  shape: ArrayShape
+): TESNumber {
+  const summary = summarizeLength(value, shape);
+  if (summary.minimum > 0xffffffff) {
+    throw new RangeError("Invalid array length");
   }
-  if (concrete) {
-    return { number: value.length };
+  if (summary.exact) return ESNumber(summary.minimum);
+  const length = ESNumber();
+  // Array lengths are integers too; the current fact vocabulary does not yet
+  // express integrality. Keep the supported bounds in the shared fact language.
+  length.knowledge = [
+    { kind: "finite", subject: length },
+    { kind: "order", left: ESNumber(summary.minimum), right: length, strict: false },
+    { kind: "order", left: length, right: ESNumber(0xffffffff), strict: false }
+  ];
+  return length;
+}
+
+function summarizeLength(
+  value: Array<any> | undefined,
+  shape: ArrayShape
+): { minimum: number; exact: boolean } {
+  if (shape.kind === "unknown" || value === undefined) {
+    return { minimum: 0, exact: false };
   }
-  return unsafeCast<Array<TArray<any>>>(value).reduce(
-    (result, part) => {
-      if (!result) {
-        return calculateLength(part.value, part.concrete);
-      } else {
-        const currentPartLength = calculateLength(part.value, part.concrete);
-        if (currentPartLength === Number) {
-          return {
-            gte: unsafeCast<TESNumber>(result).value
-          };
-        }
-        return {
-          gte: unsafeCast<TESNumber>(currentPartLength).value
-        };
-      }
-    },
-    (undefined as any) as typeof Number | TESNumber | GreaterThanEquals
-  );
+  if (shape.kind === "elements") {
+    return { minimum: value.length, exact: true };
+  }
+  let minimumLength = 0;
+  let exact = true;
+  for (const part of value as Array<TArray<any>>) {
+    const summary = summarizeLength(part.value, part.shape);
+    minimumLength += summary.minimum;
+    exact = exact && summary.exact;
+  }
+  return { minimum: minimumLength, exact };
 }

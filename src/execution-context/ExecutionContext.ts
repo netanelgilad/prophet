@@ -1,5 +1,7 @@
 import { Any } from "../types";
 import { TESObject } from "../Object";
+import { Knowledge } from "../symbolic";
+import { Heap } from "./Heap";
 
 export type TExecutionContext = {
   value: {
@@ -9,13 +11,16 @@ export type TExecutionContext = {
     };
     global: TESObject;
     stderr: string;
+    uncaught?: Any;
+    knowledge?: Knowledge;
+    heap?: Heap;
   };
 };
 
-export function ExecutionContext(value: any) {
+export function ExecutionContext(value: any): TExecutionContext & { type: "ExecutionContext" } {
   return {
     type: "ExecutionContext",
-    value
+    value: { stderr: "", ...value }
   };
 }
 
@@ -45,7 +50,7 @@ export function setVariablesInScope(
 ) {
   let result = execContext;
   for (const [name, type] of Object.entries(variables)) {
-    execContext = setVariableInScope(result, name, type);
+    result = setVariableInScope(result, name, type);
   }
 
   return result;

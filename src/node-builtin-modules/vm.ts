@@ -3,14 +3,15 @@ import {
   ExecutionContext
 } from "../execution-context/ExecutionContext";
 import { Any, ThrownValue } from "../types";
-import produce from "immer";
 import { evaluateCode } from "../evaluate";
 import { TESString, ESString } from "../string/String";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { ESInitialGlobal } from "../execution-context/ESInitialGlobal";
-import { TESObject, ESObject, createNewObjectFromConstructor } from "../Object";
+import { TESObject, ESObject } from "../Object";
+import { createNewObjectFromConstructor } from "../Function/construct";
 import { tuple } from "@deaven/tuple";
 import { SyntaxErrorConstructor } from "../error/SyntaxError";
+import { getProperties } from "../execution-context/Heap";
 
 export const vm = {
   properties: {
@@ -34,14 +35,13 @@ export const vm = {
           args: Array<Any>,
           execContext: TExecutionContext
         ) {
-          const evalExecContext = ExecutionContext(
-            produce(execContext.value, draft => {
-              draft.global = ESObject({
-                ...ESInitialGlobal.properties,
-                ...unsafeCast<TESObject>(args[1]).properties
-              });
+          const evalExecContext = ExecutionContext({
+            ...execContext.value,
+            global: ESObject({
+              ...ESInitialGlobal.properties,
+              ...getProperties(unsafeCast<TESObject>(args[1]), execContext)
             })
-          );
+          });
           try {
             return evaluateCode(
               unsafeCast<string>(unsafeCast<TESString>(args[0]).value),

@@ -5,13 +5,14 @@ import {
   FunctionImplementation,
   FunctionBinding,
   isReturnValue,
-  EvaluationResult
+  isThrownValue
 } from "../types";
 import {
   TExecutionContext,
+  ExecutionContext,
   setVariableInScope
 } from "../execution-context/ExecutionContext";
-import { evaluate } from "../evaluate";
+import { evaluateStatements, mapCompletions } from "../evaluate";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { ESObject } from "../Object";
 import { tuple } from "@deaven/tuple";
@@ -52,8 +53,44 @@ export const FunctionConstructor = ESFunction(function*(
 
 export function createFunction(
   statements: ESTree.Statement[],
-  params: Array<ESTree.Pattern>
+  params: Array<ESTree.Pattern>,
+  preserveScope = false
 ) {
+  // Each invocation owns its parameters and declarations, even when a recursive
+  // call uses the same names. Nested functions own their own declarations.
+  const localNames = new Set(
+    params.map(param => unsafeCast<ESTree.Identifier>(param).name)
+  );
+  const collectDeclarations = (node: any): void => {
+    if (!node || typeof node !== "object") {
+      return;
+    }
+    if (node.type === "FunctionDeclaration") {
+      if (node.id) {
+        localNames.add(node.id.name);
+      }
+      return;
+    }
+    if (
+      node.type === "FunctionExpression" ||
+      node.type === "ArrowFunctionExpression"
+    ) {
+      return;
+    }
+    if (node.type === "VariableDeclarator" && node.id.type === "Identifier") {
+      localNames.add(node.id.name);
+    }
+    for (const key of Object.keys(node)) {
+      const child = node[key];
+      if (Array.isArray(child)) {
+        child.forEach(collectDeclarations);
+      } else {
+        collectDeclarations(child);
+      }
+    }
+  };
+  statements.forEach(collectDeclarations);
+
   return {
     type: "function",
     properties: {
@@ -65,37 +102,46 @@ export function createFunction(
         args: Array<Any>,
         execContext: TExecutionContext
       ) {
-        const atferParametersInScopeExecContext = params.reduce(
+        const callerScope = execContext.value.scope;
+        const restoreCallerScope = (context: TExecutionContext) => {
+          if (preserveScope) {
+            return context;
+          }
+          const scope = { ...context.value.scope };
+          for (const name of localNames) {
+            if (Object.prototype.hasOwnProperty.call(callerScope, name)) {
+              scope[name] = callerScope[name];
+            } else {
+              delete scope[name];
+            }
+          }
+          return ExecutionContext({ ...context.value, scope });
+        };
+
+        let activationContext = execContext;
+        if (!preserveScope) {
+          const scope = { ...callerScope };
+          for (const name of localNames) {
+            scope[name] = Undefined;
+          }
+          activationContext = ExecutionContext({ ...execContext.value, scope });
+        }
+        const afterParametersInScopeExecContext = params.reduce(
           (prevContext, parameter, index) =>
             setVariableInScope(
               prevContext,
               unsafeCast<ESTree.Identifier>(parameter).name,
-              args[index]
+              args[index] === undefined ? Undefined : args[index]
             ),
-          execContext
+          activationContext
         );
 
-        let currentEvaluationResult = tuple(
-          Undefined,
-          atferParametersInScopeExecContext
-        ) as [EvaluationResult, TExecutionContext];
-
-        for (const statement of statements) {
-          currentEvaluationResult = evaluate(
-            statement,
-            currentEvaluationResult[1]
-          );
-          if (isReturnValue(currentEvaluationResult[0])) {
-            return tuple(
-              currentEvaluationResult[0].value,
-              currentEvaluationResult[1]
-            );
-          } else {
-            yield currentEvaluationResult;
-          }
-        }
-
-        return tuple(Undefined, currentEvaluationResult[1]);
+        const result = evaluateStatements(statements, afterParametersInScopeExecContext);
+        return mapCompletions(result, (completion, context) => tuple(
+          isReturnValue(completion) ? completion.value :
+            isThrownValue(completion) ? completion : Undefined,
+          restoreCallerScope(context)
+        ));
       }
     }
   };

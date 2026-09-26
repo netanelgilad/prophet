@@ -16,11 +16,12 @@ export const split: FunctionImplementation<
             (part.value as string)
               .split(args[0].value as string)
               .map(string => ESString(string)),
-            true
+            "elements"
           );
         }
         return Array();
-      })
+      }),
+      "segments"
     ),
     execContext
   );

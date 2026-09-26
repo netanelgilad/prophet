@@ -1,9 +1,8 @@
 import { isObject, keys } from "lodash";
 import { TESString } from "./string/String";
 import { TExecutionContext } from "./execution-context/ExecutionContext";
-import { TESObject } from "./Object";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
-import { Object } from "ts-toolbelt";
+import { Expression, Knowledge } from "./symbolic/model";
 
 export const NotANumber = {};
 export const Number = {};
@@ -60,7 +59,7 @@ export type TGreaterThan<T extends Any> = Type<"GreaterThan"> & {
   gt: T;
 };
 
-export function GreaterThan<T>(type: T): TGreaterThan<T> {
+export function GreaterThan<T extends Any>(type: T): TGreaterThan<T> {
   return {
     type: "GreaterThan",
     gt: type
@@ -106,14 +105,7 @@ export type WithProperties<
   KnownProperties extends {
     [name: string]: Any;
   } = {}
-> = {
-  properties: Object.MergeUp<
-    {
-      [name: string]: Any;
-    },
-    KnownProperties
-  >;
-};
+> = { properties: { [name: string]: Any } & KnownProperties };
 
 export function ValueIdentifier() {
   return {} as object;
@@ -128,6 +120,8 @@ export type TValueIdentifier = ReturnType<typeof ValueIdentifier>;
 export type WithValue<T> = {
   id?: TValueIdentifier;
   value?: T;
+  expression?: Expression;
+  knowledge?: Knowledge;
 };
 
 export type TReturnValue = {
@@ -164,24 +158,17 @@ export function isThrownValue(arg: any): arg is TThrownValue {
 
 export type TESBoolean = Type<"boolean"> &
   WithProperties &
-  WithValue<boolean> & {};
+  WithValue<boolean>;
 
 export function isESBoolean(arg: Any): arg is TESBoolean {
   return unsafeCast<Type<string>>(arg).type === "boolean";
 }
 
-export type Any =
-  | Type<string>
-  | typeof NotANumber
-  | TESString
-  | typeof Number
-  | TESUndefined
-  | GreaterThanEquals
-  | Function
-  | TESObject
-  | FunctionBinding
-  | TESBoolean
-  | TThrownValue;
+// Every interpreter value is an object, including undefined and primitive
+// values. The former union contained the {}-typed Number sentinel, effectively
+// admitting all objects already, while recursively expanding every value kind.
+// Individual operations narrow this opaque boundary using their type guards.
+export type Any = object;
 
 export type ExpressionEvaluationResult = TThrownValue | Any;
 export type ControlFlowResult = TThrownValue | TReturnValue;

@@ -1,41 +1,62 @@
-import { Any, isArray } from "../types";
-import { isUndefined } from "lodash";
+import { tuple } from "@deaven/tuple";
+import { Any } from "../types";
 import { TArray } from "./Array";
-import { TESString, ESString } from "../string/String";
+import { ESString } from "../string/String";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
+import { getArrayElements } from "../execution-context/Heap";
 
 export function* join(
   self: TArray<any>,
-  args: [TESString, ...Array<Any>],
+  args: Any[],
   execContext: TExecutionContext
 ) {
-  const reduceArray = (arg: TArray<any>): TESString => {
-    if (!arg.value) {
-      return ESString();
+  const separator = args[0] === undefined || (args[0] as any).type === "undefined"
+    ? ","
+    : primitiveText(args[0]);
+  return tuple(ESString(joinText(self, separator, execContext, new Set())), execContext);
+}
+
+function joinText(
+  array: TArray<any>,
+  separator: string | undefined,
+  context: TExecutionContext,
+  active: Set<object>
+): string | undefined {
+  // Like JavaScript's join, a cyclic nested array contributes an empty string.
+  if (active.has(array)) return "";
+  const elements = getArrayElements(array, context);
+  if (elements === undefined) return undefined;
+  active.add(array);
+  const parts: string[] = [];
+  let unknown = separator === undefined;
+  for (let index = 0; index < elements.length; index++) {
+    const element = elements[index] as any;
+    let text: string | undefined;
+    if (element === undefined || element.type === "undefined" || element.type === "null") {
+      text = "";
+    } else if (element.type === "array") {
+      text = joinText(element, ",", context, active);
+    } else {
+      text = primitiveText(element);
     }
-    return (arg.value as Array<TArray<any>>).reduce((result, part) => {
-      let stringOfCurrentPart;
-      if (isArray(part)) {
-        stringOfCurrentPart = reduceArray(part);
-      } else {
-        stringOfCurrentPart = part;
-      }
+    if (text === undefined) unknown = true;
+    parts.push(text === undefined ? "" : text);
+  }
+  active.delete(array);
+  return unknown ? undefined : parts.join(separator);
+}
 
-      let stringToConcatTo = result;
-      if (
-        !isUndefined(stringToConcatTo.value) &&
-        !isUndefined(stringOfCurrentPart.value)
-      ) {
-        stringToConcatTo.value =
-          (stringToConcatTo.value as string) +
-          args[0].value +
-          stringOfCurrentPart.value;
-        return result;
-      } else {
-        return ESString([result, stringOfCurrentPart as TESString]);
-      }
-    }, ESString(""));
-  };
-
-  return [reduceArray(self), execContext];
+function primitiveText(value: Any): string | undefined {
+  const primitive = value as { type?: string; value?: unknown };
+  switch (primitive.type) {
+    case "undefined": return "undefined";
+    case "null": return "null";
+    case "number":
+    case "boolean":
+      return primitive.value === undefined ? undefined : String(primitive.value);
+    case "string":
+      return typeof primitive.value === "string" ? primitive.value : undefined;
+    default:
+      throw new Error("Array.join does not support object-to-primitive conversion");
+  }
 }
