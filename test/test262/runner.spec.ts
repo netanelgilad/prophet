@@ -53,6 +53,12 @@ describe("Test262 runner cannot silently pass failures", () => {
     expect(() => run("throw undefined;")).toThrow();
   });
 
+  test("a top-level throw on only some symbolic paths cannot count as a pass", () => {
+    expect(() => run(`
+      if (Math.random() < 0.5) throw "one path failed";
+    `)).toThrow("Unresolved symbolic completion in Test262 test");
+  });
+
   test("an evaluation failure cannot satisfy a parse-negative expectation", () => {
     const metadata = "/*---\nnegative:\n  phase: parse\n  type: SyntaxError\n---*/\n";
     runTest262Variant(parseTest262(metadata + "if (true) const x = 1;"), "sloppy");

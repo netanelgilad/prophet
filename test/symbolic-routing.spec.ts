@@ -73,6 +73,8 @@ test("conditional calls and impossible alternatives retain lazy evaluation", () 
 
 test("concrete throw is still an abrupt completion", () => {
   const [result, context] = evaluateCode(`throw "failure";`, nodeInitialExecutionContext);
-  expect(isThrownValue(result)).toBe(false);
+  expect(isThrownValue(result)).toBe(true);
+  expect(result).toMatchObject({ value: { value: "failure" } });
+  expect(context.value.uncaught).toMatchObject({ value: "failure" });
   expect(context.value.stderr).toBe("failure");
 });

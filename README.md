@@ -17,6 +17,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/min.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-routing.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/lexical-environments.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-exceptions.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -33,6 +34,11 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/lexical-environments.sp
   stays unknown, accepted values satisfy the captured bounds, and disjoint
   ranges cannot both accept. The same specs check shared mutable captures,
   escaping block/catch bindings, and closures selected on symbolic paths.
+- [Throwing validators](test/symbolic-exceptions.spec.ts) carries successful and
+  throwing calls through expressions, callers, catch, and finally. It proves
+  accepted bounds for a captured range validator over an arbitrary finite input,
+  checks effects happen exactly once on each path, and keeps the bound unknown
+  when the input may be NaN.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
 `src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
@@ -52,9 +58,11 @@ unmodified, pinned published build of `tiny-invariant`:
 1. **Captured configuration:** closures retain independent bounds, share intended
    mutations, and preserve branch correlations. Covered by the lexical specs.
 2. **Return or throw:** propagate calls that return on some symbolic paths and
-   throw on others through callers, catch, and finally. This is the next layer.
+   throw on others through callers, catch, and finally. Covered by the symbolic
+   exception specs, including constructors and calls nested inside expressions.
 3. **Real dependency:** add the module, Error, callback, and other semantics
-   required by the pinned library; execute its actual source in a spec.
+   required by the pinned library; execute its actual source in a spec. This is
+   the next practical target.
 4. **Replayable counterexamples:** generate a concrete violating input, then
    independently replay it against that same source. Sample testing alone must
    never establish a universal proof.
@@ -145,6 +153,43 @@ imply their bounds without assuming a meaning for the validator's name or body.
 [Compound-guard specs](test/compound-guards.spec.ts) also protect cases that must
 remain unknown, including NaN and facts belonging to only one alternative.
 
+## Calls that can return or throw
+
+The VM can analyze this ordinary factory and the function it returns:
+
+```js
+function range(low, high) {
+  return function(value) {
+    if (value < low || value > high) throw "range";
+    return value;
+  };
+}
+```
+
+For `range(0, 10)` and an arbitrary finite numeric input, Prophet proves that a
+normal result equals the input and lies in [0, 10]. Inputs outside that range
+reach the catch path. A surrounding finally block runs once on either path.
+Which path is taken remains unknown until the input is constrained. With NaN
+allowed, that bound is correctly left unknown: JavaScript's comparisons let NaN
+pass this particular validator.
+
+Expression resolvers compose evaluations through `bindNormal`: continue the
+surrounding expression on normal leaves, and propagate thrown or returned
+completions. `mapCompletions` handles cleanup on every leaf. This preserves a
+member call's receiver, an assignment's destination, earlier argument values,
+and writes made before the throw. Earlier operations are never replayed to
+reconstruct a branch. Argument and initializer state stays separate per path.
+
+`evaluateCode` returns `[completion, context]`. Normal program completion is
+`Undefined`; an unconditional throw is now a `ThrownValue`, with the existing
+`context.value.uncaught` and `stderr` diagnostics retained. Mixed outcomes return
+a `ForkedCompletion` containing the guard and two `[completion, context]`
+branches. Each leaf keeps its path facts, final bindings/heap, and diagnostics.
+The second tuple item is a merged state for inspection, not a claim that every
+path succeeded. Use `isThrownValue` and `isForkedCompletion` from `src/index.ts`
+to inspect the first item; an empty merged stderr does not rule out a thrown
+branch. Test262's runner explicitly rejects unresolved forked completions.
+
 Arrays describe their structure explicitly (`elements`, `segments`, `symbolic`,
 or `unknown`), without a `concrete` flag. A known list can contain unknown numbers;
 its length and positions remain available. Knowing an array's shape is separate
@@ -164,11 +209,11 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **74 strict/sloppy variants of 37 complete,
+The active Test262 baseline runs **95 strict/sloppy variants of 48 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
-errors, plus lexical scopes, closures, shadowing, declaration hoisting, and
-selected eval environments.
+errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
+eval environments, expression evaluation order, and catch/finally precedence.
 Historical unsupported selections remain explicitly skipped. This is
 limited coverage, not a claim of Test262 conformance. The
 [runner documentation](test/test262/README.md) explains the supported assertion
@@ -192,8 +237,10 @@ implemented yet. Binding errors carry readable name/message properties, but
 full Error constructors and prototype behavior remain future work.
 Array indexing uses concrete keys.
 Symbolic dense arrays retain stable element identities and guarded reads; writes
-to these snapshots are currently rejected. Object-to-primitive coercions and
-symbolic calls that throw on only some paths are rejected when unsupported.
+to these snapshots are currently rejected. Object-to-primitive coercions are
+rejected when unsupported. Native generator implementations may return symbolic
+completion trees; a native continuation that yields a fork must be expressed
+with `bindNormal` rather than resumed as a single host generator.
 The interpreter does not yet implement all syntax, built-ins,
 property semantics, or language errors.
 

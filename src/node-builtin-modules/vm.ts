@@ -3,7 +3,7 @@ import {
   ExecutionContext
 } from "../execution-context/ExecutionContext";
 import { Any, ThrownValue } from "../types";
-import { evaluateCode } from "../evaluate";
+import { evaluateCode, bindNormal } from "../evaluate";
 import { TESString, ESString } from "../string/String";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { ESInitialGlobal } from "../execution-context/ESInitialGlobal";
@@ -49,15 +49,11 @@ export const vm = {
             );
           } catch (err) {
             if (err instanceof SyntaxError) {
-              const [
-                syntaxError,
-                afterErrorExecContext
-              ] = yield* createNewObjectFromConstructor(
+              return bindNormal(createNewObjectFromConstructor(
                 SyntaxErrorConstructor,
                 [ESString(err.stack)],
                 evalExecContext
-              );
-              return tuple(ThrownValue(syntaxError), afterErrorExecContext);
+              ), (syntaxError, afterErrorExecContext) => tuple(ThrownValue(syntaxError), afterErrorExecContext));
             }
             throw err;
           }

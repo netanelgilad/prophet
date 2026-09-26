@@ -1,17 +1,16 @@
 import {
-  Any, TESNumber, ExpressionEvaluationResult, isUndefined, isESNull,
+  Any, TESNumber, isUndefined, isESNull,
   isESNumber, ESNumber, isESBoolean, isESString, Type, Undefined
 } from "./types";
 import { ESString, TESString } from "./string/String";
 import { ESBoolean, coerceToBoolean } from "./boolean/ESBoolean";
 import { TExecutionContext } from "./execution-context/ExecutionContext";
-import { _ } from "@deaven/bottomdash";
-import { evaluate } from "./evaluate";
+import { evaluate, bindNormal } from "./evaluate";
 import { tuple } from "@deaven/tuple";
 import { ESTree } from "cherow";
 import { compareNumbers } from "./number/symbolic";
 import { Knowledge, choiceOf, assume, selectValue, strictEquality, negate, resolveBoolean } from "./symbolic";
-import { evaluateBranches } from "./execution-context/branches";
+import { evaluateBranches, BranchResult } from "./execution-context/branches";
 
 export type BinaryOperatorResolver = (
   left: Any, right: Any, context?: TExecutionContext
@@ -21,11 +20,7 @@ export type UnaryOperatorResolver = (
 ) => [Any, TExecutionContext];
 export type LogicalOperatorResolver = (
   left: ESTree.Expression, right: ESTree.Expression, context: TExecutionContext
-) => Generator<
-  [ExpressionEvaluationResult, TExecutionContext],
-  [ExpressionEvaluationResult, TExecutionContext],
-  [ExpressionEvaluationResult, TExecutionContext]
->;
+) => BranchResult;
 
 type Primitive = number | string | boolean | null | undefined;
 type Concrete = { known: true; value: Primitive } | { known: false };
@@ -157,17 +152,15 @@ export const notEqual: BinaryOperatorResolver = (left, right, context) =>
   negate(equal(left, right, context) as ReturnType<typeof ESBoolean>,
     context && context.value.knowledge || []);
 
-export const logicalAnd = _<LogicalOperatorResolver>(function*(left, right, context) {
-  const [value, afterLeft] = yield evaluate(left, context);
-  return evaluateBranches(coerceToBoolean(value, afterLeft.value.knowledge), afterLeft,
-    branch => evaluate(right, branch), branch => tuple(value, branch));
-});
+export const logicalAnd: LogicalOperatorResolver = (left, right, context) =>
+  bindNormal(evaluate(left, context), (value, afterLeft) =>
+    evaluateBranches(coerceToBoolean(value, afterLeft.value.knowledge), afterLeft,
+      branch => evaluate(right, branch), branch => tuple(value, branch)));
 
-export const logicalOr = _<LogicalOperatorResolver>(function*(left, right, context) {
-  const [value, afterLeft] = yield evaluate(left, context);
-  return evaluateBranches(coerceToBoolean(value, afterLeft.value.knowledge), afterLeft,
-    branch => tuple(value, branch), branch => evaluate(right, branch));
-});
+export const logicalOr: LogicalOperatorResolver = (left, right, context) =>
+  bindNormal(evaluate(left, context), (value, afterLeft) =>
+    evaluateBranches(coerceToBoolean(value, afterLeft.value.knowledge), afterLeft,
+      branch => tuple(value, branch), branch => evaluate(right, branch)));
 
 export const not: UnaryOperatorResolver = (arg, context) =>
   tuple(negate(coerceToBoolean(arg, context.value.knowledge), context.value.knowledge), context);

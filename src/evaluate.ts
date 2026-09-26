@@ -49,10 +49,8 @@ export function evaluate<T extends ESTree.Node>(
     }
     const resolver = ASTResolvers.get(ast.type);
     assert(resolver, `Can't resolve type of ast type ${ast.type}`);
-    const resultIter = resolver!(ast, execContext || ExecutionContext({}));
-
     return unsafeCast<NodeEvaluationResult<T>>(
-      evaluateThrowableIterator(resultIter)
+      resolver!(ast, execContext || ExecutionContext({}))
     );
   } catch (err) {
     if (
@@ -93,6 +91,15 @@ export function evaluateThrowableIterator<
   >
 >(itr: T) {
   let currentEvaluationResult = itr.next();
+  // Native implementations may return a completion tree. A suspended host
+  // generator cannot be cloned to resume two paths; such implementations must
+  // compose child evaluations with bindNormal instead of yielding a fork.
+  const assertResumable = () => {
+    if (!currentEvaluationResult.done && isForkedCompletion(currentEvaluationResult.value[0])) {
+      throw new Error("Native generator continuations must use bindNormal for symbolic completions");
+    }
+  };
+  assertResumable();
   while (
     !isThrownValue(currentEvaluationResult.value[0]) &&
     !isReturnValue(currentEvaluationResult.value[0]) &&
@@ -100,6 +107,7 @@ export function evaluateThrowableIterator<
     !currentEvaluationResult.done
   ) {
     currentEvaluationResult = itr.next(currentEvaluationResult.value);
+    assertResumable();
   }
 
   return currentEvaluationResult.value;
@@ -132,4 +140,16 @@ export function mapCompletions(
       mapCompletions(value.alternate, transform));
   }
   return transform(value, result[1]);
+}
+
+// Compose the next evaluation step only onto normal leaves. Its captured
+// inputs must be immutable: the same continuation can run on several paths.
+// Cleanup (scope/this restoration, finally) uses mapCompletions instead, since
+// it must also visit returns and throws.
+export function bindNormal(
+  result: BranchResult,
+  continuation: (value: Any, context: TExecutionContext) => BranchResult
+): BranchResult {
+  return mapCompletions(result, (value, context) =>
+    isReturnValue(value) || isThrownValue(value) ? [value, context] : continuation(value, context));
 }

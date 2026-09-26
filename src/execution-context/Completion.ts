@@ -3,8 +3,9 @@ import { TExecutionContext } from "./ExecutionContext";
 
 export type CompletionBranch = [Any, TExecutionContext];
 
-// A return on one path must not stop evaluation of the other path. Statement
-// sequences carry both completions until their remaining statements run.
+// A return or throw on one path must not stop the other path. Expressions and
+// statement sequences carry their continuations onto normal leaves only;
+// catch/finally and function boundaries transform all relevant leaves.
 export type ForkedCompletion = {
   type: "ForkedCompletion";
   condition: TESBoolean;

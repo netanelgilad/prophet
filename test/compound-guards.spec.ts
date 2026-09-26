@@ -67,6 +67,42 @@ test("false compound comparisons preserve possible NaN instead of inventing rang
   expect((scope.unsafe as TESBoolean).value).toBeUndefined();
 });
 
+test("recomputed boolean choices share facts only when their guard and both alternatives match", () => {
+  // The numeric inputs may be NaN; the two Boolean guards are independent.
+  const initial = setVariablesInScope(nodeInitialExecutionContext, {
+    guard: ESBoolean(), other: ESBoolean(), x: ESNumber(), y: ESNumber(), z: ESNumber()
+  });
+  const [, context] = evaluateCode(`
+    const original = guard ? x < 0 : y > 0;
+    const copy = guard ? x < 0 : y > 0;
+    const repeated = original ? copy : !copy;
+    const changedThen = guard ? z < 0 : y > 0;
+    const changedElse = guard ? x < 0 : z > 0;
+    const swapped = guard ? y > 0 : x < 0;
+    const changedGuard = other ? x < 0 : y > 0;
+    const thenProof = original ? changedThen : !changedThen;
+    const elseProof = original ? changedElse : !changedElse;
+    const swappedProof = original ? swapped : !swapped;
+    const guardProof = original ? changedGuard : !changedGuard;
+    const nested = guard ? (other ? x < 0 : y > 0) : z <= 0;
+    const nestedCopy = guard ? (other ? x < 0 : y > 0) : z <= 0;
+    const nestedProof = nested ? nestedCopy : !nestedCopy;
+    const literal = guard ? true : x < 0;
+    const literalCopy = guard ? true : x < 0;
+    const literalProof = literal ? literalCopy : !literalCopy;
+    const oppositeLiteral = guard ? false : x < 0;
+    const oppositeProof = literal ? oppositeLiteral : !oppositeLiteral;
+  `, initial);
+  const scope = context.value.scope;
+  expect(context.value.uncaught).toBeUndefined();
+  for (const name of ["repeated", "nestedProof", "literalProof"]) {
+    expect(scope[name]).toMatchObject({ value: true });
+  }
+  for (const name of ["thenProof", "elseProof", "swappedProof", "guardProof", "oppositeProof"]) {
+    expect((scope[name] as TESBoolean).value).toBeUndefined();
+  }
+});
+
 test("concrete compound-guard claims agree with independent JavaScript edge cases", () => {
   // Both symbolic inputs permit all numbers, including NaN and infinities.
   const initial = setVariablesInScope(nodeInitialExecutionContext, {
