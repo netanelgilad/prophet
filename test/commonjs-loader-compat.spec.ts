@@ -336,8 +336,8 @@ describe("explicit source-graph loader boundaries", () => {
     });
   });
 
-  test("only exact relative or absolute .cjs requests are supported", () => {
-    for (const request of ["fs", "node:fs", "package", "./value", "./value.js", "./value.json", "./folder/"]) {
+  test("package and builtin requests remain explicit analysis gaps", () => {
+    for (const request of ["fs", "node:fs", "package"]) {
       withModuleGraphFixture({
         "entry.cjs": `module.exports = require(${JSON.stringify(request)});`,
         "value.cjs": "module.exports = 1;",

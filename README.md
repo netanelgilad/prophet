@@ -24,6 +24,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-exceptions.spe
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/arithmetic-bounds.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts test/commonjs-symbolic.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.spec.ts test/commonjs-loader-symbolic.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-compat.spec.ts test/commonjs-package-config.spec.ts test/commonjs-resolution-symbolic.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -60,6 +61,11 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.
   identity, cycles, and failed-load retry. [Symbolic loader specs](test/commonjs-loader-symbolic.spec.ts)
   keep cache state and effects associated with each execution path and prove
   bounds through a function that loads a validator with `require`.
+- [Local module resolution](test/commonjs-resolution-compat.spec.ts) checks file
+  and directory selection, package `main`/`type`, and cached JSON modules against
+  Node. [Configuration proofs](test/commonjs-resolution-symbolic.spec.ts) load a
+  normalizer through a directory entry and prove its bounds using JSON limits,
+  while preserving conditional configuration choices and mutations.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
 `src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
@@ -89,8 +95,9 @@ unmodified, pinned published build of `tiny-invariant`:
    suite checked against a pinned Node runtime. Cover module execution, exports,
    caching, cycles, resolution, and failures in separate increments. Test262
    covers ECMAScript; Node's host APIs require their own compatibility tests.
-   Supplied-source execution and exact `.cjs` loading with cache/cycles are now
-   covered. Broader resolution and the host APIs needed by the package come next.
+   Supplied-source execution, caching/cycles, local file/directory resolution,
+   and JSON are covered. Package-name lookup, conditional exports, and the host
+   APIs needed by the package come next.
 5. **Real dependency:** add the Error, string, environment, and remaining
    semantics required by the pinned library; execute its actual source in a
    spec. The first package proof must state its supported Node subset.
@@ -310,11 +317,13 @@ while 100 throws. Separate specs cover conditional exports, captured state,
 mixed normal/throwing initializers, and exactly-once effects per path.
 
 `createCommonJSLoader(files).load(filename, context)` adds cached loading from an
-immutable map of absolute `.cjs` filenames to source strings. It returns the same
+immutable map of absolute filenames to source strings. It returns the same
 `[exportsOrCompletion, context]` shape. The supplied files represent a complete
-snapshot with no symlinks, package metadata, or other file types. No host files
-are read. Relative and absolute exact `.cjs` requests work; package lookup,
-extension searching, JSON, directories, and built-ins remain explicit gaps.
+snapshot without symlinks or external search paths. No host files are read.
+Relative and absolute requests try an exact file, then `.js`, `.json`, `.node`,
+then a directory's `package.json` main or index files. Selecting a native addon
+stops analysis; it never falls through to another candidate. `.cjs` works when
+explicitly named, but Node does not infer that extension.
 The entry is loaded as a required file, not as Node's process entry point.
 
 The loader can analyze a consumer of the validator above:
@@ -335,12 +344,28 @@ earlier context resumes that earlier cache state. Finite choices of request name
 are explored with their branch conditions; an unrestricted symbolic name stops
 analysis explicitly.
 
+JSON modules become ordinary VM values and share the same cache and mutable
+heap as source modules. The [configuration spec](test/commonjs-resolution-symbolic.spec.ts)
+loads `./normalize` through its directory main and reads `{ "low": 20, "high": 80 }`
+from `limits.json`. It proves the normalized result for `Math.random() * 60 + 20`
+lies in [0, 1], rejects 100, and leaves acceptance of `Math.random() * 100` unknown.
+Changing a required JSON object changes later reads of that object; changing
+loaded `package.json` data does not rewrite the resolver's source snapshot.
+
+`.js` files respect the nearest package `type`. Without an explicit type,
+successful CommonJS wrapper parsing permits execution; a parse failure reports
+the missing ESM syntax-detection support. ESM, package-name lookup, conditional
+exports, built-ins, and extra file formats remain gaps. Package metadata supports
+valid JSON with unique, unescaped top-level keys; native-parser edge cases are
+explicitly rejected rather than assuming Node uses ordinary `JSON.parse` there.
+
 The loader exposes `module.exports`, `id`, `filename`, `path`, and `loaded`.
 Writes to metadata other than `exports`, other module fields, and extra require
-APIs stop analysis until their behavior is modeled. Loader-generated argument
-and missing-module errors expose `name` and `code`; other fields, including
+APIs stop analysis until their behavior is modeled. Loader-generated errors
+expose `name` and `code`; other fields, including
 `message`, `stack`, and `requireStack`, are explicit gaps. Cycle diagnostics and
-Node's temporary warning prototypes are not modeled. The standalone
+Node's temporary warning prototypes, as well as deprecated-main fallback
+warnings, are not modeled. The standalone
 `evaluateCommonJS` still models only `module.exports` and rejects require calls.
 These guards stay with the objects across aliases, closures, and eval. Implicit
 `arguments` objects similarly have a persistent unsupported binding until their

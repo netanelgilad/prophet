@@ -56,7 +56,7 @@ export function evaluateCommonJS(
 // same record can enter the cache before any source executes (including cycles).
 export function executeCommonJS(
   source: string, filename: string, caller: TExecutionContext,
-  module: WithProperties, require: FunctionBinding
+  module: WithProperties, require: FunctionBinding, detectModuleSyntax = false
 ): BranchResult {
   if (!isAbsolute(filename)) throw new Error("CommonJS execution requires an absolute filename");
   let wrapper: ESTree.FunctionExpression;
@@ -64,6 +64,9 @@ export function executeCommonJS(
     wrapper = parseWrapper(source);
   } catch (error) {
     if (error.name !== "SyntaxError") throw error;
+    if (detectModuleSyntax) {
+      throw new Error("CommonJS syntax detection after wrapper parsing fails is not yet supported");
+    }
     return [bindingError("SyntaxError", error.message), caller];
   }
   const exported = getProperties(module, caller).exports;

@@ -7,7 +7,7 @@ with their environment, not just functions that return values.
 
 The shared VM already handles selected symbolic branches, mutable objects,
 closures, return/throw paths, recursive summaries, numeric bounds, and CommonJS
-supplied-source execution and cached loading of supplied `.cjs` files. Broader
+supplied-source execution, cached local module resolution, and JSON modules. Broader
 host compatibility and server analysis remain future work. Each increment
 belongs in the PR stack and starts with specs.
 
@@ -64,21 +64,26 @@ package proof.
 
 Current progress: `evaluateCommonJS` executes supplied source with private scope,
 named wrapper parameters, receiver/export semantics, and normal/throwing paths.
-`createCommonJSLoader` now loads an immutable supplied graph through exact
-relative/absolute `.cjs` requests. Its cache is part of each execution context,
+`createCommonJSLoader` loads an immutable supplied graph through local relative
+and absolute requests, with extension probes, directory main/index selection,
+package type scopes, and JSON modules. Its cache is part of each execution context,
 so cycles, retries, retained effects, and conditional loads use ordinary VM
 branch state. It supports finite choices of request names and rejects open
 symbolic names. The [local compatibility suite](../test/commonjs/README.md) runs
-against pinned Node v24.21.0. Package/extension/directory resolution, host disk
+against pinned Node v24.21.0. Package-name lookup, conditional exports, host disk
 access, further module metadata, implicit arguments, and global eval declarations
 remain explicit gaps; no complete upstream Node test is claimed as passing yet.
-Broader resolution and the Error/string/environment behavior needed by the
-pinned package are the next layers.
+The next resolution layer is package lookup and conditional exports, followed
+by the Error/string/environment behavior needed by the pinned package.
 
 ## First published dependency proof
 
-Interpret an unmodified, pinned published build of `tiny-invariant`, recording
-its provenance and integrity. Its Error, string, module, and environment behavior
+Interpret the unmodified published CommonJS build of `tiny-invariant` 1.3.3,
+recording its provenance and integrity when adding the fixture. Its
+[published metadata](https://registry.npmjs.org/tiny-invariant/1.3.3) uses nested
+conditional exports: a require selects the default branches leading to
+`dist/tiny-invariant.cjs.js`. Honoring only `main` would bypass the actual package
+resolution path. Its Error, `String.prototype.concat`, module, and `process.env` behavior
 must use shared VM implementations. Supply the modeled environment explicitly,
 including development and production settings.
 

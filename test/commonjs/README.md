@@ -10,6 +10,7 @@ Run the locally written differential specs with the pinned release:
 ```sh
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-compat.spec.ts test/commonjs-package-config.spec.ts
 ```
 
 When Jest itself runs under a different Node release, point `PROPHET_NODE_BINARY`
@@ -35,8 +36,8 @@ top-level return, throws/finally, and wrapper parse failures. The supplied
 filename is already resolved and absolute.
 `evaluateCommonJS` executes supplied source; it does not resolve or read files.
 
-The source-graph loader adds concrete relative and absolute requests for exact
-`.cjs` filenames from an immutable, explicitly supplied source map. It resolves
+The source-graph loader adds concrete relative and absolute requests from an
+immutable, explicitly supplied source map. It resolves
 relative requests from the module owning `require`, including escaped require
 closures. Its compatibility specs cover cache identity, shared exports and
 later replacement, primitive/undefined exports, partial exports in cycles,
@@ -46,15 +47,47 @@ errors, missing supplied files, and `module.loaded` during and after evaluation.
 The original standalone `evaluateCommonJS` remains uncached and does not load
 dependencies.
 
-The source map is a complete virtual snapshot containing only `.cjs` files,
-without symlinks or package metadata. The entry is loaded as a required file,
+The source map is a complete virtual snapshot without symlinks or external
+search paths. The entry is loaded as a required file,
 so its `module.id` is its filename rather than a process entry's `"."`.
 Cycle coverage concerns partial exports and state; Node's circular-require
 warning diagnostics and temporary warning prototypes are not modeled.
 
+Local resolution uses the pinned Node order: exact file, `.js`/`.json`/`.node`
+probes, then directory `main` and index candidates. Directory intent survives
+normalization (`/`, `/.`, `/..`, `.`, `..`). `.cjs` is never an inferred extension.
+Main-directory indexes do not recursively consult another package main; a
+missing main can fall back to the original directory index. A selected file's
+failure never causes fallback. Native addon loading is an explicit gap, and
+the DEP0128 warning from main fallback is not modeled.
+
+`.cjs` and `.json` have explicit formats. `.js` uses the nearest package scope,
+stopping before `node_modules` and the filesystem root as the pinned reader
+does. An explicit commonjs scope retains ordinary SyntaxError behavior. Without
+an explicit type, a valid CommonJS wrapper runs; wrapper parsing failures stop
+analysis because Node may reinterpret the source as ESM. Module scopes, `.mjs`,
+and other unsupported formats stop analysis. Extensionless files use the same
+ambiguous-source handling.
+
+JSON files are parsed as data, including a single leading BOM, then converted
+to fresh VM objects, arrays, and primitives. They share normal cache identity,
+conditional state, and heap mutations. Invalid JSON throws a fresh interpreted
+SyntaxError on each load. Own `__proto__` data properties survive symbolic joins.
+
+Package metadata is distinct from a JSON module's exported data. The pinned
+[native metadata reader](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/src/node_modules.cc)
+has behaviors that differ from `JSON.parse`. The current parser handles valid
+JSON objects with unique, unescaped top-level keys, ignores nonstring `main`,
+and rejects supported invalid shapes/name/type fields with
+`ERR_INVALID_PACKAGE_CONFIG`. Escaped/duplicate top-level keys, unclassified
+syntax failures, undecodable metadata strings, and NUL-containing paths
+remain analysis gaps. Changing the exported package.json object does not change
+resolution metadata in the immutable snapshot. Local directory requests ignore
+`exports`, as Node does; bare package requests are not yet supported.
+
 This is an explicitly supplied source-graph layer, not a filesystem loader.
-Disk reads, symlink/realpath behavior, extension fallback, directory/package
-lookup, built-ins, JSON, ESM, and native addons remain unsupported. A missing
+Disk reads, symlink/realpath behavior, package-name lookup and exports,
+built-ins, ESM, and native addons remain unsupported. A missing
 supported request throws an interpreted `MODULE_NOT_FOUND`; unsupported request
 forms stop analysis explicitly. Other module metadata and require interfaces
 (`module.require`, `children`, `parent`, `paths`, `require.resolve`, `cache`,
@@ -86,10 +119,15 @@ at the pinned revision include:
   upstream case.
 - [`test-module-cache.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-module-cache.js)
   and [`test-require-cache.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-cache.js):
-  require filesystem mutation, JSON, public cache mutation, `require.resolve`,
+  require filesystem mutation, public cache mutation, `require.resolve`,
   built-ins, and the upstream assertion harness beyond this source-graph layer.
 - [`test-module-circular-dependency-warning.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-module-circular-dependency-warning.js):
   requires warning observation, prototype behavior, symbols, classes, and proxies.
+- [`test-require-empty-main.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-empty-main.js)
+  needs `require.resolve`, timers, and the upstream harness.
+- [`test-require-extension-over-directory.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-extension-over-directory.js)
+  and [`test-require-json.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-json.js)
+  need upstream fixtures, assertion/path built-ins, and RegExp diagnostics.
 
 Activate suitable complete, unmodified upstream cases as their dependencies are
 implemented. Local differential coverage is not upstream conformance coverage
