@@ -34,7 +34,9 @@ import {
 import {
   TExecutionContext,
   setCurrentThisValue,
-  setVariableInScope,
+  enterEnvironment,
+  setEnvironment,
+  declareBinding,
   ExecutionContext
 } from "./execution-context/ExecutionContext";
 import { createFunction } from "./Function/Function";
@@ -54,6 +56,9 @@ import { getProperties, getArrayElements, writeArrayElements,
 import { isForkedCompletion } from "./execution-context/Completion";
 import { getSymbolicArrayShape, readSymbolicIndex } from "./array/symbolic";
 import { summarizeCall } from "./Function/summaries";
+import { assignBinding, bindingReference, readBinding, hasBinding, initializeBinding } from "./execution-context/bindings";
+import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
+import { evalFn, evaluateEval } from "./eval/eval";
 
 export type ASTResolver<TAST extends ESTree.Node, T extends Any> = (
   ast: TAST,
@@ -93,14 +98,7 @@ export const statementResolver = <TStatement extends ESTree.Statement>(
 export const IdentifierResolver: ASTResolver<
   ESTree.Identifier,
   Any
-> = noExecutionContextResolver((ast, execContext) => {
-  const resolvedFromScope = execContext.value.scope[ast.name];
-  return (
-    resolvedFromScope ||
-    getProperties(execContext.value.global, execContext)[ast.name] ||
-    Undefined
-  );
-});
+> = function*(ast, execContext) { return readBinding(execContext, ast.name); };
 
 export const LiteralResolver: ASTResolver<
   ESTree.Literal,
@@ -203,18 +201,19 @@ export const CallExpressionResolver: ASTResolver<
     currExecContext = newExecContext;
   }
 
-  return invoke(calleeType, argsTypes, currExecContext, receiver);
+  return invoke(calleeType, argsTypes, currExecContext, receiver,
+    ast.callee.type === "Identifier" && ast.callee.name === "eval");
 };
 
-function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?: Any): BranchResult {
+function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?: Any, directEval = false): BranchResult {
   const receiverChoice = receiver && choiceOf(receiver);
   if (receiverChoice) return evaluateBranches(receiverChoice.condition, context,
-    branch => invoke(callee, args, branch, receiverChoice.consequent),
-    branch => invoke(callee, args, branch, receiverChoice.alternate));
+    branch => invoke(callee, args, branch, receiverChoice.consequent, directEval),
+    branch => invoke(callee, args, branch, receiverChoice.alternate, directEval));
   const choice = choiceOf(callee);
   if (choice) return evaluateBranches(choice.condition, context,
-    branch => invoke(choice.consequent, args, branch, receiver),
-    branch => invoke(choice.alternate, args, branch, receiver));
+    branch => invoke(choice.consequent, args, branch, receiver, directEval),
+    branch => invoke(choice.alternate, args, branch, receiver, directEval));
   const binding = unsafeCast<FunctionBinding>(callee);
   assert(binding.function, "Value is not callable");
   if (context.value.interceptCall) {
@@ -225,8 +224,9 @@ function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?:
     if (summarized) return summarized;
   }
   const self = receiver || context.value.global;
-  const result = evaluateThrowableIterator(binding.function.implementation(
-    self, args, setCurrentThisValue(context, self)));
+  const result = callee === evalFn ? evaluateEval(args, context, directEval) :
+    evaluateThrowableIterator(binding.function.implementation(
+      self, args, setCurrentThisValue(context, self)));
   if (isForkedCompletion(result[0])) {
     throw new Error("A symbolic call that throws on only some paths is not yet supported");
   }
@@ -258,20 +258,13 @@ export const ProgramResolver: ASTResolver<ESTree.Program, Any> = function*(
   ast,
   execContext
 ) {
-  const programFunction = createFunction(
-    unsafeCast<ESTree.Statement[]>(ast.body),
-    [],
-    true
-  );
-  const programIter = programFunction.function.implementation(
-    execContext.value.global,
-    [],
-    setCurrentThisValue(ExecutionContext({
-      ...execContext.value, stderr: "", uncaught: undefined
-    }), execContext.value.global)
-  );
-
-  const currentEvaluationResult = evaluateThrowableIterator(programIter);
+  const statements = unsafeCast<ESTree.Statement[]>(ast.body);
+  const initial = setCurrentThisValue(ExecutionContext({
+    ...execContext.value, stderr: "", uncaught: undefined, strict: hasUseStrict(statements)
+  }), execContext.value.global);
+  const declarationError = globalDeclarationError(statements, initial);
+  const currentEvaluationResult: BranchResult = declarationError ? tuple(declarationError, initial) :
+    evaluateStatements(statements, instantiateDeclarations(statements, initial, true));
 
   if (isForkedCompletion(currentEvaluationResult[0])) {
     throw new Error("A program that throws on only some symbolic paths is not yet supported");
@@ -297,7 +290,9 @@ export const ProgramResolver: ASTResolver<ESTree.Program, Any> = function*(
 
 export const BlockStatementResolver = statementResolver<ESTree.BlockStatement>(
   function*(ast, execContext) {
-    return evaluateStatements(ast.body, execContext);
+    const local = instantiateDeclarations(ast.body, enterEnvironment(execContext, "block"), false);
+    return mapCompletions(evaluateStatements(ast.body, local), (value, context) =>
+      tuple(value, setEnvironment(context, execContext.value.environment)));
   }
 );
 
@@ -332,18 +327,13 @@ export const AssignmentExpressionResolver: ASTResolver<
     );
     return assignMember(objectType, propertyName, rightType, afterRightExecContext);
   } else {
+    const name = unsafeCast<ESTree.Identifier>(ast.left).name;
+    const reference = bindingReference(execContext, name);
     const [rightType, afterRightExecContext] = yield evaluate(
       ast.right,
       execContext
     );
-    return tuple(
-      rightType,
-      setVariableInScope(
-        afterRightExecContext,
-        unsafeCast<ESTree.Identifier>(ast.left).name,
-        rightType
-      )
-    );
+    return assignBinding(afterRightExecContext, name, rightType, reference);
   }
 };
 
@@ -464,18 +454,12 @@ export const FunctionExpressionResolver: ASTResolver<
   ESTree.FunctionExpression,
   FunctionBinding
 > = function*(ast, execContext) {
-  const functionType = createFunction(ast.body.body, ast.params);
-
-  return tuple(
-    functionType,
-    ast.id
-      ? setVariableInScope(
-          execContext,
-          unsafeCast<ESTree.Identifier>(ast.id).name,
-          functionType
-        )
-      : execContext
-  );
+  if (!ast.id) return tuple(createFunction(ast.body.body, ast.params, execContext), execContext);
+  const name = identifierName(ast.id);
+  let local = declareBinding(enterEnvironment(execContext, "named-function"), name, "name");
+  const fn = createFunction(ast.body.body, ast.params, local);
+  local = initializeBinding(local, name, fn);
+  return tuple(fn, setEnvironment(local, execContext.value.environment));
 };
 
 export const ExpressionStatementResolver = statementResolver<
@@ -490,19 +474,15 @@ export const VariableDeclarationResolver = statementResolver<
 >(function*(statement, execContext) {
   let currExecContext = execContext;
   for (const declaration of statement.declarations) {
+    const name = identifierName(declaration.id);
     if (declaration.init) {
       const initResult = yield evaluate(declaration.init, currExecContext);
-      currExecContext = setVariableInScope(
-        initResult[1],
-        unsafeCast<ESTree.Identifier>(declaration.id).name,
-        initResult[0]
-      );
-    } else {
-      currExecContext = setVariableInScope(
-        currExecContext,
-        unsafeCast<ESTree.Identifier>(declaration.id).name,
-        Undefined
-      );
+      if (statement.kind === "var") {
+        const assigned = yield assignBinding(initResult[1], name, initResult[0]);
+        currExecContext = assigned[1];
+      } else currExecContext = initializeBinding(initResult[1], name, initResult[0]);
+    } else if (statement.kind !== "var") {
+      currExecContext = initializeBinding(currExecContext, name, Undefined);
     }
   }
   return tuple(Undefined, currExecContext);
@@ -510,15 +490,9 @@ export const VariableDeclarationResolver = statementResolver<
 
 export const FunctionDeclarationResolver = statementResolver<
   ESTree.FunctionDeclaration
->(function*(statement, execContext) {
-  return tuple(
-    Undefined,
-    setVariableInScope(
-      execContext,
-      unsafeCast<ESTree.Identifier>(statement.id).name,
-      createFunction(statement.body.body, statement.params)
-    )
-  );
+>(function*(_statement, execContext) {
+  // Function declarations were initialized when their scope was entered.
+  return tuple(Undefined, execContext);
 });
 
 export const IfStatementResolver = statementResolver<ESTree.IfStatement>(
@@ -593,16 +567,10 @@ export const TryStatementResolver = statementResolver<ESTree.TryStatement>(
       assert(!handler.param || handler.param.type === "Identifier",
         "Destructured catch bindings are not yet supported");
       const name = handler.param && unsafeCast<ESTree.Identifier>(handler.param).name;
-      const before = context.value.scope;
-      const caught = evaluate(handler.body, name
-        ? setVariableInScope(context, name, value.value) : context);
-      return mapCompletions(caught, (result, after) => {
-        if (!name) return tuple(result, after);
-        const scope = { ...after.value.scope };
-        if (Object.prototype.hasOwnProperty.call(before, name)) scope[name] = before[name];
-        else delete scope[name];
-        return tuple(result, ExecutionContext({ ...after.value, scope }));
-      });
+      let local = enterEnvironment(context, "block");
+      if (name) local = declareBinding(local, name, "catch", true, value.value);
+      return mapCompletions(evaluate(handler.body, local), (result, after) =>
+        tuple(result, setEnvironment(after, context.value.environment)));
     });
     if (!statement.finalizer) return handled;
     return mapCompletions(handled, (prior, context) =>
@@ -643,13 +611,13 @@ export const UpdateExpressionResolver: ASTResolver<
       (expression.operator === "++" ? plus : minus)(argType, ESNumber(1), afterArgExecContext)
     );
 
-    const afterUpdateExecContext = setVariableInScope(
+    const updated = yield assignBinding(
       afterArgExecContext,
       expression.argument.name,
       argTypeAfterUpdate
     );
 
-    return tuple(expression.prefix ? argTypeAfterUpdate : argType, afterUpdateExecContext);
+    return tuple(expression.prefix ? argTypeAfterUpdate : argType, updated[1]);
   }
 
   return unimplemented();
@@ -659,6 +627,8 @@ export const UnaryExpressionResolver: ASTResolver<
   ESTree.UnaryExpression,
   Any
 > = function*(expression, execContext) {
+  if (expression.operator === "typeof" && expression.argument.type === "Identifier" &&
+      !hasBinding(execContext, expression.argument.name)) return tuple(ESString("undefined"), execContext);
   const [argType, afterArgExecContext] = yield evaluate(
     expression.argument,
     execContext

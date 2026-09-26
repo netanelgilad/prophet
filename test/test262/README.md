@@ -16,9 +16,17 @@ the parser with the declared `SyntaxError`; runtime failures cannot satisfy them
 The supported harness surface is native `assert`, `assert.sameValue`,
 `assert.notSameValue`, `assert._isSameValue`, `$ERROR`, and `$DONOTEVALUATE`.
 Primitive SameValue checks distinguish signed zero and handle NaN. An unknown
-value or object passed to these equality checks fails explicitly: it cannot
-accidentally count as a concrete pass. Assertion errors, VM failures, unhandled
-throws, and stderr fail the test.
+primitive or conditional reference passed to these equality checks fails
+explicitly: it cannot accidentally count as a concrete pass. Concrete object,
+array, and function references are checked by identity independently of
+Prophet's equality operator. Assertion errors, VM failures, unhandled throws,
+and stderr fail the test.
+
+The active selections include lexical block environments, closure capture,
+parameter and declaration shadowing, variable/function hoisting, and named
+function-expression scope, plus direct eval's lexical lookup and strict variable
+isolation. Each source file is run whole, including both
+strictness variants where its metadata calls for them.
 
 This runner deliberately rejects unsupported flags (including modules and
 async), additional harness includes, and non-parse negative metadata. Adding

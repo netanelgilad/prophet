@@ -2,9 +2,10 @@ import { Any, TESBoolean, Undefined, WithProperties, isArray,
   isReturnValue, isThrownValue, ReturnValue, ThrownValue } from "../types";
 import { TArray } from "../array/Array";
 import { assume, resolveBoolean, selectValue } from "../symbolic";
-import { ExecutionContext, TExecutionContext } from "./ExecutionContext";
+import { Binding, ExecutionContext, TExecutionContext } from "./ExecutionContext";
 import { getArrayElements, getProperties, HeapEntry } from "./Heap";
 import { isForkedCompletion } from "./Completion";
+import { ESBoolean } from "../boolean/ESBoolean";
 
 export function assumeInContext(
   context: TExecutionContext,
@@ -57,9 +58,50 @@ export function mergeContexts(
     }
     heap.set(value, entry);
   });
+  const environments = new Map(base.value.environments);
+  const records = new Set([
+    ...Array.from(consequent.value.environments.keys()),
+    ...Array.from(alternate.value.environments.keys())
+  ]);
+  records.forEach(environment => {
+    const yes = consequent.value.environments.get(environment);
+    const no = alternate.value.environments.get(environment);
+    // A closure created on just one path may escape in a conditional value.
+    // Its private environment remains available when that path is selected.
+    if (yes === no || !yes || !no) {
+      environments.set(environment, (yes || no)!);
+      return;
+    }
+    const merged = new Map<string, Binding>();
+    new Set([...Array.from(yes.keys()), ...Array.from(no.keys())]).forEach(name => {
+      const a = yes.get(name), b = no.get(name);
+      if (!a || !b) {
+        // Sloppy eval can add a var to an already existing record on only one
+        // path. Treating it as always present would hide an outer binding (or
+        // an unresolved name) on the other path. Conditional binding presence
+        // needs its own lookup model; never fabricate a universal binding.
+        throw new Error("Conditional creation of bindings in an existing environment is not yet supported");
+      }
+      if (a === b) merged.set(name, a);
+      else {
+        const initialized = a.initialized === b.initialized ? a.initialized : select(
+          typeof a.initialized === "boolean" ? ESBoolean(a.initialized) : a.initialized,
+          typeof b.initialized === "boolean" ? ESBoolean(b.initialized) : b.initialized
+        ) as TESBoolean;
+        merged.set(name, { ...a,
+          initialized: typeof initialized === "boolean" ? initialized :
+            initialized.value === undefined ? initialized : initialized.value,
+          value: a.value === b.value ? a.value : select(a.value, b.value)
+        });
+      }
+    });
+    environments.set(environment, merged);
+  });
   return ExecutionContext({
     ...base.value,
-    scope: mergeProperties(consequent.value.scope, alternate.value.scope),
+    environment: consequent.value.environment,
+    environments,
+    strict: consequent.value.strict,
     thisValue: select(consequent.value.thisValue, alternate.value.thisValue),
     heap,
     knowledge

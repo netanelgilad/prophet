@@ -30,7 +30,30 @@ const activeCorpus = [
   "language/expressions/logical-or/S11.11.2_A3_T4.js",
   "language/expressions/logical-or/S11.11.2_A4_T4.js",
   "language/statements/if/if-const-else-stmt.js",
-  "language/statements/if/if-const-no-else.js"
+  "language/statements/if/if-const-no-else.js",
+
+  // Lexical environments, captured bindings, and declaration instantiation.
+  "language/statements/block/scope-lex-open.js",
+  "language/statements/block/scope-lex-close.js",
+  "language/statements/block/scope-var-none.js",
+  "language/block-scope/shadowing/parameter-name-shadowing-parameter-name-let-const-and-var.js",
+  "language/block-scope/shadowing/hoisting-var-declarations-out-of-blocks.js",
+  "language/block-scope/shadowing/lookup-from-closure.js",
+  "language/block-scope/shadowing/lookup-in-and-through-block-contexts.js",
+  "language/block-scope/shadowing/let-declarations-shadowing-parameter-name-let-const-and-var.js",
+  "language/block-scope/shadowing/const-declarations-shadowing-parameter-name-let-const-and-var-variables.js",
+  "language/block-scope/leave/try-block-let-declaration-only-shadows-outer-parameter-value-1.js",
+  "language/block-scope/leave/try-block-let-declaration-only-shadows-outer-parameter-value-2.js",
+  "language/block-scope/return-from/block-let.js",
+  "language/block-scope/return-from/block-const.js",
+  "language/expressions/function/scope-name-var-close.js",
+  "language/statements/function/S13_A6_T1.js",
+  "language/statements/function/S13_A6_T2.js",
+  "language/statements/variable/S14_A1.js",
+
+  // Eval inherits lexical lookup and isolates strict declarations.
+  "language/eval-code/direct/lex-env-heritage.js",
+  "language/eval-code/direct/var-env-var-strict-source.js"
 ];
 
 describe("Test262 active corpus", () => {

@@ -72,9 +72,21 @@ export function concretePrimitive(value: Any): string | number | boolean | null 
 }
 
 function sameValue(left: Any, right: Any): boolean {
-  // The selected corpus uses primitive assertions only. Do not claim object
-  // identity support until this harness can distinguish conditional identities.
-  return Object.is(concretePrimitive(left), concretePrimitive(right));
+  return Object.is(sameValueOperand(left), sameValueOperand(right));
+}
+
+function sameValueOperand(value: Any): string | number | boolean | null | undefined | object {
+  const result = value as { type?: string; id?: object; expression?: { kind: string } };
+  if (
+    (result.type === "object" || result.type === "array" || result.type === "function") &&
+    (!result.expression || result.expression.kind !== "select")
+  ) {
+    // Concrete references have known identity even if their fields are unknown.
+    // Native function wrappers may share a stable ID rather than an object.
+    // Compare directly in the harness, not via Prophet's equality operator.
+    return result.id || value;
+  }
+  return concretePrimitive(value);
 }
 
 function callback(check: (args: Any[]) => Any) {

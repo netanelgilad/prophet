@@ -211,11 +211,55 @@ function hasOrder(left: TESNumber, right: TESNumber, strict: boolean, knowledge:
   return false;
 }
 
+function sameFact(left: Fact, right: Fact): boolean {
+  if (left === right) return true;
+  if (left.kind !== right.kind) return false;
+  if (left.kind === "truth" && right.kind === "truth") {
+    return left.truth === right.truth && sameCondition(left.condition, right.condition);
+  }
+  if (left.kind === "order" && right.kind === "order") {
+    return left.strict === right.strict && sameNumber(left.left, right.left) &&
+      sameNumber(left.right, right.right);
+  }
+  if ("subject" in left && "subject" in right) return sameNumber(left.subject, right.subject);
+  if ("collection" in left && "collection" in right) {
+    if (left.collection.id !== right.collection.id || left.collection.start !== right.collection.start ||
+        left.collection.end !== right.collection.end) return false;
+    if (left.kind === "member" && right.kind === "member") return sameNumber(left.element, right.element);
+    if (left.kind === "every-element-order" && right.kind === "every-element-order") {
+      return left.direction === right.direction && sameNumber(left.bound, right.bound);
+    }
+  }
+  return false;
+}
+
 export function assume(knowledge: Knowledge, condition: TESBoolean, truth: boolean): Knowledge {
   let facts: Knowledge = knowledge.concat({ kind: "truth", condition, truth });
   const expression = condition.expression;
   if (!expression) return facts;
   if (expression.kind === "not") return assume(facts, expression.operand, !truth);
+  if (expression.kind === "select" && isESBoolean(expression.consequent) && isESBoolean(expression.alternate)) {
+    const guard = resolveBoolean(expression.condition, facts);
+    const alternatives: Knowledge[] = [];
+    for (const selected of [true, false]) {
+      if (guard !== undefined && guard !== selected) continue;
+      const branch = selected ? expression.consequent : expression.alternate;
+      const branchFacts = assume(facts, expression.condition, selected);
+      // Test feasibility before assuming the requested result. Otherwise that
+      // new truth fact would conceal an already established contradiction.
+      const value = resolveBoolean(branch, branchFacts);
+      if (value !== undefined && value !== truth) continue;
+      alternatives.push(assume(branchFacts, branch, truth));
+    }
+    if (!alternatives.length) return facts;
+    // A compound condition can be satisfied along several paths. Only facts
+    // shared by every feasible alternative survive, including for && and ||.
+    const shared = alternatives[0].filter(fact =>
+      !facts.some(existing => sameFact(existing, fact)) &&
+      alternatives.every(branch => branch.some(existing => sameFact(existing, fact)))
+    );
+    return facts.concat(shared);
+  }
   if (expression.kind === "compare") {
     const reversed = expression.operator === ">" || expression.operator === ">=";
     const left = reversed ? expression.right : expression.left;

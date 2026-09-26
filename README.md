@@ -16,6 +16,7 @@ node .yarn/releases/yarn-3.1.1.cjs install --immutable
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/min.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-routing.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/lexical-environments.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -27,10 +28,39 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length.spec.ts
 - [Unknown-length recursion](test/unknown-length.spec.ts) checks inferred bounds
   for minimum and maximum, an unknown length, proof work counts, summary reuse,
   and cases that must not gain unsupported facts.
+- [Captured validators](test/lexical-environments.spec.ts) creates two range
+  validators with independent limits. For an arbitrary finite input, acceptance
+  stays unknown, accepted values satisfy the captured bounds, and disjoint
+  ranges cannot both accept. The same specs check shared mutable captures,
+  escaping block/catch bindings, and closures selected on symbolic paths.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
-`src/index.ts`. The returned context stores bindings in `context.value.scope`.
+`src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
+for inspection; persistent environment records hold the actual binding state.
 Each interpreted `Math.random()` produces a fresh unknown number in [0, 1).
+
+## Next practical target
+
+The North Star is to analyze an existing JavaScript function and its dependencies,
+prove a stated property across the supplied input domain, or produce a concrete
+counterexample that can be replayed in ordinary JavaScript. Unsupported behavior
+and unfinished proofs must stay explicit.
+
+The first path toward that target is a configurable validator, followed by an
+unmodified, pinned published build of `tiny-invariant`:
+
+1. **Captured configuration:** closures retain independent bounds, share intended
+   mutations, and preserve branch correlations. Covered by the lexical specs.
+2. **Return or throw:** propagate calls that return on some symbolic paths and
+   throw on others through callers, catch, and finally. This is the next layer.
+3. **Real dependency:** add the module, Error, callback, and other semantics
+   required by the pinned library; execute its actual source in a spec.
+4. **Replayable counterexamples:** generate a concrete violating input, then
+   independently replay it against that same source. Sample testing alone must
+   never establish a universal proof.
+
+Each step belongs in the PR stack with focused specs and relevant Test262 cases.
+Full JavaScript conformance and broader symbolic domains remain parallel goals.
 
 ## Spec-first development
 
@@ -99,6 +129,22 @@ observe the same merged properties. [Branch merging](src/execution-context/branc
 and [statement evaluation](src/evaluate.ts) preserve early returns so the
 remaining statements execute only on paths that continue.
 
+[Lexical environments](src/execution-context/ExecutionContext.ts) similarly
+separate scope identity from the current values of its bindings. A function
+captures its creation environment; a call allocates a fresh activation and reads
+captured values from the current path's store. Two closures can share one binding,
+while calls to the same factory have independent bindings. Restoring the caller
+keeps captured writes and escaping closures alive. Branch merging retains both
+value choices and conditional initialization state. `let`/`const` bindings exist
+before their declarations execute, with reads in that interval producing a
+catchable ReferenceError; writes to initialized constants produce a TypeError.
+
+Assuming a composed Boolean condition such as `a && b` examines its feasible
+alternatives and keeps facts shared by all of them. This lets accepted validators
+imply their bounds without assuming a meaning for the validator's name or body.
+[Compound-guard specs](test/compound-guards.spec.ts) also protect cases that must
+remain unknown, including NaN and facts belonging to only one alternative.
+
 Arrays describe their structure explicitly (`elements`, `segments`, `symbolic`,
 or `unknown`), without a `concrete` flag. A known list can contain unknown numbers;
 its length and positions remain available. Knowing an array's shape is separate
@@ -118,10 +164,12 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **36 strict/sloppy variants of 18 complete,
+The active Test262 baseline runs **74 strict/sloppy variants of 37 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
-errors. Historical unsupported selections remain explicitly skipped. This is
+errors, plus lexical scopes, closures, shadowing, declaration hoisting, and
+selected eval environments.
+Historical unsupported selections remain explicitly skipped. This is
 limited coverage, not a claim of Test262 conformance. The
 [runner documentation](test/test262/README.md) explains the supported assertion
 harness and metadata. Test262 source always runs through Prophet; separate local
@@ -131,8 +179,18 @@ The parser accepts JavaScript, so omit TypeScript annotations in interpreted
 source. The known-length minimum specs execute recursive calls. The
 unknown-length specs infer and verify reusable summaries as described below.
 
-Function environments still use the original flat scope representation, without
-full lexical closures or block scoping. Array indexing uses concrete keys.
+Functions support identifier parameters, lexical captures, and block/catch
+scopes. Eval also instantiates declarations, isolates lexical names and strict
+vars, and distinguishes direct caller lookup from indirect global lookup.
+Its general statement completion values remain incomplete; conditional creation
+of a var in an existing scope is explicitly rejected until binding presence can
+be represented on each path. Default/destructured parameters, `arguments`, arrow
+functions, complete global-object binding semantics, and sloppy block function
+compatibility rules (Annex B) remain incomplete. Environment records
+are retained in execution snapshots; reclamation of unreachable records is not
+implemented yet. Binding errors carry readable name/message properties, but
+full Error constructors and prototype behavior remain future work.
+Array indexing uses concrete keys.
 Symbolic dense arrays retain stable element identities and guarded reads; writes
 to these snapshots are currently rejected. Object-to-primitive coercions and
 symbolic calls that throw on only some paths are rejected when unsupported.
@@ -210,10 +268,12 @@ with one dense numeric-array argument. Elements must have a finite numeric
 contract. Supported reads are array length and literal indices; recursive
 slicing uses the trusted nonnegative-start, omitted-end `slice`. Empty inputs,
 possible NaN/infinity inputs, mutation, captured mutable dependencies, arbitrary
-calls, loops, and unmodeled property behavior are rejected. Top-level lexical
-locals are allowed, but block-scoped declarations, use before initialization,
-and writes to constants are rejected. Proof work has a budget and never turns
-an unfinished proof into a fact.
+calls, loops, and unmodeled property behavior are rejected. Lexical locals and
+block shadowing use ordinary VM evaluation; a path that reads before
+initialization or writes a constant cannot publish an all-path numeric summary.
+Captured references resolve through the function's creation environment and are
+revalidated before cache use. Proof work has a budget and never turns an
+unfinished proof into a fact.
 
 A cached summary belongs to its function identity and input element-template
 identity. Its universal facts refer to an immutable sequence snapshot, so they
