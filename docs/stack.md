@@ -11,8 +11,9 @@
 | Symbolic arithmetic bounds | `stack/symbolic-arithmetic-bounds` | `stack/symbolic-call-completions` | [#29](https://github.com/netanelgilad/prophet/pull/29) |
 | Host compatibility and effectful server roadmap | `stack/host-runtime-roadmap` | `stack/symbolic-arithmetic-bounds` | [#30](https://github.com/netanelgilad/prophet/pull/30) |
 | CommonJS source execution | `stack/commonjs-execution` | `stack/host-runtime-roadmap` | [#31](https://github.com/netanelgilad/prophet/pull/31) |
+| CommonJS loading, cache, cycles, and retries | `stack/commonjs-module-cache` | `stack/commonjs-execution` | [#32](https://github.com/netanelgilad/prophet/pull/32) |
 
-Current development tip: `stack/commonjs-execution`.
+Current development tip: `stack/commonjs-module-cache`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when
