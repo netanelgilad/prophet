@@ -11,7 +11,8 @@ describe("CommonJS package metadata", () => {
   test("reads supported fields without imposing requirements on ordinary package metadata", () => {
     expect(readPackageConfig('\uFEFF{"name":"example","main":"./entry.cjs","type":"commonjs",' +
       '"exports":{".":"./other.cjs"},"description":"braces } and escaped quote \\\"",' +
-      '"nested":{"same":1,"same":2}}')).toEqual({ main: "./entry.cjs", type: "commonjs" });
+      '"nested":{"same":1,"same":2}}')).toEqual({ name: "example", main: "./entry.cjs", type: "commonjs",
+        exports: { ".": "./other.cjs" } });
     expect(readPackageConfig('{"main":"","type":"module"}')).toEqual({ main: "", type: "module" });
     expect(readPackageConfig('{"main":false,"type":"future-format"}')).toEqual({});
     expect(readPackageConfig('{"__proto__":{"main":"bad.cjs"}}')).toEqual({});

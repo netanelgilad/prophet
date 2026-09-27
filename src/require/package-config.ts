@@ -1,6 +1,8 @@
 export type PackageConfig = {
+  name?: string;
   main?: string;
   type?: "commonjs" | "module";
+  exports?: unknown;
 };
 
 // The resolver translates only this classification into Node's interpreted
@@ -70,7 +72,7 @@ export function readPackageConfig(source: string): PackageConfig {
   }
   assertSupportedKeys(body);
   const fields = parsed as { [name: string]: unknown };
-  for (const key of ["name", "type", "main"]) {
+  for (const key of ["name", "type", "main", "exports"]) {
     const value = fields[key];
     if (typeof value === "string" && hasLoneSurrogate(value)) {
       throw new Error("CommonJS package metadata string decoding of lone surrogates is not yet supported");
@@ -82,7 +84,14 @@ export function readPackageConfig(source: string): PackageConfig {
     }
   }
   const result: PackageConfig = {};
+  if (typeof fields.name === "string") result.name = fields.name;
   if (typeof fields.main === "string") result.main = fields.main;
   if (fields.type === "commonjs" || fields.type === "module") result.type = fields.type;
+  if (typeof fields.exports === "string" || (fields.exports !== null && typeof fields.exports === "object")) {
+    if (typeof fields.exports === "string" && /^[\[{]/.test(fields.exports)) {
+      throw new Error("CommonJS package metadata JSON-shaped exports strings are not yet supported");
+    }
+    result.exports = fields.exports;
+  }
   return result;
 }

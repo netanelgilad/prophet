@@ -11,6 +11,7 @@ Run the locally written differential specs with the pinned release:
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-compat.spec.ts test/commonjs-package-config.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts
 ```
 
 When Jest itself runs under a different Node release, point `PROPHET_NODE_BINARY`
@@ -27,7 +28,9 @@ exported observations or throws, preserving undefined, NaN, infinities and signe
 zero. Error matching compares the error name and code when present, not stack
 traces or implementation-specific messages. Optional observation expressions
 call escaped exports in each runtime.
-Temporary fixture files are removed after each comparison.
+The oracle clears NODE_OPTIONS/NODE_PATH and disables global search paths to
+match the declared environment. Temporary fixture files are removed after each
+comparison.
 
 The current layer covers the initial `exports` alias, replacement and rebinding,
 primitive exports, the five named wrapper parameters and receiver, private
@@ -61,6 +64,25 @@ missing main can fall back to the original directory index. A selected file's
 failure never causes fallback. Native addon loading is an explicit gap, and
 the DEP0128 warning from main fallback is not modeled.
 
+Package names, scoped names, and legacy subpaths search ancestor `node_modules`
+directories from the module owning require. A broken explicit main stops lookup;
+a directory with no main/index permits farther lookup. Self-reference checks
+the nearest caller package before ordinary resolution, including relative and
+absolute requests. Builtin names take precedence and stop analysis until their
+APIs are modeled; unknown `node:` names throw `ERR_UNKNOWN_BUILTIN_MODULE`.
+The builtin catalog is pinned, including names requiring the `node:` prefix.
+
+Exports support main sugar, exact subpath maps, ordered and nested conditions,
+and arrays with Node's distinct no-match, blocked, and invalid-target behavior.
+Default conditions are `require`, `node`, `node-addons`, `module-sync`, and
+`default`, evaluated in declaration order. Selected targets must be exact files:
+missing files do not try another array item, a legacy main, or an ancestor copy.
+Blocked/private subpaths throw `ERR_PACKAGE_PATH_NOT_EXPORTED`. Target validation
+and URL conversion preserve encoded-path restrictions and Node error kinds.
+Pattern selection, custom conditions, `#imports`, malformed URI encodings, and
+NUL-containing targets remain explicit gaps. Exact matches can still resolve in
+a map that also contains patterns.
+
 `.cjs` and `.json` have explicit formats. `.js` uses the nearest package scope,
 stopping before `node_modules` and the filesystem root as the pinned reader
 does. An explicit commonjs scope retains ordinary SyntaxError behavior. Without
@@ -80,13 +102,22 @@ has behaviors that differ from `JSON.parse`. The current parser handles valid
 JSON objects with unique, unescaped top-level keys, ignores nonstring `main`,
 and rejects supported invalid shapes/name/type fields with
 `ERR_INVALID_PACKAGE_CONFIG`. Escaped/duplicate top-level keys, unclassified
-syntax failures, undecodable metadata strings, and NUL-containing paths
+syntax failures, undecodable metadata strings, JSON-shaped exports strings,
+and NUL-containing paths
 remain analysis gaps. Changing the exported package.json object does not change
 resolution metadata in the immutable snapshot. Local directory requests ignore
-`exports`, as Node does; bare package requests are not yet supported.
+`exports` when selecting that directory's main, as Node does. Native metadata
+ignores top-level null/boolean/number exports; null inside an exports map has
+the separate blocked-target meaning.
+
+The [published invariant spec](../published-invariant.spec.ts) uses the full,
+unmodified tiny-invariant 1.3.3 fixture and its actual conditional exports.
+It proves accepted-input behavior in development and production with supplied
+process environment values. Rejection needs Error/string-method support; this
+first success-path proof is not the complete library milestone.
 
 This is an explicitly supplied source-graph layer, not a filesystem loader.
-Disk reads, symlink/realpath behavior, package-name lookup and exports,
+Disk reads, symlink/realpath behavior, wider package imports/exports behavior,
 built-ins, ESM, and native addons remain unsupported. A missing
 supported request throws an interpreted `MODULE_NOT_FOUND`; unsupported request
 forms stop analysis explicitly. Other module metadata and require interfaces
@@ -128,6 +159,12 @@ at the pinned revision include:
 - [`test-require-extension-over-directory.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-extension-over-directory.js)
   and [`test-require-json.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-json.js)
   need upstream fixtures, assertion/path built-ins, and RegExp diagnostics.
+- [`test-require-module-conditional-exports.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/es-module/test-require-module-conditional-exports.js)
+  needs the upstream common harness, `assert`, `util/types`, object spread, and
+  arrow functions. Local condition tests do not replace this complete case.
+- [`test-esm-exports.mjs`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/es-module/test-esm-exports.mjs)
+  combines CommonJS and ESM import promises, patterns, and the upstream fixture
+  harness; it cannot be activated as a complete case in the current VM.
 
 Activate suitable complete, unmodified upstream cases as their dependencies are
 implemented. Local differential coverage is not upstream conformance coverage

@@ -133,8 +133,8 @@ export function nodeModuleObservation(filename: string, observe = ""): object {
   // Jest 24 can still enter a test body after a failing beforeAll. Guard the
   // oracle itself so an incorrect release never evaluates a fixture.
   assertPinnedNode();
-  return JSON.parse(execFileSync(nodeBinary, ["-e", oracle, filename, observe], {
-    encoding: "utf8", env: { ...process.env, NODE_OPTIONS: "" }, stdio: ["ignore", "pipe", "pipe"]
+  return JSON.parse(execFileSync(nodeBinary, ["--no-global-search-paths", "-e", oracle, filename, observe], {
+    encoding: "utf8", env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" }, stdio: ["ignore", "pipe", "pipe"]
   }));
 }
 

@@ -1,0 +1,2 @@
+# Published fixture bytes (including upstream declaration whitespace) match integrity.json.
+/test/fixtures/tiny-invariant-1.3.3/package/** -text -whitespace

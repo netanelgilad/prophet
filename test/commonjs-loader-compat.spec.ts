@@ -336,8 +336,8 @@ describe("explicit source-graph loader boundaries", () => {
     });
   });
 
-  test("package and builtin requests remain explicit analysis gaps", () => {
-    for (const request of ["fs", "node:fs", "package"]) {
+  test("builtin requests remain explicit analysis gaps", () => {
+    for (const request of ["fs", "node:fs"]) {
       withModuleGraphFixture({
         "entry.cjs": `module.exports = require(${JSON.stringify(request)});`,
         "value.cjs": "module.exports = 1;",
