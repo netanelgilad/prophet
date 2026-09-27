@@ -6,6 +6,7 @@ import { Binding, ExecutionContext, TExecutionContext } from "./ExecutionContext
 import { getArrayElements, getProperties, ownPropertyPresence, HeapEntry } from "./Heap";
 import { isForkedCompletion } from "./Completion";
 import { ESBoolean } from "../boolean/ESBoolean";
+import { mergeEffectTraces } from "../effects/trace";
 
 export function assumeInContext(
   context: TExecutionContext,
@@ -118,6 +119,9 @@ export function mergeContexts(
     strict: consequent.value.strict,
     thisValue: select(consequent.value.thisValue, alternate.value.thisValue),
     heap,
+    effects: consequent.value.effects === undefined && alternate.value.effects === undefined
+      ? undefined
+      : mergeEffectTraces(condition, consequent.value.effects, alternate.value.effects, knowledge),
     knowledge
   });
 }

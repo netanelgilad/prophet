@@ -26,6 +26,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.spec.ts test/commonjs-loader-symbolic.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-compat.spec.ts test/commonjs-package-config.spec.ts test/commonjs-resolution-symbolic.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts test/commonjs-package-symbolic.spec.ts test/published-invariant.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts test/discount-server.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -81,6 +82,14 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolu
   [string concatenation](test/string-concat.spec.ts) preserve user conversion
   calls, effects, and exceptions. [Prototype state](test/prototype-state.spec.ts)
   keeps inherited values available when another path creates an own property.
+- [Host effects](test/host-effects.spec.ts) retain ordered calls, returns, throws,
+  object snapshots, and resource changes under their execution conditions.
+- [Discount server](test/discount-server.spec.ts) runs a real Express 4.22.1
+  endpoint on pinned Node, then symbolically evaluates the same handler with
+  explicit file-write and response models. Invalid input never writes; accepted
+  input writes a normalized value before 204, or propagates a write failure
+  without responding. Express dispatch and its 500 response are currently
+  covered by concrete reference tests only.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
 `src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
@@ -90,10 +99,10 @@ Each interpreted `Math.random()` produces a fresh unknown number in [0, 1).
 
 ## Next practical target
 
-The North Star is to analyze an existing JavaScript function and its dependencies,
-prove a stated property across the supplied input domain, or produce a concrete
-counterexample that can be replayed in ordinary JavaScript. Unsupported behavior
-and unfinished proofs must stay explicit.
+The North Star is to analyze existing JavaScript and its dependencies and prove
+properties across the supplied input and environment domain. Unsupported behavior
+and unfinished proofs must stay explicit. Automatic counterexample generation
+can later consume surviving path facts; it is not required for the next VM step.
 
 The first path toward that target is a configurable validator, followed by an
 unmodified, pinned published build of `tiny-invariant`:
@@ -118,19 +127,66 @@ unmodified, pinned published build of `tiny-invariant`:
    spec. The actual package now proves normalization or rejection for every
    JavaScript number, including NaN and infinities, with lazy-message effects.
    Each package proof states its supported Node subset.
-6. **Replayable counterexamples:** generate a concrete violating input, then
-   independently replay it against that same source. Sample testing alone must
-   never establish a universal proof.
-7. **External effects and servers:** model side-effecting functions, including
+6. **External effects and servers:** model side-effecting functions, including
    ordered responses, logs, writes, failures, and eventually async callbacks.
    Progress from an effectful handler to a pinned Express server and its real
    dependencies. Prove that rejected requests never write, successful requests
    write once and respond once, and failure paths preserve the modeled effects.
+   The discount endpoint below now has a real Express reference and a direct
+   symbolic handler proof. Loading and dispatching through Express in Prophet
+   remains the next integration milestone.
+7. **Later, replayable counterexamples:** generate a concrete violating input,
+   then independently replay it against that same source. Sample testing alone
+   must never establish a universal proof.
 
 Each step belongs in the PR stack with focused specs and relevant Test262 cases.
 Full JavaScript conformance and broader symbolic domains remain parallel goals.
 The [detailed roadmap](docs/roadmap.md) records CommonJS compatibility criteria,
 external-effect modeling requirements, and the first Express proof targets.
+
+## Concrete North Star: saving a discount
+
+The [server spec](test/discount-server.spec.ts) owns this handler and its complete
+Express application setup. A POST to `/discount` updates one UTF-8 file:
+
+```js
+function saveDiscount(req, res) {
+  const percentage = req.body.percentage;
+  if (!(typeof percentage === "number" && percentage >= 0 && percentage <= 100)) {
+    res.statusCode = 400;
+    res.end("Invalid discount");
+    return;
+  }
+  const normalized = percentage / 100;
+  fs.writeFileSync(discountPath, String(normalized), "utf8");
+  res.statusCode = 204;
+  res.end();
+}
+```
+
+The real application uses `express.json()`, registers this handler, and installs
+error middleware that returns 400 for malformed JSON and 500 for a write failure.
+Express 4.22.1 and its dependency graph are pinned by the development dependency,
+lockfile, and checked-in Yarn cache. Node v24.21.0 reference specs send actual
+HTTP requests and inspect temporary files and operation order.
+
+Prophet currently evaluates the **same handler directly**, with an ordinary
+request body object and explicit synchronous host models. Every JavaScript
+number is considered, including NaN and infinities; separate cases reject
+unknown strings, unknown Booleans, null, undefined, objects, and arrays. On the
+accepted paths the actual string payload comes from a computed number in [0, 1].
+Its exact value remains unknown. The file environment is either an existing file
+whose write succeeds or a missing parent/file whose write throws ENOENT before
+modification. Response completion is assumed to succeed.
+
+That is a declared subset of host behavior. Partial writes, other filesystem
+failures, complete Error fields, HTTP/socket failures, and asynchronous schedules
+are not modeled here. JSON parsing, middleware dispatch, and the application's
+500 response have concrete Express coverage, not a symbolic server proof yet.
+The next layers will execute Express's unmodified package source and dependencies
+using shared language semantics and modeled Node boundaries, then prove the
+route through actual middleware and error dispatch. Multiple requests, richer
+failure contracts, and asynchronous effects follow that milestone.
 
 ## Spec-first development
 
@@ -216,6 +272,28 @@ imply their bounds without assuming a meaning for the validator's name or body.
 remain unknown, including NaN and facts belonging to only one alternative.
 
 ## Calls that can return or throw
+
+External operations use `createHostFunction(name, model)`. The model receives
+the receiver, argument values, and current execution context, and returns a VM
+value or throwing completion with the updated context. It uses persistent VM
+state; it must not perform the real write, response, or other external action.
+No model means an explicit analysis error. An accidental exception in model
+implementation also remains an analysis error, rather than a JavaScript throw.
+
+The context's `effects` trace records call and return/throw events, operation and
+function identity, and the heap and facts at each event. Branches join traces
+under their original guards; a conditional write never becomes unconditional.
+`effectPaths(context.value.effects)` inspects alternatives in order and keeps
+their path facts. `effectContext(event, context, path.knowledge)` exposes the
+object state at that event. These snapshots support inspection, not replaying
+captured callbacks or asynchronous work. Models must use persistent heap updates
+so retained snapshots remain valid.
+
+Trace inspection has a configurable path limit (third argument, default 256)
+and raises explicitly if exceeded. It does not limit the evaluated input domain.
+Only trace choices are enumerated: payloads can remain symbolic, and the reasoner
+can retain alternatives it cannot prove impossible. The generic specs include
+failure after mutation; a throwing operation does not automatically undo state.
 
 The VM can analyze this ordinary factory and the function it returns:
 

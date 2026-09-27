@@ -236,6 +236,9 @@ function infer(fn: Any, template: TESNumber, caller: TExecutionContext): Inferre
     if (result[1].value.heap && result[1].value.heap.size !== 0) {
       unsupported("the function changed object state");
     }
+    if (result[1].value.effects !== context.value.effects) {
+      unsupported("the function performed an external effect");
+    }
     // Restoring the caller's environment pointer must not hide writes to a
     // captured record. Fresh activation/block records are local proof state;
     // every record that existed before execution must remain unchanged.

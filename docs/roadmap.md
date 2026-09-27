@@ -1,9 +1,11 @@
 # Proof milestones and host runtime coverage
 
-The North Star is to analyze existing JavaScript and its dependencies, prove a
-property across the declared input domain, or return a concrete counterexample
-that can be replayed in ordinary JavaScript. This includes programs that interact
-with their environment, not just functions that return values.
+The North Star is to analyze existing JavaScript and its dependencies and prove a
+property across the declared input and environment domain. This includes programs
+that interact with their environment, not just functions that return values.
+Unknown results and unsupported behavior must remain explicit. Automatic
+counterexample generation is a later consumer of execution results, not a
+prerequisite for extending the symbolic VM.
 
 The shared VM already handles selected symbolic branches, mutable objects,
 closures, return/throw paths, recursive summaries, numeric bounds, and CommonJS
@@ -100,12 +102,12 @@ Pinned Node comparisons check numeric edge inputs, callback/conversion failures,
 and their effect order. The VM uses shared Error, ToString, concat, invocation,
 and property operations; no rule recognizes the library's name or source.
 
-The next proof milestone is a replayable counterexample: deliberately weaken
+One later proof milestone is a replayable counterexample: deliberately weaken
 the application's guard, obtain a concrete violating number from the surviving
 path constraints, and replay it against the same published package and application
 in pinned Node. Start with supported numeric constraints and report unsupported
 witness generation explicitly. A failed proof or unknown result alone is not
-a counterexample. This is separate from the continuing effectful-server target.
+a counterexample. This is deferred while we build the effectful-server target.
 
 ## Side-effecting functions and a simple Express server
 
@@ -125,38 +127,78 @@ pure calls or evidence that the program is safe. Model asynchronous ordering
 explicitly as support grows; do not assume one convenient callback schedule.
 Distinguish a proof over bounded schedules from a proof over every schedule.
 
-Start with a small synchronous effectful function using an explicitly modeled
-store and response sink. Prove properties of state changes and effect counts,
-not only return values. Validate the host models with independent concrete
-contract specs. Keep the modeled input/environment assumptions visible in each
-proof and do not perform real writes or send real network responses during
-symbolic exploration.
+The concrete target now lives in [the discount server spec](../test/discount-server.spec.ts):
+an actual Express application parses JSON, validates a percentage, writes its
+normalized value to a fixed UTF-8 file, and completes the response. The handler
+source is shared by Node reference execution and Prophet's direct handler proof;
+the [README](../README.md#concrete-north-star-saving-a-discount) shows the code.
 
-The next real-world target is a small Express server with a guarded write route:
+Acceptance criteria for the eventual full symbolic application proof:
 
-- For a request rejected by authentication or input validation, no store write
-  occurs and the expected rejection response is sent exactly once.
-- For an authorized, valid request with a successful modeled store operation,
-  exactly one write precedes exactly one success response; its payload agrees
-  with the value written.
-- For a modeled store failure, no success response is emitted; the error path
-  preserves any effects allowed by the store's declared failure contract.
-- Requests, callbacks, and shared state preserve their identities and ordering;
-  broader sequences of requests and scheduling choices become later milestones.
+- Invalid or missing percentage: exactly one 400 response and no attempted write.
+- Valid percentage and successful write: exactly one write of `String(percentage / 100)`
+  precedes exactly one 204 response. The converted number lies in [0, 1].
+- Modeled write failure: no success response; Express dispatches to error
+  middleware, which produces 500. File state follows the declared failure contract.
+- Malformed JSON: Express rejects before calling the handler, sends 400, and
+  performs no file write.
 
-Begin with direct handler proofs as a scoped stepping stone, then execute a
-pinned Express release and its actual dependency/middleware/dispatch code with
-modeled Node boundaries. Integration specs must cover middleware order,
-`next()` and error propagation, and response completion state. A fake `res`
-object or direct handler call alone does not establish that the Express server
-routes or sends responses correctly.
-Scope the first server proof to a declared initial state and request domain;
-authentication guarantees are relative to the modeled authentication boundary,
-not a claim that a real authentication service is correct.
+The reference pins [Express 4.22.1](https://github.com/expressjs/express/releases/tag/v4.22.1)
+as an exact devDependency and pins its entire dependency graph through the lockfile
+and Yarn cache. It uses actual HTTP and filesystem APIs on Node v24.21.0 inside
+isolated spec setup. Concrete observations cover accepted numeric boundaries,
+rejected values, absent input, malformed JSON, and a real ENOENT write failure.
+These are local compatibility/differential specs, not upstream Node or Express
+conformance cases. Use [Express's API reference](https://expressjs.com/en/4x/api/)
+and matching source alongside independent concrete checks as coverage grows.
 
-Use pinned Node and [Express API](https://expressjs.com/en/4x/api/) references
-and concrete integration replay to check the observable effect traces. Turn a
-found violation into a concrete request and
-environment scenario and replay it against the same application and dependency
-versions. Samples and successful replays check models or counterexamples; they
-never replace an all-input symbolic proof.
+The first iteration now provides a generic synchronous host-function boundary.
+Calls, returns, throws, receiver/argument identities, object snapshots, and
+resource-state changes remain ordered under their path conditions. Missing
+models raise analysis errors. Model implementation errors do not masquerade as
+program exceptions. Pure recursive summaries must not discard external effects.
+The [host-effect specs](../test/host-effects.spec.ts) cover conditional calls,
+shared trace prefixes, failures after mutation, correlated outcomes, and snapshot
+inspection. No real external operation runs during symbolic exploration.
+
+The direct handler proof considers an unrestricted JavaScript number, including
+NaN and infinities, plus separate nonnumeric domains. HTTP JSON cannot encode
+NaN or infinities; the direct function's input domain is deliberately broader.
+Its request body is an ordinary object. File state is explicitly either an
+existing file with a successful write or an absent file/parent with a pre-write
+ENOENT failure; absence is retained on that failure. Only a fixed path and UTF-8
+string writes are modeled. Response `end` succeeds. Concrete observations of
+this contract are compared with the real Node operation. Other failure modes,
+partial writes, complete filesystem Error fields, socket failures, and arbitrary
+host API arguments remain gaps, not guarantees established by this proof.
+
+Continue in these layers, each with specs and its own stacked PR:
+
+1. **Reference and direct handler:** complete for the scoped contract above.
+   Prophet proves rejection without writing, or normalized write before 204,
+   or a propagated write failure with no response. It does not yet execute
+   Express error middleware to establish 500.
+2. **Unmodified Express startup:** supply the pinned package/dependency sources
+   to the CommonJS loader. Add shared language and Node semantics for each
+   encountered blocker, with independent compatibility checks. No replacement
+   Express implementation or dependency-source rewriting.
+   Source inspection identifies an early chain through `body-parser` to `depd`,
+   which imports `path.relative` and calls `process.cwd()`. Both are currently
+   unsupported. The next small increment should establish builtin module
+   identity and these explicit environment boundaries, then test unmodified
+   dependency loading. This is an inspected blocker, not a completed Express
+   execution; `depd` also needs V8 stack APIs when its exported function runs.
+3. **Actual routing and middleware:** evaluate the application through Express's
+   dispatch with modeled Node request/response boundaries. Cover middleware
+   order, JSON parsing, `next()`, thrown errors, and response completion. Establish
+   the acceptance criteria above through the real application/library code.
+4. **Richer environments:** add more filesystem failures and state transitions,
+   multiple requests, authentication, and then asynchronous storage/callbacks.
+   Authentication guarantees are relative to its modeled boundary. Scheduling
+   assumptions and bounded exploration must be explicit.
+
+A direct handler call alone does not establish that Express routes or sends
+responses correctly. Samples and successful reference executions validate models
+and regression cases; they never replace an all-input symbolic proof. Snapshots
+currently inspect heap state and facts, not captured callback environments for
+replay. General callback replay and asynchronous ordering remain future work.
