@@ -1,5 +1,6 @@
 import { evaluateCode, nodeInitialExecutionContext } from "../src";
 import { TExecutionContext } from "../src/execution-context/ExecutionContext";
+import { readMember } from "../src/ASTResolvers";
 
 function run(source: string, initial: TExecutionContext = nodeInitialExecutionContext) {
   const [, context] = evaluateCode(source, initial);
@@ -85,7 +86,8 @@ test("successive scripts reject conflicting global declarations before executing
     `shared = 9; const shared = 2;`
   ]) {
     const [, after] = evaluateCode(source, before);
-    expect(after.value.uncaught).toMatchObject({ properties: { name: { value: "SyntaxError" } } });
+    expect(after.value.uncaught).toBeDefined();
+    expect(readMember(after.value.uncaught!, "name", after)[0]).toMatchObject({ value: "SyntaxError" });
     expect(after.value.scope.fixed).toMatchObject({ value: 1 });
     expect(after.value.scope.shared).toMatchObject({ value: 2 });
   }

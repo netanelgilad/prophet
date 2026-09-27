@@ -1,10 +1,14 @@
-import { Any, WithProperties, ESNumber, isArray } from "../types";
+import { Any, WithProperties, ESNumber, TESBoolean, isArray } from "../types";
+import { ESBoolean } from "../boolean/ESBoolean";
 import { TArray } from "../array/Array";
 import { ExecutionContext, TExecutionContext } from "./ExecutionContext";
 import assert from "assert";
 
 export type HeapEntry = {
   properties: { [name: string]: Any };
+  // A property created on only one path is not an own undefined property on
+  // the other path: lookup must still reach its prototype there.
+  presence?: { [name: string]: TESBoolean };
   // Undefined on an array means its element structure is no longer known.
   elements?: Any[];
 };
@@ -14,6 +18,12 @@ export type Heap = Map<object, HeapEntry>;
 export function getProperties(value: WithProperties, context: TExecutionContext): { [name: string]: Any } {
   const entry = context.value.heap && context.value.heap.get(value);
   return entry ? entry.properties : value.properties;
+}
+
+export function ownPropertyPresence(value: WithProperties, name: string, context: TExecutionContext): TESBoolean {
+  const entry = context.value.heap && context.value.heap.get(value);
+  if (entry && entry.presence && Object.prototype.hasOwnProperty.call(entry.presence, name)) return entry.presence[name];
+  return ESBoolean(Object.prototype.hasOwnProperty.call(getProperties(value, context), name));
 }
 
 export function getArrayElements(
@@ -52,7 +62,10 @@ export function writeArrayElements(
   });
   elements.forEach((element, index) => { properties[index] = element; });
   properties.length = ESNumber(elements.length);
-  return writeEntry(value, { properties, elements: elements.slice() }, context);
+  const prior = context.value.heap && context.value.heap.get(value);
+  const presence: { [name: string]: TESBoolean } = { ...(prior && prior.presence) };
+  Object.keys(presence).forEach(name => { if (isArrayIndex(name) || name === "length") delete presence[name]; });
+  return writeEntry(value, { properties, presence, elements: elements.slice() }, context);
 }
 
 export function writeProperty(
@@ -63,8 +76,10 @@ export function writeProperty(
 ): TExecutionContext {
   const properties = getProperties(value, context);
   assert(properties, "Cannot assign a property of null or undefined");
+  const prior = context.value.heap && context.value.heap.get(value);
   return writeEntry(value, {
     properties: { ...properties, [name]: assigned },
+    presence: { ...(prior && prior.presence), [name]: ESBoolean(true) },
     elements: isArray(value)
       ? getArrayElements(value as WithProperties & TArray<any>, context)
       : undefined

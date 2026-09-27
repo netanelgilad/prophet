@@ -7,6 +7,7 @@ import {
 } from "../../src";
 import { isForkedCompletion } from "../../src/execution-context/Completion";
 import { getProperties } from "../../src/execution-context/Heap";
+import { readMember } from "../../src/ASTResolvers";
 import {
   setVariablesInScope, TExecutionContext
 } from "../../src/execution-context/ExecutionContext";
@@ -90,13 +91,23 @@ function observation(completion: Any, context: TExecutionContext): object {
     throw new Error("Concrete CommonJS execution produced a symbolic completion");
   }
   if (isThrownValue(completion)) {
-    const error = completion.value as { type: string } & WithProperties;
+    const error = completion.value as { type: string; errorData?: boolean } & WithProperties;
     if (error.type === "object") {
       const properties = getProperties(error, context);
-      if (properties.name) return {
-        kind: "throw", error: concretePrimitive(properties.name),
-        ...(properties.code ? { code: concretePrimitive(properties.code) } : {})
-      };
+      // Error instances inherit their name. Partial loader errors carry an
+      // explicit marker until their complete Error model is implemented.
+      // A plain thrown object merely named "Error" remains a thrown value.
+      if (error.errorData || error.unknownProperties === "CommonJS loader error fields") {
+        const [name] = readMember(error, "name", context);
+        if (isThrownValue(name) || isForkedCompletion(name)) {
+          throw new Error("Concrete CommonJS error-name observation did not complete normally");
+        }
+        return {
+          kind: "throw", error: concretePrimitive(name),
+          // Do not read an absent code through a partial host error's guard.
+          ...(properties.code ? { code: concretePrimitive(properties.code) } : {})
+        };
+      }
     }
     return { kind: "throw", value: encode(completion.value, context) };
   }

@@ -13,6 +13,27 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // String concatenation uses ordinary conversion, including ordered throws.
+  "built-ins/String/prototype/concat/S15.5.4.6_A1_T4.js",
+  "built-ins/String/prototype/concat/S15.5.4.6_A1_T5.js",
+  "built-ins/String/prototype/concat/S15.5.4.6_A1_T7.js",
+  "built-ins/String/prototype/concat/S15.5.4.6_A1_T8.js",
+  "built-ins/String/prototype/concat/S15.5.4.6_A1_T10.js",
+  "built-ins/String/prototype/concat/S15.5.4.6_A4_T1.js",
+  "built-ins/String/prototype/concat/S15.5.4.6_A4_T2.js",
+  "built-ins/String/prototype/concat/S15.5.4.6_A6.js",
+  "built-ins/String/prototype/concat/S15.5.4.6_A11.js",
+  "built-ins/String/prototype/concat/this-value-not-obj-coercible.js",
+  "built-ins/Error/S15.11.1.1_A1_T1.js",
+  "built-ins/Error/S15.11.2.1_A1_T1.js",
+  "built-ins/Error/S15.11.1.1_A3_T1.js",
+  "built-ins/Error/S15.11.2.1_A3_T1.js",
+  "built-ins/Error/prototype/toString/15.11.4.4-6-1.js",
+  "built-ins/Error/prototype/toString/15.11.4.4-6-2.js",
+  "built-ins/Error/prototype/toString/15.11.4.4-8-1.js",
+  "built-ins/Error/prototype/toString/15.11.4.4-8-2.js",
+  "built-ins/Error/prototype/toString/15.11.4.4-9-1.js",
+  "built-ins/Error/prototype/toString/15.11.4.4-10-1.js",
   "language/expressions/typeof/boolean.js",
   "language/expressions/typeof/undefined.js",
   "language/expressions/typeof/unresolvable-reference.js",
