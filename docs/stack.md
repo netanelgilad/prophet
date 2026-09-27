@@ -14,7 +14,7 @@
 | CommonJS loading, cache, cycles, and retries | `stack/commonjs-module-cache` | `stack/commonjs-execution` | [#32](https://github.com/netanelgilad/prophet/pull/32) |
 | Local CommonJS resolution and JSON configuration | `stack/commonjs-local-resolution` | `stack/commonjs-module-cache` | [#33](https://github.com/netanelgilad/prophet/pull/33) |
 | Package lookup, conditional exports, and published invariant proof | `stack/commonjs-package-exports` | `stack/commonjs-local-resolution` | [#34](https://github.com/netanelgilad/prophet/pull/34) |
-| Error construction, string conversion, and all-number library proof | `stack/error-string-coercion` | `stack/commonjs-package-exports` | Pending |
+| Error construction, string conversion, and all-number library proof | `stack/error-string-coercion` | `stack/commonjs-package-exports` | [#35](https://github.com/netanelgilad/prophet/pull/35) |
 
 Current development tip: `stack/error-string-coercion`.
 
