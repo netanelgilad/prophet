@@ -28,6 +28,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-com
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts test/commonjs-package-symbolic.spec.ts test/published-invariant.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts test/discount-server.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts test/node-http-lifecycle.spec.ts test/node-http-lifecycle-reference.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -85,11 +86,15 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.t
   keeps inherited values available when another path creates an own property.
 - [Host effects](test/host-effects.spec.ts) retain ordered calls, returns, throws,
   object snapshots, and resource changes under their execution conditions.
-- [Node HTTP server](test/node-http-server.spec.ts) is the next full-program
-  target. Its real Node reference executes the imports, server creation,
-  callback registration, and listen call before sending HTTP requests. The
-  Prophet case explicitly records the current unsupported builtin import;
-  it is a missing capability, not a symbolic server proof.
+- [Node HTTP server](test/node-http-server.spec.ts) interprets the full module,
+  including imports, server creation, callback registration, and listen. With
+  unknown method and URL strings, it proves routing, response status, and body
+  under an explicit successful event schedule. Real Node checks the same source.
+- [Builtin loading](test/commonjs-builtins.spec.ts) preserves canonical module
+  identity and package precedence with supplied models. [HTTP lifecycle specs](test/node-http-lifecycle.spec.ts)
+  preserve current closure state, callback receivers, conditional exceptions,
+  and committed response output; [independent Node observations](test/node-http-lifecycle-reference.spec.ts)
+  check response flags, numeric status conversion, and UTF-8 serialization.
 - [Discount server](test/discount-server.spec.ts) runs a real Express 4.22.1
   endpoint on pinned Node, then symbolically evaluates the same handler with
   explicit file-write and response models. Invalid input never writes; accepted
@@ -140,6 +145,7 @@ unmodified, pinned published build of `tiny-invariant`:
    those boundaries. The existing discount example retains a real Express
    reference and a direct symbolic handler proof; it does not establish HTTP
    setup or dispatch. No Express-specific model belongs in the VM.
+   The first full raw HTTP server proof below now passes for the scoped model.
 7. **Later, replayable counterexamples:** generate a concrete violating input,
    then independently replay it against that same source. Sample testing alone
    must never establish a universal proof.
@@ -170,24 +176,47 @@ server.listen(0, "127.0.0.1");
 module.exports = server;
 ```
 
-The target proof starts by interpreting that entire source. A Node HTTP model
-must retain the callback registered by `createServer`, model the server's listen
-state, and later deliver a request event through the shared VM. Request values
-come from a declared HTTP environment; the program's code determines routing
-and response values. The callback runs in the current execution context, with
-its captured bindings and the effects of intervening code. Calling a separately
-extracted handler from a test does not meet this milestone.
+Prophet now interprets that entire source. `createHTTPModel()` supplies a scoped
+Node boundary, registered through `createCommonJSLoader(files, { builtins:
+{ http: model.module } })`. Both `http` and `node:http` select that same module.
+The server retains the actual interpreted listener in persistent VM state.
+The embedding explicitly delivers successful listening, a request, and successful
+response completion. No real socket or automatic event loop runs in analysis.
 
-The current spec runs the full program in pinned Node v24.21.0, sends real HTTP
-requests, and checks response and lifecycle observations, including HEAD body
-suppression. Prophet's builtin HTTP import is still explicitly unsupported.
-This layer sets the reference target; it adds no HTTP model or new symbolic
-proof. The initial planned proof assumes successful listen and one delivered
-request. Bind failures, malformed requests, connection loss, more requests,
-body streams, and scheduling alternatives need separate compatibility specs.
+The [spec](test/node-http-server.spec.ts) makes method and URL unrestricted
+symbolic strings and proves: GET `/health` selects 200, other combinations select
+404; exactly one `end` occurs; the body is `ok` or `Not found`, except HEAD sends
+no body. The chosen route and response remain unknown until constrained. These
+string domains include more values than valid HTTP syntax; the model starts at
+an already parsed request and does not claim a protocol-parser proof.
 
-Build the host boundary incrementally, starting with module identity and
-`createServer`/`listen`/request delivery, then response completion. Body streams
+`model.completeListen(server, context)` delivers the deferred startup event.
+`model.deliverRequest(server, { method, url }, context)` returns request/response
+identities and a `[completion, context]` result from executing the registered
+callback. `model.completeResponse(response, context)` delivers successful output
+completion. Each step uses the current context, preserving changes to captured
+variables since registration. Conditional throws remain completion branches.
+`model.inspectResponse` reads committed output; changing `res.statusCode` after
+`end` does not change the already captured status. Trace labels distinguish
+`http.server.request` from Node's outgoing `http.request` API.
+
+The same source runs in pinned Node v24.21.0 with real HTTP requests. Further
+local specs check deferred callbacks and response flags, HEAD/204/304 body
+suppression, UTF-8 replacement of lone surrogates, and status normalization.
+Unknown string payloads remain unknown after encoding; no unsupported identity
+between original code units and decoded wire text is assumed.
+
+This proof assumes successful `listen(0, "127.0.0.1"[, callback])`, one delivered
+request, and successful response completion. The initial surface supports one
+request listener, method/URL reads, numeric status values, and a string/null/
+undefined `end` payload. Other overloads, stream writes, EventEmitter methods,
+body parsing, bind failures, socket loss/backpressure, and general scheduling
+remain explicit gaps. Field values are modeled before full host descriptors:
+ownership inspection of partial server/response objects also reports a gap.
+See [HTTP coverage and limitations](docs/node-http.md), including complete
+upstream cases that cannot yet run unmodified.
+
+Next extend shared event/listener and request-stream behavior. Body delivery
 and JSON parsing lead back to the discount application below. Finally, supply
 Express's unmodified sources as ordinary CommonJS dependencies: its routing and
 middleware must emerge from executing its code. Do not model `express()`,
@@ -468,6 +497,13 @@ Relative and absolute requests try an exact file, then `.js`, `.json`, `.node`,
 then a directory's `package.json` main or index files. Selecting a native addon
 stops analysis; it never falls through to another candidate. `.cjs` works when
 explicitly named, but Node does not infer that extension.
+
+An optional `{ builtins: { http: model.module } }` second argument registers
+explicit VM values using canonical names without `node:`. Aliases share one
+identity, and builtin requests take precedence over packages. Prefix-only Node
+modules retain that distinction. Unregistered builtins raise an analysis error;
+there is no fallback to native `require`. Registry mappings are snapshotted,
+while supplied values keep their identities and use the normal persistent heap.
 Bare and scoped package names search ancestor `node_modules` directories.
 Self-reference and package exports take precedence over legacy file/main lookup;
 exact subpaths, ordered/nested conditions, and array targets are supported.
@@ -504,7 +540,7 @@ loaded `package.json` data does not rewrite the resolver's source snapshot.
 `.js` files respect the nearest package `type`. Without an explicit type,
 successful CommonJS wrapper parsing permits execution; a parse failure reports
 the missing ESM syntax-detection support. ESM, export patterns, `#imports`, custom
-conditions, built-ins, and extra file formats remain gaps. Package metadata supports
+conditions, unregistered builtin APIs, and extra file formats remain gaps. Package metadata supports
 valid JSON with unique, unescaped top-level keys; native-parser edge cases are
 explicitly rejected rather than assuming Node uses ordinary `JSON.parse` there.
 

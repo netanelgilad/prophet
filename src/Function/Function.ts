@@ -50,8 +50,14 @@ export const FunctionConstructor = ESFunction(function*(
 });
 
 export function createFunction(
-  statements: ESTree.Statement[], params: Array<ESTree.Pattern>, creationContext: TExecutionContext
+  statements: ESTree.Statement[], params: Array<ESTree.Pattern>, creationContext: TExecutionContext,
+  kind: { async?: boolean; generator?: boolean } = {}
 ) {
+  // These kinds change invocation even when their bodies contain no await or
+  // yield. Until modeled, never silently create an ordinary synchronous call.
+  if (kind.async && kind.generator) throw new Error("Async generator functions are not yet supported");
+  if (kind.async) throw new Error("Async functions are not yet supported");
+  if (kind.generator) throw new Error("Generator functions are not yet supported");
   const environment = creationContext.value.environment;
   const strict = !!creationContext.value.strict || hasUseStrict(statements);
   // Capture the environment identity, not its values or the caller's names.

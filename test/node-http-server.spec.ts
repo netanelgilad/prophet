@@ -1,5 +1,11 @@
 import { execFileSync } from "child_process";
-import { createCommonJSLoader, nodeInitialExecutionContext } from "../src";
+import { createCommonJSLoader, evaluateCode, isForkedCompletion, nodeInitialExecutionContext } from "../src";
+import { effectPaths } from "../src/effects";
+import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
+import { getProperties } from "../src/execution-context/Heap";
+import { createHTTPModel } from "../src/node/http";
+import { ESString, TESString } from "../src/string/String";
+import { isESNumber, isESString, isThrownValue, WithProperties } from "../src/types";
 import { assertPinnedNode, withModuleFixture } from "./commonjs/oracle";
 
 // The North Star is this entire application, including builtin loading,
@@ -83,7 +89,13 @@ const nodeReference = `
   })().catch(function(error) { console.error(error); process.exitCode = 1; });
 `;
 
-function realServerObservation(method: string, path: string): object {
+interface ServerObservation {
+  requestListenersAtLoad: number;
+  response: { status: number; body: string };
+  trace: object[];
+}
+
+function realServerObservation(method: string, path: string): ServerObservation {
   assertPinnedNode();
   return withModuleFixture(healthServerSource, filename => JSON.parse(execFileSync(
     process.env.PROPHET_NODE_BINARY || process.execPath,
@@ -93,6 +105,41 @@ function realServerObservation(method: string, path: string): object {
       env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" }, stdio: ["ignore", "pipe", "pipe"]
     }
   )));
+}
+
+function modeledServer(method: TESString, url: TESString) {
+  const model = createHTTPModel();
+  const filename = "/app/health-server.cjs";
+  const [server, loaded] = createCommonJSLoader({ [filename]: healthServerSource },
+    { builtins: { http: model.module } }).load(filename, nodeInitialExecutionContext);
+  expect(isThrownValue(server)).toBe(false);
+  expect(isForkedCompletion(server)).toBe(false);
+  expect(getProperties(server as WithProperties, loaded).listening).toMatchObject({ value: false });
+  // Loading the application performs registration/listen, never request work.
+  expect(effectPaths(loaded.value.effects!)[0].events.some(event => event.call.operation === "http.server.request")).toBe(false);
+  const [listened, ready] = model.completeListen(server, loaded);
+  expect(listened).toBe(server);
+  expect(getProperties(server as WithProperties, ready).listening).toMatchObject({ value: true });
+  const delivery = model.deliverRequest(server, { method, url }, ready);
+  const [completion, handled] = delivery.result;
+  expect(isThrownValue(completion)).toBe(false);
+  expect(isForkedCompletion(completion)).toBe(false);
+  expect(completion).toMatchObject({ type: "undefined" });
+  expect(getProperties(delivery.response, handled).writableEnded).toMatchObject({ value: true });
+  for (const path of effectPaths(handled.value.effects!)) {
+    expect(path.events.filter(event => event.kind === "call" && event.call.operation === "http.response.end"))
+      .toHaveLength(1);
+    expect(path.events.filter(event => event.kind === "call" && event.call.operation === "http.response.finish"))
+      .toHaveLength(0);
+  }
+  const [finished, context] = model.completeResponse(delivery.response, handled);
+  expect(finished).toBe(delivery.response);
+  for (const path of effectPaths(context.value.effects!)) {
+    expect(path.events.filter(event => event.kind === "call" && event.call.operation === "http.response.finish"))
+      .toHaveLength(1);
+  }
+  return { model, server, response: delivery.response, context,
+    wire: model.inspectResponse(delivery.response, context) };
 }
 
 describe("Node HTTP North Star: complete application on pinned Node", () => {
@@ -108,7 +155,8 @@ describe("Node HTTP North Star: complete application on pinned Node", () => {
   ];
   for (const [method, path, status, body] of cases) {
     test(`${method} ${path} dispatches after listening and finishes exactly one ${status} response`, () => {
-      expect(realServerObservation(method, path)).toEqual({
+      const actual = realServerObservation(method, path);
+      expect(actual).toEqual({
         requestListenersAtLoad: 1,
         response: { status, body },
         trace: [
@@ -121,15 +169,36 @@ describe("Node HTTP North Star: complete application on pinned Node", () => {
           { kind: "closed", listening: false }
         ]
       });
+      const { wire } = modeledServer(ESString(method), ESString(path));
+      if (!isESNumber(wire.statusCode) || !isESString(wire.body)) throw new Error("Expected concrete response");
+      expect({ status: wire.statusCode.value, body: wire.body.value }).toEqual(actual.response);
     });
   }
 });
 
-test("analysis gap: the same complete HTTP app stops at unsupported builtin loading", () => {
-  // Replace this rejection with full-app assertions as the node:http boundary
-  // is implemented. Passing this test records a gap; it is not a server proof.
-  const filename = "/app/health-server.cjs";
-  expect(() => createCommonJSLoader({ [filename]: healthServerSource })
-    .load(filename, nodeInitialExecutionContext))
-    .toThrow("CommonJS builtin loading is not yet supported");
+test("the entire HTTP app proves its routing and wire response for unknown method and URL", () => {
+  // These strings are unrestricted, not a finite list of request fixtures.
+  // The host boundary supplies a parsed request after successful listening and
+  // later successful response completion; no actual socket is opened here.
+  const method = ESString(), url = ESString();
+  const { context, wire, response } = modeledServer(method, url);
+  const [completion, proved] = evaluateCode(`
+    const healthy = method === "GET" && url === "/health";
+    const statusCorrect = healthy ? status === 200 : status === 404;
+    const bodyCorrect = method === "HEAD" ? body === ""
+      : healthy ? body === "ok" : body === "Not found";
+    const ended = response.writableEnded;
+    const uncertainStatus = status === 200;
+    const uncertainBody = body === "ok";
+  `, setVariablesInScope(context, {
+    method, url, status: wire.statusCode, body: wire.body, response
+  }));
+  expect(isThrownValue(completion)).toBe(false);
+  expect(isForkedCompletion(completion)).toBe(false);
+  for (const name of ["statusCorrect", "bodyCorrect", "ended"]) {
+    expect(proved.value.scope[name]).toMatchObject({ value: true });
+  }
+  for (const name of ["healthy", "uncertainStatus", "uncertainBody"]) {
+    expect(proved.value.scope[name]).toMatchObject({ value: undefined });
+  }
 });

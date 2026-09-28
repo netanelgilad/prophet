@@ -10,8 +10,10 @@ export { isForkedCompletion } from "./execution-context/Completion";
 export { evaluateCommonJS } from "./require/commonjs";
 export { createCommonJSLoader } from "./require/loader";
 export { createHostFunction, effectContext, effectPaths } from "./effects";
-import { CommonJSLoader as Loader } from "./require/loader";
+export { createHTTPModel } from "./node/http";
+import { CommonJSLoader as Loader, CommonJSLoaderOptions as LoaderOptions } from "./require/loader";
 export type CommonJSLoader = Loader;
+export type CommonJSLoaderOptions = LoaderOptions;
 export {
   nodeInitialExecutionContext
 } from "./execution-context/nodeInitialExecutionContext";

@@ -117,6 +117,9 @@ export type WithProperties<
   // Reading some host fields is modeled before their mutation semantics are.
   // These writes are analysis gaps, not claims that JavaScript forbids them.
   unmodeledPropertyWrites?: ReadonlyArray<string>;
+  // A host model may expose field values before it models whether those fields
+  // are own data properties, inherited methods, or accessors.
+  unmodeledOwnPropertyInspection?: string;
 };
 
 export function ValueIdentifier() {

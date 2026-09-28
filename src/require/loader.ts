@@ -15,10 +15,21 @@ import { createModuleResolver, ModuleFormat, ModuleResolutionError } from "./res
 import { InvalidPackageConfig } from "./package-config";
 import { PackageExportError } from "./package-exports";
 import { parseJSONModule } from "./json";
+import { canonicalBuiltinName } from "./builtin-names";
 
 export type CommonJSLoader = {
   load(filename: string, context: TExecutionContext): BranchResult;
 };
+
+export type CommonJSLoaderOptions = {
+  // Explicit VM modules only; names use the pinned catalog without node:.
+  // The map is snapshotted, but supplied values retain their VM identities.
+  builtins?: { readonly [canonicalName: string]: Any };
+};
+
+const builtinValueTypes = new Set([
+  "undefined", "null", "boolean", "number", "string", "object", "array", "function", "choice"
+]);
 
 function loaderError(name: string, code?: string) {
   // Do not fabricate concrete diagnostic strings or silently erase Node's
@@ -37,9 +48,25 @@ function loaderError(name: string, code?: string) {
  * Source and cache identities are shared; cache CONTENTS live only in each
  * execution context's persistent heap, so forks and snapshots stay independent.
  */
-export function createCommonJSLoader(files: { readonly [filename: string]: string }): CommonJSLoader {
+export function createCommonJSLoader(
+  files: { readonly [filename: string]: string }, options: CommonJSLoaderOptions = {}
+): CommonJSLoader {
   const resolver = createModuleResolver(files);
   const cache = ESObject();
+  const builtins = new Map<string, Any>();
+  if (options.builtins) for (const name of Object.keys(options.builtins)) {
+    if (canonicalBuiltinName("node:" + name) !== name) {
+      throw new Error(`CommonJS registry needs a canonical builtin name without node:; received '${name}'`);
+    }
+    const value = options.builtins[name];
+    // A trusted embedding supplies the model, but accidental raw host values
+    // must not masquerade as interpreter values at this boundary.
+    if (typeof value !== "object" || value === null ||
+        !builtinValueTypes.has((value as { type: string }).type)) {
+      throw new Error(`CommonJS builtin '${name}' must be a VM value`);
+    }
+    builtins.set(name, value);
+  }
 
   const requireFrom = (request: Any, parent: string, context: TExecutionContext): BranchResult => {
     const choice = choiceOf(request);
@@ -110,6 +137,13 @@ export function createCommonJSLoader(files: { readonly [filename: string]: strin
 
   const loadRequest = (request: string, context: TExecutionContext, parent?: string): BranchResult => {
     try {
+      // Entries retain the absolute-filename contract. Within modules, known
+      // builtins precede filesystem/package resolution, including self names.
+      const builtin = parent === undefined ? undefined : canonicalBuiltinName(request);
+      if (builtin !== undefined) {
+        if (builtins.has(builtin)) return [builtins.get(builtin)!, context];
+        throw new Error(`CommonJS builtin loading is not yet supported: no model registered for '${request}'`);
+      }
       const path = resolver.resolve(request, parent);
       if (path === undefined) return [loaderError("Error", "MODULE_NOT_FOUND"), context];
       const source = resolver.sources.get(path)!;
