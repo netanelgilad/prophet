@@ -16,7 +16,7 @@
 | Package lookup, conditional exports, and published invariant proof | `stack/commonjs-package-exports` | `stack/commonjs-local-resolution` | [#34](https://github.com/netanelgilad/prophet/pull/34) |
 | Error construction, string conversion, and all-number library proof | `stack/error-string-coercion` | `stack/commonjs-package-exports` | [#35](https://github.com/netanelgilad/prophet/pull/35) |
 | Conditional host effects and the Express discount North Star | `stack/guarded-server-effects` | `stack/error-string-coercion` | [#36](https://github.com/netanelgilad/prophet/pull/36) |
-| Node HTTP full-program reference and host-boundary roadmap | `stack/node-http-north-star` | `stack/guarded-server-effects` | Pending |
+| Node HTTP full-program reference and host-boundary roadmap | `stack/node-http-north-star` | `stack/guarded-server-effects` | [#37](https://github.com/netanelgilad/prophet/pull/37) |
 
 Current development tip: `stack/node-http-north-star`.
 
