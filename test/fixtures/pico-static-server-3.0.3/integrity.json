@@ -1,0 +1,18 @@
+{
+  "name": "pico-static-server",
+  "version": "3.0.3",
+  "tarball": "https://registry.npmjs.org/pico-static-server/-/pico-static-server-3.0.3.tgz",
+  "integrity": "sha512-wn397s0nIVy5dGwfJuiWJklF+WCLtCZr6XVs+dG1QbL2Yg/+nVEampmxRbT6Dt+0hulsj5mYdUa8u6d6VZUyTg==",
+  "gitHead": "6b553fb34e3b5b5bccf3c082bb2cae5f93b9e3be",
+  "sha256": {
+    "package/LICENSE": "2e30e9ccee0376dea5bfce5ad2862052c791df1ce1af9dc6547d3f8a795419ae",
+    "package/README.md": "c21e1b7e62671c8abc8630d1e36b301bb03aa45679ac58dc7c16cd534924aea3",
+    "package/examples/pico-http-server.js": "6b952ff78d168df5fb1e0ddfd1f2d9e5af665499fda2c75224a985743289f008",
+    "package/examples/pico-https-server.js": "ccf01d50d272a7f96a5afca9edb866ab4724def54cc95b7584ba8c6bc3eb2a22",
+    "package/examples/static/defaultfile.html": "1e3b688087a6d92289151f070600af76874482b901f580a1c85221b95e494917",
+    "package/examples/static/image.jpg": "99fd880831a440e15f617e737780c77026a90dda5f93493a3be7556bc87d8083",
+    "package/examples/static/otherfile.html": "781f8063667cbda37371704a9fdf103b1d9a0596fbc5579eb986650a3d755ace",
+    "package/index.js": "5f7d9176fbc286a8d2582840c273b0c0db1cd0281d86c67dca1233f613f3c597",
+    "package/package.json": "568eb0c51581abd2e9f3d84c8c3b99cda5f356c36abf920eb9414bfe1d7defd3"
+  }
+}

@@ -16,7 +16,8 @@ runtime package dependencies. Its entire server factory includes imports,
 request registration, filesystem access, and listening. The first useful question
 is whether a request for an existing directory whose default file is absent can
 escape as an unhandled exception, and under which request/filesystem conditions.
-This is a source-inspected question, **not a Prophet finding**. Selection,
+Pinned Node reference specs now reproduce that failure; symbolic classification
+is still unimplemented, so it is **not a Prophet finding**. Selection,
 immutable provenance, input/environment domains, result criteria, and the growth
 plan are in [the real-world target contract](real-world-target.md).
 
@@ -28,6 +29,15 @@ server that does not consume request bodies. Grow to larger real applications
 after demonstrating useful analysis on this small one. Each session should
 choose an increment that closes a named target gap or improves shared semantic
 correctness, and update the target's status without weakening its success criteria.
+
+Current target progress: the complete nine-file published package is vendored
+and hash checked, with real HTTP/filesystem reference specs on pinned Node.
+Synchronous arrow support lets Prophet load its unchanged module and return the
+actual factory. Calling the factory reaches unsupported default parameters;
+that shared parameter-initialization feature is next. HTTPS/URL/fs/path imports
+currently supply opaque identities for loading only, not API implementations.
+Object spread, later expressions, and the required Node operations still need
+their own semantics and specs before any symbolic server claim.
 
 The shared VM already handles selected symbolic branches, mutable objects,
 closures, return/throw paths, recursive summaries, numeric bounds, and CommonJS
@@ -287,7 +297,9 @@ Continue in these layers, each with specs and its own stacked PR:
    that implementation, preserving current captured bindings and explicit event
    delivery. Metadata events, warnings, streams, and broader APIs remain gaps.
 5. **First real application:** follow [the pinned target contract](real-world-target.md).
-   Preserve its whole source, establish Node reference specs, and fill the shared
+   Whole-source provenance and Node reference specs are established. Arrow
+   functions now allow the actual module to load; default parameters are the
+   next reached invocation gap. Continue filling the shared
    language, response, URL/path, and filesystem gaps needed for concrete module
    execution. Add symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model

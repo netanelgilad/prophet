@@ -161,8 +161,13 @@ The first external application target is now the unmodified
 server with no runtime dependencies. The goal is to classify request/filesystem
 paths that let an exception escape, and produce feasible evidence that can be
 replayed in Node. Its source revision, first input domain, and acceptance steps
-are recorded in the target document and linked from `AGENTS.md`. Analysis of that
-package has not been implemented yet; the examples below are passing foundations.
+are recorded in the target document and linked from `AGENTS.md`.
+[Pinned Node references](test/pico-static-server-reference.spec.ts) now reproduce
+an uncaught missing-default-file error and record the package's actual headers.
+[Prophet](test/pico-static-server-analysis.spec.ts) loads the unchanged module
+and produces its arrow factory, but invocation stops at default parameters.
+Other Node imports are opaque identities at this loading stage, not implemented
+APIs. The server's request paths have not yet been symbolically classified.
 
 ## First complete server proof: Node HTTP
 
@@ -238,8 +243,8 @@ model.eventsModule }` from one HTTP model, so their method identities and emitte
 state belong to the same host environment. An existing event model can instead
 be passed to `createHTTPModel(events)`.
 
-Next add reference specs for the pinned real application and close its first
-shared VM/Node gaps. Request body delivery and JSON parsing later lead back to
+Next implement shared default-parameter initialization for the real factory,
+then follow its next shared VM/Node gap. Request body delivery and JSON parsing later lead back to
 the discount application below. Finally, supply
 Express's unmodified sources as ordinary CommonJS dependencies: its routing and
 middleware must emerge from executing its code. Do not model `express()`,
@@ -620,13 +625,15 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **183 strict/sloppy variants of 92 complete,
+The active Test262 baseline runs **204 strict/sloppy variants of 106 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
 eval environments, expression evaluation order, catch/finally precedence,
 arithmetic primitives, unary signs, and parameter/lexical-declaration early
-errors, plus Error construction/formatting and string concatenation/coercion.
+errors, plus Error construction/formatting, string concatenation/coercion, and
+selected synchronous arrow-function behavior. Strictness follows actual directive
+source text; escaped or parenthesized strings do not become `use strict`.
 Parse-negative cases do not imply runtime support for their syntax.
 Further arithmetic boundary cases need
 the missing `Number` constants and global `isNaN`; the harness does not supply
@@ -642,12 +649,20 @@ source. The known-length minimum specs execute recursive calls. The
 unknown-length specs infer and verify reusable summaries as described below.
 
 Functions support identifier parameters, lexical captures, and block/catch
-scopes. Eval also instantiates declarations, isolates lexical names and strict
+scopes. [Synchronous arrow specs](test/arrow-functions.spec.ts) cover expression
+and block returns, lexical `this`, current captured bindings, `.call` ignoring
+the supplied receiver, conditional returns/throws, non-construction, absent own
+`prototype`, and syntax-derived `length`. Arrows introduce no implicit
+`arguments` binding. Their name inference and restricted caller/arguments
+accessors remain explicit metadata gaps. Pure recursive arrows can use the same
+verified array summaries; lexical `this` dependencies remain outside that subset.
+Eval also instantiates declarations, isolates lexical names and strict
 vars, and distinguishes direct caller lookup from indirect global lookup.
 Its general statement completion values remain incomplete; conditional creation
 of a var in an existing scope is explicitly rejected until binding presence can
-be represented on each path. Default/destructured parameters, `arguments`, arrow
-functions, complete global-object binding semantics, and sloppy block function
+be represented on each path. Default/rest/destructured parameter initialization,
+implicit `arguments` objects, async functions, complete global-object binding
+semantics, and sloppy block function
 compatibility rules (Annex B) remain incomplete. Environment records
 are retained in execution snapshots; reclamation of unreachable records is not
 implemented yet. Binding errors now use shared Error instances. Error cause

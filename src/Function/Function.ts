@@ -1,6 +1,6 @@
 import { TESString } from "../string/String";
 import {
-  Any, Undefined, FunctionImplementation, FunctionBinding, WithProperties, isReturnValue, isThrownValue, isUndefined, isESNull
+  Any, Undefined, ESNumber, FunctionImplementation, FunctionBinding, WithProperties, isReturnValue, isThrownValue, isUndefined, isESNull
 } from "../types";
 import {
   TExecutionContext, ExecutionContext, enterEnvironment, setEnvironment,
@@ -51,7 +51,7 @@ export const FunctionConstructor = ESFunction(function*(
 
 export function createFunction(
   statements: ESTree.Statement[], params: Array<ESTree.Pattern>, creationContext: TExecutionContext,
-  kind: { async?: boolean; generator?: boolean } = {}
+  kind: { async?: boolean; generator?: boolean; arrow?: boolean } = {}
 ) {
   // These kinds change invocation even when their bodies contain no await or
   // yield. Until modeled, never silently create an ordinary synchronous call.
@@ -59,6 +59,7 @@ export function createFunction(
   if (kind.async) throw new Error("Async functions are not yet supported");
   if (kind.generator) throw new Error("Generator functions are not yet supported");
   const environment = creationContext.value.environment;
+  const lexicalThis = creationContext.value.thisValue;
   const strict = !!creationContext.value.strict || hasUseStrict(statements);
   // Capture the environment identity, not its values or the caller's names.
   // Each call gets a fresh record; surviving closures keep that record alive in
@@ -69,8 +70,8 @@ export function createFunction(
     const callerEnvironment = execContext.value.environment;
     let activation = enterEnvironment(execContext, "function", environment);
     activation = ExecutionContext({ ...activation.value, strict });
-    let thisValue = self;
-    if (!strict) {
+    let thisValue = kind.arrow ? lexicalThis : self;
+    if (!kind.arrow && !strict) {
       if (isUndefined(self) || isESNull(self)) thisValue = creationContext.value.global;
       else if (!isObjectValue(self)) throw new Error("Sloppy receiver boxing is not yet supported");
     }
@@ -79,7 +80,7 @@ export function createFunction(
       activation = declareBinding(activation, identifierName(parameter), "parameter", true,
         args[index] === undefined ? Undefined : args[index]);
     });
-    if (!params.some(parameter => identifierName(parameter) === "arguments")) {
+    if (!kind.arrow && !params.some(parameter => identifierName(parameter) === "arguments")) {
       activation = putBinding(activation, activation.value.environment, "arguments", {
         kind: "var", mutable: true, initialized: true, value: Undefined,
         unmodeled: "Implicit arguments objects are not yet supported"
@@ -93,6 +94,19 @@ export function createFunction(
       })
     ));
   });
+  if (kind.arrow) {
+    // Arrows have neither [[Construct]] nor an own prototype. Their lexical
+    // receiver is independent of calls through .call or a property reference.
+    delete (result.properties as WithProperties["properties"]).prototype;
+    const firstOptional = params.findIndex(parameter =>
+      parameter.type === "AssignmentPattern" || parameter.type === "RestElement");
+    Object.assign(result.properties, { length: ESNumber(firstOptional < 0 ? params.length : firstOptional) });
+    Object.assign(result, {
+      nonConstructible: true,
+      unmodeledPropertyReads: ["name", "caller", "arguments"],
+      unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
+    });
+  }
   registerDefinition(result, { statements, params, environment });
   return result;
 }

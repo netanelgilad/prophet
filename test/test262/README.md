@@ -32,6 +32,35 @@ function-expression scope, plus direct eval's lexical lookup and strict variable
 isolation. Each source file is run whole, including both
 strictness variants where its metadata calls for them.
 
+Arrow-function selections add twelve complete files (nineteen strictness
+variants): expression and block returns, empty bodies, object literal returns,
+non-construction, strictness, an explicitly named `arguments` parameter, closure
+capture through direct eval, and lexical `this` through eval. The active corpus
+now contains 106 complete files and 204 variants. Local arrow specs additionally
+compare lexical `this` under ordinary calls and `.call`, late captured binding
+updates, conditional calls/throws, and absent own `prototype` with pinned Node.
+They also check syntax-derived arrow `length` without invoking unsupported
+parameter forms. Names, restricted caller/arguments accessors, and metadata
+assignment remain explicit analysis gaps. A recursive arrow minimum reuses the
+shared inferred summary for an unknown-length nonempty dense array of arbitrary
+finite numbers; lexical `this` dependencies cannot enter that pure summary.
+
+Nearby complete arrow cases remain blocked: `lexical-this.js` also requires
+`Function.prototype.apply` and `bind`; `cannot-override-this-with-thisArg.js`
+requires `Array.prototype.forEach`; `prototype-rules.js` requires
+`Object.getPrototypeOf` and `in`. Those files are not trimmed to keep only easier
+assertions. Default, rest, and destructuring parameters can be present when an
+arrow is created, but their initialization still reports an invocation gap.
+Inherited implicit `arguments` objects and async arrows likewise remain explicit
+VM gaps; these limits are not claims of arrow-function conformance.
+
+Two complete directive-prologue cases cover an escaped spelling that must not
+enable strict mode and an exact directive following another directive with
+automatic semicolon insertion. Local pinned-Node comparisons additionally check
+parenthesized strings and prologue termination across Programs, ordinary
+functions, arrows, and direct eval, including whether undeclared assignment
+throws a ReferenceError or creates a global property.
+
 The completion cases cover argument evaluation order, a throwing left operand
 of arithmetic and logical expressions, function-body throws, and return/throw
 precedence through nested `catch` and `finally` blocks. These concrete cases

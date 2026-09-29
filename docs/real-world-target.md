@@ -9,12 +9,16 @@ a small external project, keep its code unchanged, and then grow to larger
 applications and dependency graphs. Application names and source patterns must
 never become VM inference rules.
 
-**Selected target; analysis not implemented yet.** The first target is
+**Pinned reference established; full server analysis remains incomplete.** The first target is
 [`udivankin/pico-static-server` 3.0.3](https://github.com/udivankin/pico-static-server/tree/6b553fb34e3b5b5bccf3c082bb2cae5f93b9e3be).
-Prophet currently proves our own complete health-server example under the scoped
-HTTP model. That does not mean it can execute this package yet. This document
-records the direction for future sessions; it does not claim a discovered bug,
-complete analysis, or safety of the selected project.
+The complete published fixture is retained with its license and integrity
+records. Independent Node specs now exercise its real server and reproduce an
+escaping filesystem exception. Prophet loads the unchanged module and returns
+its actual arrow factory; invoking that factory stops at its default-parameter
+initialization. The other imported Node modules are explicitly opaque at this
+loading stage: their identity is supplied, and member access is unsupported.
+This is not yet a symbolic server proof or a Prophet-discovered bug. Our own
+complete health-server example remains the passing scoped HTTP proof.
 
 ## Why this project
 
@@ -81,12 +85,11 @@ Express, routing, or filesystem-success shortcut is allowed.
 | For a readable existing file or an absent path, what response is committed? | Status, headers/body, completion, and ordered read/response effects; HEAD's wire body must remain separate from data supplied by application code. |
 | Can a filesystem failure leave a response unfinished, or can the application's apparent error-response branch actually handle it? | Classify thrown and normal paths, without converting Node failures into successful return values or inventing an automatic 500 response. |
 
-The first question comes from inspecting the original source: it checks the
+The first question came from inspecting the original source: it checks the
 requested path, may append a default filename, calls `readFileSync`, and examines
-the returned value afterward. Whether the target's observable behavior violates
-the stated property must be established through execution and independent Node
-checks. Source inspection is **a hypothesis for the spec**, not a symbolic
-finding. Do not promise that the project contains a novel vulnerability.
+the returned value afterward. The independent Node reference now reproduces the
+failure described below. This is **concrete evidence, not a symbolic finding**
+or a claim of a novel vulnerability.
 
 Later questions include whether a requested path can read outside the configured
 root, including symbolic links and filesystem changes between operations. These
@@ -94,6 +97,35 @@ need richer string/path/filesystem reasoning and a carefully stated containment
 policy. Merely proving normalized string paths stay under a prefix cannot prove
 filesystem containment. Invalid persisted state remains a goal for the later
 write-based discount application; this first server primarily reads files.
+
+## Current executable evidence
+
+The [reference specs](../test/pico-static-server-reference.spec.ts) load the
+original package, invoke its public factory, and send real HTTP requests in
+isolated Node v24.21.0 children. They record filesystem calls and response state;
+an `uncaughtExceptionMonitor` observes failures without recovering them.
+
+- GET and HEAD for a directory missing its default file throw ENOENT from
+  original `index.js:126`, terminate the child with exit code 1, and never commit
+  headers or end a response. The later `data instanceof Error` branch is not
+  reached because `readFileSync` throws.
+- Existing files and a present directory index respond successfully; HEAD
+  performs the read but sends no wire body. An absent requested path returns
+  404. OPTIONS and POST do not reach request filesystem operations.
+- The reversed arguments in `writeHead(code, headers, http.STATUS_CODES[code])`
+  omit the intended Content-Type, Content-Length, and Allow headers on the pinned
+  Node release. Characters of the status text become numeric header names. The
+  reference records this behavior without repairing the package source.
+- Legacy `url.parse` emits Node's DEP0169 warning. Future host modeling must
+  retain that observable behavior or report the unmodeled diagnostic explicitly.
+
+The [Prophet analysis specs](../test/pico-static-server-analysis.spec.ts) load the
+same package entry source and metadata without rewriting arrow syntax. Loading
+creates the actual exported function without server or filesystem effects.
+Factory invocation currently reports the default-parameter gap, even when the
+caller supplies an options object. No HTTP request is symbolically analyzed yet.
+The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
+records the concrete domain, original wildcard listen behavior, and file hashes.
 
 ## Explicit first analysis domain
 
@@ -123,16 +155,17 @@ been analyzed. Keep both source coverage and domain coverage visible.
 
 ## Success criteria and next increments
 
-1. **Reference specs and provenance.** Vendor the pinned complete package with
-   integrity/license records. Add `test/*.spec.ts` containing the driver, public
-   options, filesystem setup, requests, and assertions. Run real requests against
-   the original code in isolated pinned-Node children, including success, missing
-   file, missing default file, HEAD, and non-reading method cases. Capture child
-   termination separately from ordinary HTTP errors. No standalone demo runner.
+1. **Reference specs and provenance: established.** The pinned complete package
+   has integrity/license records and byte-for-byte Git verification. Specs own
+   the driver, public options, filesystem setup, requests, and assertions for
+   success, missing path/default file, HEAD, and non-reading methods. Child
+   termination is distinct from ordinary HTTP errors. Preserve these cases as
+   the independent reference; they are not a symbolic proof.
 2. **Concrete whole-module execution in Prophet.** Close shared language gaps
-   required by this source, including arrow functions, default parameters, object
-   spread, template strings, and any uncovered `instanceof`/property semantics;
-   each needs its own relevant complete Test262 cases. Add the required public
+   required by this source. Synchronous arrows now support module loading;
+   default-parameter initialization is the first reached invocation gap. Object
+   spread, template strings, and any uncovered `instanceof`/property semantics
+   also need shared support, each with relevant complete Test262 cases. Add the required public
    Node response/Buffer, URL/path, filesystem, console, and listen-overload
    behavior using compatibility specs, not target-name rules. Establish the
    actual gap list from execution rather than assuming these features work.
@@ -156,8 +189,9 @@ been analyzed. Keep both source coverage and domain coverage visible.
    validation, write failures, and unwanted persisted state as that work becomes
    relevant. Express and its dependencies remain ordinary source above Node.
 
-Shared event-listener work now provides the immediate foundation for these steps.
-Next add the pinned reference fixture and identify its first execution gaps. Request
+Shared event listeners and arrow functions now provide the immediate foundation.
+Next implement shared parameter initialization with complete Test262 coverage,
+then follow the actual factory's next execution gap. Request
 body streams/JSON are not needed by this static server; do not make them a gate
 before demonstrating its first useful exception/effect result.
 

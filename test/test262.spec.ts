@@ -93,6 +93,26 @@ const activeCorpus = [
   "language/statements/function/S13_A6_T2.js",
   "language/statements/variable/S14_A1.js",
 
+  // Arrow returns, lexical capture/this, explicit arguments parameters,
+  // strictness, and non-construction. Each upstream file is run whole.
+  "language/expressions/arrow-function/expression-body-implicit-return.js",
+  "language/expressions/arrow-function/empty-function-body-returns-undefined.js",
+  "language/expressions/arrow-function/statement-body-requires-braces-must-return-explicitly.js",
+  "language/expressions/arrow-function/statement-body-requires-braces-must-return-explicitly-missing.js",
+  "language/expressions/arrow-function/object-literal-return-requires-body-parens.js",
+  "language/expressions/arrow-function/throw-new.js",
+  "language/expressions/arrow-function/strict.js",
+  "language/expressions/arrow-function/non-strict.js",
+  "language/expressions/arrow-function/lexical-bindings-overriden-by-formal-parameters-non-strict.js",
+  "language/expressions/arrow-function/arrow/capturing-closure-variables-1.js",
+  "language/expressions/arrow-function/arrow/binding-tests-1.js",
+  "language/expressions/arrow-function/arrow/binding-tests-3.js",
+
+  // Strict directives use source spelling and the directive prologue, not the
+  // cooked value of arbitrary string expressions.
+  "language/directive-prologue/14.1-5-s.js",
+  "language/directive-prologue/14.1-14-s.js",
+
   // Formal parameter names cannot be redeclared lexically in the same
   // function body. Parse-negative cases do not imply generator/async runtime
   // support; each complete upstream source must fail before evaluation.
