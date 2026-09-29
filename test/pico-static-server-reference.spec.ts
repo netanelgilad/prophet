@@ -251,7 +251,7 @@ describe("unmodified pico-static-server 3.0.3: concrete pinned Node reference", 
     ]);
   });
 
-  for (const [method, status, statusMessage] of [["OPTIONS", 200, "OK"], ["POST", 405, "Method Not Allowed"]] as Array<[string, number, string]>) {
+  for (const [method, status, statusMessage] of [["OPTIONS", 200, "OK"], ["POST", 405, "Method Not Allowed"], ["DELETE", 405, "Method Not Allowed"]] as Array<[string, number, string]>) {
     test(`${method} does not reach filesystem operations, even for a directory with no index`, () => {
       const result = observeServer(method, "/empty/");
       expectResponse(result, status, statusMessage, "");

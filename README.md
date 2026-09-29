@@ -170,10 +170,18 @@ Default initialization, options spreads, and `listen(port, callback)` complete
 under the declared successful-bind environment. The factory returns its actual
 modeled server. Delivering its deferred listening callback now evaluates its
 original template and captures its console message under an explicit healthy-
-stdout assumption. Real request delivery reaches the next boundaries:
-`writeHead` for OPTIONS and unsupported methods, and `path.join` for GET/HEAD.
-An HTTPS override still reaches the opaque HTTPS API. Other Node imports remain
-opaque identities; the server's request paths have not yet been classified.
+stdout assumption. Real OPTIONS, POST, and DELETE requests now complete. With an
+explicitly delivered request event with an unknown method constrained to exclude
+GET/HEAD, Prophet proves a 200
+response for OPTIONS and 405 otherwise, an empty body, and an absent `Allow`
+header. The unchanged package reverses the headers/reason arguments to
+`writeHead`, so Node enumerates the status text as numeric header names and
+ignores its intended headers. Pinned Node references confirm this behavior.
+The response status remains unknown until the method is constrained further.
+This starts after protocol dispatch: traffic such as CONNECT uses other Node
+events, so it does not establish a response for every possible wire request.
+GET/HEAD still stop at `path.join`; an HTTPS override reaches the opaque HTTPS
+API. Filesystem exception classification remains unfinished.
 
 [Untagged templates](test/template-literals.spec.ts) use shared string conversion
 and preserve substitution order, effects, and throws. The scoped
@@ -244,6 +252,18 @@ suppression, UTF-8 replacement of lone surrogates, and status normalization.
 Unknown string payloads remain unknown after encoding; no unsupported identity
 between original code units and decoded wire text is assumed.
 
+[Header compatibility specs](test/node-http-headers.spec.ts) cover direct
+`writeHead` overloads, validation and retry order, finite conditional fields, and
+the distinction between public status fields and committed output. `end` now
+uses the same header operation implicitly. `inspectResponse` adds the committed
+`statusMessage` and a `headers` object containing explicit serialized fields,
+with lowercased names and exact value whitespace. Automatic Date, connection,
+and framing fields are excluded from this projection. It is not Node's
+`getHeaders` API or a complete wire-header model.
+The [status catalog](test/node-http-status-codes.spec.ts) contains all 63 pinned
+Node entries and preserves mutations through ordinary VM state. Replacing the
+exported table does not replace the original table used for default reasons.
+
 This proof assumes successful `listen(0, "127.0.0.1"[, callback])`, one delivered
 request, and successful response completion. The surface supports multiple
 request listeners, method/URL reads, numeric status values, and a string/null/
@@ -279,9 +299,11 @@ model.eventsModule }` from one HTTP model, so their method identities and emitte
 state belong to the same host environment. An existing event model can instead
 be passed to `createHTTPModel(events)`.
 
-Next implement response headers and the HTTP status catalog needed by the real
-factory's OPTIONS and unsupported-method paths. GET/HEAD retain path, URL, and
-filesystem boundaries. Request body delivery and JSON parsing later lead back to
+Next implement the shared POSIX path and legacy URL operations reached by the
+real factory's GET/HEAD paths, then correlated filesystem behavior. Header
+arrays/duplicates, progressive header APIs, effectful value conversion, open
+symbolic text, and transport-sensitive fields including Content-Length remain
+explicit gaps in the backlog. Request body delivery and JSON parsing later lead back to
 the discount application below. Finally, supply
 Express's unmodified sources as ordinary CommonJS dependencies: its routing and
 middleware must emerge from executing its code. Do not model `express()`,

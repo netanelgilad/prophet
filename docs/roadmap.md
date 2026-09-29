@@ -46,11 +46,19 @@ now let the unchanged factory return its actual HTTP server for default port 808
 and supplied port 0. This assumes successful wildcard binding in the declared
 primary-process environment. Delivering the deferred listening callback now
 executes its untagged template and records the original console message, assuming
-healthy stdout. Real request delivery next reaches response.writeHead for
-OPTIONS/unsupported methods and path.join for GET/HEAD. Response headers/status
-catalog support is the next increment; HTTPS/URL/fs/path remain opaque imports.
+healthy stdout. Shared writeHead serialization and the pinned status catalog now
+complete OPTIONS/POST/DELETE responses. For an explicitly delivered request
+event with an unknown method constrained to be neither GET nor HEAD, Prophet
+proves an empty body, status 200 for OPTIONS or 405
+otherwise, and the missing intended Allow field caused by reversed arguments.
+This symbolically reproduces the native reference's header observation, not a
+novel vulnerability. GET/HEAD next reach path.join; HTTPS/URL/fs/path remain
+opaque imports, and the missing-default-file exception is not yet analyzed.
+Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
+symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations
-still need their own semantics and specs before any symbolic server claim. Destructured/rest
+still need their own semantics and specs before file-serving or broader server
+claims. Destructured/rest
 parameters and implicit arguments remain separate language gaps.
 
 The shared VM already handles selected symbolic branches, mutable objects,
@@ -229,7 +237,8 @@ pinned runtime and corresponding source/tests as the behavioral reference.
 The model supports optional/multiple request listeners, numeric
 `listen(port[, callback])` and `listen(port, "127.0.0.1"[, callback])`,
 explicit successful listening/request/finish delivery, selected response fields,
-and `end` with a string/null/undefined payload. Resource state uses the persistent
+direct writeHead, the pinned status catalog, and `end` with a string/null/undefined
+payload. Resource state uses the persistent
 heap, and callbacks use the current context and their captured environment.
 Under the declared successful-binding environment, omitted-host calls bind
 immediately while listening callbacks stay deferred. The explicit loopback-host
@@ -308,7 +317,9 @@ Continue in these layers, each with specs and its own stacked PR:
 3. **HTTP response behavior:** the scoped health-server proof passes, including
    completion flags, committed wire status, and HEAD body suppression. Numeric
    status conversion, null/empty payloads, 204/304, and UTF-8 edge cases have
-   independent Node checks. Headers, stream writes, socket failures, and richer
+   independent Node checks. Direct writeHead now commits explicit data/string
+   header fields and a status/reason, with failure-order and snapshot checks.
+   Progressive/framing headers, stream writes, socket failures, and richer
    completion schedules remain. No real sockets run in symbolic analysis.
 4. **Shared event listeners:** the scoped registration, invocation order,
    removal, one-time listeners, mutation during delivery, failures, and
@@ -321,9 +332,12 @@ Continue in these layers, each with specs and its own stacked PR:
    when invoking the factory. Shared data-object spread merges options, and the
    numeric omitted-host listen overload now returns its server under the stated
    successful-binding assumption. Shared templates and console effects now
-   complete the original listening callback under healthy stdout. Next model
-   response headers/status codes reached by OPTIONS/unsupported methods. GET/HEAD
-   separately reach path/URL gaps. Continue filling shared language, response,
+   complete the original listening callback under healthy stdout. Scoped direct
+   headers/status codes now complete OPTIONS/POST/DELETE, and explicitly delivered
+   request events with symbolic non-GET/HEAD methods prove missing Allow plus
+   conditional 200/405 responses. Wire-to-event dispatch remains unmodeled. The inspected
+   fields exclude automatic Date/connection/framing. GET/HEAD next reach path/URL
+   gaps. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add
    symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model

@@ -191,7 +191,7 @@ test("a returned listener value does not fabricate an HTTP response", () => {
   const delivered = model.deliverRequest(server, request, ready);
   expect(delivered.result[0]).toBe(Undefined);
   expect(getProperties(delivered.response, delivered.result[1]).writableEnded).toMatchObject({ value: false });
-  expect(model.inspectResponse(delivered.response, delivered.result[1])).toEqual({ body: Undefined, statusCode: Undefined });
+  expect(model.inspectResponse(delivered.response, delivered.result[1])).toEqual({ body: Undefined, statusCode: Undefined, statusMessage: Undefined, headers: Undefined });
   expect(() => model.completeResponse(delivered.response, delivered.result[1])).toThrow(/HTTP/);
 });
 
@@ -208,7 +208,7 @@ test("a thrown request callback preserves earlier effects and propagates without
   const delivered = model.deliverRequest(server, request, ready);
   expect(delivered.result[0]).toMatchObject({ type: "ThrownValue", value: { value: "listener failed" } });
   expect(observe(exports, "loaded.read()", delivered.result[1])).toMatchObject({ value: 1 });
-  expect(model.inspectResponse(delivered.response, delivered.result[1])).toEqual({ body: Undefined, statusCode: Undefined });
+  expect(model.inspectResponse(delivered.response, delivered.result[1])).toEqual({ body: Undefined, statusCode: Undefined, statusMessage: Undefined, headers: Undefined });
   expect(effectPaths(delivered.result[1].value.effects!)[0].events
     .filter(event => event.call.operation === "http.response.end")).toHaveLength(0);
 });
@@ -238,7 +238,7 @@ test("a conditional callback throw retains its completion, updated capture, and 
     const wire = model.inspectResponse(delivered.response, branch);
     if (failed) {
       expect(completion).toMatchObject({ type: "ThrownValue", value: { value: "listener failed" } });
-      expect(wire).toEqual({ body: Undefined, statusCode: Undefined });
+      expect(wire).toEqual({ body: Undefined, statusCode: Undefined, statusMessage: Undefined, headers: Undefined });
       expect(getProperties(delivered.response, branch).writableEnded).toMatchObject({ value: false });
     } else {
       expect(completion).toBe(Undefined);
@@ -461,7 +461,7 @@ for (const invalidStatus of ["99", "1000", "NaN"]) {
     expect(endEvents.map(event => event.kind)).toEqual(["call", "throw", "call", "return"]);
     const failedContext = effectContext(endEvents[1], handled);
     expect(model.inspectResponse(delivered.response, failedContext))
-      .toEqual({ statusCode: Undefined, body: Undefined });
+      .toEqual({ statusCode: Undefined, body: Undefined, statusMessage: Undefined, headers: Undefined });
     expect(getProperties(delivered.response, failedContext)).toMatchObject({
       headersSent: { value: false }, writableEnded: { value: false }, writableFinished: { value: false }
     });
