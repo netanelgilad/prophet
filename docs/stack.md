@@ -18,7 +18,7 @@
 | Conditional host effects and the Express discount North Star | `stack/guarded-server-effects` | `stack/error-string-coercion` | [#36](https://github.com/netanelgilad/prophet/pull/36) |
 | Node HTTP full-program reference and host-boundary roadmap | `stack/node-http-north-star` | `stack/guarded-server-effects` | [#37](https://github.com/netanelgilad/prophet/pull/37) |
 | Builtin registration and symbolic Node HTTP lifecycle | `stack/node-http-lifecycle` | `stack/node-http-north-star` | [#38](https://github.com/netanelgilad/prophet/pull/38) |
-| Shared event listeners and first real application target | `stack/node-event-listeners` | `stack/node-http-lifecycle` | Pending publication |
+| Shared event listeners and first real application target | `stack/node-event-listeners` | `stack/node-http-lifecycle` | [#39](https://github.com/netanelgilad/prophet/pull/39) |
 
 Current development tip: `stack/node-event-listeners`.
 
