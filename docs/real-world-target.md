@@ -14,9 +14,11 @@ never become VM inference rules.
 The complete published fixture is retained with its license and integrity
 records. Independent Node specs now exercise its real server and reproduce an
 escaping filesystem exception. Prophet loads the unchanged module and returns
-its actual arrow factory; invoking that factory stops at its default-parameter
-initialization. The other imported Node modules are explicitly opaque at this
-loading stage: their identity is supplied, and member access is unsupported.
+its actual arrow factory. Invoking it now evaluates its identifier default
+parameter and reaches the first body statement's unsupported object spread,
+whether options are omitted, explicitly undefined, or supplied. The other
+imported Node modules are explicitly opaque at this loading stage: their
+identity is supplied, and member access is unsupported.
 This is not yet a symbolic server proof or a Prophet-discovered bug. Our own
 complete health-server example remains the passing scoped HTTP proof.
 
@@ -122,8 +124,13 @@ an `uncaughtExceptionMonitor` observes failures without recovering them.
 The [Prophet analysis specs](../test/pico-static-server-analysis.spec.ts) load the
 same package entry source and metadata without rewriting arrow syntax. Loading
 creates the actual exported function without server or filesystem effects.
-Factory invocation currently reports the default-parameter gap, even when the
-caller supplies an options object. No HTTP request is symbolically analyzed yet.
+Factory invocation now initializes the original `customOptions = {}` parameter
+and reports the next reached gap: `Object spread and accessors are not yet
+supported` at `const options = { ...DEFAULT_OPTIONS, ...customOptions }` in
+original `index.js:106`. The boundary specs cover omitted arguments, explicit
+`undefined`, and a supplied options object; they do not replace the factory's
+parameter handling or options merge. No server is created and no HTTP request
+is symbolically analyzed yet.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
 records the concrete domain, original wildcard listen behavior, and file hashes.
 
@@ -162,11 +169,14 @@ been analyzed. Keep both source coverage and domain coverage visible.
    termination is distinct from ordinary HTTP errors. Preserve these cases as
    the independent reference; they are not a symbolic proof.
 2. **Concrete whole-module execution in Prophet.** Close shared language gaps
-   required by this source. Synchronous arrows now support module loading;
-   default-parameter initialization is the first reached invocation gap. Object
-   spread, template strings, and any uncovered `instanceof`/property semantics
-   also need shared support, each with relevant complete Test262 cases. Add the required public
-   Node response/Buffer, URL/path, filesystem, console, and listen-overload
+   required by this source. Synchronous arrows now support module loading, and
+   identifier default parameters execute when the actual factory is invoked.
+   Object spread is the next reached gap, in its initial options construction.
+   Implement it through shared own-property copying and preserve evaluation
+   order, overwrites, conditional properties, and explicit unsupported property
+   behavior. Template strings and any uncovered `instanceof`/property semantics
+   also need shared support, each with relevant complete Test262 cases. Add the
+   required public Node response/Buffer, URL/path, filesystem, console, and listen-overload
    behavior using compatibility specs, not target-name rules. Establish the
    actual gap list from execution rather than assuming these features work.
 3. **Symbolic classification.** Run the same entire module with symbolic request
@@ -189,11 +199,14 @@ been analyzed. Keep both source coverage and domain coverage visible.
    validation, write failures, and unwanted persisted state as that work becomes
    relevant. Express and its dependencies remain ordinary source above Node.
 
-Shared event listeners and arrow functions now provide the immediate foundation.
-Next implement shared parameter initialization with complete Test262 coverage,
-then follow the actual factory's next execution gap. Request
-body streams/JSON are not needed by this static server; do not make them a gate
-before demonstrating its first useful exception/effect result.
+Shared event listeners, arrow functions, and identifier default parameters now
+provide the immediate foundation. Next implement object spread using shared
+property semantics and relevant complete Test262 cases, then follow the actual
+factory's next execution gap. Destructured/rest parameters and implicit arguments
+remain separate language gaps; this parameter milestone does not claim full
+function conformance. Request body streams/JSON are not needed by this static
+server; do not make them a gate before demonstrating its first useful
+exception/effect result.
 
 An analysis report must distinguish **proved within domain**, **violation with
 feasible evidence** (and whether replay passed), **unknown**, and **unsupported**.

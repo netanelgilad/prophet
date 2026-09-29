@@ -33,11 +33,14 @@ correctness, and update the target's status without weakening its success criter
 Current target progress: the complete nine-file published package is vendored
 and hash checked, with real HTTP/filesystem reference specs on pinned Node.
 Synchronous arrow support lets Prophet load its unchanged module and return the
-actual factory. Calling the factory reaches unsupported default parameters;
-that shared parameter-initialization feature is next. HTTPS/URL/fs/path imports
+actual factory. Shared identifier default parameters now initialize its original
+`customOptions = {}` for omitted/undefined arguments and preserve supplied
+options. Calling the factory reaches unsupported object spread in the first
+body statement; shared own-property copying is next. HTTPS/URL/fs/path imports
 currently supply opaque identities for loading only, not API implementations.
 Object spread, later expressions, and the required Node operations still need
-their own semantics and specs before any symbolic server claim.
+their own semantics and specs before any symbolic server claim. Destructured/rest
+parameters and implicit arguments remain separate language gaps.
 
 The shared VM already handles selected symbolic branches, mutable objects,
 closures, return/throw paths, recursive summaries, numeric bounds, and CommonJS
@@ -298,10 +301,11 @@ Continue in these layers, each with specs and its own stacked PR:
    delivery. Metadata events, warnings, streams, and broader APIs remain gaps.
 5. **First real application:** follow [the pinned target contract](real-world-target.md).
    Whole-source provenance and Node reference specs are established. Arrow
-   functions now allow the actual module to load; default parameters are the
-   next reached invocation gap. Continue filling the shared
-   language, response, URL/path, and filesystem gaps needed for concrete module
-   execution. Add symbolic request and filesystem choices, classify exception
+   functions allow the actual module to load, and identifier defaults now run
+   when invoking the factory. Object spread in its initial options construction
+   is the next reached gap. Continue filling the shared language, response,
+   URL/path, and filesystem gaps needed for concrete module execution. Add
+   symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model
    is needed to analyze the static server. Document remaining domains rather than
    claiming full application safety from the first bounded proof.

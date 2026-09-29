@@ -17,7 +17,7 @@ export function hasUseStrict(statements: ESTree.Statement[]): boolean {
 }
 
 export function identifierName(pattern: ESTree.Pattern): string {
-  assert(pattern.type === "Identifier", "Destructured bindings and parameter defaults are not yet supported");
+  assert(pattern.type === "Identifier", "Only identifier binding patterns are currently supported; destructuring and rest parameters remain unmodeled");
   return (pattern as ESTree.Identifier).name;
 }
 

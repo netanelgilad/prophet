@@ -8,7 +8,7 @@ import { EffectTrace } from "../effects/model";
 // owns a persistent version of the records, just as it does for object state.
 export type Environment = {
   parent?: Environment;
-  kind: "global" | "function" | "block" | "named-function";
+  kind: "global" | "function" | "parameters" | "block" | "named-function";
   // Some host environments expose a global object without yet modeling the
   // object-backed var/function declaration record. Never create private vars
   // there that falsely appear to be shared host globals.

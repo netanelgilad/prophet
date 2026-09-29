@@ -83,6 +83,16 @@ describe("Test262 runner cannot silently pass failures", () => {
     expect(variantsFor(parseTest262("/*---\nflags: [raw]\n---*/"))).toEqual(["raw"]);
   });
 
+  test("generated source metadata keeps the complete file and ordinary strictness variants", () => {
+    const file = parseTest262('/*---\nflags: [generated]\n---*/\nassert.sameValue(1, 1);');
+    expect(variantsFor(file)).toEqual(["sloppy", "strict"]);
+    for (const variant of variantsFor(file)) runTest262Variant(file, variant);
+    const failure = parseTest262('/*---\nflags: [generated]\n---*/\nassert.sameValue(1, 2);');
+    expect(() => runTest262Variant(failure, "sloppy")).toThrow("sameValue failed");
+    expect(() => runTest262Variant(failure, "strict")).toThrow("sameValue failed");
+    expect(variantsFor(parseTest262("/*---\nflags: [generated, noStrict]\n---*/"))).toEqual(["sloppy"]);
+  });
+
   test("unsupported metadata is rejected instead of ignored", () => {
     for (const metadata of [
       "flags: [async]",

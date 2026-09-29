@@ -68,8 +68,10 @@ HTTP 500. The parent asserts the child's actual exit status and stderr.
 These concrete cases establish an independent target for future symbolic
 execution, not a proof of all inputs, a discovered new vulnerability, or evidence
 that Prophet already executes the package's complete server flow. The analysis
-spec currently loads its unchanged module but stops at default parameters when
-invoking the actual factory. Broader filesystem permissions,
-races, symlinks, paths, protocols, configuration, and schedules remain outside
+spec currently loads its unchanged module and initializes the actual factory's
+identifier default parameter; it then stops at object spread in the first body
+statement. Omitted, explicitly undefined, and provided options reach that same
+unsupported operation. Broader filesystem permissions, races, symlinks, paths,
+protocols, configuration, and schedules remain outside
 this initial reference domain. See `docs/real-world-target.md` for the durable
 analysis goal and limitations.

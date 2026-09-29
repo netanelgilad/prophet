@@ -242,6 +242,44 @@ test("a host model implementation failure cannot be caught as a JavaScript failu
   })).toThrow(/model implementation failed/);
 });
 
+test("default parameter effects and failures occur only on the paths that need initialization", () => {
+  const missing = ESBoolean();
+  const fails = ESBoolean();
+  const context = run(`
+    before();
+    function run(value = initialize(), next = later()) { body(value); return value; }
+    let caught = false;
+    let value;
+    try { value = run(missing ? undefined : 7); }
+    catch (error) { caught = error === "failed"; }
+    const classified = caught === (missing && fails);
+    const correctValue = missing ? (fails ? value === undefined : value === 17) : value === 7;
+    const uncertain = caught;
+  `, {
+    missing, fails, before: recording("before"), later: recording("later"), body: recording("body"),
+    initialize: createHostFunction("initialize", (_call, current) => evaluateBranches(fails, current,
+      rejected => [ThrownValue(ESString("failed")), rejected], accepted => [ESNumber(17), accepted]))
+  });
+  expect(resolveBoolean(context.value.scope.classified as ReturnType<typeof ESBoolean>, context.value.knowledge)).toBe(true);
+  expect(resolveBoolean(context.value.scope.correctValue as ReturnType<typeof ESBoolean>, context.value.knowledge)).toBe(true);
+  expect(resolveBoolean(context.value.scope.uncertain as ReturnType<typeof ESBoolean>, context.value.knowledge)).toBeUndefined();
+  const paths = effectPaths(context.value.effects!);
+  expect(paths).toHaveLength(3);
+  for (const path of paths) {
+    const initialized = resolveBoolean(missing, path.knowledge);
+    expect(initialized).not.toBeUndefined();
+    const failed = initialized && resolveBoolean(fails, path.knowledge);
+    if (initialized) expect(failed).not.toBeUndefined();
+    expect(labels(path.events)).toEqual([
+      "before:call", "before:return",
+      ...(initialized ? ["initialize:call", failed ? "initialize:throw" : "initialize:return"] : []),
+      ...(failed ? [] : ["later:call", "later:return", "body:call", "body:return"])
+    ]);
+    // The prefix before parameter branching is shared, never replayed.
+    expect(path.events[0]).toBe(paths[0].events[0]);
+  }
+});
+
 test("a suffix after a branch is recorded once per feasible path", () => {
   const selected = ESBoolean();
   const context = run(`

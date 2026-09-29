@@ -42,13 +42,14 @@ test("the unmodified published static-server module loads its actual arrow facto
   expect(result.value.scope.noPrototype).toMatchObject({ value: true });
 });
 
-for (const argument of ["", '{ port: 0, protocol: "http", staticPath: "/site" }']) {
-  test(`the real factory call exposes the next parameter-initialization gap: (${argument})`, () => {
+for (const argument of ["", "undefined", '{ port: 0, protocol: "http", staticPath: "/site" }']) {
+  test(`the real factory initializes its parameter and reaches the object-spread gap: (${argument})`, () => {
     const [factory, context] = packageLoader().load("/app/entry.cjs", nodeInitialExecutionContext);
-    // The source's customOptions = {} parameter is not rewritten or bypassed,
-    // including when the caller supplies a concrete value. This is a coverage
-    // boundary, not a successful server proof or a caught program exception.
+    // Execute the original customOptions = {} parameter, including omitted
+    // and explicitly undefined arguments. The first body statement then reaches
+    // its original object spreads. This is a coverage boundary, not a successful
+    // server proof or a caught program exception; no source is bypassed.
     expect(() => evaluateCode(`factory(${argument});`, setVariablesInScope(context, { factory })))
-      .toThrow("Destructured bindings and parameter defaults are not yet supported");
+      .toThrow("Object spread and accessors are not yet supported");
   });
 }
