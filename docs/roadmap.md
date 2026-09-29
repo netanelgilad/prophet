@@ -35,10 +35,13 @@ and hash checked, with real HTTP/filesystem reference specs on pinned Node.
 Synchronous arrow support lets Prophet load its unchanged module and return the
 actual factory. Shared identifier default parameters now initialize its original
 `customOptions = {}` for omitted/undefined arguments and preserve supplied
-options. Shared data-object spread now merges those options and reaches the HTTP
-server's `listen(port, callback)` call. The model's omitted-host/configured-port
-overload is the next compatibility gap. HTTPS/URL/fs/path imports
-currently supply opaque identities for loading only, not API implementations.
+options. Shared data-object spread merges those options; numeric listen overloads
+now let the unchanged factory return its actual HTTP server for default port 8080
+and supplied port 0. This assumes successful wildcard binding in the declared
+primary-process environment; the callback is still deferred. Delivering the real
+listening callback next reaches the opaque `console.log` member, before its
+template argument. HTTPS/URL/fs/path imports and the supplied console global
+currently have opaque identities, not API implementations.
 Broader property descriptors, later expressions, and the required Node operations
 still need their own semantics and specs before any symbolic server claim. Destructured/rest
 parameters and implicit arguments remain separate language gaps.
@@ -216,10 +219,15 @@ reference specs are local cases, not upstream conformance.
 See [Node's HTTP API](https://nodejs.org/api/http.html), while treating the
 pinned runtime and corresponding source/tests as the behavioral reference.
 
-The model supports optional/multiple request listeners, `listen(0, "127.0.0.1"[, callback])`,
+The model supports optional/multiple request listeners, numeric
+`listen(port[, callback])` and `listen(port, "127.0.0.1"[, callback])`,
 explicit successful listening/request/finish delivery, selected response fields,
 and `end` with a string/null/undefined payload. Resource state uses the persistent
 heap, and callbacks use the current context and their captured environment.
+Under the declared successful-binding environment, omitted-host calls bind
+immediately while listening callbacks stay deferred. The explicit loopback-host
+form waits for modeled lookup/binding completion. Address allocation, binding
+failures, and broader listen overloads remain separate coverage gaps.
 Unknown or invalid lifecycle transitions stop analysis instead of picking a
 convenient path. A thrown callback remains a thrown or forked completion with
 prior effects. The embedding may constrain a path and continue from that state.
@@ -303,9 +311,11 @@ Continue in these layers, each with specs and its own stacked PR:
 5. **First real application:** follow [the pinned target contract](real-world-target.md).
    Whole-source provenance and Node reference specs are established. Arrow
    functions allow the actual module to load, and identifier defaults now run
-   when invoking the factory. Shared data-object spread merges options; the next
-   reached gap is `listen(port, callback)` with omitted host. Extend that public
-   Node overload against pinned references. Continue filling shared language, response,
+   when invoking the factory. Shared data-object spread merges options, and the
+   numeric omitted-host listen overload now returns its server under the stated
+   successful-binding assumption. Delivery of the original listening callback
+   stops at opaque `console.log`; its template argument has not executed. Model
+   that ordered host effect and the shared template semantics next. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add
    symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model

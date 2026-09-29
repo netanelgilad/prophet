@@ -298,7 +298,7 @@ test("requests cannot run before listening completes or on a server from another
 
 for (const source of [
   'require("node:http").createServer({});',
-  'require("node:http").createServer(function() {}).listen(3000);'
+  'require("node:http").createServer(function() {}).listen({ port: 3000 });'
 ]) {
   test(`unsupported HTTP overloads and APIs remain explicit gaps: ${source}`, () => {
     expect(() => load(source)).toThrow(/HTTP|host property/);

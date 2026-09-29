@@ -1,17 +1,19 @@
-import { invoke } from "../ASTResolvers";
+import { invoke, readMember } from "../ASTResolvers";
 import { isESFunction } from "../Function/Function";
+import { getFunctionPrototype } from "../Function/prototype";
 import { ESObject, TESObject } from "../Object";
+import { getObjectPrototype } from "../Object/prototype";
 import { ESBoolean } from "../boolean/ESBoolean";
 import { withValue } from "../conversion/toString";
 import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
-import { BranchResult } from "../execution-context/branches";
+import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getProperties, writeProperty } from "../execution-context/Heap";
 import { ESString, TESString } from "../string/String";
 import { resolveBoolean, selectValue, strictEquality } from "../symbolic";
-import { Any, ESNumber, isESNumber, isESNull, isESString, isUndefined,
+import { Any, ESNumber, TESBoolean, isESNumber, isESNull, isESString, isUndefined,
   ThrownValue, Undefined } from "../types";
 import { createEventEmitterModel } from "./events";
 
@@ -39,8 +41,10 @@ function change(object: TESObject, properties: { [name: string]: Any }, context:
 /**
  * Explicit Node HTTP boundary for one declared successful transport schedule.
  * No native HTTP object, socket, timer, or callback queue runs during analysis.
- * The embedding chooses when listening and response completion succeed and when
- * a parsed request arrives. Other outcomes need additional compatible models.
+ * In the primary process, omitted-host binding succeeds during listen itself;
+ * its event is deferred. Explicit-host lookup/binding completes on delivery.
+ * The embedding chooses when those events and parsed requests arrive. Binding
+ * failures, cluster workers, and other schedules need compatible models.
  */
 export function createHTTPModel(events = createEventEmitterModel()) {
   const unsupportedServerEvents = ["connection", "close", "error", "drop", "checkContinue",
@@ -74,19 +78,77 @@ export function createHTTPModel(events = createEventEmitterModel()) {
 
   const listen = operation("http.server.listen", (call, context) => {
     const state = serverState(call.receiver);
-    // This overload does deferred host lookup before binding even for loopback.
-    // Port assignment/address and the other overloads remain explicit gaps.
-    if (call.args.length < 2 || call.args.length > 3 ||
-        !isESNumber(call.args[0]) || call.args[0].value !== 0 ||
-        !isESString(call.args[1]) || call.args[1].value !== "127.0.0.1" ||
-        (call.args.length === 3 && !isESFunction(call.args[2]))) {
-      unsupported("listen requires (0, '127.0.0.1'[, callback])");
-    }
-    requireState(state, "created", context);
-    const starting = change(state, { phase: ESString("starting") }, context);
-    return call.args.length === 3
-      ? events.register(call.receiver, "listening", call.args[2], true, starting)
-      : [call.receiver, starting];
+    const failure = (name: "Error" | "RangeError", code: string, message: string,
+      branch: TExecutionContext): BranchResult => {
+      const error = createError(name, ESString(message));
+      error.properties.code = ESString(code);
+      return [ThrownValue(error), branch];
+    };
+    const start = (args: Any[], branch: TExecutionContext): BranchResult => {
+      const port = args[0];
+      const explicitHost = args.length >= 2 && isESString(args[1]) && args[1].value === "127.0.0.1";
+      const callback = args[explicitHost ? 2 : 1] || Undefined;
+      if (!port || !isESNumber(port) || typeof port.value !== "number") {
+        return unsupported("listen requires a concrete numeric port; unknown numbers and other port forms");
+      }
+      const portNumber = port.value;
+      if (args.length > (explicitHost ? 3 : 2) ||
+          (!isUndefined(callback) && !isESFunction(callback)) ||
+          (!explicitHost && args.length > 1 && !isESFunction(args[1]))) {
+        return unsupported("listen overloads other than (port[, callback]) or (port, '127.0.0.1'[, callback])");
+      }
+      // Node builds ordinary normalized options. Inherited options can alter
+      // binding, even when this public call supplies only a numeric port.
+      const defaults = getProperties(getObjectPrototype(), branch);
+      if (["host", "_handle", "handle", "fd", "backlog", "reusePort", "exclusive", "ipv6Only", "signal", "blockList"]
+        .some(name => Object.prototype.hasOwnProperty.call(defaults, name))) {
+        return unsupported("inherited listen options on Object.prototype");
+      }
+      const validate = (after: TExecutionContext): BranchResult => {
+        if (!Number.isInteger(portNumber) || portNumber < 0 || portNumber > 65535) {
+          return failure("RangeError", "ERR_SOCKET_BAD_PORT",
+            `options.port should be >= 0 and < 65536. Received type number (${portNumber}).`, after);
+        }
+        // The declared environment assumes binding succeeds. Hostless Node
+        // binds inline; a supplied host first performs asynchronous lookup.
+        const bound = ESBoolean(!explicitHost);
+        const starting = change(state, { phase: ESString("starting"), bound,
+          port: ESNumber(portNumber | 0), host: explicitHost ? args[1] : Undefined }, after);
+        return [call.receiver, writeProperty(call.receiver as TESObject, "listening", bound, starting)];
+      };
+      const afterRegistration = (after: TExecutionContext): BranchResult => {
+        if (isUndefined(callback)) return validate(after);
+        // net.listen also attempts Number(callback) as a possible backlog.
+        // Ordinary functions convert to NaN. Custom conversion can execute
+        // arbitrary code; do not erase those effects until it is modeled.
+        return bindNormal(readMember(callback, "valueOf", after), (valueOf, afterValueOf) =>
+          bindNormal(readMember(callback, "toString", afterValueOf), (toString, afterToString) => {
+            if (valueOf !== getObjectPrototype().properties.valueOf ||
+                toString !== getFunctionPrototype().properties.toString) {
+              return unsupported("custom listen callback backlog conversion");
+            }
+            return validate(afterToString);
+          }));
+      };
+      // Registration precedes port validation. A callback from a failed call
+      // stays registered and can run after a later successful retry.
+      return isUndefined(callback) ? afterRegistration(branch) :
+        bindNormal(events.register(call.receiver, "listening", callback, true, branch),
+          (_value, after) => afterRegistration(after));
+    };
+    // Node checks an existing handle before registering another callback or
+    // validating its port. Pending explicit-host lookup has no handle yet.
+    const bound = getProperties(state, context).bound;
+    if (!bound) return unsupported("server state is not initialized in this context");
+    return evaluateBranches(bound as TESBoolean, context,
+      branch => failure("Error", "ERR_SERVER_ALREADY_LISTEN", "Listen method has been called more than once without closing.", branch),
+      branch => {
+        requireState(state, "created", branch);
+        const select = (index: number, args: Any[], current: TExecutionContext): BranchResult =>
+          index === call.args.length ? start(args, current) :
+            withValue(call.args[index], current, (value, after) => select(index + 1, args.concat(value), after));
+        return select(0, [], branch);
+      });
   });
 
   const end = operation("http.response.end", (call, context) => {
@@ -139,7 +201,7 @@ export function createHTTPModel(events = createEventEmitterModel()) {
       });
       const state = ESObject();
       servers.set(server, state);
-      const created = change(state, { phase: ESString("created") }, events.attach(server, branch, serverEvents));
+      const created = change(state, { phase: ESString("created"), bound: ESBoolean(false) }, events.attach(server, branch, serverEvents));
       return isUndefined(listener) ? [server, created] : events.register(server, "request", listener, false, created);
     });
   });
@@ -150,7 +212,7 @@ export function createHTTPModel(events = createEventEmitterModel()) {
     const state = serverState(server);
     requireState(state, "starting", branch);
     const ready = change(server as TESObject, { listening: ESBoolean(true) },
-      change(state, { phase: ESString("listening") }, branch));
+      change(state, { phase: ESString("listening"), bound: ESBoolean(true) }, branch));
     return bindNormal(events.emit(server, "listening", [], ready), (_value, after) => [server, after]);
   }));
 

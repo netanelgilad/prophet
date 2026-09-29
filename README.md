@@ -166,11 +166,12 @@ are recorded in the target document and linked from `AGENTS.md`.
 an uncaught missing-default-file error and record the package's actual headers.
 [Prophet](test/pico-static-server-analysis.spec.ts) loads the unchanged module
 and invokes its arrow factory with omitted, undefined, or supplied options.
-Default initialization and the actual options spreads complete. HTTP invocation
-creates the modeled server and reaches the unsupported `listen(port, callback)`
-overload; an HTTPS override reaches that opaque module's API.
-Other Node imports are opaque identities at this loading stage, not implemented
-APIs. The server's request paths have not yet been symbolically classified.
+Default initialization, options spreads, and `listen(port, callback)` complete
+under the declared successful-bind environment. The factory returns its actual
+modeled server. Delivering its deferred listening callback reaches the explicitly
+opaque `console.log` API; an HTTPS override still reaches the opaque HTTPS API.
+Other Node imports are opaque identities, not implemented APIs. The server's
+request paths have not yet been symbolically classified.
 
 ## First complete server proof: Node HTTP
 
@@ -231,6 +232,17 @@ remain explicit gaps. Field values are modeled before full host descriptors:
 ownership inspection of partial server/response objects also reports a gap.
 See [HTTP coverage and limitations](docs/node-http.md), including complete
 upstream cases that cannot yet run unmodified.
+
+[Listen compatibility specs](test/node-http-listen.spec.ts) additionally cover
+numeric `listen(port[, callback])` and `listen(port, "127.0.0.1"[, callback])`,
+including nonzero ports and finite symbolic choices. The model assumes a primary
+process and successful binding: omitted-host binding makes `server.listening`
+true before the call returns, while an explicit host waits for lookup/binding.
+Both forms defer the listening event. Invalid numeric ports produce a catchable
+RangeError and retain already registered callbacks; a call on an already bound
+server produces `ERR_SERVER_ALREADY_LISTEN` before registering another callback.
+Unbounded symbolic ports, other overloads, custom callback conversion, inherited
+listen options, and overlapping pending host lookups remain explicit gaps.
 
 Shared [event-listener specs](test/node-events.spec.ts) now cover `on`,
 `addListener`, `once`, `removeListener`/`off`, `emit`, and `listenerCount`, including
