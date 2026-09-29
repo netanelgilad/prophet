@@ -29,6 +29,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolu
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts test/discount-server.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts test/node-http-lifecycle.spec.ts test/node-http-lifecycle-reference.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/pico-static-server-analysis.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -180,8 +181,16 @@ ignores its intended headers. Pinned Node references confirm this behavior.
 The response status remains unknown until the method is constrained further.
 This starts after protocol dispatch: traffic such as CONNECT uses other Node
 events, so it does not establish a response for every possible wire request.
-GET/HEAD still stop at `path.join`; an HTTPS override reaches the opaque HTTPS
-API. Filesystem exception classification remains unfinished.
+GET/HEAD now resolve `path.join` and `path.normalize`, then stop at `url.parse`
+while evaluating the arguments, before either path call runs. An HTTPS override
+reaches the opaque HTTPS API. Filesystem exception classification remains unfinished.
+
+The [POSIX path model](docs/node-path.md) evaluates `join` and `normalize` for
+concrete strings and finite symbolic choices, preserving the choices' conditions.
+It also preserves replacement of the exported `normalize` function: `join` calls
+that current function with its effects, return value, or exception. Open symbolic
+strings and other path APIs remain explicit gaps. These are lexical operations;
+they do not inspect files or establish that a path stays within a directory.
 
 [Untagged templates](test/template-literals.spec.ts) use shared string conversion
 and preserve substitution order, effects, and throws. The scoped

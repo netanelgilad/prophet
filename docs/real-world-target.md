@@ -28,9 +28,12 @@ response has an empty body and omits the intended Allow field: the status is 200
 for OPTIONS and 405 otherwise. The application's reversed writeHead arguments
 produce numeric header names instead. Pinned Node had already exposed this
 behavior; this is now a symbolic finding in the declared domain, not a novel
-vulnerability claim. GET/HEAD still stop at opaque `path.join`; the missing-file
-exception has not been reached symbolically. HTTPS/URL/fs/path imports retain
-opaque identities; no native implementation runs during symbolic exploration.
+vulnerability claim. A shared [POSIX path model](node-path.md) now supplies
+join/normalize for concrete strings and finite choices. GET/HEAD resolve those
+members but stop at opaque `url.parse` while evaluating their arguments, before
+either path call runs. The missing-file exception has not been reached
+symbolically. HTTPS/URL/fs imports retain opaque identities; no native
+implementation runs during symbolic exploration.
 
 ## Why this project
 
@@ -174,9 +177,16 @@ output. Values under numeric header names preserve literal spaces from `"Method 
 which a client's parser may trim. This supports the missing application Allow
 finding; it does not claim all wire headers are absent or fully modeled.
 
-GET and HEAD still reach opaque `path.join` before its URL/path arguments
-execute. Their completion and filesystem exception classification remain
-unimplemented. Overriding `protocol` to `https` still reaches the opaque
+GET and HEAD now resolve the shared path.join and path.normalize members in
+`path.join(options.staticPath, path.normalize(url.parse(request.url).pathname))`.
+The next unsupported lookup is `url.parse` during argument evaluation; neither
+path operation has run on the request yet. Separate [path compatibility specs](../test/node-path.spec.ts)
+validate the generic lexical operations, including finite choices and actual
+argument errors. Their availability does not imply URL decoding, filesystem
+access, containment or successful request normalization. Legacy URL parsing and
+its observed DEP0169 warning are next; path.parse for MIME selection and the
+filesystem APIs remain later boundaries. Completion and filesystem exception
+classification remain unimplemented. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
 records the concrete domain, original wildcard listen behavior, and file hashes.
@@ -223,7 +233,10 @@ been analyzed. Keep both source coverage and domain coverage visible.
    declared successful-binding environment. Deferred delivery now completes its
    original template and console output under a healthy-stdout assumption.
    Scoped direct response headers and the pinned status-code catalog now complete
-   OPTIONS/POST/DELETE responses. GET/HEAD next require shared path/URL APIs.
+   OPTIONS/POST/DELETE responses. Shared POSIX join/normalize now resolve for
+   GET/HEAD; argument evaluation next reaches the unmodeled url.parse member.
+   Add legacy URL parsing and its observed DEP0169 diagnostic before claiming
+   request-path normalization. Broader path APIs and filesystem behavior remain.
    Any uncovered `instanceof`/property semantics need shared support and relevant
    complete Test262 cases. Add the required Node response/Buffer, URL/path,
    filesystem, and broader listen
@@ -255,7 +268,9 @@ been analyzed. Keep both source coverage and domain coverage visible.
 Shared event listeners, arrow functions, identifier defaults, data-object
 spread, numeric listen overloads, untagged templates, scoped console output and
 direct response headers now support startup and the non-GET/HEAD response proof.
-Next follow GET/HEAD through path/URL and filesystem operations toward the
+POSIX join/normalize supply the next shared lexical operations, with explicit
+open-string and broader-API gaps. Next follow GET/HEAD through legacy url.parse
+(including its diagnostic), then remaining path/filesystem operations toward the
 unhandled-exception goal. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
