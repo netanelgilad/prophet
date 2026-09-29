@@ -298,8 +298,7 @@ test("requests cannot run before listening completes or on a server from another
 
 for (const source of [
   'require("node:http").createServer({});',
-  'require("node:http").createServer(function() {}).listen(3000);',
-  'const server = require("node:http").createServer(function() {}); server.on("request", function() {});'
+  'require("node:http").createServer(function() {}).listen(3000);'
 ]) {
   test(`unsupported HTTP overloads and APIs remain explicit gaps: ${source}`, () => {
     expect(() => load(source)).toThrow(/HTTP|host property/);
@@ -344,7 +343,8 @@ test("an unknown response string stays unknown after UTF-8 encoding, while HEAD 
 
 // Matching native observations live in node-http-lifecycle-reference.spec.ts.
 // They exercise real sockets and finish listeners. Here the explicit host
-// schedule delivers successful completion; EventEmitter remains unsupported.
+// schedule delivers successful completion; event registration is covered in
+// node-http-events.spec.ts.
 for (const [method, status, argument, expectedBody, wireStatus = status] of [
   ["GET", 200, '"payload"', "payload"],
   ["GET", 200, '""', ""],

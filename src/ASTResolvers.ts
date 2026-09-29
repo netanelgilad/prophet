@@ -246,7 +246,8 @@ function assignMember(object: Any, name: string, assigned: Any, context: TExecut
 
 function assertModeledProperty(object: Any, name: string, properties: { [name: string]: Any }): void {
   const reason = (object as WithProperties).unknownProperties;
-  if (reason && !Object.prototype.hasOwnProperty.call(properties, name)) {
+  const inherited = (object as WithProperties).modeledInheritedProperties || [];
+  if (reason && !inherited.includes(name) && !Object.prototype.hasOwnProperty.call(properties, name)) {
     throw new Error(`Unmodeled host property '${name}': ${reason}`);
   }
 }

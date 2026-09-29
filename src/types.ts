@@ -114,6 +114,9 @@ export type WithProperties<
   // not absent. Access must report the missing model instead of inventing
   // undefined values or assuming ordinary writable data properties.
   unknownProperties?: string;
+  // A partial host object can still promise that selected missing fields use
+  // ordinary prototype lookup (for example a function's inherited call).
+  modeledInheritedProperties?: ReadonlyArray<string>;
   // Reading some host fields is modeled before their mutation semantics are.
   // These writes are analysis gaps, not claims that JavaScript forbids them.
   unmodeledPropertyWrites?: ReadonlyArray<string>;
