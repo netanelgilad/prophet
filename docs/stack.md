@@ -22,7 +22,7 @@
 | Real static-server references and lexical arrow functions | `stack/pico-static-server-reference` | `stack/node-event-listeners` | [#40](https://github.com/netanelgilad/prophet/pull/40) |
 | Default parameters and conditional initializer effects | `stack/default-parameters` | `stack/pico-static-server-reference` | [#41](https://github.com/netanelgilad/prophet/pull/41) |
 | Shared object spread and conditional own-property order | `stack/object-spread` | `stack/default-parameters` | [#42](https://github.com/netanelgilad/prophet/pull/42) |
-| Numeric Node listen overloads and deferred startup callbacks | `stack/node-listen-overloads` | `stack/object-spread` | Pending publication |
+| Numeric Node listen overloads and deferred startup callbacks | `stack/node-listen-overloads` | `stack/object-spread` | [#43](https://github.com/netanelgilad/prophet/pull/43) |
 
 Current development tip: `stack/node-listen-overloads`.
 
