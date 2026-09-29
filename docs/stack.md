@@ -21,7 +21,7 @@
 | Shared event listeners and first real application target | `stack/node-event-listeners` | `stack/node-http-lifecycle` | [#39](https://github.com/netanelgilad/prophet/pull/39) |
 | Real static-server references and lexical arrow functions | `stack/pico-static-server-reference` | `stack/node-event-listeners` | [#40](https://github.com/netanelgilad/prophet/pull/40) |
 | Default parameters and conditional initializer effects | `stack/default-parameters` | `stack/pico-static-server-reference` | [#41](https://github.com/netanelgilad/prophet/pull/41) |
-| Shared object spread and conditional own-property order | `stack/object-spread` | `stack/default-parameters` | Pending publication |
+| Shared object spread and conditional own-property order | `stack/object-spread` | `stack/default-parameters` | [#42](https://github.com/netanelgilad/prophet/pull/42) |
 
 Current development tip: `stack/object-spread`.
 
