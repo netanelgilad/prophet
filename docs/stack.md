@@ -23,8 +23,9 @@
 | Default parameters and conditional initializer effects | `stack/default-parameters` | `stack/pico-static-server-reference` | [#41](https://github.com/netanelgilad/prophet/pull/41) |
 | Shared object spread and conditional own-property order | `stack/object-spread` | `stack/default-parameters` | [#42](https://github.com/netanelgilad/prophet/pull/42) |
 | Numeric Node listen overloads and deferred startup callbacks | `stack/node-listen-overloads` | `stack/object-spread` | [#43](https://github.com/netanelgilad/prophet/pull/43) |
+| Untagged templates, console effects, and maintained implementation gaps | `stack/console-template-startup` | `stack/node-listen-overloads` | Pending |
 
-Current development tip: `stack/node-listen-overloads`.
+Current development tip: `stack/console-template-startup`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when

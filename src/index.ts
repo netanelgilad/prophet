@@ -12,6 +12,7 @@ export { createCommonJSLoader } from "./require/loader";
 export { createHostFunction, effectContext, effectPaths } from "./effects";
 export { createHTTPModel } from "./node/http";
 export { createEventEmitterModel } from "./node/events";
+export { createConsoleModel } from "./node/console";
 import { CommonJSLoader as Loader, CommonJSLoaderOptions as LoaderOptions } from "./require/loader";
 export type CommonJSLoader = Loader;
 export type CommonJSLoaderOptions = LoaderOptions;

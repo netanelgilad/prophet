@@ -111,14 +111,15 @@ run.
 - [`test-event-emitter-once.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-event-emitter-once.js)
   covers repeated emit, removal, nested emission, and varying argument counts.
   Full execution additionally needs the upstream common/assert harness, loops,
-  rest parameters, arrows, array `push`, and `Function.prototype.apply`.
+  rest parameters, array `push`, and `Function.prototype.apply`; synchronous
+  arrows are supported.
 - [`test-event-emitter-modify-in-emit.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-event-emitter-modify-in-emit.js)
   checks additions and removals during dispatch. Its complete assertions also
   require `listeners`, `removeAllListeners`, array `push`, and the common/assert
   harness.
 - [`test-event-emitter-remove-listeners.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-event-emitter-remove-listeners.js)
   additionally depends on meta-events, `listeners`, internal `_events` mutation
-  and inspection, `Reflect.ownKeys`, loops/arrows, and a Writable stream scenario.
+  and inspection, `Reflect.ownKeys`, loops, and a Writable stream scenario.
   The stream and internal-state blocks are part of the test, not optional pieces.
 
 The HTTP-specific complete upstream candidates and their remaining blockers are

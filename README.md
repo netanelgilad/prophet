@@ -168,10 +168,31 @@ an uncaught missing-default-file error and record the package's actual headers.
 and invokes its arrow factory with omitted, undefined, or supplied options.
 Default initialization, options spreads, and `listen(port, callback)` complete
 under the declared successful-bind environment. The factory returns its actual
-modeled server. Delivering its deferred listening callback reaches the explicitly
-opaque `console.log` API; an HTTPS override still reaches the opaque HTTPS API.
-Other Node imports are opaque identities, not implemented APIs. The server's
-request paths have not yet been symbolically classified.
+modeled server. Delivering its deferred listening callback now evaluates its
+original template and captures its console message under an explicit healthy-
+stdout assumption. Real request delivery reaches the next boundaries:
+`writeHead` for OPTIONS and unsupported methods, and `path.join` for GET/HEAD.
+An HTTPS override still reaches the opaque HTTPS API. Other Node imports remain
+opaque identities; the server's request paths have not yet been classified.
+
+[Untagged templates](test/template-literals.spec.ts) use shared string conversion
+and preserve substitution order, effects, and throws. The scoped
+[console model](docs/node-console.md) records zero-argument or single-string
+`console.log` calls in the existing effect trace. For example, the
+[console specs](test/node-console.spec.ts) analyze:
+
+```js
+function announce(port) {
+  console.log(`port=${port}`);
+  return port > 0;
+}
+const port = selected ? 8080 : 3000;
+const observation = announce(port);
+```
+
+With `selected` an unknown Boolean, `observation` is true. Output remains two
+conditional possibilities, `port=8080\n` or `port=3000\n`; `port === 8080` stays
+unknown. Capturing output does not establish real stream delivery or flushing.
 
 ## First complete server proof: Node HTTP
 
@@ -258,8 +279,9 @@ model.eventsModule }` from one HTTP model, so their method identities and emitte
 state belong to the same host environment. An existing event model can instead
 be passed to `createHTTPModel(events)`.
 
-Next implement shared default-parameter initialization for the real factory,
-then follow its next shared VM/Node gap. Request body delivery and JSON parsing later lead back to
+Next implement response headers and the HTTP status catalog needed by the real
+factory's OPTIONS and unsupported-method paths. GET/HEAD retain path, URL, and
+filesystem boundaries. Request body delivery and JSON parsing later lead back to
 the discount application below. Finally, supply
 Express's unmodified sources as ordinary CommonJS dependencies: its routing and
 middleware must emerge from executing its code. Do not model `express()`,
@@ -336,6 +358,14 @@ against false proofs. They record missing capability, not the desired final VM
 behavior. When implementing that capability, replace those rejection assertions
 with the appropriate JavaScript behavior and symbolic results. Keep remaining
 limits visible; do not make the tests permanently enforce a shortcut.
+
+Maintain the [implementation gap backlog](docs/implementation-gaps.md) alongside
+each PR. It records known unsupported behavior, assumptions such as successful
+socket binding or healthy output, legacy behavior awaiting a soundness audit,
+and unverified coverage including the retained skipped tests. New limits need
+an entry with evidence and a closure criterion; partial improvements must leave
+their remaining cases open. This is a maintained inventory of known gaps, not
+a claim that every missing JavaScript or Node behavior has been discovered.
 
 ## Values, expressions, and knowledge
 
@@ -640,14 +670,15 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **234 strict/sloppy variants of 121 complete,
+The active Test262 baseline runs **272 strict/sloppy variants of 140 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
 eval environments, expression evaluation order, catch/finally precedence,
 arithmetic primitives, unary signs, and parameter/lexical-declaration early
 errors, plus Error construction/formatting, string concatenation/coercion, and
-selected synchronous arrow-function behavior and default-parameter initialization.
+selected synchronous arrow-function behavior, default-parameter initialization,
+and untagged template literals with ordinary substitution conversion.
 Two complete object-spread cases exercise source-expression exceptions; positive
 upstream spread files still need further operators, built-ins, or harness support.
 Strictness follows actual directive
@@ -656,7 +687,8 @@ Parse-negative cases do not imply runtime support for their syntax.
 Further arithmetic boundary cases need
 the missing `Number` constants and global `isNaN`; the harness does not supply
 host substitutes for those runtime gaps.
-Historical unsupported selections remain explicitly skipped. This is
+Historical selections remain explicitly skipped and are tracked as unassessed
+activation debt in the [gap backlog](docs/implementation-gaps.md). This is
 limited coverage, not a claim of Test262 conformance. The
 [runner documentation](test/test262/README.md) explains the supported assertion
 harness and metadata. Test262 source always runs through Prophet; separate local

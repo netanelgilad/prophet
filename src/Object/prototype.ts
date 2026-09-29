@@ -8,24 +8,45 @@ import { ownPropertyPresence } from "../execution-context/Heap";
 import { createError } from "../error/Error";
 import { tuple } from "@deaven/tuple";
 import { getFunctionPrototype } from "../Function/prototype";
-import { assumeInContext } from "../execution-context/branches";
+import { assumeInContext, BranchResult } from "../execution-context/branches";
 import { choiceOf, resolveBoolean, selectValue } from "../symbolic";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { ESBoolean } from "../boolean/ESBoolean";
 
 let objectPrototype: TESObject | undefined;
 
+function withModeledStringTag(
+  value: Any, context: TExecutionContext,
+  continuation: (context: TExecutionContext) => BranchResult, seen: Any[] = []
+): BranchResult {
+  return withValue(value, context, (object, branch) => {
+    // Symbol.toStringTag is inherited. A partial host model anywhere in the
+    // prototype chain cannot establish that the property is absent.
+    const unknown = (object as WithProperties).unknownProperties;
+    if (unknown) throw new Error(`Unmodeled host Symbol.toStringTag read: ${unknown}`);
+    if (seen.includes(object)) throw new Error("Cyclic prototype graphs are not yet supported");
+    const prototype = prototypeOf(object);
+    return isESNull(prototype) ? continuation(branch) :
+      withModeledStringTag(prototype, branch, continuation, seen.concat([object]));
+  });
+}
+
 export function getObjectPrototype(): TESObject {
   if (objectPrototype) return objectPrototype;
   objectPrototype = { ...ESObject(undefined, "unmodeled"), prototype: ESNull };
   Object.assign(objectPrototype.properties, { toString: ESBuiltinFunction(function*(self, _args, context) {
-    const type = (self as Type<string>).type;
-    const tag = (self as { errorData?: boolean }).errorData ? "Error" :
-      (self as { stringData?: boolean }).stringData ? "String" :
-      ({ object: "Object", array: "Array", function: "Function", string: "String",
-        number: "Number", boolean: "Boolean", null: "Null", undefined: "Undefined" } as {[key: string]: string})[type];
-    if (!tag) throw new Error("Object.prototype.toString requires a modeled value kind");
-    return tuple(ESString("[object " + tag + "]"), context);
+    return withValue(self, context, (value, branch) => {
+      // Object.prototype.toString reads Symbol.toStringTag even when borrowed.
+      // Deriving a tag from a partial host model's broad VM type would invent
+      // a concrete result, including through an ordinary object's prototype.
+      const type = (value as Type<string>).type;
+      const tag = (value as { errorData?: boolean }).errorData ? "Error" :
+        (value as { stringData?: boolean }).stringData ? "String" :
+        ({ object: "Object", array: "Array", function: "Function", string: "String",
+          number: "Number", boolean: "Boolean", null: "Null", undefined: "Undefined" } as {[key: string]: string})[type];
+      if (!tag) throw new Error("Object.prototype.toString requires a modeled value kind");
+      return withModeledStringTag(value, branch, after => tuple(ESString("[object " + tag + "]"), after));
+    });
   }), valueOf: ESBuiltinFunction(function*(self, _args, context) {
     if (isUndefined(self) || isESNull(self)) return tuple(ThrownValue(createError("TypeError", ESString("Cannot convert null or undefined to object"))), context);
     if (!["object", "array", "function"].includes((self as Type<string>).type)) {

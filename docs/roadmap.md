@@ -9,6 +9,12 @@ unsupported behavior must remain explicit. Automatic counterexample generation
 is a later consumer of execution results, not a prerequisite for extending the
 symbolic VM.
 
+The [implementation gap backlog](implementation-gaps.md) is the durable register
+of known missing semantics, assumptions, legacy audit debt, and unverified
+coverage. Reconcile it in every PR, including any newly narrowed proof domain.
+Do not remove an assumption such as successful binding merely because the next
+application statement can execute; closing it needs the recorded evidence.
+
 The first external application target is
 [`udivankin/pico-static-server` 3.0.3](https://github.com/udivankin/pico-static-server/tree/6b553fb34e3b5b5bccf3c082bb2cae5f93b9e3be),
 a published MIT-licensed static HTTP server with a 150-line implementation and no
@@ -38,10 +44,11 @@ actual factory. Shared identifier default parameters now initialize its original
 options. Shared data-object spread merges those options; numeric listen overloads
 now let the unchanged factory return its actual HTTP server for default port 8080
 and supplied port 0. This assumes successful wildcard binding in the declared
-primary-process environment; the callback is still deferred. Delivering the real
-listening callback next reaches the opaque `console.log` member, before its
-template argument. HTTPS/URL/fs/path imports and the supplied console global
-currently have opaque identities, not API implementations.
+primary-process environment. Delivering the deferred listening callback now
+executes its untagged template and records the original console message, assuming
+healthy stdout. Real request delivery next reaches response.writeHead for
+OPTIONS/unsupported methods and path.join for GET/HEAD. Response headers/status
+catalog support is the next increment; HTTPS/URL/fs/path remain opaque imports.
 Broader property descriptors, later expressions, and the required Node operations
 still need their own semantics and specs before any symbolic server claim. Destructured/rest
 parameters and implicit arguments remain separate language gaps.
@@ -313,9 +320,10 @@ Continue in these layers, each with specs and its own stacked PR:
    functions allow the actual module to load, and identifier defaults now run
    when invoking the factory. Shared data-object spread merges options, and the
    numeric omitted-host listen overload now returns its server under the stated
-   successful-binding assumption. Delivery of the original listening callback
-   stops at opaque `console.log`; its template argument has not executed. Model
-   that ordered host effect and the shared template semantics next. Continue filling shared language, response,
+   successful-binding assumption. Shared templates and console effects now
+   complete the original listening callback under healthy stdout. Next model
+   response headers/status codes reached by OPTIONS/unsupported methods. GET/HEAD
+   separately reach path/URL gaps. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add
    symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model

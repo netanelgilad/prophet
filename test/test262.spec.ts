@@ -13,6 +13,28 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // Complete untagged templates: primitive/object conversion, calls, members,
+  // nested templates, and head/middle/tail concatenation.
+  "language/expressions/template-literal/no-sub.js",
+  "language/expressions/template-literal/literal-expr-primitive.js",
+  "language/expressions/template-literal/literal-expr-obj.js",
+  "language/expressions/template-literal/literal-expr-function.js",
+  "language/expressions/template-literal/literal-expr-method.js",
+  "language/expressions/template-literal/literal-expr-member-expr.js",
+  "language/expressions/template-literal/literal-expr-template.js",
+  "language/expressions/template-literal/middle-list-one-expr-primitive.js",
+  "language/expressions/template-literal/middle-list-one-expr-obj.js",
+  "language/expressions/template-literal/middle-list-one-expr-function.js",
+  "language/expressions/template-literal/middle-list-one-expr-method.js",
+  "language/expressions/template-literal/middle-list-one-expr-member-expr.js",
+  "language/expressions/template-literal/middle-list-one-expr-template.js",
+  "language/expressions/template-literal/middle-list-many-expr-primitive.js",
+  "language/expressions/template-literal/middle-list-many-expr-obj.js",
+  "language/expressions/template-literal/middle-list-many-expr-function.js",
+  "language/expressions/template-literal/middle-list-many-expr-method.js",
+  "language/expressions/template-literal/middle-list-many-expr-member-expr.js",
+  "language/expressions/template-literal/middle-list-many-expr-template.js",
+
   // String concatenation uses ordinary conversion, including ordered throws.
   "built-ins/String/prototype/concat/S15.5.4.6_A1_T4.js",
   "built-ins/String/prototype/concat/S15.5.4.6_A1_T5.js",

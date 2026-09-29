@@ -38,7 +38,7 @@ Arrow-function selections add twelve complete files (nineteen strictness
 variants): expression and block returns, empty bodies, object literal returns,
 non-construction, strictness, an explicitly named `arguments` parameter, closure
 capture through direct eval, and lexical `this` through eval. The active corpus
-now contains 121 complete files and 234 variants. Local arrow specs additionally
+now contains 140 complete files and 272 variants. Local arrow specs additionally
 compare lexical `this` under ordinary calls and `.call`, late captured binding
 updates, conditional calls/throws, and absent own `prototype` with pinned Node.
 They also check syntax-derived arrow `length` without invoking unsupported
@@ -55,6 +55,28 @@ assertions. Rest and destructuring parameters can be present when an arrow is
 created, but their initialization still reports an invocation gap.
 Inherited implicit `arguments` objects and async arrows likewise remain explicit
 VM gaps; these limits are not claims of arrow-function conformance.
+
+Untagged template literals add nineteen complete files (thirty-eight variants):
+no-substitution text, primitive and ordinary object conversion, function/method
+calls, member reads, and nested templates in first and later substitution
+positions. The shared VM evaluates each expression and immediately converts it
+to a string before evaluating the next expression. Local pinned-Node comparisons
+cover that ordering, conversion receivers and fallback, expression/conversion
+throws, UTF-16 escapes, physical CR/CRLF normalization, and line continuations.
+The CR/CRLF cases compensate for a cooked-text bug in the pinned Cherow lexer;
+escaped carriage returns remain intact. Local symbolic tests cover correlated
+string/boolean choices, conditional throws without repeated effects, and unknown
+string/number results. A 1,500-substitution case protects the iterative concrete
+evaluation path.
+
+Tagged templates, template-object identity/raw values, Symbols and
+`Symbol.toPrimitive`, BigInts, default array/function string conversion, and
+other exotic conversions remain explicit gaps. Complete `evaluation-order.js`
+and the `tv-*.js` template files also execute tagged templates, so they are not
+trimmed to their untagged assertions. Complete abrupt-template cases additionally
+need the `Test262Error` harness constructor; local throw specs do not count as
+passing those upstream files. This increment does not extend the runner or
+claim complete template-literal conformance.
 
 Two complete directive-prologue cases cover an escaped spelling that must not
 enable strict mode and an exact directive following another directive with
