@@ -43,13 +43,22 @@ test("the unmodified published static-server module loads its actual arrow facto
 });
 
 for (const argument of ["", "undefined", '{ port: 0, protocol: "http", staticPath: "/site" }']) {
-  test(`the real factory initializes its parameter and reaches the object-spread gap: (${argument})`, () => {
+  test(`the real HTTP factory merges options and reaches the listen-overload gap: (${argument})`, () => {
     const [factory, context] = packageLoader().load("/app/entry.cjs", nodeInitialExecutionContext);
-    // Execute the original customOptions = {} parameter, including omitted
-    // and explicitly undefined arguments. The first body statement then reaches
-    // its original object spreads. This is a coverage boundary, not a successful
-    // server proof or a caught program exception; no source is bypassed.
+    // Evaluate the original default parameter and both object spreads. The
+    // factory creates its server and registers its actual request callback, then
+    // reaches listen(port, callback), whose omitted-host overload is unmodeled.
+    // The template literal inside that deferred callback must not run yet.
+    // This boundary is not successful startup or a caught program exception.
     expect(() => evaluateCode(`factory(${argument});`, setVariablesInScope(context, { factory })))
-      .toThrow("Object spread and accessors are not yet supported");
+      .toThrow("HTTP analysis is not yet supported: listen requires (0, '127.0.0.1'[, callback])");
   });
 }
+
+test("overriding the real factory's protocol reaches the explicitly unmodeled HTTPS API", () => {
+  const [factory, context] = packageLoader().load("/app/entry.cjs", nodeInitialExecutionContext);
+  // A later spread overrides DEFAULT_OPTIONS.protocol. Preserve the actual
+  // HTTPS import/branch; an opaque module identity is not an API model.
+  expect(() => evaluateCode('factory({ protocol: "https" });', setVariablesInScope(context, { factory })))
+    .toThrow("Unmodeled host property 'createServer': Unimplemented Node https API");
+});

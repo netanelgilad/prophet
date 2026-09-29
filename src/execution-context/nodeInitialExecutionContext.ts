@@ -13,7 +13,7 @@ export const nodeInitialExecutionContext = ExecutionContext({
         implementation: prompt
       }
     }
-  }),
+  }, "unmodeled"),
   scope: {
     require: requireFunction
   }

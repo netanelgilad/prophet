@@ -16,7 +16,7 @@ const prototypes = new Map<ErrorName, TESObject>();
 const constructors = new Map<ErrorName, ReturnType<typeof ESFunction>>();
 
 export function createError(name: ErrorName, message?: Any): TESObject {
-  return Object.assign(ESObject(message === undefined ? {} : { message }), {
+  return Object.assign(ESObject(message === undefined ? {} : { message }, "unmodeled"), {
     prototype: getErrorPrototype(name), errorData: true,
     unmodeledPropertyReads: ["stack"], unmodeledPropertyWrites: ["stack"]
   });
@@ -25,7 +25,7 @@ export function createError(name: ErrorName, message?: Any): TESObject {
 function getErrorPrototype(name: ErrorName): TESObject {
   const existing = prototypes.get(name);
   if (existing) return existing;
-  const prototype = ESObject({ name: ESString(name), message: ESString("") });
+  const prototype = ESObject({ name: ESString(name), message: ESString("") }, "unmodeled");
   prototypes.set(name, prototype);
   if (name !== "Error") prototype.prototype = getErrorPrototype("Error");
   else Object.assign(prototype.properties, { toString: ESBuiltinFunction(errorToString) });

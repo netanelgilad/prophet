@@ -35,11 +35,12 @@ and hash checked, with real HTTP/filesystem reference specs on pinned Node.
 Synchronous arrow support lets Prophet load its unchanged module and return the
 actual factory. Shared identifier default parameters now initialize its original
 `customOptions = {}` for omitted/undefined arguments and preserve supplied
-options. Calling the factory reaches unsupported object spread in the first
-body statement; shared own-property copying is next. HTTPS/URL/fs/path imports
+options. Shared data-object spread now merges those options and reaches the HTTP
+server's `listen(port, callback)` call. The model's omitted-host/configured-port
+overload is the next compatibility gap. HTTPS/URL/fs/path imports
 currently supply opaque identities for loading only, not API implementations.
-Object spread, later expressions, and the required Node operations still need
-their own semantics and specs before any symbolic server claim. Destructured/rest
+Broader property descriptors, later expressions, and the required Node operations
+still need their own semantics and specs before any symbolic server claim. Destructured/rest
 parameters and implicit arguments remain separate language gaps.
 
 The shared VM already handles selected symbolic branches, mutable objects,
@@ -302,8 +303,9 @@ Continue in these layers, each with specs and its own stacked PR:
 5. **First real application:** follow [the pinned target contract](real-world-target.md).
    Whole-source provenance and Node reference specs are established. Arrow
    functions allow the actual module to load, and identifier defaults now run
-   when invoking the factory. Object spread in its initial options construction
-   is the next reached gap. Continue filling the shared language, response,
+   when invoking the factory. Shared data-object spread merges options; the next
+   reached gap is `listen(port, callback)` with omitted host. Extend that public
+   Node overload against pinned references. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add
    symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model

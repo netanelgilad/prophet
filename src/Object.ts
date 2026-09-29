@@ -6,11 +6,14 @@ export type TESObject = Type<"object"> &
     type: "object";
   };
 
-export function ESObject(value?: { [key: string]: Any }): TESObject {
+export function ESObject(
+  value?: { [key: string]: Any }, ownPropertyModel: WithProperties["ownPropertyModel"] = "enumerable-data"
+): TESObject {
   return {
     type: "object",
     id: ValueIdentifier(),
     properties: value || {},
+    ownPropertyModel,
     value
   };
 }

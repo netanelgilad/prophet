@@ -33,7 +33,7 @@ var stringPrototype: TESObject | undefined;
 export function getStringPrototype(): TESObject {
   if (!stringPrototype) {
     const prototype: TESObject & { stringData: true } = {
-      ...ESObject({ length: ESNumber(0) }), stringData: true,
+      ...ESObject({ length: ESNumber(0) }, "unmodeled"), stringData: true,
       unmodeledPropertyWrites: ["length"]
     };
     stringPrototype = prototype;

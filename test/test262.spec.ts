@@ -129,6 +129,11 @@ const activeCorpus = [
   "language/expressions/function/scope-paramsbody-var-open.js",
   "language/expressions/function/scope-paramsbody-var-close.js",
 
+  // Complete object-spread exception cases. Positive-copy files also require
+  // compound assignment; descriptor/accessor cases need more APIs.
+  "language/expressions/call/spread-err-sngl-err-obj-unresolvable.js",
+  "language/expressions/call/spread-err-mult-err-obj-unresolvable.js",
+
   // Formal parameter names cannot be redeclared lexically in the same
   // function body. Parse-negative cases do not imply generator/async runtime
   // support; each complete upstream source must fail before evaluation.

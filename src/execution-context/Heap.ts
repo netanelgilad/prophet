@@ -3,12 +3,15 @@ import { ESBoolean } from "../boolean/ESBoolean";
 import { TArray } from "../array/Array";
 import { ExecutionContext, TExecutionContext } from "./ExecutionContext";
 import assert from "assert";
+import { PropertyKeys, appendPropertyKey, isArrayIndex } from "./PropertyKeys";
+export { isArrayIndex } from "./PropertyKeys";
 
 export type HeapEntry = {
   properties: { [name: string]: Any };
   // A property created on only one path is not an own undefined property on
   // the other path: lookup must still reach its prototype there.
   presence?: { [name: string]: TESBoolean };
+  keyOrder?: PropertyKeys;
   // Undefined on an array means its element structure is no longer known.
   elements?: Any[];
 };
@@ -24,6 +27,11 @@ export function ownPropertyPresence(value: WithProperties, name: string, context
   const entry = context.value.heap && context.value.heap.get(value);
   if (entry && entry.presence && Object.prototype.hasOwnProperty.call(entry.presence, name)) return entry.presence[name];
   return ESBoolean(Object.prototype.hasOwnProperty.call(getProperties(value, context), name));
+}
+
+export function getPropertyKeys(value: WithProperties, context: TExecutionContext): PropertyKeys {
+  const entry = context.value.heap && context.value.heap.get(value);
+  return entry && entry.keyOrder || { kind: "keys", keys: Object.keys(getProperties(value, context)) };
 }
 
 export function getArrayElements(
@@ -43,12 +51,6 @@ function writeEntry(
   const heap = new Map<object, HeapEntry>(context.value.heap || []);
   heap.set(value, entry);
   return ExecutionContext({ ...context.value, heap });
-}
-
-export function isArrayIndex(name: string): boolean {
-  const index = Number(name);
-  return Number.isInteger(index) && index >= 0 && index < 0xffffffff &&
-    String(index) === name;
 }
 
 export function writeArrayElements(
@@ -80,6 +82,7 @@ export function writeProperty(
   return writeEntry(value, {
     properties: { ...properties, [name]: assigned },
     presence: { ...(prior && prior.presence), [name]: ESBoolean(true) },
+    keyOrder: appendPropertyKey(getPropertyKeys(value, context), name),
     elements: isArray(value)
       ? getArrayElements(value as WithProperties & TArray<any>, context)
       : undefined

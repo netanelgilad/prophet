@@ -34,4 +34,4 @@ export const ESInitialGlobal = ESObject({
   SyntaxError: getErrorConstructor("SyntaxError"),
   TypeError: getErrorConstructor("TypeError"),
   URIError: getErrorConstructor("URIError")
-});
+}, "unmodeled");

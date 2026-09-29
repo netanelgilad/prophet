@@ -33,6 +33,7 @@ import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifi
 import { evalFn, evaluateEval } from "./eval/eval";
 import { isForkedCompletion } from "./execution-context/Completion";
 import { prototypeOf } from "./Object/prototype";
+import { copyDataProperties } from "./Object/enumeration";
 
 export type ASTResolver<TAST extends ESTree.Node> = (
   ast: TAST, context: TExecutionContext
@@ -260,22 +261,25 @@ export const ThisExpressionResolver: ASTResolver<ESTree.ThisExpression> = (_ast,
   tuple(context.value.thisValue, context);
 
 export const ObjectExpressionResolver: ASTResolver<ESTree.ObjectExpression> = (ast, context) => {
-  const build = (index: number, properties: { [name: string]: Any }, current: TExecutionContext): BranchResult => {
-    let accumulated = properties;
+  const target = ESObject();
+  const build = (index: number, current: TExecutionContext): BranchResult => {
     let after = current;
     for (let position = index; position < ast.properties.length; position++) {
       const property = ast.properties[position];
-      assert(property.type === "Property" && property.kind === "init", "Object spread and accessors are not yet supported");
+      const next = position + 1;
+      if (property.type === "SpreadElement") {
+        return bindNormal(evaluate(property.argument, after), (source, afterSource) =>
+          bindNormal(copyDataProperties(target, source, afterSource), (_unused, afterCopy) => build(next, afterCopy)));
+      }
+      assert(property.type === "Property" && property.kind === "init", "Object literal accessors are not yet supported");
       const entry = property as ESTree.Property;
       let name: string;
-      const next = position + 1;
-      const prior = accumulated;
       if (entry.computed) {
         const key = evaluate(entry.key, after);
         if (needsContinuation(key[0])) return bindNormal(key, (value, afterKey) => {
           const selectedName = propertyName(value);
           return bindNormal(evaluate(entry.value!, afterKey), (item, afterValue) =>
-            build(next, { ...prior, [selectedName]: item }, afterValue));
+            build(next, writeProperty(target, selectedName, item, afterValue)));
         });
         name = propertyName(key[0]);
         after = key[1];
@@ -284,13 +288,12 @@ export const ObjectExpressionResolver: ASTResolver<ESTree.ObjectExpression> = (a
         "Object literal prototype setters are not yet supported");
       const value = evaluate(entry.value!, after);
       if (needsContinuation(value[0])) return bindNormal(value, (item, afterValue) =>
-        build(next, { ...prior, [name]: item }, afterValue));
-      accumulated = { ...accumulated, [name]: value[0] };
-      after = value[1];
+        build(next, writeProperty(target, name, item, afterValue)));
+      after = writeProperty(target, name, value[0], value[1]);
     }
-    return tuple(ESObject(accumulated), after);
+    return tuple(target, after);
   };
-  return build(0, {}, context);
+  return build(0, context);
 };
 
 export const ArrayExpressionResolver: ASTResolver<ESTree.ArrayExpression> = (ast, context) => {
