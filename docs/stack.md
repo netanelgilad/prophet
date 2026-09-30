@@ -15,8 +15,9 @@
 | Local CommonJS resolution and JSON configuration | `stack/commonjs-local-resolution` | `stack/commonjs-module-cache` | [#33](https://github.com/netanelgilad/prophet/pull/33) |
 | Package lookup, conditional exports, and published invariant proof | `stack/commonjs-package-exports` | `stack/commonjs-local-resolution` | [#34](https://github.com/netanelgilad/prophet/pull/34) |
 | Error construction, string conversion, and all-number library proof | `stack/error-string-coercion` | `stack/commonjs-package-exports` | [#35](https://github.com/netanelgilad/prophet/pull/35) |
+| Conditional host effects and the Express discount North Star | `stack/guarded-server-effects` | `stack/error-string-coercion` | [#36](https://github.com/netanelgilad/prophet/pull/36) |
 
-Current development tip: `stack/error-string-coercion`.
+Current development tip: `stack/guarded-server-effects`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when

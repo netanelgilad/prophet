@@ -2,6 +2,7 @@ import { Any, Undefined, TESBoolean } from "../types";
 import { TESObject } from "../Object";
 import { Knowledge } from "../symbolic";
 import { Heap } from "./Heap";
+import { EffectTrace } from "../effects/model";
 
 // Environment identities never contain mutable values. Every execution path
 // owns a persistent version of the records, just as it does for object state.
@@ -36,6 +37,7 @@ export type TExecutionContext = {
     uncaught?: Any;
     knowledge?: Knowledge;
     heap?: Heap;
+    effects?: EffectTrace;
     environment: Environment;
     environments: EnvironmentStore;
     strict?: boolean;
