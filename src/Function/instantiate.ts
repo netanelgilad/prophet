@@ -6,9 +6,12 @@ import { createFunction } from "./Function";
 
 export function hasUseStrict(statements: ESTree.Statement[]): boolean {
   for (const statement of statements) {
-    if (statement.type !== "ExpressionStatement" || statement.expression.type !== "Literal" ||
-        typeof statement.expression.value !== "string") return false;
-    if (statement.expression.value === "use strict") return true;
+    if (statement.type !== "ExpressionStatement") return false;
+    // Cherow records the exact source spelling only for directive statements.
+    // Cooked string values would misclassify escapes and parenthesized literals.
+    const directive = (statement as ESTree.ExpressionStatement & { directive?: string }).directive;
+    if (typeof directive !== "string") return false;
+    if (directive === "use strict") return true;
   }
   return false;
 }

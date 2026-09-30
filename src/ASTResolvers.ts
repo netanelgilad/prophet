@@ -333,6 +333,14 @@ export const FunctionExpressionResolver: ASTResolver<ESTree.FunctionExpression> 
   return tuple(fn, setEnvironment(local, context.value.environment));
 };
 
+export const ArrowFunctionExpressionResolver: ASTResolver<ESTree.ArrowFunctionExpression> = (ast, context) => {
+  // An expression body is an implicit return, never a directive prologue.
+  // Its expression retains the original source location for evaluation errors.
+  const statements: ESTree.Statement[] = ast.body.type === "BlockStatement"
+    ? ast.body.body : [{ type: "ReturnStatement", argument: ast.body, loc: ast.body.loc }];
+  return tuple(createFunction(statements, ast.params, context, { ...ast, arrow: true }), context);
+};
+
 export const ExpressionStatementResolver: ASTResolver<ESTree.ExpressionStatement> = (ast, context) =>
   bindNormal(evaluate(ast.expression, context), (_value, after) => tuple(Undefined, after));
 
@@ -442,6 +450,7 @@ export const ASTResolvers = new Map<string, ASTResolver<any>>([
   ["ThisExpression", ThisExpressionResolver], ["ObjectExpression", ObjectExpressionResolver],
   ["ArrayExpression", ArrayExpressionResolver], ["ConditionalExpression", ConditionalExpressionResolver],
   ["FunctionExpression", FunctionExpressionResolver], ["ExpressionStatement", ExpressionStatementResolver],
+  ["ArrowFunctionExpression", ArrowFunctionExpressionResolver],
   ["VariableDeclaration", VariableDeclarationResolver], ["FunctionDeclaration", FunctionDeclarationResolver],
   ["IfStatement", IfStatementResolver], ["EmptyStatement", EmptyStatementResolver],
   ["BlockStatement", BlockStatementResolver], ["NewExpression", NewExpressionResolver],

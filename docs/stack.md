@@ -19,8 +19,9 @@
 | Node HTTP full-program reference and host-boundary roadmap | `stack/node-http-north-star` | `stack/guarded-server-effects` | [#37](https://github.com/netanelgilad/prophet/pull/37) |
 | Builtin registration and symbolic Node HTTP lifecycle | `stack/node-http-lifecycle` | `stack/node-http-north-star` | [#38](https://github.com/netanelgilad/prophet/pull/38) |
 | Shared event listeners and first real application target | `stack/node-event-listeners` | `stack/node-http-lifecycle` | [#39](https://github.com/netanelgilad/prophet/pull/39) |
+| Real static-server references and lexical arrow functions | `stack/pico-static-server-reference` | `stack/node-event-listeners` | [#40](https://github.com/netanelgilad/prophet/pull/40) |
 
-Current development tip: `stack/node-event-listeners`.
+Current development tip: `stack/pico-static-server-reference`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when
