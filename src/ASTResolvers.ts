@@ -34,6 +34,8 @@ import { evalFn, evaluateEval } from "./eval/eval";
 import { isForkedCompletion } from "./execution-context/Completion";
 import { prototypeOf } from "./Object/prototype";
 import { copyDataProperties } from "./Object/enumeration";
+import { toString, withValue } from "./conversion/toString";
+import { concatenateStrings } from "./string/concat";
 
 export type ASTResolver<TAST extends ESTree.Node> = (
   ast: TAST, context: TExecutionContext
@@ -49,6 +51,66 @@ export const LiteralResolver: ASTResolver<ESTree.Literal> = (ast, context) => {
   if (ast.value === null) return tuple(ESNull, context);
   return unimplemented();
 };
+
+export const TemplateLiteralResolver: ASTResolver<ESTree.TemplateLiteral> = (ast, context) => {
+  const text = (index: number): TESString => {
+    const { cooked, raw } = ast.quasis[index].value;
+    assert(typeof cooked === "string", "Untagged templates require valid cooked text");
+    return ESString(templateText(raw, cooked as string));
+  };
+  const append = (prefix: TESString, value: TESString, tail: TESString, after: TExecutionContext): BranchResult =>
+    withValue(prefix, after, (left, branch) =>
+      withValue(value, branch, (right, leaf) => tuple(concatenateStrings(
+        concatenateStrings(left as TESString, right as TESString), tail), leaf)));
+  const build = (index: number, prefix: TESString, after: TExecutionContext): BranchResult => {
+    let accumulated = prefix;
+    let current = after;
+    for (let position = index; position < ast.expressions.length; position++) {
+      // Each expression's ToString must finish before evaluating the next
+      // expression. Conversion can mutate captured bindings or throw on only
+      // some paths, so retain an immutable prefix for normal continuations.
+      const prior = accumulated;
+      const following = position + 1;
+      const tail = text(following);
+      const resume = (value: Any, branch: TExecutionContext): BranchResult =>
+        bindNormal(append(prior, value as TESString, tail, branch), (joined, leaf) =>
+          build(following, joined as TESString, leaf));
+      const evaluated = evaluate(ast.expressions[position], current);
+      if (needsContinuation(evaluated[0])) {
+        return bindNormal(evaluated, (value, branch) => bindNormal(toString(value, branch), resume));
+      }
+      const converted = toString(evaluated[0], evaluated[1]);
+      if (needsContinuation(converted[0])) return bindNormal(converted, resume);
+      // Concatenating already-converted strings has only normal completions.
+      // Keep this ordinary path iterative for long, flat substitution lists.
+      const joined = append(accumulated, converted[0] as TESString, tail, converted[1]);
+      accumulated = joined[0] as TESString;
+      current = joined[1];
+    }
+    return tuple(accumulated, current);
+  };
+  return build(0, text(0), context);
+};
+
+function templateText(raw: string, cooked: string): string {
+  // Cherow 1.5.4 leaves physical CR/CRLF in cooked template text. Normalize
+  // those source line endings, while keeping escaped \\r and \\u000d intact.
+  // Only this lexer edge case needs recooking; parsing has already validated
+  // untagged escapes. Match complete escapes before physical line endings.
+  if (!raw.includes("\r")) return cooked;
+  const escapes: { [character: string]: string } = {
+    b: "\b", f: "\f", n: "\n", r: "\r", t: "\t", v: "\v", "0": "\0"
+  };
+  return raw.replace(/\\(?:\r\n|[\r\n\u2028\u2029]|x[\da-fA-F]{2}|u(?:[\da-fA-F]{4}|\{[\da-fA-F]+\})|[\s\S])|\r\n?/g, token => {
+    if (token[0] === "\r") return "\n";
+    const escaped = token.slice(1);
+    if (/^[\r\n\u2028\u2029]/.test(escaped)) return "";
+    if (escaped[0] === "x") return String.fromCharCode(parseInt(escaped.slice(1), 16));
+    if (escaped[0] === "u") return String.fromCodePoint(parseInt(
+      escaped[1] === "{" ? escaped.slice(2, -1) : escaped.slice(1), 16));
+    return Object.prototype.hasOwnProperty.call(escapes, escaped) ? escapes[escaped] : escaped;
+  });
+}
 
 function propertyName(key: Any): string {
   assert(
@@ -447,6 +509,7 @@ export const UnaryExpressionResolver: ASTResolver<ESTree.UnaryExpression> = (ast
 
 export const ASTResolvers = new Map<string, ASTResolver<any>>([
   ["Literal", LiteralResolver], ["Identifier", IdentifierResolver],
+  ["TemplateLiteral", TemplateLiteralResolver],
   ["MemberExpression", MemberExpressionResolver], ["CallExpression", CallExpressionResolver],
   ["BinaryExpression", BinaryExpressionResolver], ["Program", ProgramResolver],
   ["AssignmentExpression", AssignmentExpressionResolver], ["ReturnStatement", ReturnStatementResolver],

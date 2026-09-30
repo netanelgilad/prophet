@@ -77,12 +77,16 @@ assumes successful wildcard binding in the primary process: `listening` is
 immediately true, but the listening callback is deferred. No real socket is
 opened, and address allocation and bind failures remain unmodeled.
 
-Explicit listening-event delivery invokes the original callback and reaches
-the opaque `console.log` member at `index.js:138`, before its template argument.
-The supplied console identity represents a real Node global without modeling
-its output or substituting a no-op. An HTTPS override still reaches the opaque
-HTTPS API. Callback completion and request analysis remain unimplemented; this
-is not a complete startup proof. Broader filesystem permissions, races, symlinks, paths,
+Explicit listening-event delivery completes the original callback and template
+at `index.js:138` and records its actual newline-terminated console message.
+The console model assumes healthy stdout and records ordered effects without
+real writes. Startup is established only in this declared domain; output failures
+and bind failures remain open implementation gaps.
+
+Delivering real registered requests reaches `response.writeHead` for OPTIONS/POST
+and `path.join` for GET/HEAD. Those APIs remain unmodeled, so response completion
+and filesystem-path classification are not established. An HTTPS override still
+reaches the opaque HTTPS API. Broader filesystem permissions, races, symlinks, paths,
 protocols, configuration, and schedules remain outside
 this initial reference domain. See `docs/real-world-target.md` for the durable
 analysis goal and limitations.

@@ -135,6 +135,10 @@ function observeServer(method: string, target: string) {
     if (result.error) throw result.error;
     const events: Observation[] = result.stdout.split("\n")
       .filter(line => line.startsWith(marker)).map(line => JSON.parse(line.slice(marker.length)));
+    // Observe the unchanged application's real console output as well as the
+    // driver's markers. Port 0 is the configured value printed by its callback.
+    expect(result.stdout.split("\n").filter(line => line && !line.startsWith(marker)))
+      .toEqual(["Static server is listening http requests on port 0"]);
     expect(events[0]).toEqual({ kind: "module-loaded", factory: "function",
       platform: process.platform, node: "v24.21.0", separator: "/" });
     expect(events[1]).toEqual({ kind: "created", requestListeners: 1 });

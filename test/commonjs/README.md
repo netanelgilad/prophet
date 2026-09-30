@@ -134,9 +134,10 @@ the separate blocked-target meaning.
 
 The [published invariant spec](../published-invariant.spec.ts) uses the full,
 unmodified tiny-invariant 1.3.3 fixture and its actual conditional exports.
-It proves accepted-input behavior in development and production with supplied
-process environment values. Rejection needs Error/string-method support; this
-first success-path proof is not the complete library milestone.
+With supplied process environment values, it proves accepted and rejected
+numeric-input behavior in development and production, including NaN/infinities,
+Error messages, and lazy-message effects. This is the numeric normalizer domain
+in the spec, not a claim about every possible JavaScript value or Node process API.
 
 This is an explicitly supplied source-graph layer, not a filesystem loader.
 Disk reads, symlink/realpath behavior, wider package imports/exports behavior,
@@ -171,8 +172,8 @@ at the pinned revision include:
   require the `assert` and `module` built-ins, mutate `Module.wrapper`, and load
   another file. Those interfaces are outside source execution support.
 - [`test-require-exceptions.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-exceptions.js):
-  requires the upstream harness, `assert`, `fs`, filesystem resolution, plus
-  currently unsupported arrow syntax. Local source-graph specs cover repeated
+  requires the upstream harness, `assert` with RegExp/error-shape matching, `fs`,
+  and filesystem resolution. Its synchronous arrows are supported. Local source-graph specs cover repeated
   initialization failure and cache behavior; they do not replace this complete
   upstream case.
 - [`test-module-cache.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-module-cache.js)
@@ -187,8 +188,9 @@ at the pinned revision include:
   and [`test-require-json.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-json.js)
   need upstream fixtures, assertion/path built-ins, and RegExp diagnostics.
 - [`test-require-module-conditional-exports.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/es-module/test-require-module-conditional-exports.js)
-  needs the upstream common harness, `assert`, `util/types`, object spread, and
-  arrow functions. Local condition tests do not replace this complete case.
+  needs the upstream common/fixture harness, `assert`, `util/types`, and binding
+  destructuring. Its synchronous arrows and ordinary data-object spread are
+  supported. Local condition tests do not replace this complete case.
 - [`test-esm-exports.mjs`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/es-module/test-esm-exports.mjs)
   combines CommonJS and ESM import promises, patterns, and the upstream fixture
   harness; it cannot be activated as a complete case in the current VM.

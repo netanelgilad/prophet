@@ -18,11 +18,12 @@ its actual arrow factory. Invoking it now evaluates its identifier default
 parameter and both options spreads, creates the modeled HTTP server, registers
 its real callbacks, and returns that server from `listen(port, callback)`.
 Specs cover omitted/undefined options (port 8080) and supplied port 0 under an
-explicit successful-binding assumption. The listening callback remains deferred:
-delivering its event reaches the unmodeled `console.log` member before evaluating
-its template argument. An HTTPS override reaches the opaque HTTPS API. Console
-and the other imported Node modules have explicitly opaque identities at this
-stage; their behavior is not supplied by the host runtime.
+explicit successful-binding assumption. Delivering the deferred listening event
+now executes the original template and console call, capturing its exact startup
+message under the healthy-stdout assumption. Registered request delivery reaches
+`response.writeHead` for OPTIONS/unsupported methods and `path.join` for GET/HEAD.
+Those APIs remain unmodeled. HTTPS/URL/fs/path imports still have explicitly
+opaque identities; no native implementation runs during symbolic exploration.
 This is not yet a symbolic server proof or a Prophet-discovered bug. Our own
 complete health-server example remains the passing scoped HTTP proof.
 
@@ -138,14 +139,19 @@ and undefined options use port 8080; the supplied configuration uses port 0.
 
 The declared primary-process environment assumes successful wildcard binding,
 so the hostless call exposes `listening === true` immediately while its callback
-remains deferred. No real port is bound, and no address allocation, bind failure,
-or complete startup proof is claimed. Explicit `completeListen` delivery invokes
-the original callback and stops at `console.log` on `index.js:138`. The spec
-supplies an opaque console identity to represent that Node global without
-inventing its behavior or producing a spurious missing-global ReferenceError.
-The member lookup fails analysis before the template-literal argument executes.
-Overriding `protocol` to `https` still reaches the opaque `https.createServer`
-member. The startup callback and request dispatch remain incomplete.
+remains deferred. Explicit `completeListen` delivery now completes the original
+callback at `index.js:138`, including its untagged template and modeled console
+output. The ordered trace records the message ending in the configured port
+(8080 or 0) and a newline. Earlier contexts retain no output. This establishes
+startup only in the declared successful-bind/healthy-stdout domain; no real
+socket or stdout write occurs, and allocation, bind errors, and output failures
+remain open in the [gap backlog](implementation-gaps.md).
+
+Valid request delivery enters the actual registered handler. OPTIONS and POST
+reach unsupported `response.writeHead`; GET and HEAD reach opaque `path.join`
+before its URL/path arguments execute. Request completion and filesystem
+exception classification remain unimplemented. Overriding `protocol` to `https`
+still reaches the opaque `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
 records the concrete domain, original wildcard listen behavior, and file hashes.
 
@@ -188,12 +194,13 @@ been analyzed. Keep both source coverage and domain coverage visible.
    identifier default parameters execute when the actual factory is invoked.
    Shared data-property spread merges the original options, and numeric Node
    listen overloads now let the unchanged factory return its server under the
-   declared successful-binding environment. Deferred event delivery next reaches
-   the unmodeled `console.log` lookup. Extend console with compatible ordered
-   effect semantics, then execute the callback's template argument through the
-   shared VM. Template strings and any uncovered `instanceof`/property semantics
-   also need shared support, each with relevant complete Test262 cases. Add the
-   required public Node response/Buffer, URL/path, filesystem, and broader listen
+   declared successful-binding environment. Deferred delivery now completes its
+   original template and console output under a healthy-stdout assumption.
+   Next add compatible response headers and the status-code catalog needed by
+   OPTIONS/unsupported-method responses. GET/HEAD separately reach path/URL APIs.
+   Any uncovered `instanceof`/property semantics need shared support and relevant
+   complete Test262 cases. Add the required Node response/Buffer, URL/path,
+   filesystem, and broader listen
    behavior using compatibility specs, not target-name rules. Establish the
    actual gap list from execution rather than assuming these features work.
 3. **Symbolic classification.** Run the same entire module with symbolic request
@@ -217,9 +224,10 @@ been analyzed. Keep both source coverage and domain coverage visible.
    relevant. Express and its dependencies remain ordinary source above Node.
 
 Shared event listeners, arrow functions, identifier defaults, data-object
-spread, and numeric listen overloads now provide the immediate foundation.
-Next model the console boundary reached by the real listening callback and
-support its template argument, then follow the next execution gap. Spread over
+spread, numeric listen overloads, untagged templates, and scoped console output
+now execute startup. Next support the response-header/status APIs reached by
+OPTIONS/unsupported methods, while retaining GET/HEAD path/URL/filesystem gaps.
+Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.
 Destructured/rest parameters and implicit arguments likewise remain gaps.

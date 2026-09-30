@@ -60,6 +60,19 @@ pass. When expanding a supported case, replace its rejection spec with assertion
 for the actual language behavior and symbolic result. Full Test262 conformance
 is the goal, not a claim justified by the currently selected corpus.
 
+Maintain [the implementation-gap backlog](docs/implementation-gaps.md) in every
+feature PR. Reconcile all new or changed unsupported guards, narrowed domains,
+environment/scheduling/success assumptions, legacy fallbacks, precision limits,
+and skipped tests against its stable IDs; record deferred work even when it is
+outside the immediate roadmap. Successful binding, resource availability, and
+successful external writes/flushes are assumptions to track, never silently
+established facts. Update affected boundary docs and upstream candidate lists.
+Preserve residual gaps when adding partial support, and retain closed entries
+with the implementing PR and boundary/failure/symbolic/upstream test evidence.
+One passing example is not closure. Rerun the documented scans and reconcile the
+complete skipped-file inventory before publishing; the audit is not a claim of
+complete JavaScript or Node coverage.
+
 Run affected specs during development, then the full suite and typecheck before
 publishing each PR. See the README's spec-first workflow for current examples
 and proof limitations.
