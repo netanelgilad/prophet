@@ -104,15 +104,18 @@ the original expression is:
 path.join(options.staticPath, path.normalize(url.parse(request.url).pathname))
 ```
 
-Prophet resolves the join and normalize callees, then stops at the unmodeled
-`url.parse` member while evaluating the arguments. **Neither path operation has
-executed on this request yet.** Their own compatibility specs establish the
-shared operations; the integration spec establishes the next actual boundary
-without substituting a URL parser or extracting the callback.
+The [legacy URL model](node-url.md) now evaluates the nested parse call for
+supported path-only strings. For `/folder/../missing?download=1` and staticPath
+`/site`, the explicit normalize call and join's current normalize call produce
+`/site/missing`. Execution then stops at the actual `fs.existsSync` lookup. A
+read-only observer records the preceding scope/effects; no filesystem method
+or result is substituted.
 
-The next work is legacy URL parsing, including its observed DEP0169 diagnostic,
-then the remaining path/filesystem operations reached by the unchanged source.
-The missing-default-file exception is still only a native reference observation.
+The next work is correlated filesystem existence/type/read outcomes and errors,
+then remaining path/response operations reached by the unchanged source. Source
+provenance preserves DEP0169 eligibility, with warning delivery separate from
+the synchronous handler. The missing-default-file exception is still only a
+native reference observation.
 Existing successful-bind, healthy-stdout, delivered-request-event and transport
 assumptions remain unchanged, as does the scoped symbolic missing-Allow finding.
 

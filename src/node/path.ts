@@ -1,15 +1,15 @@
 import { invoke, readMember } from "../ASTResolvers";
 import { isESFunction } from "../Function/Function";
-import { isObjectValue, withValue } from "../conversion/toString";
+import { withValue } from "../conversion/toString";
 import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
-import { BranchResult, evaluateBranches } from "../execution-context/branches";
+import { BranchResult } from "../execution-context/branches";
 import { ESObject } from "../Object";
-import { ESString, TESString } from "../string/String";
-import { Any, ESNumber, isESBoolean, isESNull, isESNumber, isESString,
-  isUndefined, ThrownValue, Undefined } from "../types";
+import { ESString } from "../string/String";
+import { Any, ESNumber, isESString, ThrownValue, Undefined } from "../types";
+import { withStringArgument } from "./arguments";
 
 function unsupported(detail: string): never {
   throw new Error(`POSIX path analysis is not yet supported: ${detail}`);
@@ -35,44 +35,11 @@ function normalizePath(path: string): string {
   return (absolute ? "/" : "") + joined + (trailing ? "/" : "");
 }
 
-function invalidType(message: TESString, context: TExecutionContext): BranchResult {
-  const error = createError("TypeError", message);
-  error.properties.code = ESString("ERR_INVALID_ARG_TYPE");
-  // Node's coded errors have their own prototype and toString formatting.
-  // Ordinary TypeError formatting would silently omit the code. Name/message/
-  // code are supported; the residual prototype/descriptor model stays explicit.
-  Object.assign(error, {
-    unmodeledPropertyReads: ["stack", "toString", "constructor"],
-    unmodeledPropertyWrites: ["stack", "toString", "constructor"],
-    unmodeledOwnPropertyInspection: "Node coded error descriptors"
-  });
-  return [ThrownValue(error), context];
-}
-
 function withPath(value: Any, context: TExecutionContext,
   continuation: (path: string, context: TExecutionContext) => BranchResult): BranchResult {
-  return withValue(value, context, (input, branch) => {
-    if (isESString(input)) {
-      if (typeof input.value !== "string") return unsupported("open symbolic path string");
-      return continuation(input.value, branch);
-    }
-    const fail = (received: string, after: TExecutionContext) => invalidType(ESString(
-      `The "path" argument must be of type string. Received ${received}`), after);
-    if (isUndefined(input)) return fail("undefined", branch);
-    if (isESNull(input)) return fail("null", branch);
-    if (isESNumber(input)) {
-      // The rejection is certain even when its diagnostic text is not known.
-      // Widening the message loses precision, never the throw or its code.
-      if (typeof input.value !== "number") return invalidType(ESString(), branch);
-      const text = Object.is(input.value, -0) ? "-0" : String(input.value);
-      return fail(`type number (${text})`, branch);
-    }
-    if (isESBoolean(input)) return evaluateBranches(input, branch,
-      after => fail("type boolean (true)", after), after => fail("type boolean (false)", after));
-    // Node formats invalid objects using constructor/name and util.inspect;
-    // these reads may execute user code or throw before ERR_INVALID_ARG_TYPE.
-    if (isObjectValue(input)) return unsupported("object/function argument diagnostics");
-    return unsupported("argument diagnostic for this value kind");
+  return withStringArgument("path", value, context, (input, branch) => {
+    if (typeof input.value !== "string") return unsupported("open symbolic path string");
+    return continuation(input.value, branch);
   });
 }
 

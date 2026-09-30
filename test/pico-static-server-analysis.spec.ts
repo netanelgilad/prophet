@@ -1,11 +1,11 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { createCommonJSLoader, createConsoleModel, createHTTPModel, createPosixPathModel, evaluateCode, isForkedCompletion,
+import { createCommonJSLoader, createConsoleModel, createHTTPModel, createLegacyURLModel, createPosixPathModel, evaluateCode, isForkedCompletion,
   nodeInitialExecutionContext } from "../src";
 import { isESFunction } from "../src/Function/Function";
 import { ESObject } from "../src/Object";
 import { effectPaths } from "../src/effects";
-import { ExecutionContext, setVariablesInScope } from "../src/execution-context/ExecutionContext";
+import { ExecutionContext, setVariablesInScope, TExecutionContext } from "../src/execution-context/ExecutionContext";
 import { getProperties } from "../src/execution-context/Heap";
 import { isThrownValue, WithProperties } from "../src/types";
 import { ESString } from "../src/string/String";
@@ -14,9 +14,11 @@ import { assumeInContext } from "../src/execution-context/branches";
 
 const packageDirectory = join(__dirname, "fixtures/pico-static-server-3.0.3/package");
 
-function packageLoader() {
+function packageLoader(layout: "installed" | "checkout" = "installed") {
   const http = createHTTPModel();
   const consoleModel = createConsoleModel();
+  const url = createLegacyURLModel();
+  const moduleDirectory = layout === "installed" ? "/app/node_modules/pico-static-server" : "/app/fixture/package";
   // These modules promise identity only. Any attempted member access stops
   // analysis. Loading an unused import does not establish API compatibility.
   const opaque = (name: string) => Object.assign(ESObject(), {
@@ -25,14 +27,14 @@ function packageLoader() {
   });
   const context = ExecutionContext({ ...nodeInitialExecutionContext.value,
     global: ESObject({ ...nodeInitialExecutionContext.value.global.properties,
-      console: consoleModel.module }, "unmodeled") });
+      console: consoleModel.module, process: url.process }, "unmodeled") });
   const loader = createCommonJSLoader({
-    "/app/entry.cjs": 'module.exports = require("pico-static-server");',
-    "/app/node_modules/pico-static-server/package.json": readFileSync(join(packageDirectory, "package.json"), "utf8"),
-    "/app/node_modules/pico-static-server/index.js": readFileSync(join(packageDirectory, "index.js"), "utf8")
-  }, { builtins: { http: http.module, https: opaque("https"), url: opaque("url"),
-    fs: opaque("fs"), path: createPosixPathModel().module } });
-  return { http, consoleModel, loader, context };
+    "/app/entry.cjs": `module.exports = require(${JSON.stringify(layout === "installed" ? "pico-static-server" : moduleDirectory)});`,
+    [moduleDirectory + "/package.json"]: readFileSync(join(packageDirectory, "package.json"), "utf8"),
+    [moduleDirectory + "/index.js"]: readFileSync(join(packageDirectory, "index.js"), "utf8")
+  }, { builtins: { http: http.module, https: opaque("https"), url: url.module,
+    process: url.process, fs: opaque("fs"), path: createPosixPathModel().module } });
+  return { http, consoleModel, url, loader, context };
 }
 
 test("the unmodified published static-server module loads its actual arrow factory", () => {
@@ -178,23 +180,33 @@ test("a delivered request event with an unknown non-GET/HEAD method proves Allow
   }
 });
 
-for (const [method, gap] of [
-  ["GET", "Unmodeled host property 'parse': Unimplemented Node url API"],
-  ["HEAD", "Unmodeled host property 'parse': Unimplemented Node url API"]
-]) {
-  test(`the real registered ${method} request reaches its next shared API gap after startup`, () => {
-    const setup = packageLoader();
+for (const method of ["GET", "HEAD"]) for (const layout of ["installed", "checkout"] as Array<"installed" | "checkout">) {
+  test(`the real ${method} handler normalizes the request path before its filesystem boundary (${layout})`, () => {
+    const setup = packageLoader(layout);
     const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
-    const [, started] = evaluateCode("const server = factory({ port: 0 });",
+    const [, started] = evaluateCode('const server = factory({ port: 0, staticPath: "/site" });',
       setVariablesInScope(loaded, { factory }));
     const server = started.value.scope.server;
     const [, ready] = setup.http.completeListen(server, started);
-    // A declared valid request on a live connection enters the registered
-    // handler; no source extraction, fake response, or filesystem success.
-    // The POSIX join/normalize callees now resolve, but their arguments reach
-    // url.parse before either path operation can execute.
-    expect(() => setup.http.deliverRequest(server, { method: ESString(method), url: ESString("/") }, ready))
-      .toThrow(gap);
+    // A read-only observer sees state at the next unsupported lookup. It does
+    // not supply fs.existsSync or fabricate a filesystem result.
+    let boundary: TExecutionContext | undefined;
+    const observed = ExecutionContext({ ...ready.value, validateRead: (_object: object, name: string, current: TExecutionContext) => {
+      if (name === "existsSync") boundary = current;
+    } });
+    expect(() => setup.http.deliverRequest(server, {
+      method: ESString(method), url: ESString("/folder/../missing?download=1")
+    }, observed)).toThrow("Unmodeled host property 'existsSync': Unimplemented Node fs API");
+    expect(boundary).toBeDefined();
+    expect(boundary!.value.scope.requestPath).toMatchObject({ value: "/site/missing" });
+    const calls = effectPaths(boundary!.value.effects!)[0].events.filter(event => event.kind === "call");
+    expect(calls.filter(event => event.call.operation === "url.parse")).toHaveLength(1);
+    expect(calls.filter(event => event.call.operation === "path.posix.normalize")).toHaveLength(2);
+    expect(calls.filter(event => event.call.operation === "path.posix.join")).toHaveLength(1);
+    // Node suppresses DEP0169 for the installed layout. The native reference
+    // loads outside node_modules; that declared checkout layout queues it.
+    expect(setup.url.warnings.inspectPending(boundary!)[0].warnings).toHaveLength(layout === "checkout" ? 1 : 0);
+    expect(setup.url.warnings.inspectOutput(boundary!)[0].chunks).toHaveLength(0);
   });
 }
 

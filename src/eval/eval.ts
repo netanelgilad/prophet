@@ -32,7 +32,10 @@ export function evaluateEval(args: Any[], caller: TExecutionContext, direct: boo
   const strict = inheritedStrict || hasUseStrict(statements);
   let local = enterEnvironment(caller, "block", parent);
   local = ExecutionContext({
-    ...local.value, strict, thisValue: direct ? caller.value.thisValue : caller.value.global
+    ...local.value, strict, thisValue: direct ? caller.value.thisValue : caller.value.global,
+    // Eval filenames and skipped frames need engine stack reconstruction.
+    // Do not let an escaped function inherit a fabricated source location.
+    sourceFile: undefined
   });
   let variableEnvironment = local.value.environment;
   if (!strict) {
@@ -74,6 +77,7 @@ export function evaluateEval(args: Any[], caller: TExecutionContext, direct: boo
   };
   return mapCompletions(resume(0, local), (value, after) => [value, ExecutionContext({
     ...setEnvironment(after, caller.value.environment).value,
-    strict: caller.value.strict, thisValue: caller.value.thisValue
+    strict: caller.value.strict, thisValue: caller.value.thisValue,
+    sourceFile: caller.value.sourceFile
   })]);
 }

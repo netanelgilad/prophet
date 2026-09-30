@@ -82,13 +82,14 @@ export function executeCommonJS(
   const environments = new Map(caller.value.environments);
   environments.set(environment, new Map());
   const prepared = ExecutionContext({ ...caller.value, environments });
-  const creation = ExecutionContext({ ...prepared.value, environment, strict: false });
+  const creation = ExecutionContext({ ...prepared.value, environment, strict: false, sourceFile: path });
   const fn = createFunction(wrapper.body.body, wrapper.params, creation);
   const result = evaluateThrowableIterator(fn.function.implementation(exported, args,
     ExecutionContext({ ...prepared.value, thisValue: exported })));
   return mapCompletions(result, (completion, after) => [
     isThrownValue(completion) ? completion : getProperties(module, after).exports,
     ExecutionContext({ ...after.value, environment: caller.value.environment,
-      strict: caller.value.strict, thisValue: caller.value.thisValue })
+      strict: caller.value.strict, thisValue: caller.value.thisValue,
+      sourceFile: caller.value.sourceFile })
   ]);
 }

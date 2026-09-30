@@ -62,8 +62,9 @@ HTTP 500. The parent asserts the child's actual exit status and stderr.
   headers are absent. The third string is enumerated as numeric header names
   instead (for status 200, `0: O` and `1: K`). Tests retain this actual behavior
   rather than "correcting" arguments or asserting the intended headers.
-- The pinned release emits its DEP0169 deprecation warning when the application
-  calls legacy `url.parse`. The references preserve that diagnostic.
+- The pinned release emits DEP0169 when this checkout fixture calls legacy
+  `url.parse` outside node_modules. The references preserve that diagnostic;
+  the installed-package path has different warning eligibility.
 
 These concrete cases establish independent reference evidence; the scoped
 symbolic follow-up below now covers the non-GET/HEAD response routes. Neither
@@ -101,13 +102,21 @@ OPTIONS/POST/DELETE cases supply concrete independently checked witnesses.
 Inspection contains only explicit serialized fields, excluding automatic Date,
 connection and framing output; spaces in the serialized status-text characters
 remain spaces. This is now a scoped symbolic reproduction of the independently
-observed header behavior, not a novel vulnerability claim. The declared POSIX
-environment now supplies shared path.join and path.normalize instead of an
-opaque path module. GET/HEAD resolve both callees, then stop at opaque url.parse
-while evaluating the original nested arguments. Neither path operation has run
-on that request yet; separate path specs validate the concrete/finite-choice
-lexical operations. URL parsing, its observed DEP0169 diagnostic, later path.parse
-and filesystem/unhandled-exception classification remain incomplete. An HTTPS
+observed header behavior, not a novel vulnerability claim. Shared path-only
+legacy URL parsing and POSIX path.join/normalize now execute the original
+GET/HEAD path expression. With `/folder/../missing?download=1` and staticPath
+`/site`, the computed requestPath is `/site/missing`; execution next stops at the
+actual fs.existsSync member lookup. A read-only observer records the preceding
+scope/effects without replacing fs or supplying a result. No existence or read
+outcome is established.
+
+The virtual installed source `/app/node_modules/pico-static-server/index.js`
+suppresses DEP0169, while the identical source at `/app/fixture/package/index.js`
+schedules it, matching the native checkout fixture. Interpreted callbacks retain
+their source filenames. Neither synchronous request handler delivers the warning;
+the scoped warning model provides separate default delivery under healthy stderr.
+Broader URL/path APIs, including later path.parse, and filesystem/unhandled-exception
+classification remain incomplete. An HTTPS
 override still reaches the opaque HTTPS API.
 Broader filesystem permissions, races, symlinks, paths,
 protocols, configuration, and schedules remain outside

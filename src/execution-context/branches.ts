@@ -119,6 +119,8 @@ export function mergeContexts(
     environment: consequent.value.environment,
     environments,
     strict: consequent.value.strict,
+    sourceFile: consequent.value.sourceFile === alternate.value.sourceFile
+      ? consequent.value.sourceFile : undefined,
     thisValue: select(consequent.value.thisValue, alternate.value.thisValue),
     heap,
     effects: consequent.value.effects === undefined && alternate.value.effects === undefined

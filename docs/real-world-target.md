@@ -28,12 +28,13 @@ response has an empty body and omits the intended Allow field: the status is 200
 for OPTIONS and 405 otherwise. The application's reversed writeHead arguments
 produce numeric header names instead. Pinned Node had already exposed this
 behavior; this is now a symbolic finding in the declared domain, not a novel
-vulnerability claim. A shared [POSIX path model](node-path.md) now supplies
-join/normalize for concrete strings and finite choices. GET/HEAD resolve those
-members but stop at opaque `url.parse` while evaluating their arguments, before
-either path call runs. The missing-file exception has not been reached
-symbolically. HTTPS/URL/fs imports retain opaque identities; no native
-implementation runs during symbolic exploration.
+vulnerability claim. Shared [POSIX path](node-path.md) and
+[legacy URL](node-url.md) models now execute the original GET/HEAD path expression
+for supported strings, then stop at the actual `fs.existsSync` lookup. Source
+placement determines whether DEP0169 is suppressed or scheduled; its default
+delivery is modeled separately. No filesystem result is supplied, and the
+missing-file exception has not been reached symbolically. HTTPS/fs imports
+retain opaque identities; no native implementation runs during symbolic exploration.
 
 ## Why this project
 
@@ -132,8 +133,9 @@ an `uncaughtExceptionMonitor` observes failures without recovering them.
   omit the intended Content-Type, Content-Length, and Allow headers on the pinned
   Node release. Characters of the status text become numeric header names. The
   reference records this behavior without repairing the package source.
-- Legacy `url.parse` emits Node's DEP0169 warning. Future host modeling must
-  retain that observable behavior or report the unmodeled diagnostic explicitly.
+- Legacy `url.parse` emits Node's DEP0169 warning for this checkout fixture,
+  whose path is outside node_modules. The installed-package path is a different
+  warning environment: pinned Node suppresses this application deprecation there.
 
 The [Prophet analysis specs](../test/pico-static-server-analysis.spec.ts) load the
 same package entry source and metadata without rewriting arrow syntax. Loading
@@ -177,16 +179,29 @@ output. Values under numeric header names preserve literal spaces from `"Method 
 which a client's parser may trim. This supports the missing application Allow
 finding; it does not claim all wire headers are absent or fully modeled.
 
-GET and HEAD now resolve the shared path.join and path.normalize members in
+GET and HEAD now execute the original expression
 `path.join(options.staticPath, path.normalize(url.parse(request.url).pathname))`.
-The next unsupported lookup is `url.parse` during argument evaluation; neither
-path operation has run on the request yet. Separate [path compatibility specs](../test/node-path.spec.ts)
-validate the generic lexical operations, including finite choices and actual
-argument errors. Their availability does not imply URL decoding, filesystem
-access, containment or successful request normalization. Legacy URL parsing and
-its observed DEP0169 warning are next; path.parse for MIME selection and the
-filesystem APIs remain later boundaries. Completion and filesystem exception
-classification remain unimplemented. Overriding `protocol` to `https` still reaches the opaque
+For `/folder/../missing?download=1` and staticPath `/site`, it computes
+`/site/missing`, including the explicit normalize call and the current normalize
+call inside join. The next unsupported lookup is `fs.existsSync`. A read-only
+lookup observer records the actual preceding scope and effects without supplying
+a filesystem method or result. This establishes path computation for the supplied
+request, not file existence, URL decoding, containment or file-serving completion.
+The generic [URL](../test/node-url.spec.ts) and [path](../test/node-path.spec.ts)
+specs separately cover their concrete and finite-choice domains and boundaries.
+
+The installed virtual filename `/app/node_modules/pico-static-server/index.js`
+correctly suppresses DEP0169. The identical source at
+`/app/fixture/package/index.js` schedules one warning, matching the native checkout
+fixture's eligibility. Source filenames are captured by interpreted functions,
+so the actual callback retains its origin after module loading. No warning is
+delivered while this synchronous handler is still running. Independent
+[warning specs](../test/node-warnings.spec.ts) cover deferred default presentation
+under its declared healthy-stderr environment; arbitrary flags/listeners and a
+general scheduler remain open. Next are correlated filesystem existence/type/read
+outcomes and errors. path.parse for MIME selection and wider URL forms remain
+later boundaries. Completion and filesystem exception classification remain
+unimplemented. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
 records the concrete domain, original wildcard listen behavior, and file hashes.
@@ -233,10 +248,11 @@ been analyzed. Keep both source coverage and domain coverage visible.
    declared successful-binding environment. Deferred delivery now completes its
    original template and console output under a healthy-stdout assumption.
    Scoped direct response headers and the pinned status-code catalog now complete
-   OPTIONS/POST/DELETE responses. Shared POSIX join/normalize now resolve for
-   GET/HEAD; argument evaluation next reaches the unmodeled url.parse member.
-   Add legacy URL parsing and its observed DEP0169 diagnostic before claiming
-   request-path normalization. Broader path APIs and filesystem behavior remain.
+   OPTIONS/POST/DELETE responses. Scoped legacy URL parsing and POSIX
+   join/normalize now compute the actual GET/HEAD request path before stopping at
+   fs.existsSync. Source-based warning eligibility distinguishes the installed
+   package from the checkout; default warning delivery is a separate transition.
+   Broader URL/path APIs and filesystem behavior remain.
    Any uncovered `instanceof`/property semantics need shared support and relevant
    complete Test262 cases. Add the required Node response/Buffer, URL/path,
    filesystem, and broader listen
@@ -268,10 +284,10 @@ been analyzed. Keep both source coverage and domain coverage visible.
 Shared event listeners, arrow functions, identifier defaults, data-object
 spread, numeric listen overloads, untagged templates, scoped console output and
 direct response headers now support startup and the non-GET/HEAD response proof.
-POSIX join/normalize supply the next shared lexical operations, with explicit
-open-string and broader-API gaps. Next follow GET/HEAD through legacy url.parse
-(including its diagnostic), then remaining path/filesystem operations toward the
-unhandled-exception goal. Broader headers and transport remain separate work;
+POSIX join/normalize and path-only legacy URL parsing now reach the actual
+fs.existsSync lookup, with explicit open-string and broader-API gaps. Next model
+correlated filesystem existence, type and read outcomes, including failures,
+toward the unhandled-exception goal. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.
