@@ -46,7 +46,10 @@ export const FunctionConstructor = ESFunction(function*(
     .body as ESTree.BlockStatement;
   let global = execContext.value.environment;
   while (global.parent) global = global.parent;
-  const creationContext = ExecutionContext({ ...execContext.value, environment: global, strict: false });
+  // Generated source has no known lexical file. Reconstructing the engine's
+  // caller/eval stack for location-sensitive host APIs is a separate boundary.
+  const creationContext = ExecutionContext({ ...execContext.value, environment: global,
+    strict: false, sourceFile: undefined });
   return tuple(createFunction(blockStatement.body, [], creationContext), execContext);
 });
 
@@ -61,6 +64,7 @@ export function createFunction(
   if (kind.generator) throw new Error("Generator functions are not yet supported");
   const environment = creationContext.value.environment;
   const lexicalThis = creationContext.value.thisValue;
+  const sourceFile = creationContext.value.sourceFile;
   const strict = !!creationContext.value.strict || hasUseStrict(statements);
   // Capture the environment identity, not its values or the caller's names.
   // Each call gets a fresh record; surviving closures keep that record alive in
@@ -70,7 +74,7 @@ export function createFunction(
   ) {
     const callerEnvironment = execContext.value.environment;
     let activation = enterEnvironment(execContext, "function", environment);
-    activation = ExecutionContext({ ...activation.value, strict });
+    activation = ExecutionContext({ ...activation.value, strict, sourceFile });
     let thisValue = kind.arrow ? lexicalThis : self;
     if (!kind.arrow && !strict) {
       if (isUndefined(self) || isESNull(self)) thisValue = creationContext.value.global;
@@ -82,7 +86,8 @@ export function createFunction(
     return mapCompletions(execution, (completion, context) => tuple(
       isReturnValue(completion) ? completion.value : isThrownValue(completion) ? completion : Undefined,
       ExecutionContext({
-        ...setEnvironment(context, callerEnvironment).value, strict: execContext.value.strict
+        ...setEnvironment(context, callerEnvironment).value, strict: execContext.value.strict,
+        sourceFile: execContext.value.sourceFile
       })
     ));
   });

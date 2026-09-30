@@ -41,6 +41,9 @@ export type TExecutionContext = {
     environment: Environment;
     environments: EnvironmentStore;
     strict?: boolean;
+    // File of the currently executing interpreted function, captured at its
+    // creation. This is not a V8 stack: generated/eval source remains unknown.
+    sourceFile?: string;
     // Temporary proof-session hooks, never installed for ordinary execution.
     interceptCall?: (
       callee: Any, args: Any[], context: TExecutionContext, receiver?: Any

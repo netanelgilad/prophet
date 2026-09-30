@@ -14,6 +14,8 @@ export { createHTTPModel } from "./node/http";
 export { createEventEmitterModel } from "./node/events";
 export { createConsoleModel } from "./node/console";
 export { createPosixPathModel } from "./node/path";
+export { createLegacyURLModel } from "./node/url";
+export { createWarningModel } from "./node/warnings";
 import { CommonJSLoader as Loader, CommonJSLoaderOptions as LoaderOptions } from "./require/loader";
 export type CommonJSLoader = Loader;
 export type CommonJSLoaderOptions = LoaderOptions;

@@ -38,7 +38,7 @@ Arrow-function selections add twelve complete files (nineteen strictness
 variants): expression and block returns, empty bodies, object literal returns,
 non-construction, strictness, an explicitly named `arguments` parameter, closure
 capture through direct eval, and lexical `this` through eval. The active corpus
-now contains 140 complete files and 272 variants. Local arrow specs additionally
+now contains 145 complete files and 281 variants. Local arrow specs additionally
 compare lexical `this` under ordinary calls and `.call`, late captured binding
 updates, conditional calls/throws, and absent own `prototype` with pinned Node.
 They also check syntax-derived arrow `length` without invoking unsupported
@@ -77,6 +77,41 @@ trimmed to their untagged assertions. Complete abrupt-template cases additionall
 need the `Test262Error` harness constructor; local throw specs do not count as
 passing those upstream files. This increment does not extend the runner or
 claim complete template-literal conformance.
+
+Five complete quoted-string files add ordinary/Unicode-escaped string types,
+invalid Unicode escapes in both quote forms, and strict octal-escape rejection.
+Local pinned-Node specs additionally expose and correct Cherow's duplication of
+the low surrogate in raw astral quoted-string literals and its retention of
+continued U+2028/U+2029 separators. The shared parser recooks only each affected,
+already-validated literal using equivalent UTF-16 escapes and LF continuations.
+Keeping the continuation preserves escape-token boundaries, including short
+octal and strict NUL escapes followed by digits. Its original raw spelling,
+directive metadata and source locations stay
+intact. No whole-program rewriting or host JavaScript evaluation is involved.
+The comparisons cover adjacent astral characters, existing escapes, odd/even
+backslashes, identity escapes, lone surrogates, LF and Unicode-separator
+continuations, property names,
+eval and Function-generated source, while preserving unrelated AST nodes.
+
+The complete `language/literals/string/line-continuation-single.js` and
+`line-continuation-double.js` files remain inactive: Cherow rejects their valid
+physical CRLF continuations before creating an AST. The local rejection boundary
+also confirms that pinned Node accepts this source; it records a conformance
+gap, not the correct JavaScript behavior. Failed parsing of source containing a
+backslash followed by CRLF reports an explicit analysis error instead of exposing
+this known lexer bug as a catchable JavaScript SyntaxError. This conservative
+boundary does not claim every such source is valid. These upstream files are not trimmed.
+Cherow also rejects ordinary unescaped U+2028/U+2029 quoted-string text, including
+text following an escaped backslash, before creating an AST. Its specific
+unterminated-string diagnostic at that separator becomes an explicit
+JSON-superset analysis gap; invalid Unicode escapes retain their SyntaxError.
+The complete `language/literals/string/line-separator.js` and
+`paragraph-separator.js` cases are likewise reviewed and inactive for this
+pre-AST parser limitation.
+Other Unicode-escape candidates `S7.8.4_A7.1_T1.js` and `S7.8.4_A7.3_T1.js`
+require `String.fromCharCode`; `S7.8.4_A7.1_T2.js` and `S7.8.4_A7.1_T3.js` require
+for-loop evaluation. They remain complete inactive cases rather than harness
+substitutions for missing language/library behavior.
 
 Two complete directive-prologue cases cover an escaped spelling that must not
 enable strict mode and an exact directive following another directive with

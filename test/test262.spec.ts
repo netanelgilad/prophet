@@ -13,6 +13,14 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // Complete quoted-string files protect Unicode escape syntax and strict
+  // early errors alongside local raw-astral literal regressions.
+  "language/types/string/S8.4_A1.js",
+  "language/literals/string/unicode-escape-nls-err-single.js",
+  "language/literals/string/unicode-escape-nls-err-double.js",
+  "language/literals/string/S7.8.4_A7.1_T4.js",
+  "language/literals/string/legacy-octal-escape-sequence-strict.js",
+
   // Complete untagged templates: primitive/object conversion, calls, members,
   // nested templates, and head/middle/tail concatenation.
   "language/expressions/template-literal/no-sub.js",

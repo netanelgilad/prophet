@@ -52,13 +52,16 @@ event with an unknown method constrained to be neither GET nor HEAD, Prophet
 proves an empty body, status 200 for OPTIONS or 405
 otherwise, and the missing intended Allow field caused by reversed arguments.
 This symbolically reproduces the native reference's header observation, not a
-novel vulnerability. The scoped [POSIX path model](node-path.md) now supplies
-join/normalize for concrete strings and finite choices. GET/HEAD resolve those
-callees, then stop at url.parse while evaluating their arguments; neither path
-call has executed on that request yet. HTTPS/URL/fs remain opaque imports, and
-the missing-default-file exception is not yet analyzed. Next model legacy URL
-parsing with its observed DEP0169 diagnostic, then follow the remaining path
-and filesystem operations.
+novel vulnerability. The scoped [POSIX path](node-path.md) and
+[legacy URL](node-url.md) models now execute the original GET/HEAD path expression
+for supported strings. With `/folder/../missing?download=1` and staticPath
+`/site`, it computes `/site/missing`, then stops at the actual unmodeled
+fs.existsSync lookup. No filesystem result is supplied. Source provenance
+correctly suppresses DEP0169 for the virtual installed package and schedules it
+for the identical checkout source; warning delivery is a separate bounded
+transition. HTTPS/fs remain opaque imports, and the missing-default-file
+exception is not yet analyzed. Next model correlated filesystem existence,
+type and read outcomes, including errors; broader URL/path operations remain open.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations
@@ -330,7 +333,8 @@ Continue in these layers, each with specs and its own stacked PR:
    removal, one-time listeners, mutation during delivery, failures, and
    path-dependent state now pass. HTTP listening/request/finish callbacks reuse
    that implementation, preserving current captured bindings and explicit event
-   delivery. Metadata events, warnings, streams, and broader APIs remain gaps.
+   delivery. Metadata events, EventEmitter warning generation, streams, and
+   broader APIs remain gaps; the scoped process-warning queue is separate.
 5. **First real application:** follow [the pinned target contract](real-world-target.md).
    Whole-source provenance and Node reference specs are established. Arrow
    functions allow the actual module to load, and identifier defaults now run
@@ -341,10 +345,11 @@ Continue in these layers, each with specs and its own stacked PR:
    headers/status codes now complete OPTIONS/POST/DELETE, and explicitly delivered
    request events with symbolic non-GET/HEAD methods prove missing Allow plus
    conditional 200/405 responses. Wire-to-event dispatch remains unmodeled. The inspected
-   fields exclude automatic Date/connection/framing. POSIX join/normalize now
-   resolve for GET/HEAD, but their argument evaluation next stops at url.parse.
-   Add compatible legacy URL parsing and its DEP0169 diagnostic; no completed
-   request-path normalization or filesystem classification follows yet. Continue filling shared language, response,
+   fields exclude automatic Date/connection/framing. Scoped legacy URL parsing
+   and POSIX join/normalize now compute the original GET/HEAD request path,
+   then stop at the actual fs.existsSync lookup. Source-based DEP0169 eligibility
+   and a separate default-warning queue preserve the diagnostic boundary.
+   Filesystem classification is still open. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add
    symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model

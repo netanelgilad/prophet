@@ -30,6 +30,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts te
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts test/node-http-lifecycle.spec.ts test/node-http-lifecycle-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/pico-static-server-analysis.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-url.spec.ts test/node-warnings.spec.ts test/node-url-path.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -181,9 +182,33 @@ ignores its intended headers. Pinned Node references confirm this behavior.
 The response status remains unknown until the method is constrained further.
 This starts after protocol dispatch: traffic such as CONNECT uses other Node
 events, so it does not establish a response for every possible wire request.
-GET/HEAD now resolve `path.join` and `path.normalize`, then stop at `url.parse`
-while evaluating the arguments, before either path call runs. An HTTPS override
-reaches the opaque HTTPS API. Filesystem exception classification remains unfinished.
+GET/HEAD now execute their original URL/path expression, then stop at
+`fs.existsSync`. For `/folder/../missing?download=1` under `/site`, the computed
+path is `/site/missing`. An HTTPS override reaches the opaque HTTPS API.
+Filesystem exception classification remains unfinished.
+
+The [legacy URL model](docs/node-url.md) parses path-style URLs with query and
+fragment text, including finite symbolic choices. The [URL/path specs](test/node-url-path.spec.ts)
+analyze this ordinary function:
+
+```js
+function requestPath(target) {
+  return path.join("/site", path.normalize(url.parse(target).pathname));
+}
+```
+
+They prove the resulting filename for either of two possible targets while the
+choice remains unknown. They also prove that an empty target makes this function
+throw: legacy parsing produces a null pathname, which path.normalize rejects.
+Protocol/authority parsing, query objects and open symbolic text remain gaps.
+
+The shared VM now retains an interpreted function's source filename. Node uses
+that location to suppress DEP0169 for callers inside `node_modules`; the native
+checkout fixture is outside that directory and does warn. Both layouts are
+explicit in the integration specs. Eligible calls queue a warning once, before
+argument validation. The scoped warning model keeps the queue and subsequent
+stderr output in persistent state; explicit delivery represents a later tick
+under default warning handling and healthy stderr. No real output is written.
 
 The [POSIX path model](docs/node-path.md) evaluates `join` and `normalize` for
 concrete strings and finite symbolic choices, preserving the choices' conditions.
@@ -701,7 +726,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **272 strict/sloppy variants of 140 complete,
+The active Test262 baseline runs **281 strict/sloppy variants of 145 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected

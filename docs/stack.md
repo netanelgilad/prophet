@@ -26,8 +26,9 @@
 | Untagged templates, console effects, and maintained implementation gaps | `stack/console-template-startup` | `stack/node-listen-overloads` | [#44](https://github.com/netanelgilad/prophet/pull/44) |
 | Response headers, status catalog, and the real server's missing Allow proof | `stack/http-response-headers` | `stack/console-template-startup` | [#45](https://github.com/netanelgilad/prophet/pull/45) |
 | POSIX path operations and conditional path-building proofs | `stack/node-posix-path` | `stack/http-response-headers` | [#46](https://github.com/netanelgilad/prophet/pull/46) |
+| Legacy URL parsing, deferred warnings and source provenance | `stack/node-legacy-url` | `stack/node-posix-path` | Pending publication |
 
-Current development tip: `stack/node-posix-path`.
+Current development tip: `stack/node-legacy-url`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when
