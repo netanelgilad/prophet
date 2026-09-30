@@ -31,6 +31,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.t
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts test/node-http-lifecycle.spec.ts test/node-http-lifecycle-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/pico-static-server-analysis.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-url.spec.ts test/node-warnings.spec.ts test/node-url-path.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-filesystem.spec.ts test/filesystem-state.spec.ts test/pico-static-server-analysis.spec.ts test/pico-static-server-reference.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -182,10 +183,10 @@ ignores its intended headers. Pinned Node references confirm this behavior.
 The response status remains unknown until the method is constrained further.
 This starts after protocol dispatch: traffic such as CONNECT uses other Node
 events, so it does not establish a response for every possible wire request.
-GET/HEAD now execute their original URL/path expression, then stop at
-`fs.existsSync`. For `/folder/../missing?download=1` under `/site`, the computed
-path is `/site/missing`. An HTTPS override reaches the opaque HTTPS API.
-Filesystem exception classification remains unfinished.
+GET/HEAD now execute their original URL/path expression and consult the shared
+filesystem. For `/folder/../missing?download=1` under a declared empty `/site`,
+the computed path is `/site/missing` and the handler completes a 404 response.
+An HTTPS override reaches the opaque HTTPS API.
 
 The [legacy URL model](docs/node-url.md) parses path-style URLs with query and
 fragment text, including finite symbolic choices. The [URL/path specs](test/node-url-path.spec.ts)
@@ -209,6 +210,38 @@ explicit in the integration specs. Eligible calls queue a warning once, before
 argument validation. The scoped warning model keeps the queue and subsequent
 stderr output in persistent state; explicit delivery represents a later tick
 under default warning handling and healthy stderr. No real output is written.
+
+The [filesystem model](docs/node-filesystem.md) represents a closed tree using
+ordinary VM values and choices. For example, this input says that `/site/docs`
+is either an empty directory or absent:
+
+```ts
+const directoryExists = ESBoolean();
+const root = fileSystemDirectory({
+  site: fileSystemDirectory({
+    docs: selectValue(directoryExists, fileSystemDirectory({}), ESNull)
+  })
+});
+const filesystem = createFileSystemModel({ root });
+```
+
+`existsSync`, `statSync` and `readFileSync` consult that same tree and retain the
+same condition across calls. With the unchanged server and a GET or HEAD request
+for `/docs`, Prophet now proves a 404 on the absent branch, or an escaping
+`ENOENT` from reading `/site/docs/index.html` on the directory branch. The latter
+branch neither commits headers nor ends the response. Pinned Node replays of
+both concrete tree choices confirm the corresponding 404 or process exit from
+an uncaught exception. This is a bounded reproduction of the recorded behavior,
+not a novel vulnerability or a claim about every filesystem/request.
+
+The initial tree has a case-sensitive UTF-8 namespace, readable regular files
+and directories, and no symlinks, permission/resource failures or concurrent
+changes. UTF-8 reads can return file contents; default successful reads still
+stop at the Buffer boundary. The real readable-file handler therefore remains
+unfinished, along with subsequent `instanceof`, path.parse and response.write
+support. Stats fields/options, other path forms, filesystem writes and wider
+platform/metadata behavior remain recorded gaps. Symbolic execution performs no
+real filesystem I/O; native fixture creation belongs only to reference specs.
 
 The [POSIX path model](docs/node-path.md) evaluates `join` and `normalize` for
 concrete strings and finite symbolic choices, preserving the choices' conditions.

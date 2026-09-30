@@ -141,19 +141,21 @@ path.join(options.staticPath, path.normalize(url.parse(request.url).pathname))
 
 For `/folder/../missing?download=1` and staticPath `/site`, the result is
 `/site/missing`. Both the explicit normalize call and join's current normalize
-call execute. Analysis then stops at the actual unmodeled `fs.existsSync`
-member. A read-only lookup observer records the preceding scope and effects;
-it supplies no filesystem method or result. No file has been proved absent,
-readable or safely contained, and the missing-default-file exception has not
-been reached.
+call execute. The [filesystem model](node-filesystem.md) now resolves that path
+against the declared empty `/site`, and the original handler completes 404.
+A read-only lookup observer records the preceding scope and effects without
+supplying filesystem results. A second shared-tree proof for `/docs` retains
+both absent-directory 404 and empty-directory ENOENT from the original index
+read, with matching native GET/HEAD witnesses. This does not prove containment
+or successful readable-file serving.
 
 Source placement is explicit: the virtual installed package under
 `/app/node_modules/pico-static-server` suppresses DEP0169, while the identical
 source at `/app/fixture/package` schedules it, matching the native checkout
 fixture's eligibility. Neither case delivers a warning while its synchronous
-handler is still executing. The next target increment is filesystem
-existence/type/read outcomes with correlated state and errors. Later path.parse,
-Buffer/response behavior, HTTPS and wider URL forms remain gaps; existing bind,
+handler is still executing. The next target boundary is a successful default
+Buffer-valued read, followed by later language/path/response operations.
+Broader filesystem failures, HTTPS and wider URL forms remain gaps; existing bind,
 stdout, delivered-request-event and transport assumptions remain in force.
 
 ## Complete upstream cases reviewed

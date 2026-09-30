@@ -22,8 +22,9 @@ runtime package dependencies. Its entire server factory includes imports,
 request registration, filesystem access, and listening. The first useful question
 is whether a request for an existing directory whose default file is absent can
 escape as an unhandled exception, and under which request/filesystem conditions.
-Pinned Node reference specs now reproduce that failure; symbolic classification
-is still unimplemented, so it is **not a Prophet finding**. Selection,
+Prophet now classifies the bounded missing-versus-empty-directory case: 404 or
+escaping ENOENT, with matching pinned Node witnesses. This is a symbolic finding
+within its declared domain, not complete server analysis. Selection,
 immutable provenance, input/environment domains, result criteria, and the growth
 plan are in [the real-world target contract](real-world-target.md).
 
@@ -53,15 +54,17 @@ proves an empty body, status 200 for OPTIONS or 405
 otherwise, and the missing intended Allow field caused by reversed arguments.
 This symbolically reproduces the native reference's header observation, not a
 novel vulnerability. The scoped [POSIX path](node-path.md) and
-[legacy URL](node-url.md) models now execute the original GET/HEAD path expression
-for supported strings. With `/folder/../missing?download=1` and staticPath
-`/site`, it computes `/site/missing`, then stops at the actual unmodeled
-fs.existsSync lookup. No filesystem result is supplied. Source provenance
-correctly suppresses DEP0169 for the virtual installed package and schedules it
-for the identical checkout source; warning delivery is a separate bounded
-transition. HTTPS/fs remain opaque imports, and the missing-default-file
-exception is not yet analyzed. Next model correlated filesystem existence,
-type and read outcomes, including errors; broader URL/path operations remain open.
+[legacy URL](node-url.md) models now execute the original GET/HEAD path expression.
+The shared [symbolic filesystem](node-filesystem.md) then proves a bounded
+exception condition: for `/docs`, a missing directory completes 404, while an
+existing empty directory makes the original readFileSync throw ENOENT for its
+missing index before committing or ending a response. The tree choice stays
+unknown, and all filesystem calls consult that same state. Four matching native
+GET/HEAD witnesses independently reproduce the 404 or process-exiting exception.
+Source provenance preserves installed-versus-checkout DEP0169 eligibility;
+warning delivery stays separate. HTTPS remains opaque. Readable-file success
+stops at the default Buffer-return gap. Next support that value and the later
+language/path/response consumers, then broaden filesystem outcomes and schedules.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations
@@ -346,10 +349,12 @@ Continue in these layers, each with specs and its own stacked PR:
    request events with symbolic non-GET/HEAD methods prove missing Allow plus
    conditional 200/405 responses. Wire-to-event dispatch remains unmodeled. The inspected
    fields exclude automatic Date/connection/framing. Scoped legacy URL parsing
-   and POSIX join/normalize now compute the original GET/HEAD request path,
-   then stop at the actual fs.existsSync lookup. Source-based DEP0169 eligibility
-   and a separate default-warning queue preserve the diagnostic boundary.
-   Filesystem classification is still open. Continue filling shared language, response,
+   and POSIX join/normalize now compute the original GET/HEAD request path.
+   A shared symbolic tree classifies missing-directory 404 versus empty-directory
+   escaping ENOENT before any response commit. Matching native GET/HEAD/tree
+   witnesses replay both conditions. Source-based DEP0169 eligibility and a
+   separate default-warning queue preserve the diagnostic boundary. Successful
+   Buffer reads and broader filesystem classification remain open. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add
    symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model
