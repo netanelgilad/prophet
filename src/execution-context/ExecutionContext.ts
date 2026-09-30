@@ -14,6 +14,12 @@ export type TExecutionContext = {
     uncaught?: Any;
     knowledge?: Knowledge;
     heap?: Heap;
+    // Temporary proof-session hooks, never installed for ordinary execution.
+    interceptCall?: (
+      callee: Any, args: Any[], context: TExecutionContext, receiver?: Any
+    ) => [Any, TExecutionContext] | undefined;
+    validateRead?: (object: Any, name: string, context: TExecutionContext) => void;
+    evaluationBudget?: { remaining: number };
   };
 };
 

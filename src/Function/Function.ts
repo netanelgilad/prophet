@@ -18,6 +18,7 @@ import { ESObject } from "../Object";
 import { tuple } from "@deaven/tuple";
 import { parseECMACompliant } from "../parseECMACompliant";
 import { ESTree } from "cherow";
+import { registerDefinition } from "./definition";
 
 export function ESFunction(implementation: FunctionImplementation) {
   return {
@@ -91,7 +92,7 @@ export function createFunction(
   };
   statements.forEach(collectDeclarations);
 
-  return {
+  const result = {
     type: "function",
     properties: {
       prototype: ESObject()
@@ -145,4 +146,6 @@ export function createFunction(
       }
     }
   };
+  registerDefinition(result, { statements, params });
+  return result;
 }

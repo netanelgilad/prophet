@@ -43,6 +43,10 @@ export function evaluate<T extends ESTree.Node>(
   execContext: TExecutionContext
 ): NodeEvaluationResult<T> {
   try {
+    const budget = execContext && execContext.value.evaluationBudget;
+    if (budget && --budget.remaining < 0) {
+      throw new Error("Recursive summary proof exceeded its evaluation budget");
+    }
     const resolver = ASTResolvers.get(ast.type);
     assert(resolver, `Can't resolve type of ast type ${ast.type}`);
     const resultIter = resolver!(ast, execContext || ExecutionContext({}));

@@ -52,6 +52,8 @@ import { evaluateBranches, BranchResult } from "./execution-context/branches";
 import { getProperties, getArrayElements, writeArrayElements,
   writeProperty, isArrayIndex } from "./execution-context/Heap";
 import { isForkedCompletion } from "./execution-context/Completion";
+import { getSymbolicArrayShape, readSymbolicIndex } from "./array/symbolic";
+import { summarizeCall } from "./Function/summaries";
 
 export type ASTResolver<TAST extends ESTree.Node, T extends Any> = (
   ast: TAST,
@@ -156,10 +158,19 @@ function readMember(object: Any, name: string, context: TExecutionContext): Bran
       branch => readMember(choice.consequent, name, branch),
       branch => readMember(choice.alternate, name, branch));
   }
+  if (context.value.validateRead) context.value.validateRead(object, name, context);
+  if (isArrayIndex(name) && getSymbolicArrayShape(object, context)) {
+    return tuple(readSymbolicIndex(object, Number(name), context)!, context);
+  }
   const properties = getProperties(unsafeCast<WithProperties>(object), context);
   assert(properties, "Cannot read a property of null or undefined");
   const property = Object.prototype.hasOwnProperty.call(properties, name)
     ? properties[name] : Undefined;
+  if (isArray(object) && isArrayIndex(name) &&
+      getArrayElements(object as TArray<any>, context) === undefined &&
+      !Object.prototype.hasOwnProperty.call(properties, name)) {
+    throw new Error("Indexed reads require known element positions or a symbolic dense array");
+  }
   // A property read doesn't bind `this`. Only a direct member call supplies a
   // receiver. Legacy native methods use their method object as a stable ID.
   if (isFunction(property)) return tuple({
@@ -206,6 +217,13 @@ function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?:
     branch => invoke(choice.alternate, args, branch, receiver));
   const binding = unsafeCast<FunctionBinding>(callee);
   assert(binding.function, "Value is not callable");
+  if (context.value.interceptCall) {
+    const intercepted = context.value.interceptCall(callee, args, context, receiver);
+    if (intercepted) return intercepted;
+  } else {
+    const summarized = summarizeCall(callee, args, context);
+    if (summarized) return summarized;
+  }
   const self = receiver || context.value.global;
   const result = evaluateThrowableIterator(binding.function.implementation(
     self, args, setCurrentThisValue(context, self)));
@@ -340,6 +358,8 @@ function assignMember(
   }
   assert(!(isESNumber(object) || isESString(object) || isESBoolean(object)),
     "Property assignment on primitive values is not yet supported");
+  assert(!getSymbolicArrayShape(object, context),
+    "Writes to symbolic array snapshots are not yet supported");
   if (isArray(object) && (name === "length" || isArrayIndex(name))) {
     const array = unsafeCast<TArray<Any>>(object);
     const current = getArrayElements(array, context);

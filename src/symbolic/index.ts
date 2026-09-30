@@ -13,9 +13,10 @@ export type NumberOperator = Model.NumberOperator;
 export type OrderFact = Model.OrderFact;
 export type SelectExpression = Model.SelectExpression;
 export type TChoice = Model.TChoice;
+export type CollectionRegion = Model.CollectionRegion;
 
 type SymbolicValue = { type?: string } & WithValue<any>;
-type Bound = { value: number; inclusive: boolean };
+export type Bound = { value: number; inclusive: boolean };
 
 function metadata(value: Any): SymbolicValue {
   return value as SymbolicValue;
@@ -80,6 +81,11 @@ function truthIn(condition: TESBoolean, knowledge: Knowledge): boolean | undefin
   return undefined;
 }
 
+function regionContains(outer: CollectionRegion, inner: CollectionRegion): boolean {
+  return outer.id === inner.id && inner.start >= outer.start &&
+    (outer.end === undefined || (inner.end !== undefined && inner.end <= outer.end));
+}
+
 // Facts refer to value identities and may form a graph (including their subject).
 // Traverse each object once, without expanding conditional alternatives.
 function collectFacts(values: Any[], knowledge: Knowledge): Fact[] {
@@ -98,17 +104,34 @@ function collectFacts(values: Any[], knowledge: Knowledge): Fact[] {
     if (fact.kind === "order") {
       addValue(fact.left);
       addValue(fact.right);
-    } else if (fact.kind === "finite" || fact.kind === "notNaN") addValue(fact.subject);
+    } else if (fact.kind === "finite" || fact.kind === "notNaN" || fact.kind === "integer") {
+      addValue(fact.subject);
+    } else if (fact.kind === "member") addValue(fact.element);
+    else if (fact.kind === "every-element-order") addValue(fact.bound);
   };
   values.forEach(addValue);
   knowledge.forEach(addFact);
+  // A universal guarantee alone says nothing about whether its collection is
+  // empty. Instantiate it only for an actual member of the same snapshot.
+  const members = result.filter((fact): fact is Extract<Fact, { kind: "member" }> => fact.kind === "member");
+  const universal = result.filter((fact): fact is Extract<Fact, { kind: "every-element-order" }> => fact.kind === "every-element-order");
+  universal.forEach(fact => members.forEach(member => {
+    if (regionContains(fact.collection, member.collection)) {
+      result.push({
+        kind: "order",
+        left: fact.direction === "lower" ? fact.bound : member.element,
+        right: fact.direction === "lower" ? member.element : fact.bound,
+        strict: false
+      });
+    }
+  }));
   return result;
 }
 
 function knownNotNaN(number: TESNumber, facts: Knowledge): boolean {
   if (typeof number.value === "number") return !Number.isNaN(number.value);
   return facts.some(fact =>
-    ((fact.kind === "finite" || fact.kind === "notNaN") && sameNumber(fact.subject, number)) ||
+    ((fact.kind === "finite" || fact.kind === "notNaN" || fact.kind === "integer") && sameNumber(fact.subject, number)) ||
     (fact.kind === "order" && (sameNumber(fact.left, number) || sameNumber(fact.right, number)))
   );
 }
@@ -117,18 +140,20 @@ export function notNaN(number: TESNumber, knowledge: Knowledge = []): boolean {
   return knownNotNaN(number, collectFacts([number], knowledge));
 }
 
-function finite(number: TESNumber, knowledge: Knowledge = []): boolean {
+export function isFiniteNumber(number: TESNumber, knowledge: Knowledge = []): boolean {
   return typeof number.value === "number" ? Number.isFinite(number.value) :
-    collectFacts([number], knowledge).some(fact => fact.kind === "finite" && sameNumber(fact.subject, number));
+    collectFacts([number], knowledge).some(fact =>
+      (fact.kind === "finite" || fact.kind === "integer") && sameNumber(fact.subject, number));
 }
 
-function bounds(number: TESNumber, knowledge: Knowledge): { lower?: Bound; upper?: Bound } {
+export function numberBounds(number: TESNumber, knowledge: Knowledge = []): { lower?: Bound; upper?: Bound } {
   if (typeof number.value === "number" && !Number.isNaN(number.value)) {
     return { lower: { value: number.value, inclusive: true }, upper: { value: number.value, inclusive: true } };
   }
   let lower: Bound | undefined;
   let upper: Bound | undefined;
-  collectFacts([number], knowledge).forEach(fact => {
+  const facts = collectFacts([number], knowledge);
+  facts.forEach(fact => {
     if (fact.kind !== "order") return;
     if (sameNumber(fact.right, number) && typeof fact.left.value === "number" && !Number.isNaN(fact.left.value)) {
       const candidate = { value: fact.left.value, inclusive: !fact.strict };
@@ -139,6 +164,17 @@ function bounds(number: TESNumber, knowledge: Knowledge): { lower?: Bound; upper
       if (!upper || candidate.value < upper.value || (candidate.value === upper.value && !candidate.inclusive)) upper = candidate;
     }
   });
+  if (facts.some(fact => fact.kind === "integer" && sameNumber(fact.subject, number))) {
+    if (lower && Number.isFinite(lower.value)) {
+      const rounded = lower.inclusive ? Math.ceil(lower.value) : Math.floor(lower.value) + 1;
+      // At large magnitudes adding one can round back to the same double.
+      if (rounded > lower.value || lower.inclusive) lower = { value: rounded, inclusive: true };
+    }
+    if (upper && Number.isFinite(upper.value)) {
+      const rounded = upper.inclusive ? Math.floor(upper.value) : Math.ceil(upper.value) - 1;
+      if (rounded < upper.value || upper.inclusive) upper = { value: rounded, inclusive: true };
+    }
+  }
   return { lower, upper };
 }
 
@@ -196,6 +232,19 @@ export function assume(knowledge: Knowledge, condition: TESBoolean, truth: boole
       { kind: "order", left: expression.left, right: expression.right, strict: false },
       { kind: "order", left: expression.right, right: expression.left, strict: false }
     );
+  }
+  if (expression.kind === "strict-equal" && !truth && isESNumber(expression.left) && isESNumber(expression.right)) {
+    const subject = typeof expression.left.value === "number" ? expression.right : expression.left;
+    const literal = subject === expression.left ? expression.right : expression.left;
+    if (typeof literal.value === "number" && !Number.isNaN(literal.value)) {
+      const limits = numberBounds(subject, facts);
+      if (limits.lower && limits.lower.value >= literal.value) {
+        facts = facts.concat({ kind: "order", left: literal, right: subject, strict: true });
+      }
+      if (limits.upper && limits.upper.value <= literal.value) {
+        facts = facts.concat({ kind: "order", left: subject, right: literal, strict: true });
+      }
+    }
   }
   return facts;
 }
@@ -333,10 +382,10 @@ function numberSelection(result: TESNumber, condition: TESBoolean, consequent: T
   const trueFacts = assume(knowledge, condition, true);
   const falseFacts = assume(knowledge, condition, false);
   const facts: Fact[] = [];
-  if (finite(consequent, trueFacts) && finite(alternate, falseFacts)) facts.push({ kind: "finite", subject: result });
+  if (isFiniteNumber(consequent, trueFacts) && isFiniteNumber(alternate, falseFacts)) facts.push({ kind: "finite", subject: result });
   if (notNaN(consequent, trueFacts) && notNaN(alternate, falseFacts)) facts.push({ kind: "notNaN", subject: result });
-  const a = bounds(consequent, trueFacts);
-  const b = bounds(alternate, falseFacts);
+  const a = numberBounds(consequent, trueFacts);
+  const b = numberBounds(alternate, falseFacts);
   const lower = joinedBound(a.lower, b.lower, true);
   const upper = joinedBound(a.upper, b.upper, false);
   if (lower) facts.push({ kind: "order", left: ESNumber(lower.value), right: result, strict: !lower.inclusive });
