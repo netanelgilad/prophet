@@ -30,9 +30,14 @@ export function mergeContexts(
     yes: { [key: string]: Any },
     no: { [key: string]: Any }
   ) => {
-    const result: { [key: string]: Any } = {};
+    const result: { [key: string]: Any } = Object.create(null);
     new Set([...Object.keys(yes), ...Object.keys(no)]).forEach(name => {
-      result[name] = select(yes[name] || Undefined, no[name] || Undefined);
+      // Property names are data, including __proto__ and constructor. Never
+      // invoke a host setter or read an inherited host property during a join.
+      result[name] = select(
+        Object.prototype.hasOwnProperty.call(yes, name) ? yes[name] : Undefined,
+        Object.prototype.hasOwnProperty.call(no, name) ? no[name] : Undefined
+      );
     });
     return result;
   };
