@@ -27,6 +27,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-compat.spec.ts test/commonjs-package-config.spec.ts test/commonjs-resolution-symbolic.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts test/commonjs-package-symbolic.spec.ts test/published-invariant.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts test/discount-server.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -84,6 +85,11 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts te
   keeps inherited values available when another path creates an own property.
 - [Host effects](test/host-effects.spec.ts) retain ordered calls, returns, throws,
   object snapshots, and resource changes under their execution conditions.
+- [Node HTTP server](test/node-http-server.spec.ts) is the next full-program
+  target. Its real Node reference executes the imports, server creation,
+  callback registration, and listen call before sending HTTP requests. The
+  Prophet case explicitly records the current unsupported builtin import;
+  it is a missing capability, not a symbolic server proof.
 - [Discount server](test/discount-server.spec.ts) runs a real Express 4.22.1
   endpoint on pinned Node, then symbolically evaluates the same handler with
   explicit file-write and response models. Invalid input never writes; accepted
@@ -127,14 +133,13 @@ unmodified, pinned published build of `tiny-invariant`:
    spec. The actual package now proves normalization or rejection for every
    JavaScript number, including NaN and infinities, with lazy-message effects.
    Each package proof states its supported Node subset.
-6. **External effects and servers:** model side-effecting functions, including
-   ordered responses, logs, writes, failures, and eventually async callbacks.
-   Progress from an effectful handler to a pinned Express server and its real
-   dependencies. Prove that rejected requests never write, successful requests
-   write once and respond once, and failure paths preserve the modeled effects.
-   The discount endpoint below now has a real Express reference and a direct
-   symbolic handler proof. Loading and dispatching through Express in Prophet
-   remains the next integration milestone.
+6. **Node host APIs and servers:** model `node:http` as the host boundary. Start
+   with builtin imports, server setup and registered callback delivery, then
+   response lifecycle, request body streams, and effectful application logic.
+   Express and its dependencies will later execute as ordinary JavaScript above
+   those boundaries. The existing discount example retains a real Express
+   reference and a direct symbolic handler proof; it does not establish HTTP
+   setup or dispatch. No Express-specific model belongs in the VM.
 7. **Later, replayable counterexamples:** generate a concrete violating input,
    then independently replay it against that same source. Sample testing alone
    must never establish a universal proof.
@@ -142,9 +147,53 @@ unmodified, pinned published build of `tiny-invariant`:
 Each step belongs in the PR stack with focused specs and relevant Test262 cases.
 Full JavaScript conformance and broader symbolic domains remain parallel goals.
 The [detailed roadmap](docs/roadmap.md) records CommonJS compatibility criteria,
-external-effect modeling requirements, and the first Express proof targets.
+external-effect modeling requirements, and the Node HTTP milestones leading to
+later Express proofs.
 
-## Concrete North Star: saving a discount
+## Concrete North Star: a Node HTTP server
+
+The [Node HTTP spec](test/node-http-server.spec.ts) owns the first complete server
+program, including setup:
+
+```js
+const http = require("node:http");
+const server = http.createServer(function(req, res) {
+  if (req.method === "GET" && req.url === "/health") {
+    res.statusCode = 200;
+    res.end("ok");
+  } else {
+    res.statusCode = 404;
+    res.end("Not found");
+  }
+});
+server.listen(0, "127.0.0.1");
+module.exports = server;
+```
+
+The target proof starts by interpreting that entire source. A Node HTTP model
+must retain the callback registered by `createServer`, model the server's listen
+state, and later deliver a request event through the shared VM. Request values
+come from a declared HTTP environment; the program's code determines routing
+and response values. The callback runs in the current execution context, with
+its captured bindings and the effects of intervening code. Calling a separately
+extracted handler from a test does not meet this milestone.
+
+The current spec runs the full program in pinned Node v24.21.0, sends real HTTP
+requests, and checks response and lifecycle observations, including HEAD body
+suppression. Prophet's builtin HTTP import is still explicitly unsupported.
+This layer sets the reference target; it adds no HTTP model or new symbolic
+proof. The initial planned proof assumes successful listen and one delivered
+request. Bind failures, malformed requests, connection loss, more requests,
+body streams, and scheduling alternatives need separate compatibility specs.
+
+Build the host boundary incrementally, starting with module identity and
+`createServer`/`listen`/request delivery, then response completion. Body streams
+and JSON parsing lead back to the discount application below. Finally, supply
+Express's unmodified sources as ordinary CommonJS dependencies: its routing and
+middleware must emerge from executing its code. Do not model `express()`,
+`app.post()`, or `express.json()` as special Prophet operations.
+
+## Later integration target: saving a discount
 
 The [server spec](test/discount-server.spec.ts) owns this handler and its complete
 Express application setup. A POST to `/discount` updates one UTF-8 file:
@@ -183,10 +232,10 @@ That is a declared subset of host behavior. Partial writes, other filesystem
 failures, complete Error fields, HTTP/socket failures, and asynchronous schedules
 are not modeled here. JSON parsing, middleware dispatch, and the application's
 500 response have concrete Express coverage, not a symbolic server proof yet.
-The next layers will execute Express's unmodified package source and dependencies
-using shared language semantics and modeled Node boundaries, then prove the
-route through actual middleware and error dispatch. Multiple requests, richer
-failure contracts, and asynchronous effects follow that milestone.
+This remains a regression example and a later integration target. First model
+the lower-level Node HTTP behavior above, extend it to body delivery and writes,
+then execute Express's unmodified package source and dependencies on top of
+those same boundaries. Its route and error dispatch must come from its code.
 
 ## Spec-first development
 

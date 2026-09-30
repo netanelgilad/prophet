@@ -28,12 +28,17 @@ are outside Test262: follow a pinned Node release's behavior, use suitable
 complete upstream cases, and compare local fixture specs with that Node runtime.
 Keep host coverage and language coverage distinct, and record unsupported cases.
 See [the proof roadmap](docs/roadmap.md) for the module-loader acceptance criteria
-and the goal of modeling side-effecting functions through a simple Express server.
+and the goal of modeling side-effecting functions through a Node `http` server.
+Start at Node host APIs: interpret the application's module imports, server
+creation, listener registration, and listen call, then deliver modeled request
+events through the registered callbacks using the shared VM. Express and its
+dependencies are later ordinary interpreted JavaScript; do not introduce
+Express-specific VM models or infer routing/body parsing from a handler test.
 External effects must preserve path conditions, ordering, state changes, return
 values, and failures. Validate models against independent concrete behavior;
 do not execute real external writes during symbolic exploration or silently
 treat unknown effects as pure. Direct handler tests are a stepping stone, not
-evidence that Express itself has been analyzed.
+evidence that Node HTTP setup/dispatch or Express itself has been analyzed.
 
 Treat narrowed input domains, unsupported-analysis errors, and skipped tests as
 explicit implementation gaps. Do not silently narrow an input to make a proof

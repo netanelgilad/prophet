@@ -125,7 +125,7 @@ function runRealServer(body: string, failWrite = false): ServerObservation {
   }));
 }
 
-describe("North Star: the actual Express discount endpoint on pinned Node", () => {
+describe("later integration reference: the actual Express discount endpoint on pinned Node", () => {
   beforeAll(assertPinnedNode);
 
   for (const percentage of [0, 5e-324, 25, 100]) {
