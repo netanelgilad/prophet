@@ -212,6 +212,10 @@ function assignMember(object: Any, name: string, assigned: Any, context: TExecut
     branch => assignMember(choice.consequent, name, assigned, branch),
     branch => assignMember(choice.alternate, name, assigned, branch));
   assertModeledProperty(object, name, getProperties(unsafeCast<WithProperties>(object), context));
+  const unmodeledWrites = (object as WithProperties).unmodeledPropertyWrites;
+  if (unmodeledWrites && unmodeledWrites.includes(name)) {
+    throw new Error(`Unmodeled host property write '${name}'`);
+  }
   assert(!(isESNumber(object) || isESString(object) || isESBoolean(object)),
     "Property assignment on primitive values is not yet supported");
   assert(!getSymbolicArrayShape(object, context), "Writes to symbolic array snapshots are not yet supported");

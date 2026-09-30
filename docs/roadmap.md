@@ -7,8 +7,9 @@ with their environment, not just functions that return values.
 
 The shared VM already handles selected symbolic branches, mutable objects,
 closures, return/throw paths, recursive summaries, numeric bounds, and CommonJS
-supplied-source execution. Broader host compatibility and server analysis remain
-future work. Each increment belongs in the PR stack and starts with specs.
+supplied-source execution and cached loading of supplied `.cjs` files. Broader
+host compatibility and server analysis remain future work. Each increment
+belongs in the PR stack and starts with specs.
 
 ## CommonJS and require are a compatibility milestone
 
@@ -63,11 +64,16 @@ package proof.
 
 Current progress: `evaluateCommonJS` executes supplied source with private scope,
 named wrapper parameters, receiver/export semantics, and normal/throwing paths.
-The [local compatibility suite](../test/commonjs/README.md) runs against pinned
-Node v24.21.0. It does not yet load files through `require`, resolve packages,
-cache modules, or handle cycles. Module metadata, implicit arguments, and global
-eval declarations are explicit analysis gaps; no complete upstream Node test is
-claimed as passing yet. Cache/loading and resolution remain the next layers.
+`createCommonJSLoader` now loads an immutable supplied graph through exact
+relative/absolute `.cjs` requests. Its cache is part of each execution context,
+so cycles, retries, retained effects, and conditional loads use ordinary VM
+branch state. It supports finite choices of request names and rejects open
+symbolic names. The [local compatibility suite](../test/commonjs/README.md) runs
+against pinned Node v24.21.0. Package/extension/directory resolution, host disk
+access, further module metadata, implicit arguments, and global eval declarations
+remain explicit gaps; no complete upstream Node test is claimed as passing yet.
+Broader resolution and the Error/string/environment behavior needed by the
+pinned package are the next layers.
 
 ## First published dependency proof
 

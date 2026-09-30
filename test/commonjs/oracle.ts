@@ -1,8 +1,10 @@
 import { execFileSync } from "child_process";
-import { mkdtempSync, writeFileSync, unlinkSync, rmdirSync, realpathSync } from "fs";
+import { mkdtempSync, writeFileSync, unlinkSync, rmdirSync, realpathSync, mkdirSync } from "fs";
 import { tmpdir } from "os";
-import { join } from "path";
-import { evaluateCode, evaluateCommonJS, nodeInitialExecutionContext } from "../../src";
+import { dirname, isAbsolute, join, relative, resolve } from "path";
+import {
+  createCommonJSLoader, evaluateCode, evaluateCommonJS, nodeInitialExecutionContext
+} from "../../src";
 import { isForkedCompletion } from "../../src/execution-context/Completion";
 import { getProperties } from "../../src/execution-context/Heap";
 import {
@@ -55,7 +57,8 @@ const oracle = `
     observation = { kind: "return", value: encode(value) };
   } catch (error) {
     observation = error instanceof Error
-      ? { kind: "throw", error: error.name }
+      ? Object.assign({ kind: "throw", error: error.name },
+          error.code === undefined ? {} : { code: error.code })
       : { kind: "throw", value: encode(error) };
   }
   process.stdout.write(JSON.stringify(observation));
@@ -89,12 +92,27 @@ function observation(completion: Any, context: TExecutionContext): object {
   if (isThrownValue(completion)) {
     const error = completion.value as { type: string } & WithProperties;
     if (error.type === "object") {
-      const name = getProperties(error, context).name;
-      if (name) return { kind: "throw", error: concretePrimitive(name) };
+      const properties = getProperties(error, context);
+      if (properties.name) return {
+        kind: "throw", error: concretePrimitive(properties.name),
+        ...(properties.code ? { code: concretePrimitive(properties.code) } : {})
+      };
     }
     return { kind: "throw", value: encode(completion.value, context) };
   }
   return { kind: "return", value: encode(completion, context) };
+}
+
+function exportedObservation(loaded: Any, context: TExecutionContext, observe: string): object {
+  if (!observe || isThrownValue(loaded) || isForkedCompletion(loaded)) {
+    return observation(loaded, context);
+  }
+  const [completion, observed] = evaluateCode(
+    `var result = (${observe});`, setVariablesInScope(context, { loaded })
+  );
+  return isThrownValue(completion) || isForkedCompletion(completion)
+    ? observation(completion, observed)
+    : observation(observed.value.scope.result, observed);
 }
 
 export function withModuleFixture<T>(source: string, run: (filename: string) => T): T {
@@ -120,6 +138,56 @@ export function nodeModuleObservation(filename: string, observe = ""): object {
   }));
 }
 
+export function withModuleGraphFixture<T>(
+  sources: { [relativeFilename: string]: string },
+  run: (files: { [absoluteFilename: string]: string }, directory: string) => T
+): T {
+  const directory = realpathSync(mkdtempSync(join(tmpdir(), "prophet-commonjs-graph-")));
+  const files: { [absoluteFilename: string]: string } = {};
+  const writtenFiles: string[] = [];
+  const directories = new Set<string>();
+  try {
+    for (const name of Object.keys(sources)) {
+      const filename = resolve(directory, name);
+      const within = relative(directory, filename);
+      if (isAbsolute(name) || within === ".." || within.startsWith("../") || !within) {
+        throw new Error("CommonJS fixture filenames must stay inside their temporary directory");
+      }
+      let parent = dirname(filename);
+      while (parent !== directory) {
+        directories.add(parent);
+        parent = dirname(parent);
+      }
+      mkdirSync(dirname(filename), { recursive: true });
+      writeFileSync(filename, sources[name]);
+      writtenFiles.push(filename);
+      files[filename] = sources[name];
+    }
+    return run(files, directory);
+  } finally {
+    for (const filename of writtenFiles) unlinkSync(filename);
+    for (const path of Array.from(directories).sort((a, b) => b.length - a.length)) rmdirSync(path);
+    rmdirSync(directory);
+  }
+}
+
+export function compareModuleGraph(
+  sources: { [relativeFilename: string]: string },
+  entry = "entry.cjs",
+  observe = "",
+  initial: TExecutionContext = nodeInitialExecutionContext
+) {
+  return withModuleGraphFixture(sources, (files, directory) => {
+    const filename = join(directory, entry);
+    const expected = nodeModuleObservation(filename, observe);
+    const loader = createCommonJSLoader(files);
+    const [loaded, moduleContext] = loader.load(filename, initial);
+    const actual = exportedObservation(loaded, moduleContext, observe);
+    expect(actual).toEqual(expected);
+    return { loaded, context: moduleContext, actual, filename, loader };
+  });
+}
+
 export function compareModule(
   source: string,
   observe = "",
@@ -128,18 +196,7 @@ export function compareModule(
   return withModuleFixture(source, filename => {
     const expected = nodeModuleObservation(filename, observe);
     const [loaded, moduleContext] = evaluateCommonJS(source, filename, initial);
-    let actual;
-    if (observe && !isThrownValue(loaded) && !isForkedCompletion(loaded)) {
-      const [completion, observed] = evaluateCode(
-        `var result = (${observe});`,
-        setVariablesInScope(moduleContext, { loaded })
-      );
-      actual = isThrownValue(completion) || isForkedCompletion(completion)
-        ? observation(completion, observed)
-        : observation(observed.value.scope.result, observed);
-    } else {
-      actual = observation(loaded, moduleContext);
-    }
+    const actual = exportedObservation(loaded, moduleContext, observe);
     expect(actual).toEqual(expected);
     return { loaded, context: moduleContext, actual, filename };
   });
