@@ -10,6 +10,7 @@ import { getObjectPrototype, hasProperty } from "../Object/prototype";
 import { ESString } from "../string/String";
 import { choiceOf, resolveBoolean } from "../symbolic";
 import { Any, ESNull, ESNumber, isESNull, isESString, isUndefined, ThrownValue, Undefined } from "../types";
+import { createBufferValue } from "./buffer";
 
 const entries = new WeakMap<object, "directory" | "file">();
 type LookupFailure = "ENOENT" | "ENOTDIR";
@@ -93,7 +94,7 @@ function nullByteError(): Any {
  * A stable closed tree with readable regular files/directories: no symlinks,
  * namespace changes, permission or resource failures. Each operation consults
  * the same VM root and branch knowledge. No real filesystem operation occurs.
- * Read/error behavior follows pinned Node on Linux/macOS; Buffer success,
+ * Read/error behavior follows pinned Node on Linux/macOS;
  * other platforms, options, descriptors and mutation remain explicit gaps.
  */
 export function createFileSystemModel(options: { root: Any; cwd?: string }) {
@@ -217,8 +218,10 @@ export function createFileSystemModel(options: { root: Any; cwd?: string }) {
         return lookup(path, afterPath, (result, after) => {
           if ("error" in result) return [systemError(result.error, "open", path), after];
           if (entries.get(result.node) === "directory") return [systemError("EISDIR", "read"), after];
-          if (!encoded) return unsupported("successful Buffer-valued readFileSync");
-          return [getProperties(result.node, after).text, after];
+          const text = getProperties(result.node, after).text;
+          if (!isESString(text) || typeof text.value !== "string") return unsupported("invalid file text state");
+          if (!encoded) return [createBufferValue(Array.from(Buffer.from(text.value, "utf8"))), after];
+          return [text, after];
         });
       });
     }));

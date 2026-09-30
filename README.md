@@ -32,6 +32,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/pico-static-server-analysis.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-url.spec.ts test/node-warnings.spec.ts test/node-url-path.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-filesystem.spec.ts test/filesystem-state.spec.ts test/pico-static-server-analysis.spec.ts test/pico-static-server-reference.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-buffer.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -236,10 +237,16 @@ not a novel vulnerability or a claim about every filesystem/request.
 
 The initial tree has a case-sensitive UTF-8 namespace, readable regular files
 and directories, and no symlinks, permission/resource failures or concurrent
-changes. UTF-8 reads can return file contents; default successful reads still
-stop at the Buffer boundary. The real readable-file handler therefore remains
-unfinished, along with subsequent `instanceof`, path.parse and response.write
-support. Stats fields/options, other path forms, filesystem writes and wider
+changes. UTF-8 reads return text; default successful reads now return fresh
+[Buffer values](docs/node-buffer.md) with byte length, indexed reads/writes and
+UTF-8 decoding. Bytes live in the persistent VM heap: aliases observe a write,
+earlier contexts and the file retain their contents, and symbolic changes keep
+their original conditions. The [Buffer specs](test/node-buffer.spec.ts) prove
+correlated multibyte decoding while the resulting text remains unknown.
+The unchanged GET/HEAD handler now reaches its actual `data instanceof Error`
+expression after reading either a regular file or a present directory index.
+Shared `instanceof`, then path.parse and response.write, are the next boundaries.
+Stats fields/options, other path forms, filesystem writes and wider
 platform/metadata behavior remain recorded gaps. Symbolic execution performs no
 real filesystem I/O; native fixture creation belongs only to reference specs.
 
@@ -366,8 +373,9 @@ model.eventsModule }` from one HTTP model, so their method identities and emitte
 state belong to the same host environment. An existing event model can instead
 be passed to `createHTTPModel(events)`.
 
-Next implement the shared POSIX path and legacy URL operations reached by the
-real factory's GET/HEAD paths, then correlated filesystem behavior. Header
+Scoped POSIX path, legacy URL, correlated filesystem state and Buffer reads now
+run through the real factory's GET/HEAD paths. Next implement shared `instanceof`
+semantics, then the reached path.parse and response-write operations. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open
 symbolic text, and transport-sensitive fields including Content-Length remain
 explicit gaps in the backlog. Request body delivery and JSON parsing later lead back to

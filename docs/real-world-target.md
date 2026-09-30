@@ -102,7 +102,7 @@ Express, routing, or filesystem-success shortcut is allowed.
 | Can an ordinary request cause an exception to escape its request listener when the requested directory exists but its default file does not? | Now proved for GET/HEAD `/docs` over the missing/empty-directory choice: the empty directory causes ENOENT at the original index read. Both conditions, ordered effects and unfinished response state have matching native witnesses. |
 | Does the response actually contain the Allow field the application supplies? | Now proved absent for the declared delivered-request-event domain with method neither GET nor HEAD because writeHead receives reversed arguments; retain conditional status, actual numeric header fields and the successful-transport assumptions. |
 | Which request methods reach filesystem operations? | A proof relating the method to attempted filesystem reads, rather than a handful of successful requests. |
-| For a readable existing file or an absent path, what response is committed? | Absent paths now complete 404 with an empty body. Readable-file success stops at the Buffer return gap; later status/body/write behavior and HEAD semantics need their own support. |
+| For a readable existing file or an absent path, what response is committed? | Absent paths now complete 404 with an empty body. Readable-file reads return Buffer values and reach the actual instanceof expression; later status/body/write behavior and HEAD semantics need their own support. |
 | Can a filesystem failure leave a response unfinished, or can the application's apparent error-response branch actually handle it? | The bounded missing-index proof leaves headersSent and writableEnded false: the throw prevents the subsequent `data instanceof Error` branch from running. Broader failure families remain open. |
 
 The first question came from inspecting the original source: it checks the
@@ -226,11 +226,16 @@ replay the same `/docs` request for GET/HEAD and each directory-state alternativ
 under an isolated native static root: absent yields 404; empty directory yields
 uncaught ENOENT for `docs/index.html`, exit code 1 and no completed response.
 These are explicit supplied witnesses, not automatic satisfying-input generation.
-Readable regular-file GET/HEAD cases
-now reach the explicit successful Buffer-return gap; they do not return fake
-text or count as safe completed paths. Next are shared Buffer/value semantics
-and the later `instanceof`, path.parse and HTTP response-write boundaries needed
-for successful file serving. Wider URL forms, filesystem environments and
+Readable regular-file and populated-directory GET/HEAD cases now return a
+modeled Buffer from the original readFileSync. A read-only binding observer
+records that exact value and its completed read effect; the specs verify its
+10-byte UTF-8 contents for `café 😀`. The next actual expression is
+`data instanceof Error`, which still rejects analysis. These are incomplete
+response paths, not safe completed requests. The shared [Buffer model](node-buffer.md)
+separately supports byte reads, persistent numeric writes and UTF-8 decoding,
+including correlated symbolic mutations and mandatory unknown results. Next are
+shared `instanceof`, path.parse and HTTP response-write behavior for successful
+file serving. Wider URL forms, filesystem environments and
 schedules remain expansions. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
@@ -251,8 +256,11 @@ The first useful proof is deliberately bounded and must be labeled that way:
   behavior and a valid cwd. Shared root/entry choices now correlate existsSync,
   statSync and readFileSync; they are not independently chosen return values.
   The first target exception proof chooses a missing path or an empty directory.
-  UTF-8 file reads work in generic model specs, but the target's successful
-  Buffer-valued read remains unsupported. No symlinks, permission/resource
+  UTF-8 file reads return strings; default reads return fresh Buffer values.
+  Finite choices of contents and numeric byte writes are supported, while open
+  symbolic bytes, broader Buffer APIs and backing-store views remain gaps.
+  The target's successful read reaches the still-unsupported `instanceof` check.
+  No symlinks, permission/resource
   failures or concurrent namespace changes are included. Metadata/atime and
   partial-I/O effects are not proved absent; their observation remains unmodeled.
 - Synchronous filesystem exceptions and listener propagation follow pinned Node.
@@ -286,8 +294,8 @@ been analyzed. Keep both source coverage and domain coverage visible.
    filesystem state completes absent-path 404 or propagates the missing-index
    ENOENT. Source-based warning eligibility distinguishes the installed
    package from the checkout; default warning delivery is a separate transition.
-   Successful default Buffer reads, broader URL/path APIs and filesystem
-   environments remain.
+   Successful default reads now return Buffer values and reach `instanceof`;
+   broader Buffer, URL/path APIs and filesystem environments remain.
    Any uncovered `instanceof`/property semantics need shared support and relevant
    complete Test262 cases. Add the required Node response/Buffer, URL/path,
    filesystem, and broader listen
@@ -325,8 +333,9 @@ spread, numeric listen overloads, untagged templates, scoped console output and
 direct response headers now support startup and the non-GET/HEAD response proof.
 POSIX join/normalize, path-only legacy URL parsing and shared symbolic filesystem
 state now classify the bounded 404/escaping-ENOENT case in the original server.
-Next support successful Buffer-valued reads and their later language/path/response
-consumers, then expand filesystem errors, inputs and schedules. Broader headers and transport remain separate work;
+Default reads now return Buffer values. Next support the reached shared
+`instanceof` operation and later path/response consumers, then expand filesystem
+errors, inputs and schedules. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.

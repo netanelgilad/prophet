@@ -62,9 +62,13 @@ missing index before committing or ending a response. The tree choice stays
 unknown, and all filesystem calls consult that same state. Four matching native
 GET/HEAD witnesses independently reproduce the 404 or process-exiting exception.
 Source provenance preserves installed-versus-checkout DEP0169 eligibility;
-warning delivery stays separate. HTTPS remains opaque. Readable-file success
-stops at the default Buffer-return gap. Next support that value and the later
-language/path/response consumers, then broaden filesystem outcomes and schedules.
+warning delivery stays separate. HTTPS remains opaque. Default readable-file
+reads now return shared [Buffer values](node-buffer.md), including fresh identity,
+byte length, indexed bytes and persistent symbolic mutations. The unchanged
+GET/HEAD regular-file and populated-directory-index paths reach their actual
+`data instanceof Error` expression. Next implement that shared language operation
+with complete relevant Test262 cases, then path.parse and response consumption;
+broaden filesystem outcomes and schedules afterward.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations
@@ -354,7 +358,9 @@ Continue in these layers, each with specs and its own stacked PR:
    escaping ENOENT before any response commit. Matching native GET/HEAD/tree
    witnesses replay both conditions. Source-based DEP0169 eligibility and a
    separate default-warning queue preserve the diagnostic boundary. Successful
-   Buffer reads and broader filesystem classification remain open. Continue filling shared language, response,
+   default reads now return Buffer values; the actual next stop is `instanceof`.
+   Byte mutations reuse the persistent heap and retain symbolic correlations.
+   Broader filesystem classification remains open. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add
    symbolic request and filesystem choices, classify exception
    paths, and replay supported violating cases. No body parser or Express model

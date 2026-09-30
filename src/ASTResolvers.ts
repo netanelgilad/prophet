@@ -152,6 +152,9 @@ export function readMember(object: Any, name: string, context: TExecutionContext
       (object as WithProperties).unmodeledPropertyReads!.includes(name)) {
     throw new Error(`Unmodeled property read '${name}'`);
   }
+  const access = (object as WithProperties).propertyAccess;
+  const exotic = access && access.read(name, context);
+  if (exotic) return exotic;
   assertModeledProperty(object, name, properties);
   return evaluateBranches(ownPropertyPresence(object as WithProperties, name, context), context, branch => {
     const property = properties[name];
@@ -283,11 +286,14 @@ function assignMember(object: Any, name: string, assigned: Any, context: TExecut
   if (choice) return evaluateBranches(choice.condition, context,
     branch => assignMember(choice.consequent, name, assigned, branch),
     branch => assignMember(choice.alternate, name, assigned, branch));
-  assertModeledProperty(object, name, getProperties(unsafeCast<WithProperties>(object), context));
   const unmodeledWrites = (object as WithProperties).unmodeledPropertyWrites;
   if (unmodeledWrites && unmodeledWrites.includes(name)) {
     throw new Error(`Unmodeled host property write '${name}'`);
   }
+  const access = (object as WithProperties).propertyAccess;
+  const exotic = access && access.write(name, assigned, context);
+  if (exotic) return exotic;
+  assertModeledProperty(object, name, getProperties(unsafeCast<WithProperties>(object), context));
   assert(!(isESNumber(object) || isESString(object) || isESBoolean(object)),
     "Property assignment on primitive values is not yet supported");
   assert(!getSymbolicArrayShape(object, context), "Writes to symbolic array snapshots are not yet supported");
