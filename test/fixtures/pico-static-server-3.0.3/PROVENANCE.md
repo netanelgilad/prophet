@@ -127,8 +127,13 @@ suppresses DEP0169, while the identical source at `/app/fixture/package/index.js
 schedules it, matching the native checkout fixture. Interpreted callbacks retain
 their source filenames. Neither synchronous request handler delivers the warning;
 the scoped warning model provides separate default delivery under healthy stderr.
-Readable-file success stops at the explicit Buffer-return gap. Broader URL/path
-APIs, including later path.parse, language/response consumers and other filesystem
+Default readable-file reads now return modeled Buffer values. Four GET/HEAD
+cases for `/index.txt` and a populated `/docs/index.html` observe the original
+`data` binding and the completed fs.readFileSync effect, including exact UTF-8
+bytes, before the actual `data instanceof Error` expression rejects analysis.
+The observer supplies no values or control-flow replacements. No successful
+response is claimed yet. Broader URL/path APIs, including later path.parse,
+language/response consumers and other filesystem
 failure families remain incomplete. An HTTPS
 override still reaches the opaque HTTPS API.
 Broader filesystem permissions, races, symlinks, paths,

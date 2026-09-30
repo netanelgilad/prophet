@@ -12,6 +12,7 @@ import { ESString } from "../src/string/String";
 import { resolveBoolean, selectValue, strictEquality } from "../src/symbolic";
 import { assumeInContext, BranchResult } from "../src/execution-context/branches";
 import { ESBoolean } from "../src/boolean/ESBoolean";
+import { ASTEvaluationError } from "../src/evaluate";
 
 const packageDirectory = join(__dirname, "fixtures/pico-static-server-3.0.3/package");
 
@@ -289,17 +290,48 @@ for (const method of ["GET", "HEAD"]) {
     expect(setup.filesystem.inspectRoot(ready)).toBe(root);
   });
 
-  test(`the real ${method} readable-file path reaches the explicit Buffer return gap`, () => {
+  for (const target of ["/index.txt", "/docs"]) test(`the real ${method} ${target} read returns a Buffer before the shared instanceof boundary`, () => {
     const setup = packageLoader("installed", fileSystemDirectory({ site: fileSystemDirectory({
-      "index.txt": fileSystemFile("contents")
+      "index.txt": fileSystemFile("café 😀"),
+      docs: fileSystemDirectory({ "index.html": fileSystemFile("café 😀") })
     }) }));
     const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
     const [, started] = evaluateCode('const server = factory({ port: 0, staticPath: "/site" });',
       setVariablesInScope(loaded, { factory }));
     const server = started.value.scope.server;
     const [, ready] = setup.http.completeListen(server, started);
-    expect(() => setup.http.deliverRequest(server, {
-      method: ESString(method), url: ESString("/index.txt")
-    }, ready)).toThrow("successful Buffer-valued readFileSync");
+    const observations: TExecutionContext[] = [];
+    // Observe the actual local binding after readFileSync returns. This hook
+    // supplies no values and changes no source, filesystem result or control flow.
+    const observed = ExecutionContext({ ...ready.value,
+      validateBinding: (_environment: object, name: string, context: TExecutionContext, access: string) => {
+        if (name === "data" && access === "read") observations.push(context);
+      } });
+    let boundary: ASTEvaluationError | undefined;
+    try {
+      setup.http.deliverRequest(server, { method: ESString(method), url: ESString(target) }, observed);
+    } catch (error) {
+      if (!(error instanceof ASTEvaluationError)) throw error;
+      boundary = error;
+    }
+    expect(boundary).toBeDefined();
+    expect(boundary!.message).toContain("Binary operator resolver for instanceof");
+    expect(boundary!.ast).toMatchObject({ type: "BinaryExpression", operator: "instanceof",
+      left: { type: "Identifier", name: "data" }, right: { type: "Identifier", name: "Error" } });
+    expect(observations).toHaveLength(1);
+    const reached = observations[0];
+    const paths = effectPaths(reached.value.effects!);
+    expect(paths).toHaveLength(1);
+    const events = paths[0].events;
+    const reads = events.filter(event => event.call.operation === "fs.readFileSync" && event.kind === "return");
+    expect(reads).toHaveLength(1);
+    const read = reads[0];
+    expect(read.call.args[0]).toMatchObject({ value: target === "/docs" ? "/site/docs/index.html" : "/site/index.txt" });
+    expect(read.kind === "return" && read.value).toBe(reached.value.scope.data);
+    expect(events.some(event => event.call.operation === "http.response.writeHead")).toBe(false);
+    const [, inspected] = evaluateCode(`const bufferProof = typeof data === "object" &&
+      data.length === 10 && data[3] === 195 && data.toString() === "café 😀";`,
+      ExecutionContext({ ...reached.value, validateBinding: undefined }));
+    expect(inspected.value.scope.bufferProof).toMatchObject({ value: true });
   });
 }

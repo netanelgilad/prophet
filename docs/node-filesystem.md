@@ -69,9 +69,10 @@ Supported operations are:
   between modeled Stats receivers; arbitrary receivers, mode/_checkModeProperty
   changes, other fields, constructors and descriptor reflection remain guarded.
 - `readFileSync(path, "utf8")` or `"utf-8"`: reads the supplied UTF-8 text or
-  returns a supported throwing completion. Omitted/null options can also reach
-  failures, but a successful default read stops at the unmodeled Buffer result.
-  It never substitutes a string for that Buffer.
+  returns a supported throwing completion. Omitted, undefined or null options
+  return a fresh [partial Buffer value](node-buffer.md) on success, preserving
+  byte length, indexed bytes, numeric writes and UTF-8 decoding. Mutating that
+  result changes neither the declared file nor another read's bytes.
 
 The selected Linux/macOS error behavior exposes code, negative errno, syscall,
 message and path where Node provides it. Missing paths yield ENOENT;
@@ -100,9 +101,9 @@ Stable contents do not imply all real filesystem metadata is unchanged: reading
 can update access timestamps. Metadata/atime effects, descriptor allocation and
 ownership, open/read/close failures, partial I/O, cancellation and concurrent
 changes remain unmodeled. Stats metadata guards keep those observations outside
-the current proof domain. Successful UTF-8 reads assume the declared readable
-data and successful required resource operations; they do not prove operating
-system availability.
+the current proof domain. Successful text and Buffer reads assume the declared
+readable data and successful required resource operations; they do not prove
+operating system availability.
 
 Other APIs, asynchronous/promises/stream operations, writes, Buffer/typed-array
 or URL path arguments, file descriptors, richer encodings and options remain
@@ -110,15 +111,20 @@ gaps. Non-string path diagnostics, including existsSync's DEP0187 warning,
 reject analysis. Partial Stats is not full mode/Date/BigInt/metadata behavior.
 Ordinary default read options can inherit fields, and default readFileSync uses
 mutable exported helpers: unmodeled inherited option fields or replacement of
-openSync/fstatSync/readSync/closeSync are guarded rather than ignored.
+openSync/readSync/closeSync are guarded rather than ignored. The model also
+conservatively guards fstatSync replacement; pinned readFileSync itself uses an
+internal fstat binding rather than the exported method.
 
 The slow/default read path also assumes Node's Buffer allocation and internal
-primitives are unchanged while the Buffer API is unmodeled. Node may allocate
-before a directory read reports EISDIR. Resource failures are excluded here,
-but future Buffer support must preserve allocator replacement effects and throws
-rather than bypassing them, including on paths that ultimately fail.
+primitives are unchanged. Public Buffer constructors/allocators are not yet
+exposed to interpreted code. A nonempty file calls Buffer.allocUnsafe(size);
+an empty file calls allocUnsafe(8192) and then Buffer.concat. Node may allocate
+before a directory read reports EISDIR. Resource failures are excluded here;
+future allocator support must preserve replacement effects and throws rather
+than bypassing them, including on paths that ultimately fail.
 
-These limits belong to FS-001/FS-002 in the [implementation backlog](implementation-gaps.md).
+These limits belong to FS-001/FS-002 and BUFFER-001/BUFFER-002 in the
+[implementation backlog](implementation-gaps.md).
 The CommonJS loader still resolves its supplied source graph independently;
 registering this module does not silently make require disk-backed.
 
@@ -151,9 +157,12 @@ whether DEP0169 is suppressed (installed package) or queued (checkout), with
 warning delivery separate from the handler. No real socket, file operation or
 stdout/stderr write occurs in the symbolic run.
 
-Readable regular-file GET/HEAD cases stop explicitly at successful default
-Buffer-valued readFileSync. Successful file serving still needs that shared
-value support and later `instanceof`, path.parse and response-write behavior.
+Readable regular-file and existing directory-index GET/HEAD cases now return
+the shared Buffer value from readFileSync. The original handler's actual `data`
+binding is observed without supplying results or changing control flow; byte
+length, indexed contents and UTF-8 decoding are checked. Execution then stops
+explicitly at `data instanceof Error`. Successful file serving still needs that
+shared language operator, path.parse and response-write behavior.
 The entire server is not analyzed for every file, request or environment.
 
 ## Complete upstream cases reviewed

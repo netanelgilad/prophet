@@ -126,6 +126,14 @@ export type WithProperties<
   // A host model may expose field values before it models whether those fields
   // are own data properties, inherited methods, or accessors.
   unmodeledOwnPropertyInspection?: string;
+  // Exotic host values can handle selected property operations before ordinary
+  // lookup/assignment. Undefined delegates to the shared ordinary semantics;
+  // a returned pair retains the current path's value, effects and heap.
+  // Presence, descriptors and enumeration require separate models.
+  propertyAccess?: {
+    read(name: string, context: TExecutionContext): [Any, TExecutionContext] | undefined;
+    write(name: string, assigned: Any, context: TExecutionContext): [Any, TExecutionContext] | undefined;
+  };
 };
 
 export function ValueIdentifier() {

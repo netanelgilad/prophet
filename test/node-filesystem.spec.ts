@@ -223,10 +223,8 @@ test("module aliases, metadata, detached calls and explicit call receivers match
   `, true);
 });
 
-test("successful default reads keep an explicit Buffer-return boundary", () => {
-  expect(native('module.exports = fs.readFileSync("index.txt").toString("utf8") === "hello\\n";')).toBe(true);
-  expect(typeof createFileSystemModel).toBe("function");
-  expect(() => load('fs.readFileSync("index.txt");')).toThrow(/Buffer|buffer/);
+test("successful default reads expose Buffer byte length and UTF8 contents", () => {
+  compare('const bytes = fs.readFileSync("index.txt"); module.exports = bytes.length === 6 && bytes.toString("utf8") === "hello\\n";', true);
 });
 
 test("read options are considered before a null-byte path", () => {
