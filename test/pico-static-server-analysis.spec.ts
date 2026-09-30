@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { createCommonJSLoader, createConsoleModel, createHTTPModel, evaluateCode, isForkedCompletion,
+import { createCommonJSLoader, createConsoleModel, createHTTPModel, createPosixPathModel, evaluateCode, isForkedCompletion,
   nodeInitialExecutionContext } from "../src";
 import { isESFunction } from "../src/Function/Function";
 import { ESObject } from "../src/Object";
@@ -31,7 +31,7 @@ function packageLoader() {
     "/app/node_modules/pico-static-server/package.json": readFileSync(join(packageDirectory, "package.json"), "utf8"),
     "/app/node_modules/pico-static-server/index.js": readFileSync(join(packageDirectory, "index.js"), "utf8")
   }, { builtins: { http: http.module, https: opaque("https"), url: opaque("url"),
-    fs: opaque("fs"), path: opaque("path") } });
+    fs: opaque("fs"), path: createPosixPathModel().module } });
   return { http, consoleModel, loader, context };
 }
 
@@ -179,8 +179,8 @@ test("a delivered request event with an unknown non-GET/HEAD method proves Allow
 });
 
 for (const [method, gap] of [
-  ["GET", "Unmodeled host property 'join': Unimplemented Node path API"],
-  ["HEAD", "Unmodeled host property 'join': Unimplemented Node path API"]
+  ["GET", "Unmodeled host property 'parse': Unimplemented Node url API"],
+  ["HEAD", "Unmodeled host property 'parse': Unimplemented Node url API"]
 ]) {
   test(`the real registered ${method} request reaches its next shared API gap after startup`, () => {
     const setup = packageLoader();
@@ -191,6 +191,8 @@ for (const [method, gap] of [
     const [, ready] = setup.http.completeListen(server, started);
     // A declared valid request on a live connection enters the registered
     // handler; no source extraction, fake response, or filesystem success.
+    // The POSIX join/normalize callees now resolve, but their arguments reach
+    // url.parse before either path operation can execute.
     expect(() => setup.http.deliverRequest(server, { method: ESString(method), url: ESString("/") }, ready))
       .toThrow(gap);
   });
