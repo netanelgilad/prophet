@@ -1,13 +1,52 @@
 /// <reference types="jest" />
 
 import { sync } from "globby";
-import { dirname, join, basename } from "path";
-import { spawnSync } from "child_process";
-import { moveSync } from "fs-extra";
-import { sync as rimrafSync } from "rimraf";
+import { relative, join } from "path";
+import {
+  loadTest262,
+  runTest262Variant,
+  test262Root,
+  variantsFor
+} from "./test262/runner";
 
-const testFilesGlobs = [
-  // `language/statements/if/S12.5_A8.js`
+// Complete, unmodified files from the Test262 revision pinned in yarn.lock
+// (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
+// is an active conformance baseline, not a claim of full compliance.
+const activeCorpus = [
+  "language/expressions/typeof/boolean.js",
+  "language/expressions/typeof/undefined.js",
+  "language/expressions/typeof/unresolvable-reference.js",
+  "language/expressions/less-than/S11.8.1_A4.4.js",
+  "language/expressions/less-than/S11.8.1_A4.10.js",
+  "language/expressions/less-than/S11.8.1_A4.11.js",
+  "language/expressions/greater-than/S11.8.2_A4.4.js",
+  "language/expressions/strict-equals/S11.9.4_A3.js",
+  "language/expressions/strict-equals/S11.9.4_A5.js",
+  "language/expressions/strict-equals/S11.9.4_A6.2.js",
+  "language/expressions/conditional/S11.12_A3_T4.js",
+  "language/expressions/conditional/S11.12_A4_T4.js",
+  "language/expressions/logical-and/S11.11.1_A3_T4.js",
+  "language/expressions/logical-and/S11.11.1_A4_T4.js",
+  "language/expressions/logical-or/S11.11.2_A3_T4.js",
+  "language/expressions/logical-or/S11.11.2_A4_T4.js",
+  "language/statements/if/if-const-else-stmt.js",
+  "language/statements/if/if-const-no-else.js"
+];
+
+describe("Test262 active corpus", () => {
+  for (const path of activeCorpus) {
+    const file = loadTest262(path);
+    for (const variant of variantsFor(file)) {
+      test(`${path} (${variant})`, () => {
+        runTest262Variant(file, variant);
+      });
+    }
+  }
+});
+
+// Preserve the old backlog visibly, without invoking the former subprocess
+// host, which swallowed exceptions and could report a failing test as passed.
+const historicalGlobs = [
   "language/statements/if/if-{async,cls,const,decl,fun,gen,let,stmt}-*.js",
   "language/statements/if/labelled-fn-stmt-*.js",
   "language/statements/if/let-*-with-newline.js",
@@ -17,84 +56,17 @@ const testFilesGlobs = [
   "built-ins/Boolean/S15.6.2.1_A1.js"
 ];
 
-const testRoot = join(dirname(require.resolve("test262/package.json")), "test");
-
-const globsWithTestRoot = testFilesGlobs.map(glob => join(testRoot, glob));
-
-const testFiles = sync(globsWithTestRoot);
-
-for (const testFile of testFiles) {
-  const testName = basename(testFile);
-  let currentDir = testFile.replace(testRoot + "/", "");
-  let suite = () => {
-    test.skip(testName, () => {
-      runTest262(testFile);
-    });
-  };
-  while ((currentDir = dirname(currentDir)) !== ".") {
-    const prevSuite = suite;
-    const name = basename(currentDir);
-    suite = () => {
-      describe(name, prevSuite);
-    };
-  }
-
-  suite();
-}
-
-beforeAll(() => {
-  rimrafSync("./fails");
-});
-
-afterAll(() => {
-  sync(globsWithTestRoot.map(x => x + "*.fail")).forEach(x =>
-    moveSync(x, "./" + join("./fails", x.replace(testRoot, "")))
-  );
-});
-
-function runTest262(testFile: string) {
-  const test262HarnessBin = require.resolve("test262-harness/bin/run");
-  const tsNodePath = require.resolve("ts-node/register");
-  const debugHostPath = require.resolve("./test262/debug-host");
-  const hostPath = require.resolve("./test262/host");
-  const argv = process.execArgv.join();
-  const isDebug = argv.includes("inspect") || argv.includes("debug");
-
-  const result = spawnSync(
-    "node",
-    [
-      test262HarnessBin,
-      "--hostType",
-      "node",
-      "--hostPath",
-      process.execPath,
-      "--hostArgs=--no-warnings",
-      "--hostArgs=-r",
-      `--hostArgs=${tsNodePath}`,
-      "--hostArgs=-r",
-      "--hostArgs=source-map-support/register",
-      "--hostArgs",
-      isDebug ? debugHostPath : hostPath,
-      ...(isDebug ? ["--timeout", "99999999"] : []),
-      testFile
-    ],
-    {
-      cwd: __dirname
+describe("Test262 historical backlog (not yet supported)", () => {
+  const files = sync(historicalGlobs.map(glob => join(test262Root, "test", glob)));
+  for (const file of files) {
+    const path = relative(join(test262Root, "test"), file);
+    if (!activeCorpus.includes(path)) {
+      test.skip(path, () => {
+        const parsed = loadTest262(path);
+        for (const variant of variantsFor(parsed)) {
+          runTest262Variant(parsed, variant);
+        }
+      });
     }
-  );
-
-  expect(result.stderr.toString()).toEqual("");
-  expect(
-    result.stdout
-      .toString()
-      .split("       ")
-      .join("\n")
-  ).not.toContain("FAIL");
-}
-
-// @ts-ignore
-function only(testGlob: any) {
-  return {
-    only: testGlob[0]
-  };
-}
+  }
+});

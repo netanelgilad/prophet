@@ -134,10 +134,14 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The focused tests cover symbolic bounds, generic conditional values, object and
-array state, control flow, recursion, and both examples. Historical Test262
-selections remain skipped; activating a trustworthy conformance baseline is the
-next layer of the PR stack. This is not a claim of JavaScript conformance.
+The active Test262 baseline runs **36 strict/sloppy variants of 18 complete,
+unmodified files** from the revision pinned in `yarn.lock`. It covers selected
+primitive comparisons, conditional/logical expressions, `typeof`, and parse
+errors. Historical unsupported selections remain explicitly skipped. This is
+limited coverage, not a claim of Test262 conformance. The
+[runner documentation](test/test262/README.md) explains the supported assertion
+harness and metadata. Test262 source always runs through Prophet; separate local
+differential tests use host JavaScript as an independent concrete oracle.
 
 The parser accepts JavaScript, so omit TypeScript annotations in interpreted
 source. The recursive minimum example requires a nonempty array with known
