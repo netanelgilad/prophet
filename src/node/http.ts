@@ -13,6 +13,7 @@ import { ESString, TESString } from "../string/String";
 import { resolveBoolean, selectValue, strictEquality } from "../symbolic";
 import { Any, ESNumber, isESNumber, isESNull, isESString, isUndefined,
   ThrownValue, Undefined } from "../types";
+import { createEventEmitterModel } from "./events";
 
 function unsupported(detail: string): never {
   throw new Error(`HTTP analysis is not yet supported: ${detail}`);
@@ -41,7 +42,14 @@ function change(object: TESObject, properties: { [name: string]: Any }, context:
  * The embedding chooses when listening and response completion succeed and when
  * a parsed request arrives. Other outcomes need additional compatible models.
  */
-export function createHTTPModel() {
+export function createHTTPModel(events = createEventEmitterModel()) {
+  const unsupportedServerEvents = ["connection", "close", "error", "drop", "checkContinue",
+    "checkExpectation", "clientError", "connect", "upgrade", "timeout"];
+  const serverEvents = { restrictedEvents: ["listening", "request", ...unsupportedServerEvents],
+    unsupportedRegistrations: unsupportedServerEvents, internalListenerCounts: { listening: 1 } };
+  const unsupportedResponseEvents = ["prefinish", "close", "error", "drain", "pipe", "unpipe", "timeout"];
+  const responseEvents = { restrictedEvents: ["finish", ...unsupportedResponseEvents],
+    unsupportedRegistrations: unsupportedResponseEvents, internalListenerCounts: { finish: 1 } };
   // These maps contain immutable resource identities only. All registration and
   // lifecycle state is in the persistent VM heap, never mutable host closures.
   const servers = new WeakMap<object, TESObject>();
@@ -75,9 +83,10 @@ export function createHTTPModel() {
       unsupported("listen requires (0, '127.0.0.1'[, callback])");
     }
     requireState(state, "created", context);
-    return [call.receiver, change(state, {
-      phase: ESString("starting"), onListening: call.args[2] || Undefined
-    }, context)];
+    const starting = change(state, { phase: ESString("starting") }, context);
+    return call.args.length === 3
+      ? events.register(call.receiver, "listening", call.args[2], true, starting)
+      : [call.receiver, starting];
   });
 
   const end = operation("http.response.end", (call, context) => {
@@ -120,9 +129,9 @@ export function createHTTPModel() {
   });
 
   const createServer = operation("http.createServer", (call, context) => {
-    if (call.args.length !== 1) return unsupported("createServer requires one request listener");
-    return withValue(call.args[0], context, (listener, branch) => {
-      if (!isESFunction(listener)) return unsupported("createServer options and non-function listeners");
+    if (call.args.length > 1) return unsupported("createServer options overloads");
+    return withValue(call.args[0] || Undefined, context, (listener, branch) => {
+      if (!isESFunction(listener) && !isUndefined(listener)) return unsupported("createServer options and non-function listeners");
       const server = Object.assign(ESObject({ listening: ESBoolean(false), listen }), {
         unknownProperties: "Node HTTP server API",
         unmodeledOwnPropertyInspection: "Node HTTP server descriptors",
@@ -130,7 +139,8 @@ export function createHTTPModel() {
       });
       const state = ESObject();
       servers.set(server, state);
-      return [server, change(state, { phase: ESString("created"), listener }, branch)];
+      const created = change(state, { phase: ESString("created") }, events.attach(server, branch, serverEvents));
+      return isUndefined(listener) ? [server, created] : events.register(server, "request", listener, false, created);
     });
   });
 
@@ -139,11 +149,9 @@ export function createHTTPModel() {
   const listening = operation("http.server.listening", (call, context) => withValue(call.args[0], context, (server, branch) => {
     const state = serverState(server);
     requireState(state, "starting", branch);
-    const callback = getProperties(state, branch).onListening;
     const ready = change(server as TESObject, { listening: ESBoolean(true) },
       change(state, { phase: ESString("listening") }, branch));
-    return isUndefined(callback) ? [server, ready] :
-      bindNormal(invoke(callback, [], ready, server), (_value, after) => [server, after]);
+    return bindNormal(events.emit(server, "listening", [], ready), (_value, after) => [server, after]);
   }));
 
   const requestEvent = operation("http.server.request", (call, context) => withValue(call.args[0], context, (server, branch) => {
@@ -153,19 +161,20 @@ export function createHTTPModel() {
     const current = change(responseState(response), { phase: ESString("open") }, branch);
     // The listener retains its normal lexical environment identity. Invocation
     // uses THIS context, including changes since it was registered.
-    return bindNormal(invoke(getProperties(state, current).listener,
-      [call.args[1], response], current, server), (_ignored, after) => [Undefined, after]);
+    return bindNormal(events.emit(server, "request", [call.args[1], response], current), (_ignored, after) => [Undefined, after]);
   }));
 
   const finish = operation("http.response.finish", (call, context) => withValue(call.args[0], context, (response, branch) => {
     const state = responseState(response);
     requireState(state, "ended", branch);
-    return [response, change(response as TESObject, { writableFinished: ESBoolean(true) },
-      change(state, { phase: ESString("finished") }, branch))];
+    const completed = change(response as TESObject, { writableFinished: ESBoolean(true) },
+      change(state, { phase: ESString("finished") }, branch));
+    return bindNormal(events.emit(response, "finish", [], completed), (_ignored, after) => [response, after]);
   }));
 
   return {
     module: Object.assign(ESObject({ createServer }), { unknownProperties: "Node HTTP module API" }),
+    eventsModule: events.module,
     completeListen(server: Any, context: TExecutionContext): BranchResult {
       return invoke(listening, [server], context);
     },
@@ -185,7 +194,8 @@ export function createHTTPModel() {
       const state = ESObject({ head: strictEquality(input.method, ESString("HEAD"), context.value.knowledge),
         body: Undefined, statusCode: Undefined });
       responses.set(response, state);
-      return { request, response, result: invoke(requestEvent, [server, request, response], context) };
+      const initialized = events.attach(response, context, responseEvents);
+      return { request, response, result: invoke(requestEvent, [server, request, response], initialized) };
     },
     completeResponse(response: Any, context: TExecutionContext): BranchResult {
       return invoke(finish, [response], context);

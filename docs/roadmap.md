@@ -1,11 +1,33 @@
 # Proof milestones and host runtime coverage
 
-The North Star is to analyze existing JavaScript and its dependencies and prove a
-property across the declared input and environment domain. This includes programs
-that interact with their environment, not just functions that return values.
-Unknown results and unsupported behavior must remain explicit. Automatic
-counterexample generation is a later consumer of execution results, not a
-prerequisite for extending the symbolic VM.
+The North Star is useful analysis of real, unmodified JavaScript applications
+and their dependencies: explain which inputs and environmental outcomes can
+produce an unhandled exception or unwanted state/effect, and prove useful
+properties across a declared domain. This includes programs that interact with
+their environment, not just functions that return values. Unknown results and
+unsupported behavior must remain explicit. Automatic counterexample generation
+is a later consumer of execution results, not a prerequisite for extending the
+symbolic VM.
+
+The first external application target is
+[`udivankin/pico-static-server` 3.0.3](https://github.com/udivankin/pico-static-server/tree/6b553fb34e3b5b5bccf3c082bb2cae5f93b9e3be),
+a published MIT-licensed static HTTP server with a 150-line implementation and no
+runtime package dependencies. Its entire server factory includes imports,
+request registration, filesystem access, and listening. The first useful question
+is whether a request for an existing directory whose default file is absent can
+escape as an unhandled exception, and under which request/filesystem conditions.
+This is a source-inspected question, **not a Prophet finding**. Selection,
+immutable provenance, input/environment domains, result criteria, and the growth
+plan are in [the real-world target contract](real-world-target.md).
+
+After shared event listeners, prioritize the language and Node operations needed
+to execute this complete target, then classify symbolic request/filesystem paths
+and replay a supported violating path. Request streams, JSON, and the discount
+endpoint remain valuable milestones, but are not prerequisites for a static
+server that does not consume request bodies. Grow to larger real applications
+after demonstrating useful analysis on this small one. Each session should
+choose an increment that closes a named target gap or improves shared semantic
+correctness, and update the target's status without weakening its success criteria.
 
 The shared VM already handles selected symbolic branches, mutable objects,
 closures, return/throw paths, recursive summaries, numeric bounds, and CommonJS
@@ -139,7 +161,7 @@ does from its name or source.
 The first complete server proof lives in [the Node HTTP server spec](../test/node-http-server.spec.ts):
 it imports `node:http`, creates a server, registers a request callback, listens,
 and exports the server. GET `/health` responds with 200 and `ok`; other requests
-take the application's 404 branch. The [README](../README.md#concrete-north-star-a-node-http-server)
+take the application's 404 branch. The [README](../README.md#first-complete-server-proof-node-http)
 shows the complete application source. Pinned Node v24.21.0 reference tests run
 that source as a real CommonJS module and send real HTTP requests. They observe
 listening, dispatch, completion, and closing, including HEAD's body suppression.
@@ -180,7 +202,7 @@ reference specs are local cases, not upstream conformance.
 See [Node's HTTP API](https://nodejs.org/api/http.html), while treating the
 pinned runtime and corresponding source/tests as the behavioral reference.
 
-The model supports a request listener, `listen(0, "127.0.0.1"[, callback])`,
+The model supports optional/multiple request listeners, `listen(0, "127.0.0.1"[, callback])`,
 explicit successful listening/request/finish delivery, selected response fields,
 and `end` with a string/null/undefined payload. Resource state uses the persistent
 heap, and callbacks use the current context and their captured environment.
@@ -190,9 +212,14 @@ prior effects. The embedding may constrain a path and continue from that state.
 Details, independent response observations, and complete upstream blockers are
 recorded in [the HTTP coverage document](node-http.md).
 
-Next extend shared listener/event and request-stream support, decoding, and JSON
-semantics to support the saved-discount application using Node APIs. An incoming
-Node request must not magically contain Express's parsed `req.body`.
+Shared listener/event behavior now covers order, removal, one-time listeners,
+callback failures, snapshots during dispatch, and conditional registration,
+tested independently against pinned Node. HTTP uses that same mechanism for
+request, listening, and finish events. Broader events, streams, metadata, and
+warning behavior remain gaps; see [event coverage](node-events.md).
+Next follow the real target's concrete language/host gaps before adding body
+decoding and JSON solely for the saved-discount milestone. An incoming Node
+request must not magically contain Express's parsed `req.body`.
 
 ## Existing discount proof and later Express integration
 
@@ -248,23 +275,35 @@ Continue in these layers, each with specs and its own stacked PR:
    symbolic proof assertions and concrete model/Node response comparisons.
 2. **Builtin imports and server lifecycle:** the scoped canonical registry,
    `createServer`, `listen`, and deferred registered request delivery now pass.
-   Broader overloads, listen outcomes, EventEmitter behavior, and addressing remain.
+   Broader overloads, listen outcomes, further EventEmitter APIs, and addressing remain.
 3. **HTTP response behavior:** the scoped health-server proof passes, including
    completion flags, committed wire status, and HEAD body suppression. Numeric
    status conversion, null/empty payloads, 204/304, and UTF-8 edge cases have
    independent Node checks. Headers, stream writes, socket failures, and richer
    completion schedules remain. No real sockets run in symbolic analysis.
-4. **Request streams and effectful application:** deliver body chunks/end/errors
+4. **Shared event listeners:** the scoped registration, invocation order,
+   removal, one-time listeners, mutation during delivery, failures, and
+   path-dependent state now pass. HTTP listening/request/finish callbacks reuse
+   that implementation, preserving current captured bindings and explicit event
+   delivery. Metadata events, warnings, streams, and broader APIs remain gaps.
+5. **First real application:** follow [the pinned target contract](real-world-target.md).
+   Preserve its whole source, establish Node reference specs, and fill the shared
+   language, response, URL/path, and filesystem gaps needed for concrete module
+   execution. Add symbolic request and filesystem choices, classify exception
+   paths, and replay supported violating cases. No body parser or Express model
+   is needed to analyze the static server. Document remaining domains rather than
+   claiming full application safety from the first bounded proof.
+6. **Request streams and effectful application:** deliver body chunks/end/errors
    with explicit ordering, then decode and parse through supported semantics.
    Revisit the discount endpoint on raw Node HTTP with modeled filesystem writes
    and explicit application error handling. Expand failures and request sequences.
-5. **Express as ordinary JavaScript:** load its unmodified package/dependency
+7. **Express as ordinary JavaScript:** load its unmodified package/dependency
    sources and evaluate its actual setup, routing, body parsing, and middleware.
    Missing language or other Node APIs become shared VM features with their own
    specs. No replacement Express implementation or source rewriting. Earlier
    source inspection identified `path.relative`, `process.cwd()`, and V8 stack
    APIs in its dependency tree; those remain later compatibility work.
-6. **Richer environments:** additional filesystem failures, authentication,
+8. **Richer environments and larger real applications:** additional filesystem failures, authentication,
    asynchronous storage, and scheduling alternatives. Authentication guarantees
    are relative to its modeled boundary; exploration bounds remain explicit.
 

@@ -156,7 +156,15 @@ The [detailed roadmap](docs/roadmap.md) records CommonJS compatibility criteria,
 external-effect modeling requirements, and the Node HTTP milestones leading to
 later Express proofs.
 
-## Concrete North Star: a Node HTTP server
+The first external application target is now the unmodified
+[`pico-static-server` 3.0.3](docs/real-world-target.md), a small published Node
+server with no runtime dependencies. The goal is to classify request/filesystem
+paths that let an exception escape, and produce feasible evidence that can be
+replayed in Node. Its source revision, first input domain, and acceptance steps
+are recorded in the target document and linked from `AGENTS.md`. Analysis of that
+package has not been implemented yet; the examples below are passing foundations.
+
+## First complete server proof: Node HTTP
 
 The [Node HTTP spec](test/node-http-server.spec.ts) owns the first complete server
 program, including setup:
@@ -207,17 +215,32 @@ Unknown string payloads remain unknown after encoding; no unsupported identity
 between original code units and decoded wire text is assumed.
 
 This proof assumes successful `listen(0, "127.0.0.1"[, callback])`, one delivered
-request, and successful response completion. The initial surface supports one
-request listener, method/URL reads, numeric status values, and a string/null/
-undefined `end` payload. Other overloads, stream writes, EventEmitter methods,
+request, and successful response completion. The surface supports multiple
+request listeners, method/URL reads, numeric status values, and a string/null/
+undefined `end` payload. Other overloads, stream writes, broader EventEmitter APIs,
 body parsing, bind failures, socket loss/backpressure, and general scheduling
 remain explicit gaps. Field values are modeled before full host descriptors:
 ownership inspection of partial server/response objects also reports a gap.
 See [HTTP coverage and limitations](docs/node-http.md), including complete
 upstream cases that cannot yet run unmodified.
 
-Next extend shared event/listener and request-stream behavior. Body delivery
-and JSON parsing lead back to the discount application below. Finally, supply
+Shared [event-listener specs](test/node-events.spec.ts) now cover `on`,
+`addListener`, `once`, `removeListener`/`off`, `emit`, and `listenerCount`, including
+conditional registration/removal, listener snapshots, reentrant once listeners,
+and escaping throws. `createEventEmitterModel().module` can be supplied as the
+`events` builtin. HTTP uses the same implementation for request, listening, and
+finish callbacks. [Whole-server event specs](test/node-http-events.spec.ts) prove
+that a finish callback runs on explicit completion, after `end`, using current
+captured variables. Host lifecycle emission/counting, listener metadata events,
+warning behavior, and streams remain explicit gaps; see [event coverage](docs/node-events.md).
+When supplying both builtins, register `{ http: model.module, events:
+model.eventsModule }` from one HTTP model, so their method identities and emitter
+state belong to the same host environment. An existing event model can instead
+be passed to `createHTTPModel(events)`.
+
+Next add reference specs for the pinned real application and close its first
+shared VM/Node gaps. Request body delivery and JSON parsing later lead back to
+the discount application below. Finally, supply
 Express's unmodified sources as ordinary CommonJS dependencies: its routing and
 middleware must emerge from executing its code. Do not model `express()`,
 `app.post()`, or `express.json()` as special Prophet operations.

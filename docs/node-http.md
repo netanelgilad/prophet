@@ -18,15 +18,19 @@ symbolic exploration must not open a listening socket or send network traffic.
 
 ## Callback delivery and persistent state
 
-`createServer` registers the actual interpreted function. The server identity,
-registered listener, startup state, and request/response state must belong to
+`createServer` optionally registers an actual interpreted function for `request`.
+The application can also create a server without a listener and subsequently
+use `server.on("request", callback)`. The server identity,
+registered listeners, startup state, and request/response state must belong to
 the execution context's persistent heap. Creating or changing a server on one
 symbolic path must not change another path's server.
 
 Calling `listen` and receiving a request are distinct operations. For the scoped
 `listen(0, "127.0.0.1")` form, startup completion is delivered later by the host
-model. The optional listening callback and request callback execute through the
-shared VM invocation operation with the server as their receiver. They receive
+model. The optional listening callback is registered as a once-listener in the
+same ordered registry as `server.on/once("listening", callback)`. Listening and
+request callbacks execute through the shared VM invocation operation with the
+server as their receiver. They receive
 the **current execution context**, preserving changes to captured variables made
 after registration. An event's historical snapshot is useful for inspection; it
 must not rewind the context used to execute a callback.
@@ -46,6 +50,22 @@ establishing the listening handle. Startup errors and alternative listen forms
 need their own compatibility coverage; successful startup cannot stand in for
 all possible outcomes.
 
+Server and response objects now share the [EventEmitter model](node-events.md):
+`on`/`addListener`, `once`, `removeListener`/`off`, and custom-event `emit` use
+persistent listener lists. The model takes a listener snapshot when delivery
+starts, removes a once registration before calling it, and stops delivery when
+a callback throws. Conditional registration remains conditional when the event
+is delivered; it does not turn into an unconditional callback.
+
+Expose the corresponding `events` builtin from the same host environment:
+`const http = createHTTPModel()` provides both `http.module` and
+`http.eventsModule`, for loader builtins `{ http: http.module,
+events: http.eventsModule }`. An existing shared emitter model can instead be
+passed to `createHTTPModel(events)`. This preserves public method identities and
+borrowed `EventEmitter.prototype.on.call(server, ...)` behavior. Separately
+created emitter models represent separate environments, not two modules within
+one modeled Node process.
+
 ## Ending a response and completing delivery
 
 Keep application-visible response state separate from captured response output:
@@ -57,7 +77,10 @@ Keep application-visible response state separate from captured response output:
   and body selected when the output was committed.
 - `writableFinished` becomes true only when the output has finished flushing,
   immediately before the `finish` event. An `end` call and successful completion
-  of transport are distinct modeled transitions.
+  of transport are distinct modeled transitions. `completeResponse` marks that
+  state and then invokes the current `finish` listeners with the response as
+  their receiver. A listener registered after `end` but before completion still
+  runs; registering after completion does not replay the event.
 - Later assignment to `statusCode` must not rewrite the already captured wire
   status. A HEAD request has no wire body even when application code supplies a
   string to `end`. Status 204 and 304 also suppress a body.
@@ -79,6 +102,14 @@ has been committed, numeric status normalization, and UTF-8 replacement of an
 unpaired surrogate. The model's inspected body is decoded UTF-8 output, not a
 promise that every input JavaScript string survives encoding unchanged.
 
+The [HTTP event specs](../test/node-http-events.spec.ts) compare complete modules
+against real Node sockets for deferred finish delivery, current captured values,
+listener order and removal, once registration across multiple requests, and a
+finish listener throwing. The latter keeps the completed flags and committed
+output while preserving writes before the throw and skipping later listeners.
+Only the reference child installs an uncaught-exception observer; the analyzed
+application has no invented exception handler.
+
 ## Declared environment and remaining gaps
 
 The initial proof uses an explicitly delivered successful listen completion,
@@ -88,15 +119,32 @@ implementation of Node's event loop or proof over all schedules. Models preserve
 the selected path, arguments, returns, throws, and persistent state through those
 transitions. Rejected or unmodeled operations must not silently succeed.
 
-The first surface is deliberately limited to server creation with a request
-callback, the documented local listen form, request method/URL inspection, and
-response status plus a string, null, or omitted `end` payload. Broader overloads,
-general EventEmitter operations, request bodies/streams, Buffer payloads,
+The supported surface is deliberately limited to server creation with an
+optional request callback, the documented local listen form, the shared listener
+operations above, request method/URL inspection, and response status plus a
+string, null, or omitted `end` payload. Broader overloads, the remaining
+EventEmitter APIs, request bodies/streams, Buffer payloads,
 headers, backpressure, socket aborts and errors, startup failures, timers,
 promises, and arbitrary concurrent schedules remain explicit gaps until their
 semantics and independent tests are added. Distinguish a language-visible Node
 error from an unsupported-analysis error. Unsupported public property access or
 mutation must not fabricate state or bypass the host operation's internal state.
+
+Node also installs its own listeners on HTTP objects. Those listeners are not
+pretended to be ordinary application registrations. Public `emit` and
+`listenerCount` on protected HTTP lifecycle event names report an analysis gap;
+applications cannot bypass transport transitions with `res.emit("finish")`, and
+listener counts must not omit Node's internal listeners. Explicit embedding
+transitions deliver the modeled lifecycle events. Custom events use the shared
+emitter normally. Registering other reserved host events also reports a gap:
+for example, `connection` on the server and `prefinish` on the response would
+otherwise be accepted without the events that Node emits on the successful
+schedule. Error, close, and timeout registrations likewise await their host
+semantics. Listener warning thresholds include known internal registrations:
+the tenth application listener for `listening` or `finish` reaches the currently
+unmodeled warning boundary. `req.on` remains unsupported because registering a `data`
+listener also changes the readable stream's flowing state; adding a generic
+event table alone would not implement that behavior.
 
 Status handling currently accepts concrete numbers (or finite choices of them),
 normalizes them with Node's integer conversion, and supports final codes
@@ -117,8 +165,9 @@ are implemented; they do not establish language or host conformance.
 The embedding API supplies `completeListen`, `deliverRequest`, and
 `completeResponse` transitions. Their traces use `http.server.listening`,
 `http.server.request`, and `http.response.finish`; the middle name deliberately
-does not denote Node's outgoing-client `http.request` call. General `.on()` and
-`finish` listener registration is not implemented by these delivery APIs.
+does not denote Node's outgoing-client `http.request` call. These transitions
+dispatch through the shared listener machinery rather than keeping a separate
+single-callback path.
 
 ## Complete upstream cases reviewed
 
@@ -127,15 +176,15 @@ cases at the pinned revision contain relevant assertions but currently require
 additional capabilities:
 
 - [`test-http-listening.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-listening.js)
-  creates a server without a request listener, uses the omitted-host listen
-  overload, arrow functions, `server.close`, and the upstream common/assert
+  now has supported listener-free creation, but still needs the omitted-host
+  listen overload, arrow functions, `server.close`, and the upstream common/assert
   harness. Its small size does not make its full dependencies currently modeled.
 - [`test-http-head-response-has-no-body-end-implicit-headers.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-head-response-has-no-body-end-implicit-headers.js)
-  also needs listener registration, server address inspection, the HTTP client,
+  still needs server address inspection, the HTTP client,
   response stream events/resume, server closing, and the common harness.
 - [`test-http-outgoing-finish-writable.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-finish-writable.js)
   covers both server and client writable state and additionally requires HTTP
-  client requests, listener registration, closing, and the common/assert harness.
+  client requests, closing, and the common/assert harness.
 - [`test-http-outgoing-writableFinished.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-writableFinished.js)
   includes successful transport and three failing-flush scenarios. Complete
   execution needs custom Duplex streams, socket injection, writes, finish/error/

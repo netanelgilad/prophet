@@ -43,7 +43,10 @@ export function getObjectPrototype(): TESObject {
         const unsupported = (self as WithProperties).unmodeledPropertyReads;
         if (unsupported && unsupported.includes((name as TESString).value as string)) throw new Error(`Unmodeled property presence '${(name as TESString).value}'`);
         const own = ownPropertyPresence(self as WithProperties, (name as TESString).value as string, branch);
-        if (own.value !== true && (self as WithProperties).unknownProperties) throw new Error("Unmodeled host property presence");
+        if (own.value !== true && (self as WithProperties).unknownProperties &&
+            !((self as WithProperties).modeledInheritedProperties || []).includes((name as TESString).value as string)) {
+          throw new Error("Unmodeled host property presence");
+        }
         return [own, branch];
       }));
   }) });
@@ -77,7 +80,9 @@ export function hasProperty(value: Any, name: string, context: TExecutionContext
   const own = ownPropertyPresence(object, name, context);
   const known = resolveBoolean(own, context.value.knowledge);
   if (known === true) return ESBoolean(true);
-  if (object.unknownProperties) throw new Error(`Unmodeled host property presence '${name}'`);
+  if (object.unknownProperties && !(object.modeledInheritedProperties || []).includes(name)) {
+    throw new Error(`Unmodeled host property presence '${name}'`);
+  }
   const prototype = prototypeOf(value);
   const inherited = isESNull(prototype) ? ESBoolean(false) :
     hasProperty(prototype, name, assumeInContext(context, own, false));
