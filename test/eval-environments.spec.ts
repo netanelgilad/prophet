@@ -128,14 +128,19 @@ test("assignment resolves its destination before eval introduces a nearer var bi
   expect(scope.outside).toMatchObject({ value: 1 });
 });
 
-test("eval throwing on one symbolic path is rejected before an enclosing assignment is lost", () => {
-  // Resuming the enclosing expression after a partially throwing call remains
-  // unsupported; the false path must never silently leave observed=0.
-  expect(() => run(`
+test("eval throwing on one symbolic path resumes the assignment only on its normal path", () => {
+  const scope = run(`
     const guard = Math.random() < 0.5;
     let observed = 0;
-    try { observed = eval("if (guard) throw 1; 2;"); }
-    catch (error) { observed = 3; }
-    const proof = guard ? observed === 3 : observed === 2;
-  `)).toThrow("A symbolic call that throws on only some paths is not yet supported");
+    let entered = 0;
+    let finished = 0;
+    let caught = false;
+    try { observed = eval("entered = entered + 1; if (guard) throw 1; 2;"); }
+    catch (error) { observed = 3; caught = error === 1; }
+    finally { finished = finished + 1; }
+    const proof = guard ? observed === 3 && caught : observed === 2 && !caught;
+  `);
+  expect(scope.proof).toMatchObject({ value: true });
+  expect(scope.entered).toMatchObject({ value: 1 });
+  expect(scope.finished).toMatchObject({ value: 1 });
 });

@@ -53,7 +53,20 @@ const activeCorpus = [
 
   // Eval inherits lexical lookup and isolates strict declarations.
   "language/eval-code/direct/lex-env-heritage.js",
-  "language/eval-code/direct/var-env-var-strict-source.js"
+  "language/eval-code/direct/var-env-var-strict-source.js",
+
+  // Evaluation order and abrupt completions through expressions and calls.
+  "language/expressions/call/S11.2.4_A1.4_T3.js",
+  "language/expressions/call/S11.2.4_A1.4_T4.js",
+  "language/expressions/addition/S11.6.1_A2.4_T2.js",
+  "language/expressions/logical-and/S11.11.1_A2.4_T2.js",
+  "language/expressions/logical-or/S11.11.2_A2.4_T2.js",
+  "language/statements/function/S13.2.1_A8_T1.js",
+  "language/statements/throw/S12.13_A3_T6.js",
+  "language/statements/try/S12.14_A7_T2.js",
+  "language/statements/try/S12.14_A13_T1.js",
+  "language/statements/try/S12.14_A13_T2.js",
+  "language/statements/try/S12.14_A13_T3.js"
 ];
 
 describe("Test262 active corpus", () => {

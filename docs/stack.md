@@ -7,8 +7,9 @@
 | Unknown-length recursion | `stack/unknown-length-recursion` | `stack/test262-baseline` | [#25](https://github.com/netanelgilad/prophet/pull/25) |
 | Spec-first development workflow | `stack/spec-first-workflow` | `stack/unknown-length-recursion` | [#26](https://github.com/netanelgilad/prophet/pull/26) |
 | Lexical environments and captured validators | `stack/lexical-environments` | `stack/spec-first-workflow` | [#27](https://github.com/netanelgilad/prophet/pull/27) |
+| Symbolic call completions | `stack/symbolic-call-completions` | `stack/lexical-environments` | [#28](https://github.com/netanelgilad/prophet/pull/28) |
 
-Current development tip: `stack/lexical-environments`.
+Current development tip: `stack/symbolic-call-completions`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when

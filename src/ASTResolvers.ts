@@ -2,42 +2,15 @@
 
 import { ESString, TESString } from "./string/String";
 import {
-  WithProperties,
-  isFunction,
-  Any,
-  Undefined,
-  FunctionBinding,
-  isThrownValue,
-  isReturnValue,
-  ReturnValue,
-  EvaluationResult,
-  ControlFlowResult,
-  ThrownValue,
-  TESNumber,
-  ESNumber,
-  ESNull,
-  isESNumber,
-  isESString,
-  isArray,
-  isUndefined,
-  isESNull,
-  isESBoolean
+  WithProperties, isFunction, Any, Undefined, FunctionBinding, isThrownValue,
+  isReturnValue, ReturnValue, ThrownValue, TESNumber, ESNumber, ESNull,
+  isESNumber, isESString, isArray, isUndefined, isESNull, isESBoolean
 } from "./types";
-import { evaluate, evaluateThrowableIterator, evaluateStatements, mapCompletions } from "./evaluate";
+import { evaluate, evaluateThrowableIterator, evaluateStatements, mapCompletions, bindNormal } from "./evaluate";
+import { BinaryOperatorResolvers, LogicalOperatorResolvers, UnaryOperatorResolvers, plus, minus } from "./operators";
 import {
-  BinaryOperatorResolvers,
-  LogicalOperatorResolvers,
-  UnaryOperatorResolvers,
-  plus,
-  minus
-} from "./operators";
-import {
-  TExecutionContext,
-  setCurrentThisValue,
-  enterEnvironment,
-  setEnvironment,
-  declareBinding,
-  ExecutionContext
+  TExecutionContext, setCurrentThisValue, enterEnvironment, setEnvironment,
+  declareBinding, ExecutionContext
 } from "./execution-context/ExecutionContext";
 import { createFunction } from "./Function/Function";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
@@ -53,156 +26,112 @@ import { choiceOf } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
 import { getProperties, getArrayElements, writeArrayElements,
   writeProperty, isArrayIndex } from "./execution-context/Heap";
-import { isForkedCompletion } from "./execution-context/Completion";
 import { getSymbolicArrayShape, readSymbolicIndex } from "./array/symbolic";
 import { summarizeCall } from "./Function/summaries";
 import { assignBinding, bindingReference, readBinding, hasBinding, initializeBinding } from "./execution-context/bindings";
 import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
 import { evalFn, evaluateEval } from "./eval/eval";
+import { isForkedCompletion } from "./execution-context/Completion";
 
-export type ASTResolver<TAST extends ESTree.Node, T extends Any> = (
-  ast: TAST,
-  prevContext: TExecutionContext
-) => Iterator<
-  [Any | ControlFlowResult, TExecutionContext],
-  [T | ControlFlowResult, TExecutionContext],
-  [Any | ControlFlowResult, TExecutionContext]
->;
+export type ASTResolver<TAST extends ESTree.Node> = (
+  ast: TAST, context: TExecutionContext
+) => BranchResult;
 
-export const noExecutionContextResolver = <
-  TAST extends ESTree.Node,
-  T extends Any
->(
-  fn: (ast: TAST, execContext: TExecutionContext) => T
-) =>
-  function*(ast: TAST, execContext: TExecutionContext) {
-    return tuple(fn(ast, execContext), execContext);
-  };
+export const IdentifierResolver: ASTResolver<ESTree.Identifier> = (ast, context) =>
+  readBinding(context, ast.name);
 
-export const statementResolver = <TStatement extends ESTree.Statement>(
-  fn: (
-    ast: TStatement,
-    execContext: TExecutionContext
-  ) => Generator<
-    [Any, TExecutionContext],
-    [EvaluationResult, TExecutionContext],
-    [Any, TExecutionContext]
-  >
-) =>
-  function*(ast: TStatement, execContext: TExecutionContext) {
-    const resultIter = fn(ast, execContext);
-
-    return evaluateThrowableIterator(resultIter);
-  };
-
-export const IdentifierResolver: ASTResolver<
-  ESTree.Identifier,
-  Any
-> = function*(ast, execContext) { return readBinding(execContext, ast.name); };
-
-export const LiteralResolver: ASTResolver<
-  ESTree.Literal,
-  Any
-> = noExecutionContextResolver(ast => {
-  if (typeof ast.value === "string") {
-    return ESString(ast.value);
-  } else if (typeof ast.value === "number") {
-    return ESNumber(ast.value);
-  } else if (typeof ast.value === "boolean") {
-    return ESBoolean(ast.value);
-  } else if (ast.value === null) {
-    return ESNull;
-  }
-
+export const LiteralResolver: ASTResolver<ESTree.Literal> = (ast, context) => {
+  if (typeof ast.value === "string") return tuple(ESString(ast.value), context);
+  if (typeof ast.value === "number") return tuple(ESNumber(ast.value), context);
+  if (typeof ast.value === "boolean") return tuple(ESBoolean(ast.value), context);
+  if (ast.value === null) return tuple(ESNull, context);
   return unimplemented();
-});
-
-export const MemberExpressionResolver: ASTResolver<
-  ESTree.MemberExpression,
-  Any
-> = function*(ast, execContext) {
-  const [reference, context] = yield* memberReference(ast, execContext);
-  return readMember(reference.object, reference.name, context);
 };
 
-function* memberReference(
-  ast: ESTree.MemberExpression, execContext: TExecutionContext
-): Generator<BranchResult, [{ object: Any; name: string }, TExecutionContext], BranchResult> {
-  const [objectType, newExecContext] = yield evaluate(ast.object, execContext);
-  let propertyName: string;
-  let afterPropertyExecContext = newExecContext;
-  if (ast.computed) {
-    const [key, afterKeyExecContext] = yield evaluate(
-      ast.property,
-      newExecContext
-    );
-    assert(
-      (isESNumber(key) && typeof key.value === "number") ||
-        (isESString(key) && typeof key.value === "string"),
-      "Computed property access requires a concrete number or string"
-    );
-    propertyName = String(unsafeCast<TESNumber | TESString>(key).value);
-    afterPropertyExecContext = afterKeyExecContext;
-  } else {
-    propertyName = unsafeCast<ESTree.Identifier>(ast.property).name;
-  }
-  return tuple({ object: objectType, name: propertyName }, afterPropertyExecContext);
+function propertyName(key: Any): string {
+  assert(
+    (isESNumber(key) && typeof key.value === "number") ||
+      (isESString(key) && typeof key.value === "string"),
+    "Computed property access requires a concrete number or string"
+  );
+  return String(unsafeCast<TESNumber | TESString>(key).value);
 }
+
+// A reference is VM bookkeeping, not a JavaScript value. Consume it within
+// each normal continuation rather than joining references with selectValue.
+function withMemberReference(
+  ast: ESTree.MemberExpression, context: TExecutionContext,
+  continuation: (object: Any, name: string, context: TExecutionContext) => BranchResult
+): BranchResult {
+  return bindNormal(evaluate(ast.object, context), (object, afterObject) =>
+    ast.computed
+      ? bindNormal(evaluate(ast.property, afterObject), (key, afterKey) =>
+        continuation(object, propertyName(key), afterKey))
+      : continuation(object, unsafeCast<ESTree.Identifier>(ast.property).name, afterObject));
+}
+
+export const MemberExpressionResolver: ASTResolver<ESTree.MemberExpression> = (ast, context) =>
+  withMemberReference(ast, context, readMember);
 
 function readMember(object: Any, name: string, context: TExecutionContext): BranchResult {
   const choice = choiceOf(object);
-  if (choice) {
-    return evaluateBranches(choice.condition, context,
-      branch => readMember(choice.consequent, name, branch),
-      branch => readMember(choice.alternate, name, branch));
-  }
+  if (choice) return evaluateBranches(choice.condition, context,
+    branch => readMember(choice.consequent, name, branch),
+    branch => readMember(choice.alternate, name, branch));
   if (context.value.validateRead) context.value.validateRead(object, name, context);
   if (isArrayIndex(name) && getSymbolicArrayShape(object, context)) {
     return tuple(readSymbolicIndex(object, Number(name), context)!, context);
   }
   const properties = getProperties(unsafeCast<WithProperties>(object), context);
   assert(properties, "Cannot read a property of null or undefined");
-  const property = Object.prototype.hasOwnProperty.call(properties, name)
-    ? properties[name] : Undefined;
+  const property = Object.prototype.hasOwnProperty.call(properties, name) ? properties[name] : Undefined;
   if (isArray(object) && isArrayIndex(name) &&
       getArrayElements(object as TArray<any>, context) === undefined &&
       !Object.prototype.hasOwnProperty.call(properties, name)) {
     throw new Error("Indexed reads require known element positions or a symbolic dense array");
   }
-  // A property read doesn't bind `this`. Only a direct member call supplies a
-  // receiver. Legacy native methods use their method object as a stable ID.
+  // Only a direct member call supplies a receiver. Legacy native methods use
+  // their method object as a stable identity across repeated property reads.
   if (isFunction(property)) return tuple({
     type: "function", id: property, properties: {}, function: property
   }, context);
   return tuple(property, context);
 }
 
-export const CallExpressionResolver: ASTResolver<
-  ESTree.CallExpression,
-  Any
-> = function*(ast, execContext) {
-  let calleeType: Any;
-  let newExecContext: TExecutionContext;
-  let receiver: Any | undefined;
+function withArguments(
+  expressions: ESTree.Node[], context: TExecutionContext,
+  continuation: (args: Any[], context: TExecutionContext) => BranchResult,
+  index = 0, args: Any[] = []
+): BranchResult {
+  let current = context;
+  let values = args;
+  for (let position = index; position < expressions.length; position++) {
+    const result = evaluate(expressions[position], current);
+    if (needsContinuation(result[0])) {
+      const prior = values;
+      const next = position + 1;
+      return bindNormal(result, (value, after) =>
+        withArguments(expressions, after, continuation, next, prior.concat([value])));
+    }
+    values = values.concat([result[0]]);
+    current = result[1];
+  }
+  return continuation(values, current);
+}
+
+function needsContinuation(value: Any): boolean {
+  return isForkedCompletion(value) || isThrownValue(value) || isReturnValue(value);
+}
+
+export const CallExpressionResolver: ASTResolver<ESTree.CallExpression> = (ast, context) => {
+  const call = (callee: Any, afterCallee: TExecutionContext, receiver?: Any) =>
+    withArguments(ast.arguments, afterCallee, (args, afterArgs) => invoke(callee, args, afterArgs, receiver,
+      ast.callee.type === "Identifier" && ast.callee.name === "eval"));
   if (ast.callee.type === "MemberExpression") {
-    const [reference, context] = yield* memberReference(ast.callee, execContext);
-    receiver = reference.object;
-    [calleeType, newExecContext] = readMember(reference.object, reference.name, context);
-  } else {
-    [calleeType, newExecContext] = yield evaluate(ast.callee, execContext);
+    return withMemberReference(ast.callee, context, (receiver, name, afterReference) =>
+      bindNormal(readMember(receiver, name, afterReference), (callee, afterRead) => call(callee, afterRead, receiver)));
   }
-
-  let currExecContext = newExecContext;
-  let argsTypes: Any[] = [];
-
-  for (const argAST of ast.arguments) {
-    const [argType, newExecContext] = yield evaluate(argAST, currExecContext);
-    argsTypes = [...argsTypes, argType];
-    currExecContext = newExecContext;
-  }
-
-  return invoke(calleeType, argsTypes, currExecContext, receiver,
-    ast.callee.type === "Identifier" && ast.callee.name === "eval");
+  return bindNormal(evaluate(ast.callee, context), (callee, after) => call(callee, after));
 };
 
 function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?: Any, directEval = false): BranchResult {
@@ -225,131 +154,65 @@ function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?:
   }
   const self = receiver || context.value.global;
   const result = callee === evalFn ? evaluateEval(args, context, directEval) :
-    evaluateThrowableIterator(binding.function.implementation(
-      self, args, setCurrentThisValue(context, self)));
-  if (isForkedCompletion(result[0])) {
-    throw new Error("A symbolic call that throws on only some paths is not yet supported");
-  }
-  return tuple(result[0], setCurrentThisValue(result[1], context.value.thisValue));
+    evaluateThrowableIterator(binding.function.implementation(self, args, setCurrentThisValue(context, self)));
+  return mapCompletions(result, (value, after) => tuple(value, setCurrentThisValue(after, context.value.thisValue)));
 }
 
-export const BinaryExpressionResolver: ASTResolver<
-  ESTree.BinaryExpression,
-  any | TESString
-> = function*(ast, execContext) {
-  const [leftType, leftExecContext] = yield evaluate(ast.left, execContext);
-  const [rightType, rightExecContext] = yield evaluate(
-    ast.right,
-    leftExecContext
-  );
-  const binaryOperatorResolver = BinaryOperatorResolvers.get(ast.operator);
-  assert(
-    binaryOperatorResolver,
-    `Binary operator resolver for ${ast.operator} hasn't been implemented yet`
-  );
-  return tuple(binaryOperatorResolver!(leftType, rightType, rightExecContext), rightExecContext);
-};
+export const BinaryExpressionResolver: ASTResolver<ESTree.BinaryExpression> = (ast, context) =>
+  bindNormal(evaluate(ast.left, context), (left, afterLeft) =>
+    bindNormal(evaluate(ast.right, afterLeft), (right, afterRight) => {
+      const resolver = BinaryOperatorResolvers.get(ast.operator);
+      assert(resolver, `Binary operator resolver for ${ast.operator} hasn't been implemented yet`);
+      return tuple(resolver!(left, right, afterRight), afterRight);
+    }));
 
-// export const FileResolver: ASTResolver<File, Any> = (ast, execContext) => {
-//   return ProgramResolver(ast.program, execContext);
-// };
-
-export const ProgramResolver: ASTResolver<ESTree.Program, Any> = function*(
-  ast,
-  execContext
-) {
+export const ProgramResolver: ASTResolver<ESTree.Program> = (ast, context) => {
   const statements = unsafeCast<ESTree.Statement[]>(ast.body);
   const initial = setCurrentThisValue(ExecutionContext({
-    ...execContext.value, stderr: "", uncaught: undefined, strict: hasUseStrict(statements)
-  }), execContext.value.global);
-  const declarationError = globalDeclarationError(statements, initial);
-  const currentEvaluationResult: BranchResult = declarationError ? tuple(declarationError, initial) :
+    ...context.value, stderr: "", uncaught: undefined, strict: hasUseStrict(statements)
+  }), context.value.global);
+  const error = globalDeclarationError(statements, initial);
+  const result: BranchResult = error ? tuple(error, initial) :
     evaluateStatements(statements, instantiateDeclarations(statements, initial, true));
-
-  if (isForkedCompletion(currentEvaluationResult[0])) {
-    throw new Error("A program that throws on only some symbolic paths is not yet supported");
-  }
-
-  if (isThrownValue(currentEvaluationResult[0])) {
-    const thrown = currentEvaluationResult[0].value;
+  // The first tuple item exposes normal, thrown, or forked completion. Legacy
+  // diagnostics remain available for an unconditional throw, and on each leaf
+  // of a mixed outcome; the merged context cannot claim a single error.
+  return mapCompletions(result, (completion, after) => {
+    if (!isThrownValue(completion)) return tuple(Undefined, after);
+    const thrown = completion.value;
     const message = isUndefined(thrown) ? "undefined" : isESNull(thrown) ? "null" :
       (isESNumber(thrown) || isESString(thrown) || isESBoolean(thrown)) &&
       thrown.value !== undefined ? String(thrown.value) : "Uncaught symbolic or object value";
-    return tuple(
-      Undefined,
-      ExecutionContext({
-        ...currentEvaluationResult[1].value,
-        stderr: message,
-        uncaught: thrown
-      })
-    );
-  }
-
-  return tuple(Undefined, currentEvaluationResult[1]);
+    return tuple(completion, ExecutionContext({ ...after.value, stderr: message, uncaught: thrown }));
+  });
 };
 
-export const BlockStatementResolver = statementResolver<ESTree.BlockStatement>(
-  function*(ast, execContext) {
-    const local = instantiateDeclarations(ast.body, enterEnvironment(execContext, "block"), false);
-    return mapCompletions(evaluateStatements(ast.body, local), (value, context) =>
-      tuple(value, setEnvironment(context, execContext.value.environment)));
-  }
-);
+export const BlockStatementResolver: ASTResolver<ESTree.BlockStatement> = (ast, context) => {
+  const local = instantiateDeclarations(ast.body, enterEnvironment(context, "block"), false);
+  return mapCompletions(evaluateStatements(ast.body, local), (value, after) =>
+    tuple(value, setEnvironment(after, context.value.environment)));
+};
 
-export const AssignmentExpressionResolver: ASTResolver<
-  ESTree.AssignmentExpression,
-  Any
-> = function*(ast, execContext) {
+export const AssignmentExpressionResolver: ASTResolver<ESTree.AssignmentExpression> = (ast, context) => {
   assert(ast.operator === "=", "Compound assignment is not yet supported");
   if (ast.left.type === "MemberExpression") {
-    const [objectType, afterLeftExecContext] = yield evaluate(
-      ast.left.object,
-      execContext
-    );
-    let propertyName = unsafeCast<ESTree.Identifier>(ast.left.property).name;
-    let afterPropertyExecContext = afterLeftExecContext;
-    if (ast.left.computed) {
-      const [key, afterKeyExecContext] = yield evaluate(
-        ast.left.property,
-        afterLeftExecContext
-      );
-      assert(
-        (isESNumber(key) && typeof key.value === "number") ||
-          (isESString(key) && typeof key.value === "string"),
-        "Computed property assignment requires a concrete number or string"
-      );
-      propertyName = String(unsafeCast<TESNumber | TESString>(key).value);
-      afterPropertyExecContext = afterKeyExecContext;
-    }
-    const [rightType, afterRightExecContext] = yield evaluate(
-      ast.right,
-      afterPropertyExecContext
-    );
-    return assignMember(objectType, propertyName, rightType, afterRightExecContext);
-  } else {
-    const name = unsafeCast<ESTree.Identifier>(ast.left).name;
-    const reference = bindingReference(execContext, name);
-    const [rightType, afterRightExecContext] = yield evaluate(
-      ast.right,
-      execContext
-    );
-    return assignBinding(afterRightExecContext, name, rightType, reference);
+    return withMemberReference(ast.left, context, (object, name, afterReference) =>
+      bindNormal(evaluate(ast.right, afterReference), (value, afterRight) => assignMember(object, name, value, afterRight)));
   }
+  assert(ast.left.type === "Identifier", "Destructured assignment is not yet supported");
+  const name = (ast.left as ESTree.Identifier).name;
+  const reference = bindingReference(context, name);
+  return bindNormal(evaluate(ast.right, context), (value, after) => assignBinding(after, name, value, reference));
 };
 
-function assignMember(
-  object: Any, name: string, assigned: Any, context: TExecutionContext
-): BranchResult {
+function assignMember(object: Any, name: string, assigned: Any, context: TExecutionContext): BranchResult {
   const choice = choiceOf(object);
-  if (choice) {
-    return evaluateBranches(choice.condition, context,
-      branch => assignMember(choice.consequent, name, assigned, branch),
-      branch => assignMember(choice.alternate, name, assigned, branch));
-  }
+  if (choice) return evaluateBranches(choice.condition, context,
+    branch => assignMember(choice.consequent, name, assigned, branch),
+    branch => assignMember(choice.alternate, name, assigned, branch));
   assert(!(isESNumber(object) || isESString(object) || isESBoolean(object)),
     "Property assignment on primitive values is not yet supported");
-  assert(!getSymbolicArrayShape(object, context),
-    "Writes to symbolic array snapshots are not yet supported");
+  assert(!getSymbolicArrayShape(object, context), "Writes to symbolic array snapshots are not yet supported");
   if (isArray(object) && (name === "length" || isArrayIndex(name))) {
     const array = unsafeCast<TArray<Any>>(object);
     const current = getArrayElements(array, context);
@@ -357,315 +220,204 @@ function assignMember(
     const elements = current!.slice();
     if (name === "length") {
       assert(isESNumber(assigned) && typeof assigned.value === "number" &&
-        Number.isInteger(assigned.value) && assigned.value >= 0 &&
-        assigned.value < 0x100000000, "Array length requires a concrete valid length");
+        Number.isInteger(assigned.value) && assigned.value >= 0 && assigned.value < 0x100000000,
+        "Array length requires a concrete valid length");
       elements.length = unsafeCast<number>(unsafeCast<TESNumber>(assigned).value);
-    } else {
-      elements[Number(name)] = assigned;
-    }
+    } else elements[Number(name)] = assigned;
     return tuple(assigned, writeArrayElements(array, elements, context));
   }
   return tuple(assigned, writeProperty(unsafeCast<WithProperties>(object), name, assigned, context));
 }
 
-export const ReturnStatementResolver = statementResolver<
-  ESTree.ReturnStatement
->(function*(statement, execContext) {
-  if (statement.argument === null) {
-    return tuple(ReturnValue(Undefined), execContext);
-  }
-  const [argType, afterArgExecContext] = yield evaluate(
-    statement.argument,
-    execContext
-  );
-  return tuple(ReturnValue(argType), afterArgExecContext);
-});
+export const ReturnStatementResolver: ASTResolver<ESTree.ReturnStatement> = (ast, context) =>
+  ast.argument === null ? tuple(ReturnValue(Undefined), context) :
+    bindNormal(evaluate(ast.argument, context), (value, after) => tuple(ReturnValue(value), after));
 
-export const ThisExpressionResolver: ASTResolver<
-  ESTree.ThisExpression,
-  Any
-> = function*(_ast, execContext) {
-  return tuple(execContext.value.thisValue, execContext);
+export const ThisExpressionResolver: ASTResolver<ESTree.ThisExpression> = (_ast, context) =>
+  tuple(context.value.thisValue, context);
+
+export const ObjectExpressionResolver: ASTResolver<ESTree.ObjectExpression> = (ast, context) => {
+  const build = (index: number, properties: { [name: string]: Any }, current: TExecutionContext): BranchResult => {
+    let accumulated = properties;
+    let after = current;
+    for (let position = index; position < ast.properties.length; position++) {
+      const property = ast.properties[position];
+      assert(property.type === "Property" && property.kind === "init", "Object spread and accessors are not yet supported");
+      const entry = property as ESTree.Property;
+      let name: string;
+      const next = position + 1;
+      const prior = accumulated;
+      if (entry.computed) {
+        const key = evaluate(entry.key, after);
+        if (needsContinuation(key[0])) return bindNormal(key, (value, afterKey) => {
+          const selectedName = propertyName(value);
+          return bindNormal(evaluate(entry.value!, afterKey), (item, afterValue) =>
+            build(next, { ...prior, [selectedName]: item }, afterValue));
+        });
+        name = propertyName(key[0]);
+        after = key[1];
+      } else name = entry.key.type === "Identifier" ? entry.key.name : String((entry.key as ESTree.Literal).value);
+      const value = evaluate(entry.value!, after);
+      if (needsContinuation(value[0])) return bindNormal(value, (item, afterValue) =>
+        build(next, { ...prior, [name]: item }, afterValue));
+      accumulated = { ...accumulated, [name]: value[0] };
+      after = value[1];
+    }
+    return tuple(ESObject(accumulated), after);
+  };
+  return build(0, {}, context);
 };
 
-export const ObjectExpressionResolver: ASTResolver<
-  ESTree.ObjectExpression,
-  Any
-> = function*(ast, execContext) {
-  let obj = {};
-  let currExecContext = execContext;
-  for (const property of ast.properties) {
-    let propValueType;
-    if (property.type === "Property") {
-      if (property.shorthand) {
-        [propValueType, currExecContext] = yield evaluate(
-          property.key,
-          currExecContext
-        );
-      } else {
-        [propValueType, currExecContext] = yield evaluate(
-          unsafeCast<ESTree.Node>(property.value),
-          currExecContext
-        );
+export const ArrayExpressionResolver: ASTResolver<ESTree.ArrayExpression> = (ast, context) => {
+  const build = (index: number, elements: Any[], current: TExecutionContext): BranchResult => {
+    let accumulated = elements;
+    let after = current;
+    for (let position = index; position < ast.elements.length; position++) {
+      const element = ast.elements[position];
+      if (element === null) {
+        const sparse = accumulated.slice();
+        sparse.length++;
+        accumulated = sparse;
+        continue;
       }
+      const result = evaluate(element, after);
+      if (needsContinuation(result[0])) {
+        const prior = accumulated;
+        const next = position + 1;
+        return bindNormal(result, (value, nextContext) => build(next, prior.concat([value]), nextContext));
+      }
+      accumulated = accumulated.concat([result[0]]);
+      after = result[1];
     }
-
-    obj = {
-      ...obj,
-      [unsafeCast<ESTree.Identifier>(unsafeCast<ESTree.Property>(property).key)
-        .name]: propValueType
-    };
-  }
-
-  return tuple(ESObject(obj), currExecContext);
+    return tuple(ESArray(accumulated, "elements"), after);
+  };
+  return build(0, [], context);
 };
 
-export const ArrayExpressionResolver: ASTResolver<
-  ESTree.ArrayExpression,
-  Any
-> = function*(ast, execContext) {
-  const elements: Any[] = [];
-  let currentContext = execContext;
-  for (const element of ast.elements) {
-    if (element === null) {
-      // Preserve a hole rather than manufacturing an element value.
-      elements.length++;
-    } else {
-      const [value, nextContext] = yield evaluate(element, currentContext);
-      elements.push(value);
-      currentContext = nextContext;
-    }
-  }
-  return tuple(ESArray(elements, "elements"), currentContext);
-};
+export const ConditionalExpressionResolver: ASTResolver<ESTree.ConditionalExpression> = (ast, context) =>
+  bindNormal(evaluate(ast.test, context), (test, afterTest) =>
+    evaluateBranches(coerceToBoolean(test, afterTest.value.knowledge), afterTest,
+      branch => evaluate(ast.consequent, branch), branch => evaluate(ast.alternate, branch)));
 
-export const ConditionalExpressionResolver: ASTResolver<
-  ESTree.ConditionalExpression,
-  Any
-> = function*(ast, execContext) {
-  const [test, afterTestContext] = yield evaluate(ast.test, execContext);
-  const condition = coerceToBoolean(test, afterTestContext.value.knowledge);
-  return evaluateBranches(condition, afterTestContext,
-    branch => evaluate(ast.consequent, branch),
-    branch => evaluate(ast.alternate, branch));
-};
-
-export const FunctionExpressionResolver: ASTResolver<
-  ESTree.FunctionExpression,
-  FunctionBinding
-> = function*(ast, execContext) {
-  if (!ast.id) return tuple(createFunction(ast.body.body, ast.params, execContext), execContext);
+export const FunctionExpressionResolver: ASTResolver<ESTree.FunctionExpression> = (ast, context) => {
+  if (!ast.id) return tuple(createFunction(ast.body.body, ast.params, context), context);
   const name = identifierName(ast.id);
-  let local = declareBinding(enterEnvironment(execContext, "named-function"), name, "name");
+  let local = declareBinding(enterEnvironment(context, "named-function"), name, "name");
   const fn = createFunction(ast.body.body, ast.params, local);
   local = initializeBinding(local, name, fn);
-  return tuple(fn, setEnvironment(local, execContext.value.environment));
+  return tuple(fn, setEnvironment(local, context.value.environment));
 };
 
-export const ExpressionStatementResolver = statementResolver<
-  ESTree.ExpressionStatement
->(function*(statement, execContext) {
-  const result = yield evaluate(statement.expression, execContext);
-  return tuple(Undefined, result[1]);
-});
+export const ExpressionStatementResolver: ASTResolver<ESTree.ExpressionStatement> = (ast, context) =>
+  bindNormal(evaluate(ast.expression, context), (_value, after) => tuple(Undefined, after));
 
-export const VariableDeclarationResolver = statementResolver<
-  ESTree.VariableDeclaration
->(function*(statement, execContext) {
-  let currExecContext = execContext;
-  for (const declaration of statement.declarations) {
-    const name = identifierName(declaration.id);
-    if (declaration.init) {
-      const initResult = yield evaluate(declaration.init, currExecContext);
-      if (statement.kind === "var") {
-        const assigned = yield assignBinding(initResult[1], name, initResult[0]);
-        currExecContext = assigned[1];
-      } else currExecContext = initializeBinding(initResult[1], name, initResult[0]);
-    } else if (statement.kind !== "var") {
-      currExecContext = initializeBinding(currExecContext, name, Undefined);
+export const VariableDeclarationResolver: ASTResolver<ESTree.VariableDeclaration> = (ast, context) => {
+  const declare = (index: number, current: TExecutionContext): BranchResult => {
+    let after = current;
+    for (let position = index; position < ast.declarations.length; position++) {
+      const declaration = ast.declarations[position];
+      const name = identifierName(declaration.id);
+      if (!declaration.init) {
+        if (ast.kind !== "var") after = initializeBinding(after, name, Undefined);
+        continue;
+      }
+      const reference = bindingReference(after, name);
+      const result = evaluate(declaration.init, after);
+      const next = position + 1;
+      if (needsContinuation(result[0])) return bindNormal(result, (value, nextContext) => ast.kind === "var"
+        ? bindNormal(assignBinding(nextContext, name, value, reference), (_assigned, afterAssignment) => declare(next, afterAssignment))
+        : declare(next, initializeBinding(nextContext, name, value)));
+      if (ast.kind === "var") {
+        const assigned = assignBinding(result[1], name, result[0], reference);
+        if (needsContinuation(assigned[0])) return bindNormal(assigned, (_value, afterAssignment) => declare(next, afterAssignment));
+        after = assigned[1];
+      } else after = initializeBinding(result[1], name, result[0]);
     }
-  }
-  return tuple(Undefined, currExecContext);
-});
+    return tuple(Undefined, after);
+  };
+  return declare(0, context);
+};
 
-export const FunctionDeclarationResolver = statementResolver<
-  ESTree.FunctionDeclaration
->(function*(_statement, execContext) {
+export const FunctionDeclarationResolver: ASTResolver<ESTree.FunctionDeclaration> = (_ast, context) =>
   // Function declarations were initialized when their scope was entered.
-  return tuple(Undefined, execContext);
-});
+  tuple(Undefined, context);
 
-export const IfStatementResolver = statementResolver<ESTree.IfStatement>(
-  function*(statement, prevContext) {
-    const [testType, afterTestExecContext] = yield evaluate(
-      statement.test,
-      prevContext
-    );
-    const testTypeAsBoolean = coerceToBoolean(testType, afterTestExecContext.value.knowledge);
-    return evaluateBranches(testTypeAsBoolean, afterTestExecContext,
-      branch => evaluate(statement.consequent, branch),
-      branch => statement.alternate
-        ? evaluate(statement.alternate, branch)
-        : tuple(Undefined, branch));
-  }
-);
+export const IfStatementResolver: ASTResolver<ESTree.IfStatement> = (ast, context) =>
+  bindNormal(evaluate(ast.test, context), (test, afterTest) =>
+    evaluateBranches(coerceToBoolean(test, afterTest.value.knowledge), afterTest,
+      branch => evaluate(ast.consequent, branch),
+      branch => ast.alternate ? evaluate(ast.alternate, branch) : tuple(Undefined, branch)));
 
-export const EmptyStatementResolver = statementResolver<ESTree.EmptyStatement>(
-  function*(_, execContext) {
-    return tuple(Undefined, execContext);
-  }
-);
+export const EmptyStatementResolver: ASTResolver<ESTree.EmptyStatement> = (_ast, context) => tuple(Undefined, context);
 
-export const NewExpressionResolver: ASTResolver<
-  ESTree.NewExpression,
-  Any
-> = function*(expression, execContext) {
-  let [calleeType, newExecContext] = yield evaluate(
-    expression.callee,
-    execContext
-  );
+export const NewExpressionResolver: ASTResolver<ESTree.NewExpression> = (ast, context) =>
+  bindNormal(evaluate(ast.callee, context), (callee, afterCallee) =>
+    withArguments(ast.arguments, afterCallee, (args, afterArgs) => createNewObjectFromConstructor(callee, args, afterArgs)));
 
-  let currExecContext = newExecContext;
-  let argsTypes: Any[] = [];
-
-  for (const argAST of expression.arguments) {
-    const [argType, newExecContext] = yield evaluate(argAST, currExecContext);
-    argsTypes = [...argsTypes, argType];
-    currExecContext = newExecContext;
-  }
-
-  return yield* createNewObjectFromConstructor(
-    unsafeCast<FunctionBinding>(calleeType),
-    argsTypes,
-    currExecContext
-  );
+export const LogicalExpressionResolver: ASTResolver<ESTree.LogicalExpression> = (ast, context) => {
+  const resolver = LogicalOperatorResolvers.get(ast.operator);
+  assert(resolver, `Logical operator for ${ast.operator} has not been implemented yet`);
+  return resolver!(ast.left, ast.right, context);
 };
 
-export const LogicalExpressionResolver: ASTResolver<
-  ESTree.LogicalExpression,
-  Any
-> = function*(expression, execContext) {
-  const logicalOperatorResolver = LogicalOperatorResolvers.get(
-    expression.operator
-  );
-  assert(
-    logicalOperatorResolver,
-    `Logical operator for ${expression.operator} has not been implemented yet`
-  );
-  return yield* logicalOperatorResolver!(
-    expression.left,
-    expression.right,
-    execContext
-  );
+export const TryStatementResolver: ASTResolver<ESTree.TryStatement> = (ast, context) => {
+  const handled = mapCompletions(evaluate(ast.block, context), (value, afterTry) => {
+    if (!isThrownValue(value) || !ast.handler) return tuple(value, afterTry);
+    const handler = ast.handler;
+    assert(!handler.param || handler.param.type === "Identifier", "Destructured catch bindings are not yet supported");
+    let local = enterEnvironment(afterTry, "block");
+    if (handler.param) local = declareBinding(local, identifierName(handler.param), "catch", true, value.value);
+    return mapCompletions(evaluate(handler.body, local), (caught, afterCatch) =>
+      tuple(caught, setEnvironment(afterCatch, afterTry.value.environment)));
+  });
+  if (!ast.finalizer) return handled;
+  return mapCompletions(handled, (prior, afterTry) =>
+    mapCompletions(evaluate(ast.finalizer!, afterTry), (final, afterFinally) =>
+      tuple(isReturnValue(final) || isThrownValue(final) ? final : prior, afterFinally)));
 };
 
-export const TryStatementResolver = statementResolver<ESTree.TryStatement>(
-  function*(statement, execContext) {
-    const handled = mapCompletions(evaluate(statement.block, execContext), (value, context) => {
-      if (!isThrownValue(value) || !statement.handler) return tuple(value, context);
-      const handler = statement.handler;
-      assert(!handler.param || handler.param.type === "Identifier",
-        "Destructured catch bindings are not yet supported");
-      const name = handler.param && unsafeCast<ESTree.Identifier>(handler.param).name;
-      let local = enterEnvironment(context, "block");
-      if (name) local = declareBinding(local, name, "catch", true, value.value);
-      return mapCompletions(evaluate(handler.body, local), (result, after) =>
-        tuple(result, setEnvironment(after, context.value.environment)));
-    });
-    if (!statement.finalizer) return handled;
-    return mapCompletions(handled, (prior, context) =>
-      mapCompletions(evaluate(statement.finalizer!, context), (final, after) =>
-        tuple(isReturnValue(final) || isThrownValue(final) ? final : prior, after)));
-  }
-);
+export const ThrowStatementResolver: ASTResolver<ESTree.ThrowStatement> = (ast, context) =>
+  bindNormal(evaluate(ast.argument, context), (value, after) => tuple(ThrownValue(value), after));
 
-export const ThrowStatementResolver = statementResolver<ESTree.ThrowStatement>(
-  function*(statement, execContext) {
-    const [argType, afterArgExecContext] = yield evaluate(
-      statement.argument,
-      execContext
-    );
-    return tuple(ThrownValue(argType), afterArgExecContext);
-  }
-);
-
-export const DoWhileStatementResolver = statementResolver<
-  ESTree.DoWhileStatement
->(function*() {
+export const DoWhileStatementResolver: ASTResolver<ESTree.DoWhileStatement> = () => {
   throw new Error("Do-while evaluation is not yet supported");
-});
+};
 
-export const UpdateExpressionResolver: ASTResolver<
-  ESTree.UpdateExpression,
-  TESNumber
-> = function*(expression, execContext) {
-  if (expression.argument.type === "Identifier") {
-    const [argType, afterArgExecContext] = yield evaluate(
-      expression.argument,
-      execContext
-    );
+export const UpdateExpressionResolver: ASTResolver<ESTree.UpdateExpression> = (ast, context) => {
+  if (ast.argument.type !== "Identifier") return unimplemented();
+  const name = ast.argument.name;
+  const reference = bindingReference(context, name);
+  return bindNormal(evaluate(ast.argument, context), (value, afterRead) => {
+    assert(isESNumber(value), "Update of non-numeric values is not yet supported");
+    const updated = (ast.operator === "++" ? plus : minus)(value, ESNumber(1), afterRead);
+    return bindNormal(assignBinding(afterRead, name, updated, reference), (_assigned, afterWrite) =>
+      tuple(ast.prefix ? updated : value, afterWrite));
+  });
+};
 
-    let argTypeAfterUpdate: TESNumber;
-    assert(isESNumber(argType), "Update of non-numeric values is not yet supported");
-    argTypeAfterUpdate = unsafeCast<TESNumber>(
-      (expression.operator === "++" ? plus : minus)(argType, ESNumber(1), afterArgExecContext)
-    );
-
-    const updated = yield assignBinding(
-      afterArgExecContext,
-      expression.argument.name,
-      argTypeAfterUpdate
-    );
-
-    return tuple(expression.prefix ? argTypeAfterUpdate : argType, updated[1]);
+export const UnaryExpressionResolver: ASTResolver<ESTree.UnaryExpression> = (ast, context) => {
+  if (ast.operator === "typeof" && ast.argument.type === "Identifier" && !hasBinding(context, ast.argument.name)) {
+    return tuple(ESString("undefined"), context);
   }
-
-  return unimplemented();
+  return bindNormal(evaluate(ast.argument, context), (value, after) => {
+    const resolver = UnaryOperatorResolvers.get(ast.operator);
+    assert(resolver, `Unary operator resolver for ${ast.operator} hasn't been implemented yet`);
+    return resolver!(value, after);
+  });
 };
 
-export const UnaryExpressionResolver: ASTResolver<
-  ESTree.UnaryExpression,
-  Any
-> = function*(expression, execContext) {
-  if (expression.operator === "typeof" && expression.argument.type === "Identifier" &&
-      !hasBinding(execContext, expression.argument.name)) return tuple(ESString("undefined"), execContext);
-  const [argType, afterArgExecContext] = yield evaluate(
-    expression.argument,
-    execContext
-  );
-  const unaryOperatorResolver = UnaryOperatorResolvers.get(expression.operator);
-  assert(
-    unaryOperatorResolver,
-    `Unary operator resolver for ${expression.operator} hasn't been implemented yet`
-  );
-  return unaryOperatorResolver!(argType, afterArgExecContext);
-};
-
-export const ASTResolvers = new Map<string, ASTResolver<any, any>>([
-  ["Literal", LiteralResolver],
-  ["Identifier", IdentifierResolver],
-  ["MemberExpression", MemberExpressionResolver],
-  ["CallExpression", CallExpressionResolver],
-  ["BinaryExpression", BinaryExpressionResolver],
-  ["Program", ProgramResolver],
-  ["AssignmentExpression", AssignmentExpressionResolver],
-  ["ReturnStatement", ReturnStatementResolver],
-  ["ThisExpression", ThisExpressionResolver],
-  ["ObjectExpression", ObjectExpressionResolver],
-  ["ArrayExpression", ArrayExpressionResolver],
-  ["ConditionalExpression", ConditionalExpressionResolver],
-  ["FunctionExpression", FunctionExpressionResolver],
-  ["ExpressionStatement", ExpressionStatementResolver],
-  ["VariableDeclaration", VariableDeclarationResolver],
-  ["FunctionDeclaration", FunctionDeclarationResolver],
-  ["IfStatement", IfStatementResolver],
-  ["EmptyStatement", EmptyStatementResolver],
-  ["BlockStatement", BlockStatementResolver],
-  ["NewExpression", NewExpressionResolver],
-  ["LogicalExpression", LogicalExpressionResolver],
-  ["TryStatement", TryStatementResolver],
-  ["ThrowStatement", ThrowStatementResolver],
-  ["DoWhileStatement", DoWhileStatementResolver],
-  ["UpdateExpression", UpdateExpressionResolver],
-  ["UnaryExpression", UnaryExpressionResolver]
+export const ASTResolvers = new Map<string, ASTResolver<any>>([
+  ["Literal", LiteralResolver], ["Identifier", IdentifierResolver],
+  ["MemberExpression", MemberExpressionResolver], ["CallExpression", CallExpressionResolver],
+  ["BinaryExpression", BinaryExpressionResolver], ["Program", ProgramResolver],
+  ["AssignmentExpression", AssignmentExpressionResolver], ["ReturnStatement", ReturnStatementResolver],
+  ["ThisExpression", ThisExpressionResolver], ["ObjectExpression", ObjectExpressionResolver],
+  ["ArrayExpression", ArrayExpressionResolver], ["ConditionalExpression", ConditionalExpressionResolver],
+  ["FunctionExpression", FunctionExpressionResolver], ["ExpressionStatement", ExpressionStatementResolver],
+  ["VariableDeclaration", VariableDeclarationResolver], ["FunctionDeclaration", FunctionDeclarationResolver],
+  ["IfStatement", IfStatementResolver], ["EmptyStatement", EmptyStatementResolver],
+  ["BlockStatement", BlockStatementResolver], ["NewExpression", NewExpressionResolver],
+  ["LogicalExpression", LogicalExpressionResolver], ["TryStatement", TryStatementResolver],
+  ["ThrowStatement", ThrowStatementResolver], ["DoWhileStatement", DoWhileStatementResolver],
+  ["UpdateExpression", UpdateExpressionResolver], ["UnaryExpression", UnaryExpressionResolver]
 ]);

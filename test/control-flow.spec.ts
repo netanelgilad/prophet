@@ -98,9 +98,7 @@ test("unsupported effects fail explicitly instead of producing a false proof", (
     ['var n = 0; var o = { toString: function() { n = 1; return "x"; } }; var s = "" + o;', /object-to-primitive/],
     ["var x = 1; x.a = 2;", /primitive values/],
     ["var x = 1; x += 2;", /Compound assignment/],
-    ["do {} while (false);", /Do-while/],
-    ["function C() { if (Math.random() < 0.5) throw 42; } var x = new C();", /throwing symbolic constructors/],
-    ["function f() { if (Math.random() < 0.5) throw 42; } var x = f();", /throws on only some paths/]
+    ["do {} while (false);", /Do-while/]
   ];
   for (const [source, error] of cases) {
     expect(() => evaluateCode(source, nodeInitialExecutionContext)).toThrow(error);

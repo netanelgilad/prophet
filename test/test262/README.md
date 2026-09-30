@@ -20,13 +20,22 @@ primitive or conditional reference passed to these equality checks fails
 explicitly: it cannot accidentally count as a concrete pass. Concrete object,
 array, and function references are checked by identity independently of
 Prophet's equality operator. Assertion errors, VM failures, unhandled throws,
-and stderr fail the test.
+unresolved symbolic completions (including a throw on only some paths), and
+stderr fail the test.
 
 The active selections include lexical block environments, closure capture,
 parameter and declaration shadowing, variable/function hoisting, and named
 function-expression scope, plus direct eval's lexical lookup and strict variable
 isolation. Each source file is run whole, including both
 strictness variants where its metadata calls for them.
+
+The completion cases cover argument evaluation order, a throwing left operand
+of arithmetic and logical expressions, function-body throws, and return/throw
+precedence through nested `catch` and `finally` blocks. These concrete cases
+protect JavaScript behavior while the local symbolic specs exercise calls that
+return on some paths and throw on others. Constructor throws are currently
+covered by local specs; the pinned Test262 candidates require additional
+unsupported language or built-in behavior.
 
 This runner deliberately rejects unsupported flags (including modules and
 async), additional harness includes, and non-parse negative metadata. Adding

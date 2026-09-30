@@ -57,7 +57,7 @@ function sameNumber(left: TESNumber, right: TESNumber): boolean {
 }
 
 function sameCondition(left: TESBoolean, right: TESBoolean): boolean {
-  if (sameIdentity(left, right)) return true;
+  if (sameValue(left, right)) return true;
   const a = left.expression;
   const b = right.expression;
   if (!a || !b || a.kind !== b.kind) return false;
@@ -70,6 +70,14 @@ function sameCondition(left: TESBoolean, right: TESBoolean): boolean {
   }
   if (a.kind === "not" && b.kind === "not") return sameCondition(a.operand, b.operand);
   if (a.kind === "truthy" && b.kind === "truthy") return sameValue(a.operand, b.operand);
+  // Re-evaluating a Boolean expression creates fresh value identities. Its
+  // condition and both alternatives still determine the same guarded result.
+  if (a.kind === "select" && b.kind === "select" &&
+      isESBoolean(a.consequent) && isESBoolean(b.consequent) &&
+      isESBoolean(a.alternate) && isESBoolean(b.alternate)) {
+    return sameCondition(a.condition, b.condition) &&
+      sameCondition(a.consequent, b.consequent) && sameCondition(a.alternate, b.alternate);
+  }
   return false;
 }
 

@@ -5,7 +5,8 @@ export {
   ASTEvaluationError,
   CodeEvaluationError
 } from "./evaluate";
-export { NotANumber } from "./types";
+export { NotANumber, isThrownValue } from "./types";
+export { isForkedCompletion } from "./execution-context/Completion";
 export {
   nodeInitialExecutionContext
 } from "./execution-context/nodeInitialExecutionContext";
