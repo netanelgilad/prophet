@@ -82,11 +82,72 @@ borrowed `EventEmitter.prototype.on.call(server, ...)` behavior. Separately
 created emitter models represent separate environments, not two modules within
 one modeled Node process.
 
+## Explicit response headers and status catalog
+
+The [header specs](../test/node-http-headers.spec.ts) compare complete application
+modules against pinned Node. The model supports direct
+`writeHead(status[, reason][, headers])` for concrete numeric statuses or finite
+choices, with complete ordinary data objects or primitive header sources.
+String sources enumerate their own UTF-16 character positions. Header values
+must resolve to supported concrete primitives or finite choices; effectful
+object conversions, getters, array header forms and open symbolic text remain
+gaps. This uses shared own-property enumeration and value conversion, not a
+rule for the static server's source.
+
+`writeHead` returns the response. A successful call serializes and commits its
+status, reason and explicit fields, making `headersSent` true before `end`.
+It does not establish that bytes have flushed. `end` reuses that committed
+state; later changes to public status fields or the original header object do
+not rewrite it. If no header has been committed, `end` invokes the same
+modeled `writeHead` operation to create the implicit header.
+
+Validation order follows the pinned
+[`writeHead`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_server.js)
+and [`_storeHeader`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_outgoing.js)
+implementations. A repeated write throws `ERR_HTTP_HEADERS_SENT` before new
+argument validation. Status range failure precedes public assignments; invalid
+reason/name/value failures retain the assignments already made while leaving
+`headersSent` false. Body suppression from 204/304 is also retained if a later
+header validation fails; an invalid reason fails before that suppression.
+Recovery therefore does not mean the failed call rolled back every change.
+Local comparisons cover these transitions, token/value errors, allowed Latin-1
+and whitespace, coercion boundaries, overload selection, and symbolic choices.
+
+`inspectResponse` exposes the committed `statusCode`, `statusMessage`, `headers`
+and ended `body`. Its **headers are only the application's explicit serialized
+fields**, using lower-case names and exact text values. They exclude automatic
+Date, connection and framing fields; they are neither a complete wire-header
+capture nor the public `getHeaders` API. The native oracle preserves raw field
+values because a client's parser trims whitespace: a serialized single-space
+value must not silently become an empty string in the model. Full ordering of
+raw duplicate fields is not represented by this object projection.
+
+This distinction exposes the real package's reversed arguments:
+`writeHead(code, headers, http.STATUS_CODES[code])` selects its third string as
+the header source. Intended fields such as Allow are ignored, and characters
+become numeric field names. The [unchanged application specs](../test/pico-static-server-analysis.spec.ts)
+now preserve that behavior for OPTIONS, POST and DELETE. Symbolic execution
+also proves the absent Allow field for an explicitly delivered request event
+whose method is known to be neither GET nor HEAD. That input overapproximates
+request-event delivery; it does not prove every wire method reaches that event
+(Node dispatches CONNECT separately). This reproduces an existing native reference observation; it is not a
+claim of a novel vulnerability or complete request-path analysis.
+
+The [status catalog](../src/node/http-status-codes.ts) contains all 63 entries
+from the pinned release. [Catalog specs](../test/node-http-status-codes.spec.ts)
+compare every key, value and enumeration position with native Node. Each modeled
+HTTP environment owns an ordinary mutable table; aliases share it and mutations
+remain in persistent state. Default reason lookup uses the original table even
+if application code replaces the exported `http.STATUS_CODES` property.
+Inherited values and conditional mutations follow shared lookup rules. Full
+descriptor reflection, deletion and symbolic computed property keys remain
+shared VM gaps; selecting between concrete lookups is supported separately.
+
 ## Ending a response and completing delivery
 
 Keep application-visible response state separate from captured response output:
 
-- A new response defaults to status 200, with `headersSent`, `writableEnded`,
+- A new response defaults to status 200 and an undefined `statusMessage`, with `headersSent`, `writableEnded`,
   and `writableFinished` false.
 - `end` returns the response. On the supported successful path it finalizes the
   implicit headers and marks `writableEnded` true. It must preserve the status
@@ -97,8 +158,8 @@ Keep application-visible response state separate from captured response output:
   state and then invokes the current `finish` listeners with the response as
   their receiver. A listener registered after `end` but before completion still
   runs; registering after completion does not replay the event.
-- Later assignment to `statusCode` must not rewrite the already captured wire
-  status. A HEAD request has no wire body even when application code supplies a
+- Later assignment to `statusCode` or `statusMessage` must not rewrite the
+  committed status/reason. A HEAD request has no wire body even when application code supplies a
   string to `end`. Status 204 and 304 also suppress a body.
 
 These rules follow Node's
@@ -137,10 +198,10 @@ transitions. Rejected or unmodeled operations must not silently succeed.
 
 The supported surface is deliberately limited to server creation with an
 optional request callback, the documented numeric listen forms, the shared listener
-operations above, request method/URL inspection, and response status plus a
-string, null, or omitted `end` payload. Broader overloads, the remaining
+operations above, request method/URL inspection, scoped direct `writeHead`, the
+status catalog, and a string, null, or omitted `end` payload. Broader overloads, the remaining
 EventEmitter APIs, request bodies/streams, Buffer payloads,
-headers, backpressure, socket aborts and errors, startup failures, timers,
+progressive header APIs, backpressure, socket aborts and errors, startup failures, timers,
 promises, and arbitrary concurrent schedules remain explicit gaps until their
 semantics and independent tests are added. Distinguish a language-visible Node
 error from an unsupported-analysis error. Unsupported public property access or
@@ -171,6 +232,18 @@ while explicit-host lookup is still pending remain unsupported. Repeated end
 calls and delivery into unresolved lifecycle states also remain explicit gaps.
 Unknown output strings lose their
 identity through UTF-8 encoding until a more precise encoding model exists.
+
+Header support excludes progressive `setHeader`/`appendHeader`/`getHeader`/
+`getHeaders`/`removeHeader` caching, raw header arrays, duplicate case-insensitive
+names, getters/descriptors, object/array value conversions and unrestricted
+symbolic text. Transport-sensitive fields (`Content-Length`,
+`Transfer-Encoding`, `Connection`, `Keep-Alive`, `Trailer`, `Expect`, and
+`Content-Disposition`) stop analysis until their framing, encoding and state
+effects are modeled. Automatic Date and connection/framing output, lenient
+validation, unique-header options and complete raw wire serialization remain
+outside the inspected projection. The model does not establish the absence of
+automatic fields from the actual wire. General public status-message coercion,
+informational responses and richer status inputs remain incomplete.
 
 The model exposes selected field values without claiming complete prototypes or
 descriptors. `hasOwnProperty` inspection of its server, response, and function
@@ -228,6 +301,33 @@ additional capabilities:
 - [`test-http-outgoing-finish.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-finish.js)
   tests backpressure and callback/event ordering with Buffer writes, loops,
   request streams, an HTTP client, and `process.nextTick`.
+- [`test-http-response-writehead-returns-this.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-response-writehead-returns-this.js)
+  is a small complete case for chaining `writeHead(...).end(...)` and receiving
+  the supplied header/body. It still needs the common/assert harness,
+  `http.get`, `server.address`/`close`, readable data/end events, array `push`,
+  and `Buffer.concat`. Local chaining assertions do not activate that file.
+- [`test-http-write-head.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-write-head.js)
+  combines direct writes with progressive `setHeader`, invalid values and raw
+  header arrays, duplicate-write failures, an unknown status reason, client
+  requests, header inspection and stream completion. Its companion
+  [`test-http-write-head-2.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-write-head-2.js)
+  requires raw-array writes with and without cached headers, malformed array
+  lengths and a three-argument overload. All scenarios and client/harness
+  dependencies must run before either complete file counts as passing.
+- [`test-http-write-head-after-set-header.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-write-head-after-set-header.js)
+  compares repeated raw headers with/without a progressive cache across two
+  requests. Its common/countdown/assert harness, destructured imports, request
+  client, string `includes`, raw-header inspection and closing remain required.
+- [`test-http-status-reason-invalid-chars.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-status-reason-invalid-chars.js)
+  checks explicit and assigned invalid status messages, recovery before end,
+  and absence of injected headers. It still needs regex-based assertion
+  matching, common/countdown, HTTP client/address/close and complete delivery.
+- [`test-http-status-code.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-status-code.js)
+  and [`test-http-status-message.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-status-message.js)
+  were also reviewed whole. They need their common/countdown/assert harnesses,
+  HTTP client or raw net/stream behavior, address inspection, closing and Buffer
+  APIs. Comparing the complete exported status catalog independently does not
+  establish those end-to-end protocol cases.
 
 Local specs cover the supported behavior while these dependencies are missing;
 they do not replace the complete upstream cases. Express is a later consumer of

@@ -9,7 +9,7 @@ a small external project, keep its code unchanged, and then grow to larger
 applications and dependency graphs. Application names and source patterns must
 never become VM inference rules.
 
-**Pinned reference established; full server analysis remains incomplete.** The first target is
+**First symbolic header finding established; filesystem analysis remains incomplete.** The first target is
 [`udivankin/pico-static-server` 3.0.3](https://github.com/udivankin/pico-static-server/tree/6b553fb34e3b5b5bccf3c082bb2cae5f93b9e3be).
 The complete published fixture is retained with its license and integrity
 records. Independent Node specs now exercise its real server and reproduce an
@@ -20,12 +20,17 @@ its real callbacks, and returns that server from `listen(port, callback)`.
 Specs cover omitted/undefined options (port 8080) and supplied port 0 under an
 explicit successful-binding assumption. Delivering the deferred listening event
 now executes the original template and console call, capturing its exact startup
-message under the healthy-stdout assumption. Registered request delivery reaches
-`response.writeHead` for OPTIONS/unsupported methods and `path.join` for GET/HEAD.
-Those APIs remain unmodeled. HTTPS/URL/fs/path imports still have explicitly
+message under the healthy-stdout assumption. Registered OPTIONS, POST and DELETE
+requests now complete through generic `writeHead`, `end` and finish delivery.
+For an explicitly delivered request event with an unknown method known to be
+neither GET nor HEAD, Prophet proves that the
+response has an empty body and omits the intended Allow field: the status is 200
+for OPTIONS and 405 otherwise. The application's reversed writeHead arguments
+produce numeric header names instead. Pinned Node had already exposed this
+behavior; this is now a symbolic finding in the declared domain, not a novel
+vulnerability claim. GET/HEAD still stop at opaque `path.join`; the missing-file
+exception has not been reached symbolically. HTTPS/URL/fs/path imports retain
 opaque identities; no native implementation runs during symbolic exploration.
-This is not yet a symbolic server proof or a Prophet-discovered bug. Our own
-complete health-server example remains the passing scoped HTTP proof.
 
 ## Why this project
 
@@ -88,6 +93,7 @@ Express, routing, or filesystem-success shortcut is allowed.
 | Question | Useful result |
 | --- | --- |
 | Can an ordinary request cause an exception to escape its request listener when the requested directory exists but its default file does not? | A condition on the request and filesystem state, the original source location and exception, prior effects, and eventually a concrete reproducible request/tree. |
+| Does the response actually contain the Allow field the application supplies? | Now proved absent for the declared delivered-request-event domain with method neither GET nor HEAD because writeHead receives reversed arguments; retain conditional status, actual numeric header fields and the successful-transport assumptions. |
 | Which request methods reach filesystem operations? | A proof relating the method to attempted filesystem reads, rather than a handful of successful requests. |
 | For a readable existing file or an absent path, what response is committed? | Status, headers/body, completion, and ordered read/response effects; HEAD's wire body must remain separate from data supplied by application code. |
 | Can a filesystem failure leave a response unfinished, or can the application's apparent error-response branch actually handle it? | Classify thrown and normal paths, without converting Node failures into successful return values or inventing an automatic 500 response. |
@@ -118,7 +124,7 @@ an `uncaughtExceptionMonitor` observes failures without recovering them.
   reached because `readFileSync` throws.
 - Existing files and a present directory index respond successfully; HEAD
   performs the read but sends no wire body. An absent requested path returns
-  404. OPTIONS and POST do not reach request filesystem operations.
+  404. OPTIONS, POST and DELETE do not reach request filesystem operations.
 - The reversed arguments in `writeHead(code, headers, http.STATUS_CODES[code])`
   omit the intended Content-Type, Content-Length, and Allow headers on the pinned
   Node release. Characters of the status text become numeric header names. The
@@ -147,11 +153,31 @@ startup only in the declared successful-bind/healthy-stdout domain; no real
 socket or stdout write occurs, and allocation, bind errors, and output failures
 remain open in the [gap backlog](implementation-gaps.md).
 
-Valid request delivery enters the actual registered handler. OPTIONS and POST
-reach unsupported `response.writeHead`; GET and HEAD reach opaque `path.join`
-before its URL/path arguments execute. Request completion and filesystem
-exception classification remain unimplemented. Overriding `protocol` to `https`
-still reaches the opaque `https.createServer` member.
+Valid request delivery enters the actual registered handler. Concrete OPTIONS,
+POST and DELETE cases now complete with empty bodies, numeric character header
+fields and no explicit Allow field. The symbolic case supplies an unknown string
+method with the explicit facts `method !== "GET"` and `method !== "HEAD"`, an
+unknown URL, the original configuration with port 0, and one successful request
+and finish schedule. Its string representations overapproximate valid parsed
+methods/URLs supplied to a request event; they do not implement or prove HTTP
+parsing or protocol-to-event dispatch. In particular, Node diverts CONNECT to
+its separate connect/upgrade handling, so not every symbolic method is a feasible
+wire request reaching this callback. Concrete OPTIONS/POST/DELETE requests are
+independently checked. These routes do not read the URL. It proves
+`method === "OPTIONS" ? status === 200 : status === 405`, an empty body and the
+missing Allow field while `status === 200` remains unknown. Both effect paths
+retain the actual registered callback and one writeHead/end sequence.
+
+The [header projection](node-http.md#explicit-response-headers-and-status-catalog)
+contains explicit serialized fields, excluding automatic Date/connection/framing
+output. Values under numeric header names preserve literal spaces from `"Method Not Allowed"`,
+which a client's parser may trim. This supports the missing application Allow
+finding; it does not claim all wire headers are absent or fully modeled.
+
+GET and HEAD still reach opaque `path.join` before its URL/path arguments
+execute. Their completion and filesystem exception classification remain
+unimplemented. Overriding `protocol` to `https` still reaches the opaque
+`https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
 records the concrete domain, original wildcard listen behavior, and file hashes.
 
@@ -196,8 +222,8 @@ been analyzed. Keep both source coverage and domain coverage visible.
    listen overloads now let the unchanged factory return its server under the
    declared successful-binding environment. Deferred delivery now completes its
    original template and console output under a healthy-stdout assumption.
-   Next add compatible response headers and the status-code catalog needed by
-   OPTIONS/unsupported-method responses. GET/HEAD separately reach path/URL APIs.
+   Scoped direct response headers and the pinned status-code catalog now complete
+   OPTIONS/POST/DELETE responses. GET/HEAD next require shared path/URL APIs.
    Any uncovered `instanceof`/property semantics need shared support and relevant
    complete Test262 cases. Add the required Node response/Buffer, URL/path,
    filesystem, and broader listen
@@ -206,6 +232,9 @@ been analyzed. Keep both source coverage and domain coverage visible.
 3. **Symbolic classification.** Run the same entire module with symbolic request
    and correlated filesystem choices. Retain every reachable normal/throw path,
    exception location, condition, ordered effects, and final resource state.
+   The supplied request-event domain with a non-GET/HEAD method now proves the missing Allow field and conditional
+   200/405 status. This is the first bounded effect finding, not filesystem-path
+   coverage. Continue toward the existing-directory/missing-default-file exception.
    Assert a valid property, a violating path if one exists, and a result that
    must remain unknown. An unsupported operation must be recorded as a coverage
    gap, never counted as a safe path.
@@ -224,10 +253,11 @@ been analyzed. Keep both source coverage and domain coverage visible.
    relevant. Express and its dependencies remain ordinary source above Node.
 
 Shared event listeners, arrow functions, identifier defaults, data-object
-spread, numeric listen overloads, untagged templates, and scoped console output
-now execute startup. Next support the response-header/status APIs reached by
-OPTIONS/unsupported methods, while retaining GET/HEAD path/URL/filesystem gaps.
-Spread over
+spread, numeric listen overloads, untagged templates, scoped console output and
+direct response headers now support startup and the non-GET/HEAD response proof.
+Next follow GET/HEAD through path/URL and filesystem operations toward the
+unhandled-exception goal. Broader headers and transport remain separate work;
+the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.
 Destructured/rest parameters and implicit arguments likewise remain gaps.

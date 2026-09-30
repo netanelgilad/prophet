@@ -44,13 +44,13 @@ order, separately from HTTP output and response lifecycle. It monitors
 it does not install `uncaughtException`, recover the error, or synthesize an
 HTTP 500. The parent asserts the child's actual exit status and stderr.
 
-## Observed behavior, not yet a symbolic finding
+## Reference observations and scoped symbolic follow-up
 
 - GET of a readable file returns its bytes; HEAD performs the same read but
   sends an empty wire body.
 - An absent requested path returns 404 and never reaches `statSync` or
   `readFileSync`.
-- OPTIONS returns 200 and POST returns 405 without touching the request
+- OPTIONS returns 200 and POST/DELETE return 405 without touching the request
   filesystem, including when the target names a directory without an index.
 - An existing directory with its default file returns that file.
 - GET and HEAD of an existing directory without `index.html` throw ENOENT from
@@ -65,9 +65,10 @@ HTTP 500. The parent asserts the child's actual exit status and stderr.
 - The pinned release emits its DEP0169 deprecation warning when the application
   calls legacy `url.parse`. The references preserve that diagnostic.
 
-These concrete cases establish an independent target for future symbolic
-execution, not a proof of all inputs, a discovered new vulnerability, or evidence
-that Prophet already executes the package's complete server flow. The analysis
+These concrete cases establish independent reference evidence; the scoped
+symbolic follow-up below now covers the non-GET/HEAD response routes. Neither
+establishes all inputs, a discovered new vulnerability, or the package's complete
+file-serving flow. The analysis
 spec currently loads its unchanged module and initializes the actual factory's
 identifier default parameter and copies its options through shared object spread.
 HTTP invocation now returns the actual server from the original
@@ -83,10 +84,27 @@ The console model assumes healthy stdout and records ordered effects without
 real writes. Startup is established only in this declared domain; output failures
 and bind failures remain open implementation gaps.
 
-Delivering real registered requests reaches `response.writeHead` for OPTIONS/POST
-and `path.join` for GET/HEAD. Those APIs remain unmodeled, so response completion
-and filesystem-path classification are not established. An HTTPS override still
-reaches the opaque HTTPS API. Broader filesystem permissions, races, symlinks, paths,
+Delivering the actual registered OPTIONS/POST/DELETE requests now completes
+through generic writeHead/end/finish operations. Prophet retains the reversed
+argument behavior: status-text characters become numeric header fields, and the
+intended Allow field is absent. An explicitly delivered request event with a
+symbolic method known to be neither GET nor HEAD proves status 200 for OPTIONS
+or 405 otherwise, an empty body and missing
+Allow; whether its status is 200 remains unknown. That spec uses an unknown URL,
+port 0, one successful request/finish schedule and healthy stdout. Unknown method
+and URL strings overapproximate valid parsed spellings; these routes never read
+the URL, and no HTTP parser or protocol-to-event dispatcher is analyzed. Node
+routes CONNECT separately; the proof does not establish that every symbolic
+method corresponds to a wire request reaching the request listener. Native
+OPTIONS/POST/DELETE cases supply concrete independently checked witnesses.
+
+Inspection contains only explicit serialized fields, excluding automatic Date,
+connection and framing output; spaces in the serialized status-text characters
+remain spaces. This is now a scoped symbolic reproduction of the independently
+observed header behavior, not a novel vulnerability claim. GET/HEAD still stop
+at opaque `path.join`, so filesystem-path and unhandled-exception classification
+are not established. An HTTPS override still reaches the opaque HTTPS API.
+Broader filesystem permissions, races, symlinks, paths,
 protocols, configuration, and schedules remain outside
 this initial reference domain. See `docs/real-world-target.md` for the durable
 analysis goal and limitations.

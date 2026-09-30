@@ -3,7 +3,7 @@ import { isESFunction } from "../Function/Function";
 import { getFunctionPrototype } from "../Function/prototype";
 import { ESObject, TESObject } from "../Object";
 import { getObjectPrototype } from "../Object/prototype";
-import { ESBoolean } from "../boolean/ESBoolean";
+import { coerceToBoolean, ESBoolean } from "../boolean/ESBoolean";
 import { withValue } from "../conversion/toString";
 import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
@@ -16,6 +16,8 @@ import { resolveBoolean, selectValue, strictEquality } from "../symbolic";
 import { Any, ESNumber, TESBoolean, isESNumber, isESNull, isESString, isUndefined,
   ThrownValue, Undefined } from "../types";
 import { createEventEmitterModel } from "./events";
+import { createHTTPStatusCodes } from "./http-status-codes";
+import { headerError, invalidHeaderText, serializeResponseHeaders, withHeaderText } from "./http-headers";
 
 function unsupported(detail: string): never {
   throw new Error(`HTTP analysis is not yet supported: ${detail}`);
@@ -43,10 +45,14 @@ function change(object: TESObject, properties: { [name: string]: Any }, context:
  * No native HTTP object, socket, timer, or callback queue runs during analysis.
  * In the primary process, omitted-host binding succeeds during listen itself;
  * its event is deferred. Explicit-host lookup/binding completes on delivery.
- * The embedding chooses when those events and parsed requests arrive. Binding
+ * The embedding chooses when those events and already-dispatched request events
+ * arrive. Wire dispatch (for example CONNECT/upgrade) is not modeled. Binding
  * failures, cluster workers, and other schedules need compatible models.
  */
 export function createHTTPModel(events = createEventEmitterModel()) {
+  // Node's default-reason lookup closes over this original table. Entry writes
+  // remain visible, while replacing the module export does not replace it.
+  const statusCodes = createHTTPStatusCodes();
   const unsupportedServerEvents = ["connection", "close", "error", "drop", "checkContinue",
     "checkExpectation", "clientError", "connect", "upgrade", "timeout"];
   const serverEvents = { restrictedEvents: ["listening", "request", ...unsupportedServerEvents],
@@ -151,6 +157,63 @@ export function createHTTPModel(events = createEventEmitterModel()) {
       });
   });
 
+  const writeHead = operation("http.response.writeHead", (call, context) => {
+    const state = responseState(call.receiver);
+    return evaluateBranches(getProperties(state, context).headerStored as TESBoolean, context,
+      branch => {
+        const error = createError("Error", ESString("Cannot write headers after they are sent to the client"));
+        error.properties.code = ESString("ERR_HTTP_HEADERS_SENT");
+        return [ThrownValue(error), branch];
+      }, branch => {
+        requireState(state, "open", branch);
+        return withValue(call.args[0] || Undefined, branch, (status, afterStatus) => {
+          if (!isESNumber(status) || typeof status.value !== "number") {
+            return unsupported("symbolic or nonnumeric statusCode conversion");
+          }
+          const code = status.value | 0;
+          if (code < 100 || code > 999) {
+            const error = createError("RangeError", ESString(`Invalid status code: ${status.value}`));
+            error.properties.code = ESString("ERR_HTTP_INVALID_STATUS_CODE");
+            return [ThrownValue(error), afterStatus];
+          }
+          if (code < 200) return unsupported("informational response completion");
+          const commit = (message: Any, headers: Any, current: TExecutionContext): BranchResult => {
+            // These public assignments precede reason/header validation and
+            // must survive a catchable error even though no header is stored.
+            const assigned = change(call.receiver as TESObject, {
+              statusCode: ESNumber(code), statusMessage: message
+            }, current);
+            return withHeaderText(message, assigned, (text, afterMessage) => {
+              if (invalidHeaderText(text)) return headerError("ERR_INVALID_CHAR", "Invalid character in statusMessage", afterMessage);
+              // Node only ever clears _hasBody; a 204/304 header failure still
+              // suppresses a later retry's body. Invalid reason fails earlier.
+              const beforeHeaders = code === 204 || code === 304
+                ? change(state, { bodySuppressed: ESBoolean(true) }, afterMessage) : afterMessage;
+              return bindNormal(serializeResponseHeaders(headers, beforeHeaders), (serialized, afterHeaders) => {
+                const committed = change(state, { headerStored: ESBoolean(true), statusCode: ESNumber(code),
+                  statusMessage: ESString(text), headers: serialized }, afterHeaders);
+                return [call.receiver, change(call.receiver as TESObject, { headersSent: ESBoolean(true) }, committed)];
+              });
+            });
+          };
+          return withValue(call.args[1] || Undefined, afterStatus, (reason, afterReason) => {
+            const third = call.args[2] || Undefined;
+            if (isESString(reason)) return commit(reason, third, afterReason);
+            return withValue(third, afterReason, (last, afterThird) => {
+              const headers = isUndefined(last) || isESNull(last) ? reason : last;
+              return bindNormal(readMember(call.receiver, "statusMessage", afterThird), (existing, afterExisting) =>
+                evaluateBranches(coerceToBoolean(existing, afterExisting.value.knowledge), afterExisting,
+                  leaf => commit(existing, headers, leaf),
+                  leaf => bindNormal(readMember(statusCodes, String(code), leaf), (fallback, afterFallback) =>
+                    evaluateBranches(coerceToBoolean(fallback, afterFallback.value.knowledge), afterFallback,
+                      found => commit(fallback, headers, found),
+                      missing => commit(ESString("unknown"), headers, missing)))));
+            });
+          });
+        });
+      });
+  });
+
   const end = operation("http.response.end", (call, context) => {
     const state = responseState(call.receiver);
     requireState(state, "open", context);
@@ -159,34 +222,27 @@ export function createHTTPModel(events = createEventEmitterModel()) {
       if (!isESString(data) && !isUndefined(data) && !isESNull(data)) {
         return unsupported("end requires a string, null, or undefined");
       }
-      return withValue(getProperties(call.receiver as TESObject, branch).statusCode, branch, (status, afterStatus) => {
-        if (!isESNumber(status) || typeof status.value !== "number") {
-          return unsupported("symbolic or nonnumeric statusCode conversion");
-        }
-        // Node writeHead applies ToInt32 before validating the status range.
-        const code = status.value | 0;
-        if (code < 100 || code > 999) {
-          const error = createError("RangeError", ESString(`Invalid status code: ${status.value}`));
-          error.properties.code = ESString("ERR_HTTP_INVALID_STATUS_CODE");
-          return [ThrownValue(error), afterStatus];
-        }
-        if (code < 200) return unsupported("informational response completion");
-        const head = getProperties(state, afterStatus).head;
+      const finishBody = (afterHeader: TExecutionContext): BranchResult => {
+        const properties = getProperties(state, afterHeader);
         // Inspect decoded UTF-8 output, not the original JS code units. In
         // particular a lone surrogate is replaced on the wire. An unknown
         // string stays unknown without the unsound claim that it is unchanged.
         const payload = !isESString(data) ? ESString("") : typeof data.value === "string"
           ? ESString(Buffer.from(data.value, "utf8").toString("utf8")) : ESString();
-        const wireStatus = ESNumber(code);
-        const body = code === 204 || code === 304 ? ESString("") :
-          selectValue(head as ReturnType<typeof ESBoolean>, ESString(""), payload, afterStatus.value.knowledge);
+        const body = selectValue(properties.bodySuppressed as TESBoolean, ESString(""),
+          selectValue(properties.head as TESBoolean, ESString(""), payload, afterHeader.value.knowledge),
+          afterHeader.value.knowledge);
         const written = change(state, {
-          phase: ESString("ended"), body, statusCode: wireStatus
-        }, afterStatus);
+          phase: ESString("ended"), body
+        }, afterHeader);
         return [call.receiver, change(call.receiver as TESObject, {
-          statusCode: wireStatus, headersSent: ESBoolean(true), writableEnded: ESBoolean(true)
+          writableEnded: ESBoolean(true)
         }, written)];
-      });
+      };
+      return evaluateBranches(getProperties(state, branch).headerStored as TESBoolean, branch,
+        finishBody,
+        leaf => bindNormal(invoke(writeHead, [getProperties(call.receiver as TESObject, leaf).statusCode], leaf, call.receiver),
+          (_value, after) => finishBody(after)));
     });
   });
 
@@ -235,7 +291,7 @@ export function createHTTPModel(events = createEventEmitterModel()) {
   }));
 
   return {
-    module: Object.assign(ESObject({ createServer }), { unknownProperties: "Node HTTP module API" }),
+    module: Object.assign(ESObject({ createServer, STATUS_CODES: statusCodes }), { unknownProperties: "Node HTTP module API" }),
     eventsModule: events.module,
     completeListen(server: Any, context: TExecutionContext): BranchResult {
       return invoke(listening, [server], context);
@@ -245,16 +301,17 @@ export function createHTTPModel(events = createEventEmitterModel()) {
       const request = Object.assign(ESObject({ method: input.method, url: input.url }), {
         unknownProperties: "Node HTTP incoming request API"
       });
-      const response = Object.assign(ESObject({ statusCode: ESNumber(200),
+      const response = Object.assign(ESObject({ statusCode: ESNumber(200), statusMessage: Undefined,
         writableEnded: ESBoolean(false), writableFinished: ESBoolean(false),
-        headersSent: ESBoolean(false), end
+        headersSent: ESBoolean(false), writeHead, end
       }), {
         unknownProperties: "Node HTTP response API",
         unmodeledOwnPropertyInspection: "Node HTTP response descriptors",
-        unmodeledPropertyWrites: ["writableEnded", "writableFinished", "headersSent"]
+        unmodeledPropertyWrites: ["writableEnded", "writableFinished", "headersSent", "writeHead"]
       });
       const state = ESObject({ head: strictEquality(input.method, ESString("HEAD"), context.value.knowledge),
-        body: Undefined, statusCode: Undefined });
+        body: Undefined, statusCode: Undefined, statusMessage: Undefined, headers: Undefined,
+        headerStored: ESBoolean(false), bodySuppressed: ESBoolean(false) });
       responses.set(response, state);
       const initialized = events.attach(response, context, responseEvents);
       return { request, response, result: invoke(requestEvent, [server, request, response], initialized) };
@@ -262,9 +319,10 @@ export function createHTTPModel(events = createEventEmitterModel()) {
     completeResponse(response: Any, context: TExecutionContext): BranchResult {
       return invoke(finish, [response], context);
     },
-    inspectResponse(response: Any, context: TExecutionContext): { body: Any; statusCode: Any } {
+    inspectResponse(response: Any, context: TExecutionContext): { body: Any; statusCode: Any; statusMessage: Any; headers: Any } {
       const properties = getProperties(responseState(response), context);
-      return { body: properties.body, statusCode: properties.statusCode };
+      return { body: properties.body, statusCode: properties.statusCode,
+        statusMessage: properties.statusMessage, headers: properties.headers };
     }
   };
 }

@@ -9,6 +9,8 @@ import { ExecutionContext, setVariablesInScope } from "../src/execution-context/
 import { getProperties } from "../src/execution-context/Heap";
 import { isThrownValue, WithProperties } from "../src/types";
 import { ESString } from "../src/string/String";
+import { resolveBoolean, strictEquality } from "../src/symbolic";
+import { assumeInContext } from "../src/execution-context/branches";
 
 const packageDirectory = join(__dirname, "fixtures/pico-static-server-3.0.3/package");
 
@@ -104,9 +106,79 @@ for (const [argument, port] of [
   });
 }
 
+for (const method of ["OPTIONS", "POST", "DELETE"]) {
+  test(`the unchanged ${method} handler completes and exposes the package's missing Allow header`, () => {
+    const setup = packageLoader();
+    const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
+    const [, started] = evaluateCode("const server = factory({ port: 0 });",
+      setVariablesInScope(loaded, { factory }));
+    const server = started.value.scope.server;
+    const [, ready] = setup.http.completeListen(server, started);
+    // One valid parsed request, successful binding/transport, healthy stdout.
+    // The original respond function passes headers/reason in reversed order.
+    const delivered = setup.http.deliverRequest(server, { method: ESString(method), url: ESString("/") }, ready);
+    expect(isThrownValue(delivered.result[0])).toBe(false);
+    expect(isForkedCompletion(delivered.result[0])).toBe(false);
+    const [, finished] = setup.http.completeResponse(delivered.response, delivered.result[1]);
+    const observed = setup.http.inspectResponse(delivered.response, finished);
+    const message = method === "OPTIONS" ? "OK" : "Method Not Allowed";
+    expect(observed).toMatchObject({ statusCode: { value: method === "OPTIONS" ? 200 : 405 },
+      statusMessage: { value: message }, body: { value: "" } });
+    // These are explicit serialized fields, excluding automatic Date/framing.
+    const headers = getProperties(observed.headers as WithProperties, finished);
+    expect(Object.keys(headers)).toEqual(message.split("").map((_character, index) => String(index)));
+    message.split("").forEach((character, index) => expect(headers[index]).toMatchObject({ value: character }));
+    expect(headers.allow).toBeUndefined();
+    expect(headers["content-length"]).toBeUndefined();
+    expect(effectPaths(finished.value.effects!)[0].events.filter(event => event.kind === "call")
+      .map(event => event.call.operation).slice(5)).toEqual([
+        "http.server.request", "http.response.writeHead", "http.response.end", "http.response.finish"
+      ]);
+    expect(getProperties(delivered.response, finished).writableFinished).toMatchObject({ value: true });
+  });
+}
+
+test("a delivered request event with an unknown non-GET/HEAD method proves Allow absent while status remains conditional", () => {
+  const setup = packageLoader();
+  const method = ESString();
+  const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
+  const [, started] = evaluateCode('const server = factory({ port: 0 });',
+    setVariablesInScope(loaded, { factory }));
+  const server = started.value.scope.server;
+  const [, ready] = setup.http.completeListen(server, started);
+  // Explicit domain: one delivered request event, a method other than GET/HEAD,
+  // arbitrary parsed URL, successful completion. Strings overapproximate actual
+  // handler inputs; CONNECT/upgrade wire dispatch is outside this transition.
+  const constrained = assumeInContext(assumeInContext(ready,
+    strictEquality(method, ESString("GET")), false), strictEquality(method, ESString("HEAD")), false);
+  const delivered = setup.http.deliverRequest(server, { method, url: ESString() }, constrained);
+  expect(isThrownValue(delivered.result[0])).toBe(false);
+  expect(isForkedCompletion(delivered.result[0])).toBe(false);
+  const [, finished] = setup.http.completeResponse(delivered.response, delivered.result[1]);
+  const observed = setup.http.inspectResponse(delivered.response, finished);
+  const [, verified] = evaluateCode(`
+    const correctStatus = method === "OPTIONS" ? status === 200 : status === 405;
+    const missingAllow = headers.allow === undefined;
+    const emptyBody = body === "";
+    const uncertain = status === 200;
+  `, setVariablesInScope(finished, { method, status: observed.statusCode,
+    headers: observed.headers, body: observed.body }));
+  for (const name of ["correctStatus", "missingAllow", "emptyBody"]) {
+    expect(verified.value.scope[name]).toMatchObject({ value: true });
+  }
+  expect(verified.value.scope.uncertain).toMatchObject({ value: undefined });
+  const paths = effectPaths(finished.value.effects!, finished.value.knowledge);
+  expect(paths).toHaveLength(2);
+  for (const path of paths) {
+    const chosen = resolveBoolean(strictEquality(method, ESString("OPTIONS")), path.knowledge);
+    expect(chosen).not.toBeUndefined();
+    const writes = path.events.filter(event => event.kind === "call" && event.call.operation === "http.response.writeHead");
+    expect(writes).toHaveLength(1);
+    expect(writes[0].call.args[0]).toMatchObject({ value: chosen ? 200 : 405 });
+  }
+});
+
 for (const [method, gap] of [
-  ["OPTIONS", "Unmodeled host property 'writeHead': Node HTTP response API"],
-  ["POST", "Unmodeled host property 'writeHead': Node HTTP response API"],
   ["GET", "Unmodeled host property 'join': Unimplemented Node path API"],
   ["HEAD", "Unmodeled host property 'join': Unimplemented Node path API"]
 ]) {
