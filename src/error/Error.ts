@@ -70,6 +70,9 @@ export function getErrorConstructor(name: ErrorName) {
       }));
   });
   constructors.set(name, constructor);
+  // NativeError constructors inherit from Error itself, whereas their instance
+  // prototypes inherit from Error.prototype. These are distinct chains.
+  if (name !== "Error") Object.assign(constructor, { prototype: getErrorConstructor("Error") });
   constructor.properties.prototype = getErrorPrototype(name);
   Object.assign(constructor.properties, { name: ESString(name), length: ESNumber(1) });
   // Descriptor mutation needs a separate model; do not treat the non-writable

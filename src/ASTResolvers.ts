@@ -7,7 +7,7 @@ import {
   isESNumber, isESString, isArray, isUndefined, isESNull, isESBoolean
 } from "./types";
 import { evaluate, evaluateThrowableIterator, evaluateStatements, mapCompletions, bindNormal } from "./evaluate";
-import { BinaryOperatorResolvers, LogicalOperatorResolvers, UnaryOperatorResolvers, plus, minus } from "./operators";
+import { BinaryOperatorResolvers, EffectfulBinaryOperatorResolvers, LogicalOperatorResolvers, UnaryOperatorResolvers, plus, minus } from "./operators";
 import {
   TExecutionContext, setCurrentThisValue, enterEnvironment, setEnvironment,
   declareBinding, ExecutionContext
@@ -32,7 +32,7 @@ import { assignBinding, bindingReference, readBinding, hasBinding, initializeBin
 import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
 import { evalFn, evaluateEval } from "./eval/eval";
 import { isForkedCompletion } from "./execution-context/Completion";
-import { prototypeOf } from "./Object/prototype";
+import { prototypeOf, withoutPrototypeSetter } from "./Object/prototype";
 import { copyDataProperties } from "./Object/enumeration";
 import { toString, withValue } from "./conversion/toString";
 import { concatenateStrings } from "./string/concat";
@@ -237,6 +237,8 @@ export function invoke(callee: Any, args: Any[], context: TExecutionContext, rec
 export const BinaryExpressionResolver: ASTResolver<ESTree.BinaryExpression> = (ast, context) =>
   bindNormal(evaluate(ast.left, context), (left, afterLeft) =>
     bindNormal(evaluate(ast.right, afterLeft), (right, afterRight) => {
+      const effectful = EffectfulBinaryOperatorResolvers.get(ast.operator);
+      if (effectful) return effectful(left, right, afterRight);
       const resolver = BinaryOperatorResolvers.get(ast.operator);
       assert(resolver, `Binary operator resolver for ${ast.operator} hasn't been implemented yet`);
       return tuple(resolver!(left, right, afterRight), afterRight);
@@ -310,6 +312,8 @@ function assignMember(object: Any, name: string, assigned: Any, context: TExecut
     } else elements[Number(name)] = assigned;
     return tuple(assigned, writeArrayElements(array, elements, context));
   }
+  if (name === "__proto__") return withoutPrototypeSetter(object, context,
+    after => tuple(assigned, writeProperty(unsafeCast<WithProperties>(object), name, assigned, after)));
   return tuple(assigned, writeProperty(unsafeCast<WithProperties>(object), name, assigned, context));
 }
 

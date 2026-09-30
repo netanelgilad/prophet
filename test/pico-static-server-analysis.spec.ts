@@ -21,6 +21,7 @@ function packageLoader(layout: "installed" | "checkout" = "installed",
   const http = createHTTPModel();
   const consoleModel = createConsoleModel();
   const url = createLegacyURLModel();
+  const path = createPosixPathModel();
   const filesystem = createFileSystemModel({ root });
   const moduleDirectory = layout === "installed" ? "/app/node_modules/pico-static-server" : "/app/fixture/package";
   // These modules promise identity only. Any attempted member access stops
@@ -37,8 +38,8 @@ function packageLoader(layout: "installed" | "checkout" = "installed",
     [moduleDirectory + "/package.json"]: readFileSync(join(packageDirectory, "package.json"), "utf8"),
     [moduleDirectory + "/index.js"]: readFileSync(join(packageDirectory, "index.js"), "utf8")
   }, { builtins: { http: http.module, https: opaque("https"), url: url.module,
-    process: url.process, fs: filesystem.module, path: createPosixPathModel().module } });
-  return { http, consoleModel, url, filesystem, loader, context };
+    process: url.process, fs: filesystem.module, path: path.module } });
+  return { http, consoleModel, url, path, filesystem, loader, context };
 }
 
 test("the unmodified published static-server module loads its actual arrow factory", () => {
@@ -290,7 +291,7 @@ for (const method of ["GET", "HEAD"]) {
     expect(setup.filesystem.inspectRoot(ready)).toBe(root);
   });
 
-  for (const target of ["/index.txt", "/docs"]) test(`the real ${method} ${target} read returns a Buffer before the shared instanceof boundary`, () => {
+  for (const target of ["/index.txt", "/docs"]) test(`the real ${method} ${target} Buffer passes instanceof and reaches path.parse`, () => {
     const setup = packageLoader("installed", fileSystemDirectory({ site: fileSystemDirectory({
       "index.txt": fileSystemFile("café 😀"),
       docs: fileSystemDirectory({ "index.html": fileSystemFile("café 😀") })
@@ -301,11 +302,15 @@ for (const method of ["GET", "HEAD"]) {
     const server = started.value.scope.server;
     const [, ready] = setup.http.completeListen(server, started);
     const observations: TExecutionContext[] = [];
+    const mimeLookups: TExecutionContext[] = [];
     // Observe the actual local binding after readFileSync returns. This hook
     // supplies no values and changes no source, filesystem result or control flow.
     const observed = ExecutionContext({ ...ready.value,
       validateBinding: (_environment: object, name: string, context: TExecutionContext, access: string) => {
         if (name === "data" && access === "read") observations.push(context);
+      },
+      validateRead: (object: Any, name: string, context: TExecutionContext) => {
+        if (object === setup.path.module && name === "parse") mimeLookups.push(context);
       } });
     let boundary: ASTEvaluationError | undefined;
     try {
@@ -315,10 +320,13 @@ for (const method of ["GET", "HEAD"]) {
       boundary = error;
     }
     expect(boundary).toBeDefined();
-    expect(boundary!.message).toContain("Binary operator resolver for instanceof");
-    expect(boundary!.ast).toMatchObject({ type: "BinaryExpression", operator: "instanceof",
-      left: { type: "Identifier", name: "data" }, right: { type: "Identifier", name: "Error" } });
+    expect(boundary!.message).toContain("Unmodeled host property 'parse'");
+    expect(boundary!.ast).toMatchObject({ type: "CallExpression", callee: { type: "MemberExpression",
+      object: { type: "Identifier", name: "path" }, property: { type: "Identifier", name: "parse" } } });
     expect(observations).toHaveLength(1);
+    expect(mimeLookups).toHaveLength(1);
+    expect(mimeLookups[0].value.scope.url).toMatchObject({ value:
+      target === "/docs" ? "/site/docs/index.html" : "/site/index.txt" });
     const reached = observations[0];
     const paths = effectPaths(reached.value.effects!);
     expect(paths).toHaveLength(1);
@@ -329,9 +337,9 @@ for (const method of ["GET", "HEAD"]) {
     expect(read.call.args[0]).toMatchObject({ value: target === "/docs" ? "/site/docs/index.html" : "/site/index.txt" });
     expect(read.kind === "return" && read.value).toBe(reached.value.scope.data);
     expect(events.some(event => event.call.operation === "http.response.writeHead")).toBe(false);
-    const [, inspected] = evaluateCode(`const bufferProof = typeof data === "object" &&
+    const [, inspected] = evaluateCode(`const bufferProof = data instanceof Object && !(data instanceof Error) &&
       data.length === 10 && data[3] === 195 && data.toString() === "café 😀";`,
-      ExecutionContext({ ...reached.value, validateBinding: undefined }));
+      ExecutionContext({ ...reached.value, validateBinding: undefined, validateRead: undefined }));
     expect(inspected.value.scope.bufferProof).toMatchObject({ value: true });
   });
 }

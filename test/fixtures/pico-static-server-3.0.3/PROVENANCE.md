@@ -130,8 +130,10 @@ the scoped warning model provides separate default delivery under healthy stderr
 Default readable-file reads now return modeled Buffer values. Four GET/HEAD
 cases for `/index.txt` and a populated `/docs/index.html` observe the original
 `data` binding and the completed fs.readFileSync effect, including exact UTF-8
-bytes, before the actual `data instanceof Error` expression rejects analysis.
-The observer supplies no values or control-flow replacements. No successful
+bytes. Shared `instanceof` now establishes that this Buffer is not an Error;
+the actual success branch calls getMimeType and reaches its path.parse lookup.
+A read-only observer records the exact filename there, and analysis stops at
+that unmodeled API. Observers supply no values or control-flow replacements. No successful
 response is claimed yet. Broader URL/path APIs, including later path.parse,
 language/response consumers and other filesystem
 failure families remain incomplete. An HTTPS

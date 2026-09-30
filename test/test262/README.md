@@ -7,6 +7,15 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
+The active corpus contains **171 complete files / 333 strictness variants**,
+including 13 parse-negative files / 25 variants. The 46 historical skipped files
+remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
+or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
+14,850 built-ins, 1,062 annexB, 640 intl402 and 80 harness tests. These are file
+counts for this old pinned revision, not semantic coverage percentages or a
+count for the current upstream Test262. Most files remain unselected; neither
+the selected successes nor parser-only cases establish a complete JavaScript VM.
+
 The runner uses Prophet's parser and evaluator in process through Jest's Babel
 transform. It never executes Test262 source in the host JavaScript VM. Normal
 tests run in both sloppy and strict mode; `onlyStrict`, `noStrict`, and `raw`
@@ -34,11 +43,47 @@ function-expression scope, plus direct eval's lexical lookup and strict variable
 isolation. Each source file is run whole, including both
 strictness variants where its metadata calls for them.
 
+Twenty-six complete `language/expressions/instanceof` files add 52 variants:
+ordinary prototype identity/chains, Error inheritance, primitive operands,
+invalid targets/prototypes, reference errors and operand sequencing. They follow
+the shared
+[InstanceofOperator](https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-instanceofoperator)
+and [OrdinaryHasInstance](https://tc39.es/ecma262/multipage/abstract-operations.html#sec-ordinaryhasinstance)
+operations. The entire selected source runs unchanged. `S11.8.6_A2.4_T3.js`
+contains a comma expression only on a right operand that must not execute after
+the left reference error; its success does not establish comma-expression support.
+
+All 43 complete language `instanceof` candidates and 11 complete
+`built-ins/Function/prototype/Symbol.hasInstance` candidates were reviewed.
+The remaining language cases need actual comma evaluation (`A2.4_T1/T4`),
+Boolean/Number/String wrappers (`A4_T1/T2/T3`), the Array constructor/prototype
+(`A7_T2`), zero-argument Function construction (`A7_T3`,
+`S15.3.5.3_A2_T2/T6`, `S15.3.5.3_A3_T2`), getter/descriptor operations (the three
+`prototype-getter-*` files), or the public Symbol API (four `symbol-hasinstance-*`
+files). The Function hasInstance directory additionally needs descriptors and
+property helpers, bind, Object.create, Proxy traps, and Symbol values. Those
+whole files remain inactive rather than being trimmed or implemented in the harness.
+
+An independent pinned Node v24.21.0 audit ran all 54 candidates with their upstream
+standard harness and declared includes in fresh native contexts: all 107 variants
+passed. This checks historical compatibility; it does not count as Prophet
+coverage. In particular, selected `S15.3.5.3_A1_T1..T8` create generated functions
+but never call them. Their primitive-left results do not validate parameter/body
+handling in the still-incomplete Function constructor.
+
+Local [instanceof specs](../instanceof.spec.ts) separately test symbolic choices,
+conditional exceptions and unknown partial-host relationships. The
+[internal-symbol specs](../instanceof-internal.spec.ts) declare immutable symbol
+slots as embedding inputs and compare their handler effects with native Symbol
+properties. Those declarations are not interpreted `Symbol.hasInstance` syntax
+or descriptor support. Custom handlers preserve receiver/argument identity,
+ordering, throws, Boolean conversion and unknown answers. No runner expansion
+or native implementation of missing JavaScript was needed for these selections.
+
 Arrow-function selections add twelve complete files (nineteen strictness
 variants): expression and block returns, empty bodies, object literal returns,
 non-construction, strictness, an explicitly named `arguments` parameter, closure
-capture through direct eval, and lexical `this` through eval. The active corpus
-now contains 145 complete files and 281 variants. Local arrow specs additionally
+capture through direct eval, and lexical `this` through eval. Local arrow specs additionally
 compare lexical `this` under ordinary calls and `.call`, late captured binding
 updates, conditional calls/throws, and absent own `prototype` with pinned Node.
 They also check syntax-derived arrow `length` without invoking unsupported
@@ -193,6 +238,16 @@ This runner deliberately rejects unsupported flags (including modules and
 async), additional harness includes, and non-parse negative metadata. Adding
 those tests requires implementing their runner support first. The self-tests
 ensure that failing assertions and malformed negative tests stay failures.
+
+Large language areas remain open: loops and other control-flow statements,
+classes/super, generators, async/await, modules, richer arguments/parameter forms,
+descriptors/accessors, public Symbols/BigInts, proxies and additional operators.
+Library coverage is also partial across arrays, strings, numbers, typed arrays,
+collections, dates, regular expressions, promises and Intl. The old parser has
+known valid-source gaps, and supported syntax can still reach an unsupported
+runtime operation. The detailed, maintained [implementation backlog](../../docs/implementation-gaps.md)
+records these distinctions; adding complete specs and reusable VM operations
+remains the path toward full conformance.
 
 `test/concrete-semantics.spec.ts` separately uses the host JavaScript runtime as
 an independent oracle for locally written differential tests. That oracle is

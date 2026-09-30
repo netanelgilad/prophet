@@ -114,8 +114,8 @@ symbolic tree also classifies `/docs`: missing directory returns 404; empty
 directory causes the original index read to throw ENOENT before any response
 commit. Matching native GET/HEAD witnesses reproduce those two conditions.
 
-Default reads now return Buffer values; the next actual boundary is the shared
-`instanceof` operation, followed by path.parse and response consumption. Source provenance preserves DEP0169
+Default reads return Buffer values and the shared `instanceof` check is false.
+The next actual boundary is path.parse during MIME selection, then response consumption. Source provenance preserves DEP0169
 eligibility, with warning delivery separate from the synchronous handler.
 Broader filesystem inputs, metadata, failures and schedules remain open.
 Existing successful-bind, healthy-stdout, delivered-request-event and transport
