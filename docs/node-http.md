@@ -25,9 +25,15 @@ registered listeners, startup state, and request/response state must belong to
 the execution context's persistent heap. Creating or changing a server on one
 symbolic path must not change another path's server.
 
-Calling `listen` and receiving a request are distinct operations. For the scoped
-`listen(0, "127.0.0.1")` form, startup completion is delivered later by the host
-model. The optional listening callback is registered as a once-listener in the
+Calling `listen` and receiving a request are distinct operations. Numeric
+`listen(port[, callback])` and `listen(port, "127.0.0.1"[, callback])` are modeled
+for a primary process in an explicitly successful-bind environment. With no
+host, binding occurs during the call and `server.listening` is already true on
+return. An explicit host first performs asynchronous lookup, so it stays false
+until `completeListen`. Both forms defer the listening event: `completeListen`
+delivers that event and, for an explicit host, completes lookup/binding first.
+It does not choose whether an already returned omitted-host bind succeeded.
+The optional listening callback is registered as a once-listener in the
 same ordered registry as `server.on/once("listening", callback)`. Listening and
 request callbacks execute through the shared VM invocation operation with the
 server as their receiver. They receive
@@ -45,10 +51,20 @@ does not establish synchronous exception handling support.
 
 [`net.Server.listen`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/net.js#L2478)
 returns the server and registers its optional callback for a later `listening`
-event. The specified-host form performs asynchronous address lookup before
-establishing the listening handle. Startup errors and alternative listen forms
-need their own compatibility coverage; successful startup cannot stand in for
-all possible outcomes.
+event. The [listen specs](../test/node-http-listen.spec.ts) compare both forms
+against pinned Node, including callback timing, order, receiver, and return
+identity. Concrete native checks use ephemeral ports or a freshly selected
+available port; symbolic exploration opens no sockets. Address allocation and
+startup failures remain unmodeled, so these proofs cannot establish availability
+of a configured port or safety for every operating-system outcome.
+
+Numeric ports must be integers from 0 to 65535, including negative zero. A bad
+numeric port produces the interpreted `RangeError` / `ERR_SOCKET_BAD_PORT`.
+Node registers the listening callback before validating the port: a caught
+failure leaves that callback available for a later successful retry. Once a
+server is bound, another `listen` instead throws `ERR_SERVER_ALREADY_LISTEN`
+before registering a callback or validating its port. Those state changes and
+throws retain their conditions when ports are finite symbolic choices.
 
 Server and response objects now share the [EventEmitter model](node-events.md):
 `on`/`addListener`, `once`, `removeListener`/`off`, and custom-event `emit` use
@@ -112,7 +128,7 @@ application has no invented exception handler.
 
 ## Declared environment and remaining gaps
 
-The initial proof uses an explicitly delivered successful listen completion,
+The initial loopback proof uses an explicitly delivered successful listen completion,
 then a valid request on a live connection, followed by an explicitly delivered
 successful response completion. This is a bounded host schedule, not an
 implementation of Node's event loop or proof over all schedules. Models preserve
@@ -120,7 +136,7 @@ the selected path, arguments, returns, throws, and persistent state through thos
 transitions. Rejected or unmodeled operations must not silently succeed.
 
 The supported surface is deliberately limited to server creation with an
-optional request callback, the documented local listen form, the shared listener
+optional request callback, the documented numeric listen forms, the shared listener
 operations above, request method/URL inspection, and response status plus a
 string, null, or omitted `end` payload. Broader overloads, the remaining
 EventEmitter APIs, request bodies/streams, Buffer payloads,
@@ -149,9 +165,11 @@ event table alone would not implement that behavior.
 Status handling currently accepts concrete numbers (or finite choices of them),
 normalizes them with Node's integer conversion, and supports final codes
 200–999. Invalid codes produce the modeled RangeError; informational completion
-and nonnumeric/open symbolic status conversion remain unsupported. Repeated
-listen/end calls and delivery into unresolved lifecycle states are explicit
-gaps, not invented successful transitions. Unknown output strings lose their
+and nonnumeric/open symbolic status conversion remain unsupported. A repeated
+listen on an already bound server is a modeled error; overlapping listen calls
+while explicit-host lookup is still pending remain unsupported. Repeated end
+calls and delivery into unresolved lifecycle states also remain explicit gaps.
+Unknown output strings lose their
 identity through UTF-8 encoding until a more precise encoding model exists.
 
 The model exposes selected field values without claiming complete prototypes or
@@ -161,6 +179,15 @@ own data properties. Async and generator function kinds likewise report generic
 VM analysis gaps, even without `await`/`yield`, instead of becoming ordinary
 synchronous callbacks. These guards must be replaced as the relevant semantics
 are implemented; they do not establish language or host conformance.
+
+Listen currently accepts concrete numeric ports and finite choices of them;
+unbounded symbolic numbers, string ports, absent ports, options objects, other
+hosts, backlog overloads, closing/relistening, and cluster workers remain gaps.
+Node's backlog normalization can coerce a callback to a number. The supported
+ordinary function conversion produces NaN without effects; overridden
+`valueOf`/`toString` methods report an explicit gap instead of dropping arbitrary
+conversion effects. Inherited normalized listen options on `Object.prototype`
+also report a gap rather than silently using the model's default bind behavior.
 
 The embedding API supplies `completeListen`, `deliverRequest`, and
 `completeResponse` transitions. Their traces use `http.server.listening`,
@@ -176,9 +203,17 @@ cases at the pinned revision contain relevant assertions but currently require
 additional capabilities:
 
 - [`test-http-listening.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-listening.js)
-  now has supported listener-free creation, but still needs the omitted-host
-  listen overload, arrow functions, `server.close`, and the upstream common/assert
+  now has supported listener-free creation, omitted-host listening, and arrows,
+  but still needs `server.close` and the upstream common/assert
   harness. Its small size does not make its full dependencies currently modeled.
+- [`test-net-listen-invalid-port.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-net-listen-invalid-port.js)
+  includes numeric port errors, but its complete source also needs a `net` model,
+  options objects, address inspection, closing, further language support, and
+  the upstream common/assert harness.
+- [`test-net-server-call-listen-multiple-times.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-net-server-call-listen-multiple-times.js)
+  additionally needs asynchronous error delivery and close/relisten behavior.
+  The separate `test-net-listen-twice.js` uses cluster workers, a different
+  environment from this primary-process model.
 - [`test-http-head-response-has-no-body-end-implicit-headers.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-head-response-has-no-body-end-implicit-headers.js)
   still needs server address inspection, the HTTP client,
   response stream events/resume, server closing, and the common harness.

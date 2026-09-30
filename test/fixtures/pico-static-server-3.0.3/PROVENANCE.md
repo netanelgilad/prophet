@@ -70,9 +70,19 @@ execution, not a proof of all inputs, a discovered new vulnerability, or evidenc
 that Prophet already executes the package's complete server flow. The analysis
 spec currently loads its unchanged module and initializes the actual factory's
 identifier default parameter and copies its options through shared object spread.
-HTTP invocation reaches the unsupported omitted-host `listen(port, callback)`
-overload; an HTTPS override reaches the explicitly opaque HTTPS API. Neither
-successful startup nor request analysis is established. Broader filesystem permissions, races, symlinks, paths,
+HTTP invocation now returns the actual server from the original
+`listen(port, callback)` call, with matching create/listen effects for omitted
+and undefined options (port 8080) and supplied port 0. The symbolic host domain
+assumes successful wildcard binding in the primary process: `listening` is
+immediately true, but the listening callback is deferred. No real socket is
+opened, and address allocation and bind failures remain unmodeled.
+
+Explicit listening-event delivery invokes the original callback and reaches
+the opaque `console.log` member at `index.js:138`, before its template argument.
+The supplied console identity represents a real Node global without modeling
+its output or substituting a no-op. An HTTPS override still reaches the opaque
+HTTPS API. Callback completion and request analysis remain unimplemented; this
+is not a complete startup proof. Broader filesystem permissions, races, symlinks, paths,
 protocols, configuration, and schedules remain outside
 this initial reference domain. See `docs/real-world-target.md` for the durable
 analysis goal and limitations.

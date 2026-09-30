@@ -5,8 +5,9 @@ import { createCommonJSLoader, createHTTPModel, evaluateCode, isForkedCompletion
 import { isESFunction } from "../src/Function/Function";
 import { ESObject } from "../src/Object";
 import { effectPaths } from "../src/effects";
-import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
-import { isThrownValue } from "../src/types";
+import { ExecutionContext, setVariablesInScope } from "../src/execution-context/ExecutionContext";
+import { getProperties } from "../src/execution-context/Heap";
+import { isThrownValue, WithProperties } from "../src/types";
 
 const packageDirectory = join(__dirname, "fixtures/pico-static-server-3.0.3/package");
 
@@ -18,16 +19,21 @@ function packageLoader() {
     unknownProperties: `Unimplemented Node ${name} API`,
     unmodeledOwnPropertyInspection: `Unimplemented Node ${name} descriptors`
   });
-  return createCommonJSLoader({
+  const context = ExecutionContext({ ...nodeInitialExecutionContext.value,
+    global: ESObject({ ...nodeInitialExecutionContext.value.global.properties,
+      console: opaque("console") }, "unmodeled") });
+  const loader = createCommonJSLoader({
     "/app/entry.cjs": 'module.exports = require("pico-static-server");',
     "/app/node_modules/pico-static-server/package.json": readFileSync(join(packageDirectory, "package.json"), "utf8"),
     "/app/node_modules/pico-static-server/index.js": readFileSync(join(packageDirectory, "index.js"), "utf8")
   }, { builtins: { http: http.module, https: opaque("https"), url: opaque("url"),
     fs: opaque("fs"), path: opaque("path") } });
+  return { http, loader, context };
 }
 
 test("the unmodified published static-server module loads its actual arrow factory", () => {
-  const [factory, context] = packageLoader().load("/app/entry.cjs", nodeInitialExecutionContext);
+  const setup = packageLoader();
+  const [factory, context] = setup.loader.load("/app/entry.cjs", setup.context);
   expect(isThrownValue(factory)).toBe(false);
   expect(isForkedCompletion(factory)).toBe(false);
   expect(isESFunction(factory)).toBe(true);
@@ -42,21 +48,52 @@ test("the unmodified published static-server module loads its actual arrow facto
   expect(result.value.scope.noPrototype).toMatchObject({ value: true });
 });
 
-for (const argument of ["", "undefined", '{ port: 0, protocol: "http", staticPath: "/site" }']) {
-  test(`the real HTTP factory merges options and reaches the listen-overload gap: (${argument})`, () => {
-    const [factory, context] = packageLoader().load("/app/entry.cjs", nodeInitialExecutionContext);
-    // Evaluate the original default parameter and both object spreads. The
-    // factory creates its server and registers its actual request callback, then
-    // reaches listen(port, callback), whose omitted-host overload is unmodeled.
-    // The template literal inside that deferred callback must not run yet.
-    // This boundary is not successful startup or a caught program exception.
-    expect(() => evaluateCode(`factory(${argument});`, setVariablesInScope(context, { factory })))
-      .toThrow("HTTP analysis is not yet supported: listen requires (0, '127.0.0.1'[, callback])");
+for (const [argument, port] of [
+  ["", 8080], ["undefined", 8080], ['{ port: 0, protocol: "http", staticPath: "/site" }', 0]
+] as Array<[string, number]>) {
+  test(`the unchanged HTTP factory returns its server before its deferred console boundary: (${argument})`, () => {
+    const setup = packageLoader();
+    const [factory, context] = setup.loader.load("/app/entry.cjs", setup.context);
+    // Assume successful wildcard binding in the model's primary process; no
+    // real socket is opened. Address allocation and bind failures are not proved.
+    // No source rewriting or extracted handler: defaults, spreads, the real
+    // listener registration, and listen(port, callback) execute in the VM.
+    const [completion, result] = evaluateCode(`const server = factory(${argument});`,
+      setVariablesInScope(context, { factory }));
+    expect(isThrownValue(completion)).toBe(false);
+    expect(isForkedCompletion(completion)).toBe(false);
+    const server = result.value.scope.server;
+    expect(server).toMatchObject({ type: "object" });
+    expect(getProperties(server as WithProperties, result).listening).toMatchObject({ value: true });
+
+    const paths = effectPaths(result.value.effects!);
+    expect(paths).toHaveLength(1);
+    const events = paths[0].events;
+    expect(events.map(event => `${event.kind}:${event.call.operation}`)).toEqual([
+      "call:http.createServer", "return:http.createServer",
+      "call:http.server.listen", "return:http.server.listen"
+    ]);
+    const created = events[1], listened = events[3];
+    expect(created.kind === "return" && created.value).toBe(server);
+    expect(listened.kind === "return" && listened.value).toBe(server);
+    expect(events[0].call.args).toHaveLength(1);
+    expect(isESFunction(events[0].call.args[0])).toBe(true);
+    expect(events[2].call.receiver).toBe(server);
+    expect(events[2].call.args).toHaveLength(2);
+    expect(events[2].call.args[0]).toMatchObject({ value: port });
+    expect(isESFunction(events[2].call.args[1])).toBe(true);
+
+    // Deliver the registered callback through the HTTP lifecycle. Its console
+    // member lookup precedes the template argument, and remains an analysis gap.
+    // Returning from the factory is not successful callback/request analysis.
+    expect(() => setup.http.completeListen(server, result))
+      .toThrow("Unmodeled host property 'log': Unimplemented Node console API");
   });
 }
 
 test("overriding the real factory's protocol reaches the explicitly unmodeled HTTPS API", () => {
-  const [factory, context] = packageLoader().load("/app/entry.cjs", nodeInitialExecutionContext);
+  const setup = packageLoader();
+  const [factory, context] = setup.loader.load("/app/entry.cjs", setup.context);
   // A later spread overrides DEFAULT_OPTIONS.protocol. Preserve the actual
   // HTTPS import/branch; an opaque module identity is not an API model.
   expect(() => evaluateCode('factory({ protocol: "https" });', setVariablesInScope(context, { factory })))

@@ -15,11 +15,14 @@ The complete published fixture is retained with its license and integrity
 records. Independent Node specs now exercise its real server and reproduce an
 escaping filesystem exception. Prophet loads the unchanged module and returns
 its actual arrow factory. Invoking it now evaluates its identifier default
-parameter and both options spreads, creates the modeled HTTP server, and reaches
-the unsupported `listen(port, callback)` overload, whether options are omitted,
-explicitly undefined, or supplied. An HTTPS override reaches the opaque HTTPS API. The other
-imported Node modules are explicitly opaque at this loading stage: their
-identity is supplied, and member access is unsupported.
+parameter and both options spreads, creates the modeled HTTP server, registers
+its real callbacks, and returns that server from `listen(port, callback)`.
+Specs cover omitted/undefined options (port 8080) and supplied port 0 under an
+explicit successful-binding assumption. The listening callback remains deferred:
+delivering its event reaches the unmodeled `console.log` member before evaluating
+its template argument. An HTTPS override reaches the opaque HTTPS API. Console
+and the other imported Node modules have explicitly opaque identities at this
+stage; their behavior is not supplied by the host runtime.
 This is not yet a symbolic server proof or a Prophet-discovered bug. Our own
 complete health-server example remains the passing scoped HTTP proof.
 
@@ -127,14 +130,22 @@ same package entry source and metadata without rewriting arrow syntax. Loading
 creates the actual exported function without server or filesystem effects.
 Factory invocation initializes the original `customOptions = {}` parameter and
 merges options through shared object spread. HTTP cases then create the modeled
-server and register the actual request callback, before reaching the unsupported
-`listen(options.port, listenCallback)` call at original `index.js:140`. The model
-currently accepts only `listen(0, "127.0.0.1"[, callback])`; the package supplies
-no host and defaults to port 8080. Boundary specs cover omitted/undefined options
-and supplied port 0 without changing that call. Overriding `protocol` to `https`
-reaches the explicitly opaque `https.createServer` member, confirming the later
-spread overrides defaults. The deferred listening callback does not run inline.
-Startup and request dispatch have not completed symbolically.
+server, register the actual request callback, and return the server from
+`listen(options.port, listenCallback)` at original `index.js:141`. The specs
+assert that this returned identity is the same one recorded by the ordered
+create/listen effects. No embedding-only server substitute is needed. Omitted
+and undefined options use port 8080; the supplied configuration uses port 0.
+
+The declared primary-process environment assumes successful wildcard binding,
+so the hostless call exposes `listening === true` immediately while its callback
+remains deferred. No real port is bound, and no address allocation, bind failure,
+or complete startup proof is claimed. Explicit `completeListen` delivery invokes
+the original callback and stops at `console.log` on `index.js:138`. The spec
+supplies an opaque console identity to represent that Node global without
+inventing its behavior or producing a spurious missing-global ReferenceError.
+The member lookup fails analysis before the template-literal argument executes.
+Overriding `protocol` to `https` still reaches the opaque `https.createServer`
+member. The startup callback and request dispatch remain incomplete.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
 records the concrete domain, original wildcard listen behavior, and file hashes.
 
@@ -175,13 +186,14 @@ been analyzed. Keep both source coverage and domain coverage visible.
 2. **Concrete whole-module execution in Prophet.** Close shared language gaps
    required by this source. Synchronous arrows now support module loading, and
    identifier default parameters execute when the actual factory is invoked.
-   Shared data-property spread now merges the original options. The next reached
-   gap is the Node `listen(port, callback)` overload, including omitted-host
-   behavior and concrete configured ports. Extend it with pinned-Node reference
-   specs, preserving deferred callbacks and explicit lifecycle outcomes.
-   Template strings and any uncovered `instanceof`/property semantics
+   Shared data-property spread merges the original options, and numeric Node
+   listen overloads now let the unchanged factory return its server under the
+   declared successful-binding environment. Deferred event delivery next reaches
+   the unmodeled `console.log` lookup. Extend console with compatible ordered
+   effect semantics, then execute the callback's template argument through the
+   shared VM. Template strings and any uncovered `instanceof`/property semantics
    also need shared support, each with relevant complete Test262 cases. Add the
-   required public Node response/Buffer, URL/path, filesystem, console, and listen-overload
+   required public Node response/Buffer, URL/path, filesystem, and broader listen
    behavior using compatibility specs, not target-name rules. Establish the
    actual gap list from execution rather than assuming these features work.
 3. **Symbolic classification.** Run the same entire module with symbolic request
@@ -204,9 +216,10 @@ been analyzed. Keep both source coverage and domain coverage visible.
    validation, write failures, and unwanted persisted state as that work becomes
    relevant. Express and its dependencies remain ordinary source above Node.
 
-Shared event listeners, arrow functions, identifier defaults, and data-object
-spread now provide the immediate foundation. Next extend Node listen compatibility
-for the actual factory call, then follow its next execution gap. Spread over
+Shared event listeners, arrow functions, identifier defaults, data-object
+spread, and numeric listen overloads now provide the immediate foundation.
+Next model the console boundary reached by the real listening callback and
+support its template argument, then follow the next execution gap. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.
 Destructured/rest parameters and implicit arguments likewise remain gaps.
