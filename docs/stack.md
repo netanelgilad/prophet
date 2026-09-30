@@ -31,9 +31,9 @@
 | Buffer-valued reads and persistent symbolic bytes | `stack/node-buffer-reads` | `stack/node-filesystem-state` | [#49](https://github.com/netanelgilad/prophet/pull/49) |
 | Shared instanceof and declared prototype relationships | `stack/shared-instanceof` | `stack/node-buffer-reads` | [#50](https://github.com/netanelgilad/prophet/pull/50) |
 
-Current development tip: `stack/shared-instanceof`.
+Status: fully merged into `master` at `fe881c1` (PRs #23–#50).
 
-Create the next feature branch from that tip and open its PR against the tip.
+Create the next feature branch from `master` and open its PR against `master`.
 Keep each layer independently reviewable and validated. Update this record when
 adding a layer or when merges change the appropriate PR bases. Do not combine
 new features into the older foundation PRs.
