@@ -14,7 +14,7 @@ import {
 } from "./execution-context/ExecutionContext";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { parseECMACompliant } from "./parseECMACompliant";
-import { ESTree, parseScript } from "cherow";
+import { ESTree } from "cherow";
 import { isForkedCompletion } from "./execution-context/Completion";
 import { mergeBranchResults, BranchResult } from "./execution-context/branches";
 
@@ -80,7 +80,7 @@ export function evaluateCodeAsExpression(
   code: string,
   execContext: TExecutionContext
 ) {
-  return evaluate(parseScript(code), execContext);
+  return evaluate(parseECMACompliant(code), execContext);
 }
 
 export function evaluateThrowableIterator<

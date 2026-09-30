@@ -4,7 +4,7 @@ import {
 } from "../types";
 import {
   TExecutionContext, ExecutionContext, enterEnvironment, setEnvironment,
-  declareBinding
+  declareBinding, putBinding
 } from "../execution-context/ExecutionContext";
 import { evaluateStatements, mapCompletions } from "../evaluate";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
@@ -58,6 +58,12 @@ export function createFunction(
       activation = declareBinding(activation, identifierName(parameter), "parameter", true,
         args[index] === undefined ? Undefined : args[index]);
     });
+    if (!params.some(parameter => identifierName(parameter) === "arguments")) {
+      activation = putBinding(activation, activation.value.environment, "arguments", {
+        kind: "var", mutable: true, initialized: true, value: Undefined,
+        unmodeled: "Implicit arguments objects are not yet supported"
+      });
+    }
     activation = instantiateDeclarations(statements, activation, true);
     return mapCompletions(evaluateStatements(statements, activation), (completion, context) => tuple(
       isReturnValue(completion) ? completion.value : isThrownValue(completion) ? completion : Undefined,

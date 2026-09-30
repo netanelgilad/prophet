@@ -99,7 +99,8 @@ export function instantiateDeclarations(
       const environment = variableScope ? variableEnvironment : context.value.environment;
       const binding = context.value.environments.get(environment)!.get(name)!;
       context = putBinding(context, environment, name, {
-        ...binding, value: createFunction(statement.body.body, statement.params, context)
+        ...binding, unmodeled: undefined,
+        value: createFunction(statement.body.body, statement.params, context)
       });
     }
   }

@@ -8,6 +8,10 @@ import { Heap } from "./Heap";
 export type Environment = {
   parent?: Environment;
   kind: "global" | "function" | "block" | "named-function";
+  // Some host environments expose a global object without yet modeling the
+  // object-backed var/function declaration record. Never create private vars
+  // there that falsely appear to be shared host globals.
+  unmodeledGlobalDeclarations?: string;
 };
 export type BindingKind = "var" | "let" | "const" | "parameter" | "function" | "catch" | "name" | "host";
 export type Binding = {
@@ -15,6 +19,9 @@ export type Binding = {
   mutable: boolean;
   initialized: boolean | TESBoolean;
   value: Any;
+  // A real implicit binding may exist before its value is modeled. Keep the
+  // boundary in the persistent record, including after a closure escapes.
+  unmodeled?: string;
 };
 export type EnvironmentStore = Map<Environment, Map<string, Binding>>;
 
@@ -61,7 +68,7 @@ export function ExecutionContext(value: any): TExecutionContext & { type: "Execu
     if (record) record.forEach((binding, name) => {
       if (!seen.has(name)) {
         seen.add(name);
-        if (binding.initialized === true) scope[name] = binding.value;
+        if (binding.initialized === true && !binding.unmodeled) scope[name] = binding.value;
       }
     });
   }
@@ -130,7 +137,7 @@ export function setVariableInScope(
   const resolved = resolveBinding(execContext, name);
   return resolved
     ? putBinding(execContext, resolved.environment, name,
-      { ...resolved.binding, initialized: true, value: val })
+      { ...resolved.binding, initialized: true, value: val, unmodeled: undefined })
     : declareBinding(execContext, name, "host", true, val);
 }
 
