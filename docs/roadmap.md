@@ -78,6 +78,9 @@ access, further module metadata, implicit arguments, and global eval declaration
 remain explicit gaps; no complete upstream Node test is claimed as passing yet.
 Shared Error construction and string conversion now support the package's
 rejection paths; broader resolution remains a parallel backlog.
+The loader also accepts explicit builtin VM modules, with canonical alias
+identity and builtin precedence over package lookup. Missing models remain
+analysis errors; native `require` is never an execution fallback.
 
 ## First published dependency proof
 
@@ -133,18 +136,19 @@ There must be no special VM model for `express()`, `app.post()`, its routing, or
 its body parser. Likewise, the model must not infer what an application handler
 does from its name or source.
 
-The next complete program lives in [the Node HTTP server spec](../test/node-http-server.spec.ts):
+The first complete server proof lives in [the Node HTTP server spec](../test/node-http-server.spec.ts):
 it imports `node:http`, creates a server, registers a request callback, listens,
 and exports the server. GET `/health` responds with 200 and `ok`; other requests
 take the application's 404 branch. The [README](../README.md#concrete-north-star-a-node-http-server)
 shows the complete application source. Pinned Node v24.21.0 reference tests run
 that source as a real CommonJS module and send real HTTP requests. They observe
 listening, dispatch, completion, and closing, including HEAD's body suppression.
-They do not invoke an extracted callback directly. Prophet currently rejects
-the same source at its builtin import. The explicit gap assertion must become
-a successful evaluation and proof when that capability is implemented.
+They do not invoke an extracted callback directly. Prophet now evaluates the
+same entire module using a supplied `node:http` model. The old builtin-gap
+assertion has been replaced with proof assertions over unknown method and URL
+strings, alongside direct comparisons of modeled and real Node responses.
 
-Acceptance criteria for the first symbolic HTTP program:
+The first symbolic HTTP program meets these criteria for its scoped environment:
 
 - The VM evaluates the complete module, including imports, `createServer`,
   callback registration, and `listen`. The server retains the interpreted
@@ -163,18 +167,30 @@ Acceptance criteria for the first symbolic HTTP program:
 - A thrown listener error is not silently translated into 500. Express's error
   middleware will eventually establish that behavior by executing its own code.
 
-The initial planned domain is successful startup followed by one valid request
+The initial proof domain is successful startup followed by one delivered request
 and a successful connection/response. This is an explicit schedule and host
 subset, not all Node server behavior. Listening failures, socket failures or
 aborts, malformed requests, full EventEmitter behavior, repeated/concurrent
 requests, and body-stream timing remain separate acceptance work. Every supported
 host operation needs compatibility specs against the pinned Node version; use
 suitable complete upstream Node cases where feasible and report missing runner
-support. These new reference specs are local cases, not upstream conformance.
+support. The symbolic method/URL strings are unrestricted: this overapproximates
+parsed request fields and does not establish HTTP parsing correctness. These
+reference specs are local cases, not upstream conformance.
 See [Node's HTTP API](https://nodejs.org/api/http.html), while treating the
 pinned runtime and corresponding source/tests as the behavioral reference.
 
-After the first HTTP server, extend request body streams, decoding, and JSON
+The model supports a request listener, `listen(0, "127.0.0.1"[, callback])`,
+explicit successful listening/request/finish delivery, selected response fields,
+and `end` with a string/null/undefined payload. Resource state uses the persistent
+heap, and callbacks use the current context and their captured environment.
+Unknown or invalid lifecycle transitions stop analysis instead of picking a
+convenient path. A thrown callback remains a thrown or forked completion with
+prior effects. The embedding may constrain a path and continue from that state.
+Details, independent response observations, and complete upstream blockers are
+recorded in [the HTTP coverage document](node-http.md).
+
+Next extend shared listener/event and request-stream support, decoding, and JSON
 semantics to support the saved-discount application using Node APIs. An incoming
 Node request must not magically contain Express's parsed `req.body`.
 
@@ -228,15 +244,16 @@ host API arguments remain gaps, not guarantees established by this proof.
 
 Continue in these layers, each with specs and its own stacked PR:
 
-1. **Complete Node HTTP reference:** the new health-server spec fixes the first
-   program and its observable behavior. No new symbolic server proof is claimed
-   by the reference or its unsupported-import assertion.
-2. **Builtin imports and server lifecycle:** model canonical builtin identities,
-   `createServer`, `listen`, and deferred registered request delivery through
-   the shared VM. Start with `http`/`node:http`, not Express's dependency tree.
-3. **HTTP response behavior:** establish the health-server acceptance criteria,
-   supported response operations, completion state, and observable wire output.
-   Validate each boundary against Node; no real sockets run in symbolic analysis.
+1. **Complete Node HTTP reference:** established; the exact source now also has
+   symbolic proof assertions and concrete model/Node response comparisons.
+2. **Builtin imports and server lifecycle:** the scoped canonical registry,
+   `createServer`, `listen`, and deferred registered request delivery now pass.
+   Broader overloads, listen outcomes, EventEmitter behavior, and addressing remain.
+3. **HTTP response behavior:** the scoped health-server proof passes, including
+   completion flags, committed wire status, and HEAD body suppression. Numeric
+   status conversion, null/empty payloads, 204/304, and UTF-8 edge cases have
+   independent Node checks. Headers, stream writes, socket failures, and richer
+   completion schedules remain. No real sockets run in symbolic analysis.
 4. **Request streams and effectful application:** deliver body chunks/end/errors
    with explicit ordering, then decode and parse through supported semantics.
    Revisit the discount endpoint on raw Node HTTP with modeled filesystem writes

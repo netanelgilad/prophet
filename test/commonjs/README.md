@@ -12,6 +12,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-compat.spec.ts test/commonjs-package-config.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts
 ```
 
 When Jest itself runs under a different Node release, point `PROPHET_NODE_BINARY`
@@ -68,9 +69,30 @@ Package names, scoped names, and legacy subpaths search ancestor `node_modules`
 directories from the module owning require. A broken explicit main stops lookup;
 a directory with no main/index permits farther lookup. Self-reference checks
 the nearest caller package before ordinary resolution, including relative and
-absolute requests. Builtin names take precedence and stop analysis until their
-APIs are modeled; unknown `node:` names throw `ERR_UNKNOWN_BUILTIN_MODULE`.
-The builtin catalog is pinned, including names requiring the `node:` prefix.
+absolute requests. Builtin names take precedence; unknown `node:` names throw
+`ERR_UNKNOWN_BUILTIN_MODULE`. The builtin catalog is pinned, including names
+requiring the `node:` prefix.
+
+`createCommonJSLoader(files, { builtins: { http: modeledHttp } })` registers
+explicit VM modules. Both `require("http")` and `require("node:http")` return
+that same value before file, package, or self-reference lookup. Property changes
+remain in each execution context's persistent heap, including conditional
+changes. The registry mapping is snapshotted; it never loads a native module or
+performs host I/O. Missing models remain explicit analysis gaps, even inside an
+interpreted `try`/`catch`. Supplying a partial model does not establish complete
+coverage of that builtin's API.
+
+Registry keys use canonical names without `node:`. For example, a `test` key
+serves `require("node:test")`, while `require("test")` still searches ordinary
+packages. Prefixed keys, unknown names, and values without a recognized VM type
+tag are rejected. Models are trusted embedding inputs; registration does not
+validate every internal field or prove their implementations correct.
+The builtin specs compare identity, package precedence, mutation visibility,
+prefix-only names, and unknown-name errors against the pinned Node. They also
+exercise finite symbolic request choices and isolated execution state.
+The reference behavior comes from Node's
+[CommonJS loader](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/internal/modules/cjs/loader.js)
+and [builtin name normalization](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/internal/bootstrap/realm.js).
 
 Exports support main sugar, exact subpath maps, ordered and nested conditions,
 and arrays with Node's distinct no-match, blocked, and invalid-target behavior.
@@ -118,7 +140,7 @@ first success-path proof is not the complete library milestone.
 
 This is an explicitly supplied source-graph layer, not a filesystem loader.
 Disk reads, symlink/realpath behavior, wider package imports/exports behavior,
-built-ins, ESM, and native addons remain unsupported. A missing
+unregistered built-ins, ESM, and native addons remain unsupported. A missing
 supported request throws an interpreted `MODULE_NOT_FOUND`; unsupported request
 forms stop analysis explicitly. Other module metadata and require interfaces
 (`module.require`, `children`, `parent`, `paths`, `require.resolve`, `cache`,
@@ -138,6 +160,11 @@ declarations remain local to that evaluation.
 No complete upstream Node case is claimed as passing yet. Reviewed candidates
 at the pinned revision include:
 
+- [`test-require-node-prefix.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-node-prefix.js)
+  also mutates `require.cache.fs` to demonstrate the prefix's cache bypass. It
+  needs the upstream common/assert harness, RegExp error-message matching, and
+  public cache mutation. The local registration specs cover ordinary alias
+  identity; they do not establish compatibility with that cache override.
 - [`test-module-wrap.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-module-wrap.js)
   and [`test-module-wrapper.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-module-wrapper.js):
   these invoke fixture files using `child_process`; their fixtures additionally

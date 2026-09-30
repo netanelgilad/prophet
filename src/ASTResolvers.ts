@@ -324,10 +324,10 @@ export const ConditionalExpressionResolver: ASTResolver<ESTree.ConditionalExpres
       branch => evaluate(ast.consequent, branch), branch => evaluate(ast.alternate, branch)));
 
 export const FunctionExpressionResolver: ASTResolver<ESTree.FunctionExpression> = (ast, context) => {
-  if (!ast.id) return tuple(createFunction(ast.body.body, ast.params, context), context);
+  if (!ast.id) return tuple(createFunction(ast.body.body, ast.params, context, ast), context);
   const name = identifierName(ast.id);
   let local = declareBinding(enterEnvironment(context, "named-function"), name, "name");
-  const fn = createFunction(ast.body.body, ast.params, local);
+  const fn = createFunction(ast.body.body, ast.params, local, ast);
   local = initializeBinding(local, name, fn);
   return tuple(fn, setEnvironment(local, context.value.environment));
 };

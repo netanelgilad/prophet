@@ -38,6 +38,8 @@ export function getObjectPrototype(): TESObject {
         if (isUndefined(self) || isESNull(self)) return [ThrownValue(createError("TypeError", ESString("Cannot convert null or undefined to object"))), branch];
         if (!isObjectValue(self)) throw new Error("Primitive receiver boxing is not yet supported for hasOwnProperty");
         if (typeof (name as TESString).value !== "string") throw new Error("Property keys require a concrete string");
+        const ownership = (self as WithProperties).unmodeledOwnPropertyInspection;
+        if (ownership) throw new Error(`Unmodeled host own-property inspection: ${ownership}`);
         const unsupported = (self as WithProperties).unmodeledPropertyReads;
         if (unsupported && unsupported.includes((name as TESString).value as string)) throw new Error(`Unmodeled property presence '${(name as TESString).value}'`);
         const own = ownPropertyPresence(self as WithProperties, (name as TESString).value as string, branch);

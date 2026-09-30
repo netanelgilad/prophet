@@ -1,0 +1,151 @@
+# Node HTTP compatibility and proof boundary
+
+The HTTP reference runtime is **Node v24.21.0**, upstream commit
+`955266bfdd854cd280dffd47548673914484e4c0`, matching the
+[CommonJS oracle](../test/commonjs/README.md). The
+[server spec](../test/node-http-server.spec.ts) contains the complete application:
+its CommonJS module imports `node:http`, registers a request callback, starts
+listening, and exports the server. The concrete reference loads that same module
+and sends a real HTTP request through Node. It does not extract the application's
+callback and call it directly.
+
+Locally written compatibility and differential specs compare the modeled
+surface with that independent runtime. They are not upstream Node conformance
+cases, and passing them does not establish compatibility with the entire HTTP
+module. No complete upstream HTTP case is currently claimed as passing in
+Prophet. Real sockets belong only to isolated concrete reference execution;
+symbolic exploration must not open a listening socket or send network traffic.
+
+## Callback delivery and persistent state
+
+`createServer` registers the actual interpreted function. The server identity,
+registered listener, startup state, and request/response state must belong to
+the execution context's persistent heap. Creating or changing a server on one
+symbolic path must not change another path's server.
+
+Calling `listen` and receiving a request are distinct operations. For the scoped
+`listen(0, "127.0.0.1")` form, startup completion is delivered later by the host
+model. The optional listening callback and request callback execute through the
+shared VM invocation operation with the server as their receiver. They receive
+the **current execution context**, preserving changes to captured variables made
+after registration. An event's historical snapshot is useful for inspection; it
+must not rewind the context used to execute a callback.
+
+Node implements request delivery with `server.emit("request", req, res)` in
+[`_http_server.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_server.js#L1293).
+[`EventEmitter.emit`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/events.js#L489)
+invokes ordinary listeners with the emitter as `this`. Synchronous listener
+throws escape the delivery; Node does not automatically turn such a throw into
+an HTTP 500 response. Promise rejection handling is a separate mechanism and
+does not establish synchronous exception handling support.
+
+[`net.Server.listen`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/net.js#L2478)
+returns the server and registers its optional callback for a later `listening`
+event. The specified-host form performs asynchronous address lookup before
+establishing the listening handle. Startup errors and alternative listen forms
+need their own compatibility coverage; successful startup cannot stand in for
+all possible outcomes.
+
+## Ending a response and completing delivery
+
+Keep application-visible response state separate from captured response output:
+
+- A new response defaults to status 200, with `headersSent`, `writableEnded`,
+  and `writableFinished` false.
+- `end` returns the response. On the supported successful path it finalizes the
+  implicit headers and marks `writableEnded` true. It must preserve the status
+  and body selected when the output was committed.
+- `writableFinished` becomes true only when the output has finished flushing,
+  immediately before the `finish` event. An `end` call and successful completion
+  of transport are distinct modeled transitions.
+- Later assignment to `statusCode` must not rewrite the already captured wire
+  status. A HEAD request has no wire body even when application code supplies a
+  string to `end`. Status 204 and 304 also suppress a body.
+
+These rules follow Node's
+[`ServerResponse`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_server.js#L204),
+[`writeHead`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_server.js#L407),
+[`OutgoingMessage` getters](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_outgoing.js#L877),
+and [`end`/`onFinish`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_outgoing.js#L1128).
+The [pinned HTTP documentation](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/doc/api/http.md)
+distinguishes `writableEnded` from `writableFinished` and documents `end`'s return
+value. Local concrete checks must establish the timing for the supported live
+connection rather than infer socket behavior from a detached response object.
+The [lifecycle reference spec](../test/node-http-lifecycle-reference.spec.ts)
+verifies that `writableFinished` is still false immediately after `end` and true
+in the later finish listener for string, empty-string, and omitted payloads.
+It also checks HEAD/204/304 suppression and public status mutation after output
+has been committed, numeric status normalization, and UTF-8 replacement of an
+unpaired surrogate. The model's inspected body is decoded UTF-8 output, not a
+promise that every input JavaScript string survives encoding unchanged.
+
+## Declared environment and remaining gaps
+
+The initial proof uses an explicitly delivered successful listen completion,
+then a valid request on a live connection, followed by an explicitly delivered
+successful response completion. This is a bounded host schedule, not an
+implementation of Node's event loop or proof over all schedules. Models preserve
+the selected path, arguments, returns, throws, and persistent state through those
+transitions. Rejected or unmodeled operations must not silently succeed.
+
+The first surface is deliberately limited to server creation with a request
+callback, the documented local listen form, request method/URL inspection, and
+response status plus a string, null, or omitted `end` payload. Broader overloads,
+general EventEmitter operations, request bodies/streams, Buffer payloads,
+headers, backpressure, socket aborts and errors, startup failures, timers,
+promises, and arbitrary concurrent schedules remain explicit gaps until their
+semantics and independent tests are added. Distinguish a language-visible Node
+error from an unsupported-analysis error. Unsupported public property access or
+mutation must not fabricate state or bypass the host operation's internal state.
+
+Status handling currently accepts concrete numbers (or finite choices of them),
+normalizes them with Node's integer conversion, and supports final codes
+200–999. Invalid codes produce the modeled RangeError; informational completion
+and nonnumeric/open symbolic status conversion remain unsupported. Repeated
+listen/end calls and delivery into unresolved lifecycle states are explicit
+gaps, not invented successful transitions. Unknown output strings lose their
+identity through UTF-8 encoding until a more precise encoding model exists.
+
+The model exposes selected field values without claiming complete prototypes or
+descriptors. `hasOwnProperty` inspection of its server, response, and function
+objects reports an analysis gap rather than confusing inherited accessors with
+own data properties. Async and generator function kinds likewise report generic
+VM analysis gaps, even without `await`/`yield`, instead of becoming ordinary
+synchronous callbacks. These guards must be replaced as the relevant semantics
+are implemented; they do not establish language or host conformance.
+
+The embedding API supplies `completeListen`, `deliverRequest`, and
+`completeResponse` transitions. Their traces use `http.server.listening`,
+`http.server.request`, and `http.response.finish`; the middle name deliberately
+does not denote Node's outgoing-client `http.request` call. General `.on()` and
+`finish` listener registration is not implemented by these delivery APIs.
+
+## Complete upstream cases reviewed
+
+Keep each upstream case complete and unmodified when activating it. The following
+cases at the pinned revision contain relevant assertions but currently require
+additional capabilities:
+
+- [`test-http-listening.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-listening.js)
+  creates a server without a request listener, uses the omitted-host listen
+  overload, arrow functions, `server.close`, and the upstream common/assert
+  harness. Its small size does not make its full dependencies currently modeled.
+- [`test-http-head-response-has-no-body-end-implicit-headers.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-head-response-has-no-body-end-implicit-headers.js)
+  also needs listener registration, server address inspection, the HTTP client,
+  response stream events/resume, server closing, and the common harness.
+- [`test-http-outgoing-finish-writable.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-finish-writable.js)
+  covers both server and client writable state and additionally requires HTTP
+  client requests, listener registration, closing, and the common/assert harness.
+- [`test-http-outgoing-writableFinished.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-writableFinished.js)
+  includes successful transport and three failing-flush scenarios. Complete
+  execution needs custom Duplex streams, socket injection, writes, finish/error/
+  close events, end callbacks, `setImmediate`, and the common/assert harness.
+  Keeping only its first scenario would not count as activating this case.
+- [`test-http-outgoing-finish.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-finish.js)
+  tests backpressure and callback/event ordering with Buffer writes, loops,
+  request streams, an HTTP client, and `process.nextTick`.
+
+Local specs cover the supported behavior while these dependencies are missing;
+they do not replace the complete upstream cases. Express is a later consumer of
+the shared VM and modeled Node interfaces, evaluated as ordinary library source,
+without an Express-specific replacement.

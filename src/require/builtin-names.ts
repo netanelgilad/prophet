@@ -16,6 +16,15 @@ const unprefixed = new Set([
 const prefixedOnly = new Set(["node:sea", "node:sqlite", "node:test", "node:test/reporters"]);
 
 export function isBuiltinRequest(request: string): boolean {
-  return unprefixed.has(request) || prefixedOnly.has(request) ||
-    (request.startsWith("node:") && unprefixed.has(request.slice(5)));
+  return canonicalBuiltinName(request) !== undefined;
+}
+
+// Registry keys omit node:, including modules that require the prefix when
+// requested by JavaScript. Thus registry.test never makes require("test") a
+// builtin: it is still an ordinary package request.
+export function canonicalBuiltinName(request: string): string | undefined {
+  if (unprefixed.has(request)) return request;
+  if (!request.startsWith("node:")) return undefined;
+  const name = request.slice(5);
+  return unprefixed.has(name) || prefixedOnly.has(request) ? name : undefined;
 }

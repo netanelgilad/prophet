@@ -17,8 +17,9 @@
 | Error construction, string conversion, and all-number library proof | `stack/error-string-coercion` | `stack/commonjs-package-exports` | [#35](https://github.com/netanelgilad/prophet/pull/35) |
 | Conditional host effects and the Express discount North Star | `stack/guarded-server-effects` | `stack/error-string-coercion` | [#36](https://github.com/netanelgilad/prophet/pull/36) |
 | Node HTTP full-program reference and host-boundary roadmap | `stack/node-http-north-star` | `stack/guarded-server-effects` | [#37](https://github.com/netanelgilad/prophet/pull/37) |
+| Builtin registration and symbolic Node HTTP lifecycle | `stack/node-http-lifecycle` | `stack/node-http-north-star` | [#38](https://github.com/netanelgilad/prophet/pull/38) |
 
-Current development tip: `stack/node-http-north-star`.
+Current development tip: `stack/node-http-lifecycle`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when
