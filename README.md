@@ -33,6 +33,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-url.spec.ts test/node-warnings.spec.ts test/node-url-path.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-filesystem.spec.ts test/filesystem-state.spec.ts test/pico-static-server-analysis.spec.ts test/pico-static-server-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-buffer.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/instanceof.spec.ts test/instanceof-internal.spec.ts test/test262.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -243,9 +244,11 @@ UTF-8 decoding. Bytes live in the persistent VM heap: aliases observe a write,
 earlier contexts and the file retain their contents, and symbolic changes keep
 their original conditions. The [Buffer specs](test/node-buffer.spec.ts) prove
 correlated multibyte decoding while the resulting text remains unknown.
-The unchanged GET/HEAD handler now reaches its actual `data instanceof Error`
-expression after reading either a regular file or a present directory index.
-Shared `instanceof`, then path.parse and response.write, are the next boundaries.
+After reading either a regular file or a present directory index, the unchanged
+GET/HEAD handler now proves `data instanceof Error` false through the shared
+[prototype operation](docs/instanceof.md). It enters its original success branch
+and reaches `path.parse` while computing the MIME type. That path operation and
+response.write are the next boundaries; no completed file response is claimed yet.
 Stats fields/options, other path forms, filesystem writes and wider
 platform/metadata behavior remain recorded gaps. Symbolic execution performs no
 real filesystem I/O; native fixture creation belongs only to reference specs.
@@ -374,8 +377,9 @@ state belong to the same host environment. An existing event model can instead
 be passed to `createHTTPModel(events)`.
 
 Scoped POSIX path, legacy URL, correlated filesystem state and Buffer reads now
-run through the real factory's GET/HEAD paths. Next implement shared `instanceof`
-semantics, then the reached path.parse and response-write operations. Header
+run through the real factory's GET/HEAD paths. Shared `instanceof` now follows
+prototype links and preserves conditional errors. Next implement the reached
+path.parse and response-write operations. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open
 symbolic text, and transport-sensitive fields including Content-Length remain
 explicit gaps in the backlog. Request body delivery and JSON parsing later lead back to
@@ -767,7 +771,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **281 strict/sloppy variants of 145 complete,
+The active Test262 baseline runs **333 strict/sloppy variants of 171 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
@@ -775,7 +779,10 @@ eval environments, expression evaluation order, catch/finally precedence,
 arithmetic primitives, unary signs, and parameter/lexical-declaration early
 errors, plus Error construction/formatting, string concatenation/coercion, and
 selected synchronous arrow-function behavior, default-parameter initialization,
-and untagged template literals with ordinary substitution conversion.
+and untagged template literals with ordinary substitution conversion. Twenty-six
+complete `instanceof` files add prototype chains, invalid operands/prototypes and
+evaluation order. Symbol-key syntax, getters, bound functions and Proxy behavior
+remain gaps; internal symbol-slot specs do not claim public Symbol support.
 Two complete object-spread cases exercise source-expression exceptions; positive
 upstream spread files still need further operators, built-ins, or harness support.
 Strictness follows actual directive
@@ -785,8 +792,12 @@ Further arithmetic boundary cases need
 the missing `Number` constants and global `isNaN`; the harness does not supply
 host substitutes for those runtime gaps.
 Historical selections remain explicitly skipped and are tracked as unassessed
-activation debt in the [gap backlog](docs/implementation-gaps.md). This is
-limited coverage, not a claim of Test262 conformance. The
+activation debt in the [gap backlog](docs/implementation-gaps.md). The pinned
+snapshot has **35,960 test files** after excluding `_FIXTURE.js` files; 171 selected files are about **0.48%** of that file inventory. The other
+35,789 files have not been comprehensively assessed, including the 46 historical
+skips. This is an activation share, not a whole-suite pass rate or a percentage
+of JavaScript behavior implemented. The corpus is an old pinned revision, not
+current upstream Test262. This is limited coverage, not a conformance claim. The
 [runner documentation](test/test262/README.md) explains the supported assertion
 harness and metadata. Test262 source always runs through Prophet; separate local
 differential tests use host JavaScript as an independent concrete oracle.

@@ -66,8 +66,10 @@ warning delivery stays separate. HTTPS remains opaque. Default readable-file
 reads now return shared [Buffer values](node-buffer.md), including fresh identity,
 byte length, indexed bytes and persistent symbolic mutations. The unchanged
 GET/HEAD regular-file and populated-directory-index paths reach their actual
-`data instanceof Error` expression. Next implement that shared language operation
-with complete relevant Test262 cases, then path.parse and response consumption;
+`data instanceof Error` expression, now false through shared prototype reasoning.
+Twenty-six complete Test262 files protect the ordinary operator; symbolic specs
+retain conditional relationships and errors. The original success branch now
+reaches path.parse during MIME selection. Next implement that path operation and response consumption;
 broaden filesystem outcomes and schedules afterward.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
@@ -358,7 +360,8 @@ Continue in these layers, each with specs and its own stacked PR:
    escaping ENOENT before any response commit. Matching native GET/HEAD/tree
    witnesses replay both conditions. Source-based DEP0169 eligibility and a
    separate default-warning queue preserve the diagnostic boundary. Successful
-   default reads now return Buffer values; the actual next stop is `instanceof`.
+   default reads now return Buffer values and the shared `instanceof` check is false;
+   the actual next stop is path.parse in MIME selection.
    Byte mutations reuse the persistent heap and retain symbolic correlations.
    Broader filesystem classification remains open. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add

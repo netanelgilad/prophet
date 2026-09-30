@@ -67,6 +67,38 @@ const activeCorpus = [
   "language/expressions/typeof/boolean.js",
   "language/expressions/typeof/undefined.js",
   "language/expressions/typeof/unresolvable-reference.js",
+
+  // Whole ordinary instanceof cases: operand evaluation/throws, constructor
+  // identity and prototype chains, primitive left operands and invalid RHS.
+  // A2.4_T3's RHS comma expression is unreachable after its reference error;
+  // this does not claim general SequenceExpression support.
+  "language/expressions/instanceof/S11.8.6_A1.js",
+  "language/expressions/instanceof/S11.8.6_A2.1_T1.js",
+  "language/expressions/instanceof/S11.8.6_A2.1_T2.js",
+  "language/expressions/instanceof/S11.8.6_A2.1_T3.js",
+  "language/expressions/instanceof/S11.8.6_A2.4_T2.js",
+  "language/expressions/instanceof/S11.8.6_A2.4_T3.js",
+  "language/expressions/instanceof/S11.8.6_A3.js",
+  "language/expressions/instanceof/S11.8.6_A5_T1.js",
+  "language/expressions/instanceof/S11.8.6_A5_T2.js",
+  "language/expressions/instanceof/S11.8.6_A6_T1.js",
+  "language/expressions/instanceof/S11.8.6_A6_T2.js",
+  "language/expressions/instanceof/S11.8.6_A6_T3.js",
+  "language/expressions/instanceof/S11.8.6_A6_T4.js",
+  "language/expressions/instanceof/S11.8.6_A7_T1.js",
+  "language/expressions/instanceof/S15.3.5.3_A1_T1.js",
+  "language/expressions/instanceof/S15.3.5.3_A1_T2.js",
+  "language/expressions/instanceof/S15.3.5.3_A1_T3.js",
+  "language/expressions/instanceof/S15.3.5.3_A1_T4.js",
+  "language/expressions/instanceof/S15.3.5.3_A1_T5.js",
+  "language/expressions/instanceof/S15.3.5.3_A1_T6.js",
+  "language/expressions/instanceof/S15.3.5.3_A1_T7.js",
+  "language/expressions/instanceof/S15.3.5.3_A1_T8.js",
+  "language/expressions/instanceof/S15.3.5.3_A2_T5.js",
+  "language/expressions/instanceof/S15.3.5.3_A3_T1.js",
+  "language/expressions/instanceof/primitive-prototype-with-object.js",
+  "language/expressions/instanceof/primitive-prototype-with-primitive.js",
+
   "language/expressions/less-than/S11.8.1_A4.4.js",
   "language/expressions/less-than/S11.8.1_A4.10.js",
   "language/expressions/less-than/S11.8.1_A4.11.js",

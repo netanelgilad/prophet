@@ -112,6 +112,13 @@ export type WithProperties<
   ownPropertyModel?: "enumerable-data" | "unmodeled";
   // Internal prototype link; distinct from an ordinary property named prototype.
   prototype?: Any;
+  // A partial host value must explicitly promise its internal prototype link
+  // before an operation can traverse it. This does not expose its descriptors.
+  modeledPrototype?: boolean;
+  unmodeledPrototype?: string;
+  // Immutable intrinsic/embedding symbol slots. Public Symbol-key property
+  // creation, mutation and descriptors remain separate implementation work.
+  wellKnownSymbols?: ReadonlyMap<object, Any>;
   unmodeledPropertyReads?: ReadonlyArray<string>;
   // A partial host object has modeled fields, but other fields are unknown,
   // not absent. Access must report the missing model instead of inventing

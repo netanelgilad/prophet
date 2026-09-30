@@ -12,6 +12,7 @@ import { compareNumbers } from "./number/symbolic";
 import { Knowledge, choiceOf, assume, selectValue, strictEquality, negate, resolveBoolean } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
 import { ArithmeticOperator, arithmeticNumber, negateNumber } from "./symbolic/arithmetic";
+import { instanceOf } from "./Function/instanceof";
 
 export type BinaryOperatorResolver = (
   left: Any, right: Any, context?: TExecutionContext
@@ -209,6 +210,13 @@ export const BinaryOperatorResolvers = new Map<string, BinaryOperatorResolver>([
   [">", greaterThan], ["<", lessThan], ["<=", lessThanOrEqual], [">=", greaterThanOrEqual],
   ["+", plus], ["-", minus], ["*", arithmetic("*")], ["/", arithmetic("/")], ["%", arithmetic("%")],
   ["===", exactEquality], ["!==", notExactEquality], ["!=", notEqual], ["==", equal]
+]);
+
+// Operators with observable lookup/calls can fork or throw and return state.
+// Keep these continuations out of the pure symbolic arithmetic lifting above.
+export const EffectfulBinaryOperatorResolvers = new Map<string,
+  (left: Any, right: Any, context: TExecutionContext) => BranchResult>([
+  ["instanceof", instanceOf]
 ]);
 
 export const LogicalOperatorResolvers = new Map<string, LogicalOperatorResolver>([

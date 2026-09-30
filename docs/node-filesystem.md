@@ -160,9 +160,10 @@ stdout/stderr write occurs in the symbolic run.
 Readable regular-file and existing directory-index GET/HEAD cases now return
 the shared Buffer value from readFileSync. The original handler's actual `data`
 binding is observed without supplying results or changing control flow; byte
-length, indexed contents and UTF-8 decoding are checked. Execution then stops
-explicitly at `data instanceof Error`. Successful file serving still needs that
-shared language operator, path.parse and response-write behavior.
+length, indexed contents and UTF-8 decoding are checked. Shared `instanceof`
+now proves the Buffer is not an Error, so the actual success branch reaches
+path.parse during MIME selection. Successful file serving still needs that path
+operation and response-write behavior.
 The entire server is not analyzed for every file, request or environment.
 
 ## Complete upstream cases reviewed

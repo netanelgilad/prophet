@@ -153,8 +153,9 @@ Source placement is explicit: the virtual installed package under
 `/app/node_modules/pico-static-server` suppresses DEP0169, while the identical
 source at `/app/fixture/package` schedules it, matching the native checkout
 fixture's eligibility. Neither case delivers a warning while its synchronous
-handler is still executing. Default reads now return Buffer values; the next
-target boundary is the actual `instanceof` expression, then path/response operations.
+handler is still executing. Default reads now return Buffer values; the
+`instanceof` expression now resolves false through shared prototype reasoning.
+The next target boundary is path.parse in MIME selection, then response writing.
 Broader filesystem failures, HTTPS and wider URL forms remain gaps; existing bind,
 stdout, delivered-request-event and transport assumptions remain in force.
 

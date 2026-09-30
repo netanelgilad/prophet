@@ -4,6 +4,7 @@ import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult } from "../execution-context/branches";
 import { getProperties, writeProperty } from "../execution-context/Heap";
 import { ESObject, TESObject } from "../Object";
+import { getObjectPrototype } from "../Object/prototype";
 import { ESString } from "../string/String";
 import { choiceOf } from "../symbolic";
 import { Any, ESNumber, isESNumber, isESString, isUndefined, Undefined } from "../types";
@@ -80,9 +81,18 @@ function getBufferPrototype(): TESObject {
     unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
   });
   Object.assign(toString.properties, { name: ESString("toString"), length: ESNumber(3) });
-  // The full Buffer/Uint8Array prototype hierarchy is not exposed yet. Its
-  // unmodeled methods and reflection must not look like absent properties.
+  // Preserve the real chain for generic prototype reasoning, independently of
+  // whether each prototype's methods/descriptors are exposed to user code.
+  const typedArrayPrototype = Object.assign(ESObject(undefined, "unmodeled"), {
+    prototype: getObjectPrototype(), modeledPrototype: true,
+    unknownProperties: "TypedArray prototype API", unmodeledOwnPropertyInspection: "TypedArray descriptors"
+  });
+  const uint8ArrayPrototype = Object.assign(ESObject(undefined, "unmodeled"), {
+    prototype: typedArrayPrototype, modeledPrototype: true,
+    unknownProperties: "Uint8Array prototype API", unmodeledOwnPropertyInspection: "Uint8Array descriptors"
+  });
   bufferPrototype = Object.assign(ESObject({ toString }, "unmodeled"), {
+    prototype: uint8ArrayPrototype, modeledPrototype: true,
     unknownProperties: "Buffer and Uint8Array prototype API",
     unmodeledOwnPropertyInspection: "Buffer prototype descriptors"
   });
@@ -103,7 +113,7 @@ export function createBufferValue(bytes: ReadonlyArray<number>): TESObject {
   }
   const length = bytes.length;
   const value = Object.assign(ESObject(properties, "unmodeled"), {
-    prototype: getBufferPrototype(), unknownProperties: "Buffer and Uint8Array API",
+    prototype: getBufferPrototype(), modeledPrototype: true, unknownProperties: "Buffer and Uint8Array API",
     modeledInheritedProperties: ["toString"],
     unmodeledOwnPropertyInspection: "Buffer integer-indexed descriptors and reflection",
     unmodeledPropertyWrites: ["length", "byteLength"],

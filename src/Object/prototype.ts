@@ -8,7 +8,7 @@ import { ownPropertyPresence } from "../execution-context/Heap";
 import { createError } from "../error/Error";
 import { tuple } from "@deaven/tuple";
 import { getFunctionPrototype } from "../Function/prototype";
-import { assumeInContext, BranchResult } from "../execution-context/branches";
+import { assumeInContext, BranchResult, evaluateBranches } from "../execution-context/branches";
 import { choiceOf, resolveBoolean, selectValue } from "../symbolic";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { ESBoolean } from "../boolean/ESBoolean";
@@ -33,7 +33,8 @@ function withModeledStringTag(
 
 export function getObjectPrototype(): TESObject {
   if (objectPrototype) return objectPrototype;
-  objectPrototype = { ...ESObject(undefined, "unmodeled"), prototype: ESNull };
+  objectPrototype = { ...ESObject(undefined, "unmodeled"), prototype: ESNull,
+    unmodeledPropertyReads: ["__proto__"] };
   Object.assign(objectPrototype.properties, { toString: ESBuiltinFunction(function*(self, _args, context) {
     return withValue(self, context, (value, branch) => {
       // Object.prototype.toString reads Symbol.toStringTag even when borrowed.
@@ -79,6 +80,44 @@ export function prototypeOf(value: Any): Any {
   if (explicit) return explicit;
   const type = (value as Type<string>).type;
   return type === "function" ? getFunctionPrototype() : type === "object" ? getObjectPrototype() : ESNull;
+}
+
+// Unlike the legacy property-lookup fallback, operations proving prototype
+// relationships must reject incomplete host/array links rather than guess.
+export function withInternalPrototype(
+  value: Any, context: TExecutionContext,
+  next: (prototype: Any, context: TExecutionContext) => BranchResult
+): BranchResult {
+  return withValue(value, context, (object, branch) => {
+    const model = object as WithProperties;
+    if (model.unmodeledPrototype) throw new Error(`Unmodeled internal prototype: ${model.unmodeledPrototype}`);
+    if (model.unknownProperties && !model.modeledPrototype) {
+      throw new Error(`Unmodeled host prototype: ${model.unknownProperties}`);
+    }
+    if ((object as Type<string>).type === "array" && !model.modeledPrototype) {
+      throw new Error("Array prototype relationships are not yet supported");
+    }
+    return withValue(prototypeOf(object), branch, (prototype, after) => {
+      if (!isESNull(prototype) && !isObjectValue(prototype)) throw new Error("Invalid internal prototype model");
+      return next(prototype, after);
+    });
+  });
+}
+
+// The legacy __proto__ setter is inherited. Treating an assignment as ordinary
+// data would leave the internal link stale and make instanceof proofs unsound.
+// Own data properties with this spelling remain ordinary writable properties.
+export function withoutPrototypeSetter(
+  value: Any, context: TExecutionContext, next: (context: TExecutionContext) => BranchResult,
+  seen: Any[] = []
+): BranchResult {
+  return withValue(value, context, (object, branch) => {
+    if (object === getObjectPrototype()) throw new Error("Inherited __proto__ setter is not yet supported");
+    if (seen.includes(object)) throw new Error("Cyclic prototype writes are not yet supported");
+    return evaluateBranches(ownPropertyPresence(object as WithProperties, "__proto__", branch), branch,
+      next, absent => withInternalPrototype(object, absent, (prototype, after) =>
+        isESNull(prototype) ? next(after) : withoutPrototypeSetter(prototype, after, next, seen.concat([object]))));
+  });
 }
 
 // HasProperty does not read values or invoke conversion methods. Keep own

@@ -61,8 +61,10 @@ There is no interpreted Buffer global or `buffer` module, public constructor,
 Backing-store fields, byte offsets, constructor/prototype access, descriptors,
 enumeration and spread remain guarded. Read support for length does not establish
 its inherited accessor or assignment behavior: length writes stop analysis.
-Other method metadata, method construction and the full prototype hierarchy are
-also unsupported. Reflection/presence operations are not supplied by the indexed
+Other method metadata, method construction and public prototype reflection are
+also unsupported. Internal links now preserve Buffer.prototype -> Uint8Array.prototype
+-> TypedArray.prototype -> Object.prototype for shared instanceof reasoning;
+knowing these links does not expose those prototypes' unmodeled APIs. Reflection/presence operations are not supplied by the indexed
 read/write hooks.
 
 Numeric writes support neither open symbolic numbers nor conversions from
@@ -97,11 +99,12 @@ The [pico-static-server specs](../test/pico-static-server-analysis.spec.ts) now
 execute successful default reads in the original GET/HEAD handler for both a
 regular file and a directory's existing index file. The actual local `data`
 binding contains the byte value, with its length, indexed bytes and decoded text
-checked by a read-only observer. Execution then stops at the shared JavaScript
-`data instanceof Error` operator, which has not yet been implemented.
+checked by a read-only observer. The shared JavaScript `data instanceof Error`
+operator now returns false by following these prototype links. The original
+success branch reaches path.parse in getMimeType, where analysis stops explicitly.
 
 This advances the successful-read path; it does not yet prove a 200 response or
-successful file serving. `instanceof`, `path.parse` and response writing remain
+successful file serving. `path.parse` and response writing remain
 later boundaries. The missing-directory 404 versus missing-index ENOENT proof
 and its independent native witnesses remain intact.
 
