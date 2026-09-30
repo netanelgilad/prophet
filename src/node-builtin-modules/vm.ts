@@ -40,7 +40,7 @@ export const vm = {
             global: ESObject({
               ...ESInitialGlobal.properties,
               ...getProperties(unsafeCast<TESObject>(args[1]), execContext)
-            })
+            }, "unmodeled")
           });
           try {
             return evaluateCode(

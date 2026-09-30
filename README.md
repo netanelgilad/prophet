@@ -166,8 +166,9 @@ are recorded in the target document and linked from `AGENTS.md`.
 an uncaught missing-default-file error and record the package's actual headers.
 [Prophet](test/pico-static-server-analysis.spec.ts) loads the unchanged module
 and invokes its arrow factory with omitted, undefined, or supplied options.
-Default-parameter initialization now completes; execution stops at the next
-statement's object spread while constructing options.
+Default initialization and the actual options spreads complete. HTTP invocation
+creates the modeled server and reaches the unsupported `listen(port, callback)`
+overload; an HTTPS override reaches that opaque module's API.
 Other Node imports are opaque identities at this loading stage, not implemented
 APIs. The server's request paths have not yet been symbolically classified.
 
@@ -627,7 +628,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **230 strict/sloppy variants of 119 complete,
+The active Test262 baseline runs **234 strict/sloppy variants of 121 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
@@ -635,6 +636,8 @@ eval environments, expression evaluation order, catch/finally precedence,
 arithmetic primitives, unary signs, and parameter/lexical-declaration early
 errors, plus Error construction/formatting, string concatenation/coercion, and
 selected synchronous arrow-function behavior and default-parameter initialization.
+Two complete object-spread cases exercise source-expression exceptions; positive
+upstream spread files still need further operators, built-ins, or harness support.
 Strictness follows actual directive
 source text; escaped or parenthesized strings do not become `use strict`.
 Parse-negative cases do not imply runtime support for their syntax.
@@ -667,6 +670,33 @@ the supplied receiver, conditional returns/throws, non-construction, absent own
 name inference and restricted caller/arguments
 accessors remain explicit metadata gaps. Pure recursive arrows can use the same
 verified array summaries; lexical `this` dependencies remain outside that subset.
+
+[Object-spread specs](test/object-spread.spec.ts) cover complete ordinary
+enumerable data objects, concrete string characters, and empty copies from
+null/undefined/numbers/booleans. Spread and `Object.keys` share enumeration;
+own-property presence and creation order retain their path conditions. Copies
+read current values, preserve nested references, and honor later overwrites.
+Object literal fields now use the persistent heap too: inspect current fields
+with `getProperties(value, context)` instead of assuming `value.properties`
+contains their final values.
+
+For example, with `override` an unknown Boolean:
+
+```js
+function configure(overrides = {}) {
+  return { port: 8080, ...overrides };
+}
+const options = configure(override ? { port: 3000 } : {});
+```
+
+Prophet proves `options.port > 0`; `options.port === 8080` remains unknown.
+This is ordinary property evaluation, not a configuration-specific rule.
+Accessors/descriptors, symbol keys, unknown-length string keys, and enumeration
+of arrays, functions, intrinsic objects, or incomplete host models remain
+explicit gaps. Legacy property tables must not be mistaken for enumerable own
+fields. `Object` supports fresh nullish objects and existing object identity;
+primitive wrapper construction remains unsupported.
+
 Eval also instantiates declarations, isolates lexical names and strict
 vars, and distinguishes direct caller lookup from indirect global lookup.
 Its general statement completion values remain incomplete; conditional creation

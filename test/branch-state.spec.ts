@@ -16,10 +16,12 @@ function expectTrue(context: TExecutionContext, ...names: string[]) {
 
 describe("symbolic branches and persistent state", () => {
   test("aliased object writes stay isolated and retain their guard", () => {
-    const context = run(`
+    const before = run(`
       const guard = Math.random() < 0.5;
       const box = { value: 0 };
       const alias = box;
+    `);
+    const context = run(`
       if (guard) {
         alias.value = 1;
       } else {
@@ -27,12 +29,12 @@ describe("symbolic branches and persistent state", () => {
       }
       const proof = guard ? box.value === 1 : alias.value === 2;
       const same = alias === box;
-    `);
+    `, before);
 
     expectTrue(context, "proof", "same");
     const box = context.value.scope.box as WithProperties;
     expect(context.value.scope.alias).toBe(box);
-    expect(box.properties.value).toMatchObject({ value: 0 });
+    expect(getProperties(box, before).value).toMatchObject({ value: 0 });
     expect(getProperties(box, context).value).toMatchObject({ type: "number" });
     expect((getProperties(box, context).value as any).value).toBeUndefined();
   });

@@ -107,6 +107,9 @@ export type WithProperties<
   } = {}
 > = {
   properties: { [name: string]: Any } & KnownProperties;
+  // Explicit representation contract, not a guess from the property names.
+  // Legacy intrinsics also store non-enumerable/inherited fields in properties.
+  ownPropertyModel?: "enumerable-data" | "unmodeled";
   // Internal prototype link; distinct from an ordinary property named prototype.
   prototype?: Any;
   unmodeledPropertyReads?: ReadonlyArray<string>;

@@ -38,7 +38,7 @@ Arrow-function selections add twelve complete files (nineteen strictness
 variants): expression and block returns, empty bodies, object literal returns,
 non-construction, strictness, an explicitly named `arguments` parameter, closure
 capture through direct eval, and lexical `this` through eval. The active corpus
-now contains 119 complete files and 230 variants. Local arrow specs additionally
+now contains 121 complete files and 234 variants. Local arrow specs additionally
 compare lexical `this` under ordinary calls and `.call`, late captured binding
 updates, conditional calls/throws, and absent own `prototype` with pinned Node.
 They also check syntax-derived arrow `length` without invoking unsupported
@@ -86,6 +86,36 @@ Conditionally creating a new binding through eval inside a symbolic default is
 also an explicit gap: the current environment merge rejects conditional binding
 presence. Symbolic default selection, updates to existing bindings, and
 conditional initializer throws remain supported and covered separately.
+
+Two complete object-spread exception files now cover unresolvable source
+expressions in call arguments, both alone and after preceding properties. Local
+pinned-Node specs cover positive data copying, primitive sources, current heap
+state, reference identity, ordering, overwrites, and exceptions. Symbolic cases
+check conditional sources, own-property presence, and insertion order through
+the same enumeration operation used by `Object.keys`.
+
+The complete positive `language/expressions/call/spread-obj-null.js`,
+`spread-obj-undefined.js`, `spread-obj-mult-spread.js`, and
+`spread-obj-overrides-prev-properties.js` still require `+=` compound assignment
+in their call-count checks. That source is not rewritten to simpler assignment.
+Descriptor/getter cases additionally need accessors, `Object.defineProperty`,
+and the property-helper harness; symbol cases need Symbols and symbol keys.
+Array-wrapper variants need `Function.prototype.apply`. None of these complete
+files is counted as passing based only on local object-spread examples.
+
+Enumerable data objects and concrete primitive strings are currently supported.
+Arrays, functions, Error/intrinsic/global layouts, opaque host objects, unknown
+string key sets, accessors, and full descriptors remain explicit enumeration
+gaps until the VM can establish their actual own enumerable properties. A
+universal filter for names such as `length`, `prototype`, or `constructor` would
+be unsound: ordinary objects may have enumerable data with those names.
+Nullish `Object` calls/construction create fresh ordinary objects and existing
+objects retain their identity. Primitive wrapper construction, including
+`new Object("text")`, remains an explicit gap rather than producing a fake empty
+enumerable object. The historical VM adapter likewise marks its populated global
+as an unmodeled descriptor layout; local guards are not Node `vm` conformance.
+The new `Object.keys` has its standard name/length and is not constructible;
+restricted `caller`/`arguments` accessors and metadata writes remain explicit gaps.
 
 The completion cases cover argument evaluation order, a throwing left operand
 of arithmetic and logical expressions, function-body throws, and return/throw

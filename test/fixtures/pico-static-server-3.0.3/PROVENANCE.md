@@ -69,9 +69,10 @@ These concrete cases establish an independent target for future symbolic
 execution, not a proof of all inputs, a discovered new vulnerability, or evidence
 that Prophet already executes the package's complete server flow. The analysis
 spec currently loads its unchanged module and initializes the actual factory's
-identifier default parameter; it then stops at object spread in the first body
-statement. Omitted, explicitly undefined, and provided options reach that same
-unsupported operation. Broader filesystem permissions, races, symlinks, paths,
+identifier default parameter and copies its options through shared object spread.
+HTTP invocation reaches the unsupported omitted-host `listen(port, callback)`
+overload; an HTTPS override reaches the explicitly opaque HTTPS API. Neither
+successful startup nor request analysis is established. Broader filesystem permissions, races, symlinks, paths,
 protocols, configuration, and schedules remain outside
 this initial reference domain. See `docs/real-world-target.md` for the durable
 analysis goal and limitations.

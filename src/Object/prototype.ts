@@ -17,7 +17,7 @@ let objectPrototype: TESObject | undefined;
 
 export function getObjectPrototype(): TESObject {
   if (objectPrototype) return objectPrototype;
-  objectPrototype = { ...ESObject(), prototype: ESNull };
+  objectPrototype = { ...ESObject(undefined, "unmodeled"), prototype: ESNull };
   Object.assign(objectPrototype.properties, { toString: ESBuiltinFunction(function*(self, _args, context) {
     const type = (self as Type<string>).type;
     const tag = (self as { errorData?: boolean }).errorData ? "Error" :

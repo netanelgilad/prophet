@@ -15,8 +15,9 @@ The complete published fixture is retained with its license and integrity
 records. Independent Node specs now exercise its real server and reproduce an
 escaping filesystem exception. Prophet loads the unchanged module and returns
 its actual arrow factory. Invoking it now evaluates its identifier default
-parameter and reaches the first body statement's unsupported object spread,
-whether options are omitted, explicitly undefined, or supplied. The other
+parameter and both options spreads, creates the modeled HTTP server, and reaches
+the unsupported `listen(port, callback)` overload, whether options are omitted,
+explicitly undefined, or supplied. An HTTPS override reaches the opaque HTTPS API. The other
 imported Node modules are explicitly opaque at this loading stage: their
 identity is supplied, and member access is unsupported.
 This is not yet a symbolic server proof or a Prophet-discovered bug. Our own
@@ -124,13 +125,16 @@ an `uncaughtExceptionMonitor` observes failures without recovering them.
 The [Prophet analysis specs](../test/pico-static-server-analysis.spec.ts) load the
 same package entry source and metadata without rewriting arrow syntax. Loading
 creates the actual exported function without server or filesystem effects.
-Factory invocation now initializes the original `customOptions = {}` parameter
-and reports the next reached gap: `Object spread and accessors are not yet
-supported` at `const options = { ...DEFAULT_OPTIONS, ...customOptions }` in
-original `index.js:106`. The boundary specs cover omitted arguments, explicit
-`undefined`, and a supplied options object; they do not replace the factory's
-parameter handling or options merge. No server is created and no HTTP request
-is symbolically analyzed yet.
+Factory invocation initializes the original `customOptions = {}` parameter and
+merges options through shared object spread. HTTP cases then create the modeled
+server and register the actual request callback, before reaching the unsupported
+`listen(options.port, listenCallback)` call at original `index.js:140`. The model
+currently accepts only `listen(0, "127.0.0.1"[, callback])`; the package supplies
+no host and defaults to port 8080. Boundary specs cover omitted/undefined options
+and supplied port 0 without changing that call. Overriding `protocol` to `https`
+reaches the explicitly opaque `https.createServer` member, confirming the later
+spread overrides defaults. The deferred listening callback does not run inline.
+Startup and request dispatch have not completed symbolically.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
 records the concrete domain, original wildcard listen behavior, and file hashes.
 
@@ -171,10 +175,11 @@ been analyzed. Keep both source coverage and domain coverage visible.
 2. **Concrete whole-module execution in Prophet.** Close shared language gaps
    required by this source. Synchronous arrows now support module loading, and
    identifier default parameters execute when the actual factory is invoked.
-   Object spread is the next reached gap, in its initial options construction.
-   Implement it through shared own-property copying and preserve evaluation
-   order, overwrites, conditional properties, and explicit unsupported property
-   behavior. Template strings and any uncovered `instanceof`/property semantics
+   Shared data-property spread now merges the original options. The next reached
+   gap is the Node `listen(port, callback)` overload, including omitted-host
+   behavior and concrete configured ports. Extend it with pinned-Node reference
+   specs, preserving deferred callbacks and explicit lifecycle outcomes.
+   Template strings and any uncovered `instanceof`/property semantics
    also need shared support, each with relevant complete Test262 cases. Add the
    required public Node response/Buffer, URL/path, filesystem, console, and listen-overload
    behavior using compatibility specs, not target-name rules. Establish the
@@ -199,12 +204,13 @@ been analyzed. Keep both source coverage and domain coverage visible.
    validation, write failures, and unwanted persisted state as that work becomes
    relevant. Express and its dependencies remain ordinary source above Node.
 
-Shared event listeners, arrow functions, and identifier default parameters now
-provide the immediate foundation. Next implement object spread using shared
-property semantics and relevant complete Test262 cases, then follow the actual
-factory's next execution gap. Destructured/rest parameters and implicit arguments
-remain separate language gaps; this parameter milestone does not claim full
-function conformance. Request body streams/JSON are not needed by this static
+Shared event listeners, arrow functions, identifier defaults, and data-object
+spread now provide the immediate foundation. Next extend Node listen compatibility
+for the actual factory call, then follow its next execution gap. Spread over
+accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
+layouts remains a separate language backlog; these cases stop analysis explicitly.
+Destructured/rest parameters and implicit arguments likewise remain gaps.
+Request body streams/JSON are not needed by this static
 server; do not make them a gate before demonstrating its first useful
 exception/effect result.
 

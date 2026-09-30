@@ -20,7 +20,7 @@ import { isObjectValue } from "../conversion/toString";
 export function ESFunction(implementation: FunctionImplementation) {
   const result = {
     type: "function",
-    properties: { prototype: ESObject() },
+    properties: { prototype: ESObject(undefined, "unmodeled") },
     function: { implementation }
   };
   Object.assign(result.properties.prototype.properties, { constructor: result });
