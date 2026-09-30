@@ -11,6 +11,7 @@ import { ESTree } from "cherow";
 import { compareNumbers } from "./number/symbolic";
 import { Knowledge, choiceOf, assume, selectValue, strictEquality, negate, resolveBoolean } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
+import { ArithmeticOperator, arithmeticNumber, negateNumber } from "./symbolic/arithmetic";
 
 export type BinaryOperatorResolver = (
   left: Any, right: Any, context?: TExecutionContext
@@ -68,9 +69,9 @@ function liftBinary(
   return selectValue(choice.condition, yes, no, knowledge);
 }
 
-function arithmetic(operator: "+" | "-" | "*" | "/" | "%"): BinaryOperatorResolver {
+function arithmetic(operator: ArithmeticOperator): BinaryOperatorResolver {
   return (left, right, context) => liftBinary(left, right,
-    context && context.value.knowledge || [], (a, b) => {
+    context && context.value.knowledge || [], (a, b, facts) => {
       const primitiveKind = (value: Any) =>
         ["number", "string", "boolean", "null", "undefined"].includes((value as Type<string>).type);
       if (!primitiveKind(a) || !primitiveKind(b)) {
@@ -93,7 +94,7 @@ function arithmetic(operator: "+" | "-" | "*" | "/" | "%"): BinaryOperatorResolv
         return { ...ESString(), expression: { kind: "binary", operator, left: a, right: b } };
       }
       if (isESNumber(a) && isESNumber(b)) {
-        return { ...ESNumber(), expression: { kind: "binary", operator, left: a, right: b } };
+        return arithmeticNumber(operator, a, b, facts);
       }
       throw new Error("Symbolic arithmetic coercion for these operands is not yet supported");
     });
@@ -196,9 +197,7 @@ function unaryNumeric(arg: Any, operator: "+" | "-", knowledge: Knowledge): Any 
   }
   const value = concrete(arg);
   if (value.known) return ESNumber(operator === "+" ? +(value.value as any) : -(value.value as any));
-  if (isESNumber(arg)) return {
-    ...ESNumber(), expression: { kind: "unary", operator, operand: arg }
-  };
+  if (isESNumber(arg)) return operator === "+" ? arg : negateNumber(arg, knowledge);
   throw new Error("Symbolic numeric coercion is not yet supported");
 }
 

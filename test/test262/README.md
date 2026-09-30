@@ -37,6 +37,12 @@ return on some paths and throw on others. Constructor throws are currently
 covered by local specs; the pinned Test262 candidates require additional
 unsupported language or built-in behavior.
 
+The arithmetic cases cover primitive addition, subtraction, multiplication,
+division, unary signs, negative zero, finite decimals, and operand sequencing.
+Further IEEE boundary files need runtime `Number` constants and global `isNaN`;
+the harness does not supply substitutes for those missing built-ins. Local
+arithmetic specs cover symbolic bounds and concrete boundary samples separately.
+
 This runner deliberately rejects unsupported flags (including modules and
 async), additional harness includes, and non-parse negative metadata. Adding
 those tests requires implementing their runner support first. The self-tests

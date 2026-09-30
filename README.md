@@ -18,6 +18,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-routing.spec.t
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/lexical-environments.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-exceptions.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/arithmetic-bounds.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -39,6 +40,11 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-exceptions.spe
   accepted bounds for a captured range validator over an arbitrary finite input,
   checks effects happen exactly once on each path, and keeps the bound unknown
   when the input may be NaN.
+- [Arithmetic bounds](test/arithmetic-bounds.spec.ts) carries numeric limits
+  through calculations. It proves a random value scaled by 10 always passes
+  `range(0, 10)`, scaling by 1000 may pass or throw, and adding 11 to that scaled
+  value always throws. A separate normalization function proves a [0, 1] output
+  for inputs bounded by its caller's branch.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
 `src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
@@ -60,10 +66,13 @@ unmodified, pinned published build of `tiny-invariant`:
 2. **Return or throw:** propagate calls that return on some symbolic paths and
    throw on others through callers, catch, and finally. Covered by the symbolic
    exception specs, including constructors and calls nested inside expressions.
-3. **Real dependency:** add the module, Error, callback, and other semantics
+3. **Computed inputs:** retain numeric bounds through arithmetic so validators
+   can analyze transformed inputs. Covered by the arithmetic specs, including
+   rounding, overflow, signed zero, and cases that must remain unknown.
+4. **Real dependency:** add the module, Error, callback, and other semantics
    required by the pinned library; execute its actual source in a spec. This is
    the next practical target.
-4. **Replayable counterexamples:** generate a concrete violating input, then
+5. **Replayable counterexamples:** generate a concrete violating input, then
    independently replay it against that same source. Sample testing alone must
    never establish a universal proof.
 
@@ -198,8 +207,46 @@ from knowing every element's value.
 Different unknown identities may have equal values. NaN, infinities, and signed
 zero require JavaScript-specific reasoning: in particular, a false `<` comparison
 only supplies the reverse order fact when both operands are known not to be NaN.
-Arithmetic expressions are retained even when the current reasoner cannot
-extract useful numeric facts from them.
+
+## Numeric bounds through arithmetic
+
+For example, the VM can analyze this ordinary JavaScript function:
+
+```js
+function normalize(value, low, high) {
+  return (value - low) / (high - low);
+}
+```
+
+Inside a branch establishing `input >= 20 && input <= 80`, Prophet proves
+`normalize(input, 20, 80)` is between 0 and 1. Outside that branch, an otherwise
+unconstrained input leaves the result's bounds unknown. The same rules power
+the range-validator examples; neither function receives special treatment.
+
+[Arithmetic inference](src/symbolic/arithmetic.ts) reads each operand's bounds
+and the current path's facts, then attaches ordinary `order` and `finite` or
+`notNaN` facts to the resulting expression. Addition, subtraction, multiplication,
+and division use a closed enclosure of their finite operand intervals. A finite
+input without explicit limits uses JavaScript's largest finite magnitudes as
+its limits. Both operand bounds can also establish finiteness without a separate
+finite fact. Division requires an interval excluding zero. Unary plus preserves
+the numeric value; unary minus reverses bounds and preserves strictness.
+
+Binary bounds include their endpoints because rounding can turn a strict input
+bound into equality. Overflow can produce an infinite bound and never gains a
+finite fact. An interval [0, 0] does not become concrete zero because it can
+include both signs. [Differential specs](test/arithmetic-soundness.spec.ts) check
+the emitted claims against independent concrete JavaScript boundary samples;
+sampling is a regression check, not how the VM establishes its proofs.
+
+Current inference gaps remain explicit: remainder, binary operands that may be
+NaN or infinite, and division whose enclosing interval touches or crosses zero
+retain expressions without derived bounds. An open zero endpoint also triggers
+that conservative fallback. Facts learned after an arithmetic operation do not
+yet reanalyze the stored expression. General algebraic relationships between
+operands are not inferred; for example, treating two occurrences of a bounded
+input independently can leave `input - input === 0` unknown. These are precision
+limits rather than restrictions on concrete arithmetic execution.
 
 ## Validation and current limits
 
@@ -209,11 +256,14 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **95 strict/sloppy variants of 48 complete,
+The active Test262 baseline runs **129 strict/sloppy variants of 65 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
-eval environments, expression evaluation order, and catch/finally precedence.
+eval environments, expression evaluation order, catch/finally precedence,
+arithmetic primitives, and unary signs. Further arithmetic boundary cases need
+the missing `Number` constants and global `isNaN`; the harness does not supply
+host substitutes for those runtime gaps.
 Historical unsupported selections remain explicitly skipped. This is
 limited coverage, not a claim of Test262 conformance. The
 [runner documentation](test/test262/README.md) explains the supported assertion
