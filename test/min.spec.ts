@@ -1,12 +1,9 @@
-import { readFileSync } from "fs";
-import { join } from "path";
 import { evaluateCode, nodeInitialExecutionContext } from "../src";
 import { TESNumber, TESBoolean, WithProperties, ESNumber } from "../src/types";
 import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
 import { ESObject } from "../src/Object";
 import { getProperties } from "../src/execution-context/Heap";
 
-const example = readFileSync(join(__dirname, "../examples/recursive-min.js"), "utf8");
 const minFunction = `
   function min(arr) {
     if (arr.length === 1) return arr[0];
@@ -14,16 +11,23 @@ const minFunction = `
     return arr[0] < tailMin ? arr[0] : tailMin;
   }
 `;
+const tenItemProgram = minFunction + `
+  const d = [
+    Math.random(), Math.random(), Math.random(), Math.random(), Math.random(),
+    Math.random(), Math.random(), Math.random(), Math.random(), Math.random()
+  ];
+  const x = d[0] < min(d);
+`;
 
 function scope(code: string) {
   return evaluateCode(code, nodeInitialExecutionContext)[1].value.scope;
 }
 
-test("recursive min proves the ten-symbol example without sampling random numbers", () => {
+test("recursive min proves the ten-symbol program without sampling random numbers", () => {
   const random = jest.spyOn(Math, "random");
   let result;
   try {
-    result = scope(example);
+    result = scope(tenItemProgram);
     expect(random).not.toHaveBeenCalled();
   } finally {
     random.mockRestore();
@@ -41,7 +45,7 @@ test("the minimum is no greater than every member, including through an alias", 
     `const below${index} = d[${index}] < minimum;
      const bound${index} = minimum <= d[${index}];`
   ).join("\n");
-  const result = scope(example + `
+  const result = scope(tenItemProgram + `
     const minimum = min(d);
     const alias = minimum;
     const aliasBelow = d[0] < alias;
@@ -74,6 +78,32 @@ test("concrete minima, singleton arrays, and ties retain JavaScript behavior", (
   expect(result.singleton).toBe(result.only);
   expect(result.tied).toBe(result.only);
   expect(result.x).toMatchObject({ value: false });
+});
+
+test("the requested strict comparison needs less than an element-wide lower-bound fact", () => {
+  // Unknown-length summaries currently reject these domains, but the concrete
+  // VM must preserve their JavaScript behavior. NaN and holes can invalidate
+  // the stronger <= claim without making the original comparison true.
+  const cases: Array<[string, boolean]> = [
+    ["[1 / 0, 2]", true],
+    ["[-1 / 0, 2]", true],
+    ["[1 / 0]", true],
+    ["[0 / 0, 1]", false],
+    ["[1, 0 / 0]", false],
+    ["[, 1]", false],
+    ["[1, ,]", false],
+    ["[,]", false]
+  ];
+  for (const [array, lowerBound] of cases) {
+    const result = scope(minFunction + `
+      const d = ${array};
+      const value = min(d);
+      const x = d[0] < value;
+      const lowerBound = value <= d[0];
+    `);
+    expect(result.x).toMatchObject({ value: false });
+    expect(result.lowerBound).toMatchObject({ value: lowerBound });
+  }
 });
 
 test("the same selection machinery handles maximum and uncertain comparisons", () => {

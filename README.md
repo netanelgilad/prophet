@@ -5,78 +5,60 @@ Concrete execution is the fully known case of the same evaluation model. The
 long-term goal is a JavaScript VM with Test262 conformance and symbolic execution;
 the current implementation supports a limited subset of JavaScript.
 
-## Run the examples
+## Run the specs
 
-Install with the repository's pinned Yarn release:
+Behavior examples live in `test/*.spec.ts`, alongside their interpreted source,
+input setup, and assertions. Run a specific spec directly through the existing
+test command; do not add standalone demo files, runners, or per-example scripts.
 
 ```sh
 node .yarn/releases/yarn-3.1.1.cjs install --immutable
-node .yarn/releases/yarn-3.1.1.cjs example:min
-node .yarn/releases/yarn-3.1.1.cjs example:routing
-node .yarn/releases/yarn-3.1.1.cjs example:unknown-length
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/min.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-routing.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length.spec.ts
 ```
 
-The examples run JavaScript through Prophet. They do not sample the host random
-generator: every `Math.random()` call produces a fresh unknown number with
-`0 <= value < 1`.
+- [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
+  unknown random values, checks every element bound, and preserves uncertain
+  results. No host random numbers are sampled.
+- [Symbolic routing](test/symbolic-routing.spec.ts) proves that returned strings
+  agree with writes observed through an object alias, while the chosen route
+  stays unknown.
+- [Unknown-length recursion](test/unknown-length.spec.ts) checks inferred bounds
+  for minimum and maximum, an unknown length, proof work counts, summary reuse,
+  and cases that must not gain unsupported facts.
 
-[Recursive minimum](examples/recursive-min.js) evaluates:
+Specs execute JavaScript through `evaluateCode(source, initialContext)` from
+`src/index.ts`. The returned context stores bindings in `context.value.scope`.
+Each interpreted `Math.random()` produces a fresh unknown number in [0, 1).
 
-```js
-function min(arr) {
-  if (arr.length === 1) return arr[0];
-  const tailMin = min(arr.slice(1));
-  return arr[0] < tailMin ? arr[0] : tailMin;
-}
+## Spec-first development
 
-const d = [
-  Math.random(), Math.random(), Math.random(), Math.random(), Math.random(),
-  Math.random(), Math.random(), Math.random(), Math.random(), Math.random()
-];
-const x = d[0] < min(d);
-```
+The goal is full Test262 coverage and advanced symbolic evaluation in the same
+VM. Every feature should expand executable specifications and the implementation
+together:
 
-`x` becomes a boolean with `value: false`. The input numbers and minimum remain
-unknown. The comparison and conditional selection establish that the returned
-number is no greater than either alternative; those facts compose through the
-recursive calls. No rule recognizes the name or implementation of `min`.
+1. Start with a small spec that expresses the desired JavaScript behavior or
+   symbolic conclusion. Keep the source and explicit input assumptions beside
+   assertions for both proven results and results that must remain unknown.
+2. For language semantics, add relevant complete, unmodified Test262 cases to
+   the active corpus and extend runner support when needed. For symbolic
+   features, add proof and counterexample specs; use independent concrete
+   JavaScript checks where they help catch unsound conclusions.
+3. Implement reusable VM semantics and reasoning rules. Do not recognize a
+   sample function by its name or body, or quietly narrow its inputs just to
+   make the spec pass. Record temporary strategy/input limits explicitly and
+   expand them with cases such as empty/sparse arrays, NaN/infinities, aliases,
+   side effects, and alternative control flow.
+4. Run the affected spec files while developing. Before publishing the next
+   stacked PR, run the full specs and typecheck. Existing passing behavior must
+   remain covered; unsupported or skipped cases do not count as conformance.
 
-[Symbolic routing](examples/symbolic-routing.js) demonstrates the same machinery
-with strings, booleans, early returns, object writes, and aliases:
-
-```js
-function route(score, record) {
-  if (score < 0.5) {
-    record.lane = "left";
-    record.accepted = true;
-    return "left";
-  }
-  record.lane = "right";
-  record.accepted = false;
-  return "right";
-}
-
-const score = Math.random();
-const record = { lane: "pending", accepted: false };
-const alias = record;
-const lane = route(score, record);
-
-const consistent = lane === alias.lane;
-const valid = score < 0.5
-  ? lane === "left" && alias.accepted
-  : lane === "right" && !alias.accepted;
-const impossible = score < 0.5 && lane === "right";
-const uncertain = lane === "left";
-```
-
-Prophet proves `consistent` and `valid` true, and `impossible` false.
-`uncertain` stays unknown: either lane is possible. The function's return value
-and the object's fields retain their connection to the same branch condition.
-
-Programmatic evaluation uses `evaluateCode(source, nodeInitialExecutionContext)`
-from `src/index.ts`. The returned pair contains the completion and execution
-context; variables are available at `context.value.scope`. The example runner
-prints the requested variables' types and concrete values, or `"unknown"`.
+Boundary specs that currently expect an unsupported-analysis error protect
+against false proofs. They record missing capability, not the desired final VM
+behavior. When implementing that capability, replace those rejection assertions
+with the appropriate JavaScript behavior and symbolic results. Keep remaining
+limits visible; do not make the tests permanently enforce a shortcut.
 
 ## Values, expressions, and knowledge
 
@@ -131,7 +113,7 @@ extract useful numeric facts from them.
 ## Validation and current limits
 
 ```sh
-node .yarn/releases/yarn-3.1.1.cjs test:min
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/test262.spec.ts test/test262/runner.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
@@ -146,15 +128,15 @@ harness and metadata. Test262 source always runs through Prophet; separate local
 differential tests use host JavaScript as an independent concrete oracle.
 
 The parser accepts JavaScript, so omit TypeScript annotations in interpreted
-source. The original recursive minimum example uses a nonempty array of known length
-and executes its recursive calls. The separate unknown-length example infers
-and verifies a reusable summary as described below.
+source. The known-length minimum specs execute recursive calls. The
+unknown-length specs infer and verify reusable summaries as described below.
 
 Function environments still use the original flat scope representation, without
-full lexical closures or block scoping. Array indexing uses concrete keys. Symbolic dense arrays retain stable element
-identities and guarded reads; writes to these snapshots are currently rejected. Object-to-primitive
-coercions and symbolic calls that throw on only some paths are rejected when
-unsupported. The interpreter does not yet implement all syntax, built-ins,
+full lexical closures or block scoping. Array indexing uses concrete keys.
+Symbolic dense arrays retain stable element identities and guarded reads; writes
+to these snapshots are currently rejected. Object-to-primitive coercions and
+symbolic calls that throw on only some paths are rejected when unsupported.
+The interpreter does not yet implement all syntax, built-ins,
 property semantics, or language errors.
 
 The reasoner is deliberately incomplete: a result can remain unknown even when
@@ -166,8 +148,8 @@ unknown-length recursion described below.
 
 ## Unknown-length recursion
 
-[The unknown-length example](examples/unknown-length.js) runs the same recursive
-minimum and an independently written maximum on a nonempty dense array whose
+[The unknown-length specs](test/unknown-length.spec.ts) run recursive minimum
+and an independently written maximum on a nonempty dense array whose
 length is unknown. Its input contract is supplied through the VM API:
 
 ```ts
@@ -201,12 +183,27 @@ Their names do not matter. A head-only or tail-only implementation does not gain
 universal bounds. Tests also check changed base cases, skipped elements, and
 special branches at lengths 3 and 2^32 - 1.
 
-The demo produces `x = false` for `d[0] < min(d)` and `aboveMaximum = false` for
+The specs assert `x = false` for `d[0] < min(d)` and `aboveMaximum = false` for
 `d[0] > max(d)`. `min(d) < d[0]` and `d.length` remain unknown. For each function,
 the proof executes one singleton body and two general-step bodies. The second
 minimum call reuses its verified summary without evaluating the body again.
-`getInferredSummaries(fn)` exposes these counts and the retained facts; the
-example runner includes them in its JSON output.
+`getInferredSummaries(fn)` exposes these counts and the retained facts, which
+the specs assert directly.
+
+These restrictions are enforced by the implementation, not just chosen in the
+spec input. The strategy is specialized to induction over array length, with a
+singleton base case and the four candidate fact kinds listed above. The facts
+that survive are derived from the body; the engine does not recognize `min` or
+`max`. It is not yet a general recursion solver.
+
+The sample minimum has no empty-array stopping case, so its nonempty assumption
+is necessary for termination. Supporting functions with an empty base case also
+requires extending the current proof strategy to check length zero. Dense
+numeric arrays avoid modeling unknown holes and coercions in this first strategy.
+The finite-only guard is stronger than necessary for infinities; NaN requires
+careful comparison reasoning because an element-wide `<=` fact may fail even
+when the original strict comparison can still be proved false. These are
+implementation limits to expand through specs, not permanent VM requirements.
 
 This first inference domain supports a pure, directly self-recursive function
 with one dense numeric-array argument. Elements must have a finite numeric
