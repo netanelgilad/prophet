@@ -29,7 +29,7 @@
 | Legacy URL parsing, deferred warnings and source provenance | `stack/node-legacy-url` | `stack/node-posix-path` | [#47](https://github.com/netanelgilad/prophet/pull/47) |
 | Shared symbolic filesystem state and missing-index exception proof | `stack/node-filesystem-state` | `stack/node-legacy-url` | [#48](https://github.com/netanelgilad/prophet/pull/48) |
 | Buffer-valued reads and persistent symbolic bytes | `stack/node-buffer-reads` | `stack/node-filesystem-state` | [#49](https://github.com/netanelgilad/prophet/pull/49) |
-| Shared instanceof and declared prototype relationships | `stack/shared-instanceof` | `stack/node-buffer-reads` | Pending publication |
+| Shared instanceof and declared prototype relationships | `stack/shared-instanceof` | `stack/node-buffer-reads` | [#50](https://github.com/netanelgilad/prophet/pull/50) |
 
 Current development tip: `stack/shared-instanceof`.
 
