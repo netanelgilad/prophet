@@ -9,8 +9,9 @@
 | Lexical environments and captured validators | `stack/lexical-environments` | `stack/spec-first-workflow` | [#27](https://github.com/netanelgilad/prophet/pull/27) |
 | Symbolic call completions | `stack/symbolic-call-completions` | `stack/lexical-environments` | [#28](https://github.com/netanelgilad/prophet/pull/28) |
 | Symbolic arithmetic bounds | `stack/symbolic-arithmetic-bounds` | `stack/symbolic-call-completions` | [#29](https://github.com/netanelgilad/prophet/pull/29) |
+| Host compatibility and effectful server roadmap | `stack/host-runtime-roadmap` | `stack/symbolic-arithmetic-bounds` | [#30](https://github.com/netanelgilad/prophet/pull/30) |
 
-Current development tip: `stack/symbolic-arithmetic-bounds`.
+Current development tip: `stack/host-runtime-roadmap`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when
