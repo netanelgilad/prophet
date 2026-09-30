@@ -9,7 +9,7 @@ a small external project, keep its code unchanged, and then grow to larger
 applications and dependency graphs. Application names and source patterns must
 never become VM inference rules.
 
-**First symbolic header finding established; filesystem analysis remains incomplete.** The first target is
+**Bounded symbolic header and unhandled-exception findings established; successful file serving remains incomplete.** The first target is
 [`udivankin/pico-static-server` 3.0.3](https://github.com/udivankin/pico-static-server/tree/6b553fb34e3b5b5bccf3c082bb2cae5f93b9e3be).
 The complete published fixture is retained with its license and integrity
 records. Independent Node specs now exercise its real server and reproduce an
@@ -28,13 +28,16 @@ response has an empty body and omits the intended Allow field: the status is 200
 for OPTIONS and 405 otherwise. The application's reversed writeHead arguments
 produce numeric header names instead. Pinned Node had already exposed this
 behavior; this is now a symbolic finding in the declared domain, not a novel
-vulnerability claim. Shared [POSIX path](node-path.md) and
-[legacy URL](node-url.md) models now execute the original GET/HEAD path expression
-for supported strings, then stop at the actual `fs.existsSync` lookup. Source
-placement determines whether DEP0169 is suppressed or scheduled; its default
-delivery is modeled separately. No filesystem result is supplied, and the
-missing-file exception has not been reached symbolically. HTTPS/fs imports
-retain opaque identities; no native implementation runs during symbolic exploration.
+vulnerability claim. Shared [POSIX path](node-path.md), [legacy URL](node-url.md)
+and [filesystem](node-filesystem.md) models now classify a GET/HEAD request for
+`/docs` over one symbolic tree: a missing directory completes 404, while an
+existing empty directory causes the original readFileSync of its missing index
+to throw ENOENT out of the registered listener before a response is committed.
+Both conditions are proved without deciding which tree was supplied. This
+symbolically reproduces the native reference's exception, under the declared
+environment. Readable-file success still stops at the Buffer return boundary.
+Source placement determines DEP0169 eligibility; HTTPS remains opaque. No native
+implementation runs during symbolic exploration.
 
 ## Why this project
 
@@ -96,17 +99,18 @@ Express, routing, or filesystem-success shortcut is allowed.
 
 | Question | Useful result |
 | --- | --- |
-| Can an ordinary request cause an exception to escape its request listener when the requested directory exists but its default file does not? | A condition on the request and filesystem state, the original source location and exception, prior effects, and eventually a concrete reproducible request/tree. |
+| Can an ordinary request cause an exception to escape its request listener when the requested directory exists but its default file does not? | Now proved for GET/HEAD `/docs` over the missing/empty-directory choice: the empty directory causes ENOENT at the original index read. Both conditions, ordered effects and unfinished response state have matching native witnesses. |
 | Does the response actually contain the Allow field the application supplies? | Now proved absent for the declared delivered-request-event domain with method neither GET nor HEAD because writeHead receives reversed arguments; retain conditional status, actual numeric header fields and the successful-transport assumptions. |
 | Which request methods reach filesystem operations? | A proof relating the method to attempted filesystem reads, rather than a handful of successful requests. |
-| For a readable existing file or an absent path, what response is committed? | Status, headers/body, completion, and ordered read/response effects; HEAD's wire body must remain separate from data supplied by application code. |
-| Can a filesystem failure leave a response unfinished, or can the application's apparent error-response branch actually handle it? | Classify thrown and normal paths, without converting Node failures into successful return values or inventing an automatic 500 response. |
+| For a readable existing file or an absent path, what response is committed? | Absent paths now complete 404 with an empty body. Readable-file success stops at the Buffer return gap; later status/body/write behavior and HEAD semantics need their own support. |
+| Can a filesystem failure leave a response unfinished, or can the application's apparent error-response branch actually handle it? | The bounded missing-index proof leaves headersSent and writableEnded false: the throw prevents the subsequent `data instanceof Error` branch from running. Broader failure families remain open. |
 
 The first question came from inspecting the original source: it checks the
 requested path, may append a default filename, calls `readFileSync`, and examines
-the returned value afterward. The independent Node reference now reproduces the
-failure described below. This is **concrete evidence, not a symbolic finding**
-or a claim of a novel vulnerability.
+the returned value afterward. The independent Node reference first reproduced
+the failure described below; the shared filesystem model now establishes its
+bounded symbolic condition and the matching native witnesses. This remains a
+reproduction of known behavior, not a claim of a novel vulnerability.
 
 Later questions include whether a requested path can read outside the configured
 root, including symbolic links and filesystem changes between operations. These
@@ -183,10 +187,12 @@ GET and HEAD now execute the original expression
 `path.join(options.staticPath, path.normalize(url.parse(request.url).pathname))`.
 For `/folder/../missing?download=1` and staticPath `/site`, it computes
 `/site/missing`, including the explicit normalize call and the current normalize
-call inside join. The next unsupported lookup is `fs.existsSync`. A read-only
-lookup observer records the actual preceding scope and effects without supplying
-a filesystem method or result. This establishes path computation for the supplied
-request, not file existence, URL decoding, containment or file-serving completion.
+call inside join. The shared closed filesystem declares `/site` empty, so
+existsSync returns false and the original handler completes 404 with an empty
+body. A read-only lookup observer still records the actual preceding scope and
+effects; it does not provide filesystem results. This establishes the supplied
+path's absence within the declared tree, not URL decoding, containment or
+successful file serving.
 The generic [URL](../test/node-url.spec.ts) and [path](../test/node-path.spec.ts)
 specs separately cover their concrete and finite-choice domains and boundaries.
 
@@ -198,10 +204,34 @@ so the actual callback retains its origin after module loading. No warning is
 delivered while this synchronous handler is still running. Independent
 [warning specs](../test/node-warnings.spec.ts) cover deferred default presentation
 under its declared healthy-stderr environment; arbitrary flags/listeners and a
-general scheduler remain open. Next are correlated filesystem existence/type/read
-outcomes and errors. path.parse for MIME selection and wider URL forms remain
-later boundaries. Completion and filesystem exception classification remain
-unimplemented. Overriding `protocol` to `https` still reaches the opaque
+general scheduler remain open.
+
+The new symbolic GET/HEAD case keeps the URL `/docs` and configuration fixed,
+and chooses `/site/docs` between `ESNull` and an empty directory. The unknown
+`directoryExists` Boolean is reused through the shared filesystem state. If
+false, the handler attempts only existsSync and completes 404. If true, it calls
+statSync/isDirectory, appends the original default `index.html`, and the actual
+readFileSync at `index.js:126` throws ENOENT (`open`, `/site/docs/index.html`).
+That completion escapes `http.server.request`; headersSent and writableEnded
+are false and no writeHead occurs. No read result reaches the later
+`data instanceof Error` check, so its apparent 500 branch cannot handle this
+failure. Both leaf conditions are established; directoryExists still remains
+unknown after merging. The model neither chooses the convenient tree nor
+independently guesses the three filesystem results.
+
+This is a bounded symbolic reproduction of the independently observed native
+failure, under the no-process-recovery-hook assumption. It is not an all-filesystem
+proof or a newly discovered vulnerability. Four concrete reference specs now
+replay the same `/docs` request for GET/HEAD and each directory-state alternative
+under an isolated native static root: absent yields 404; empty directory yields
+uncaught ENOENT for `docs/index.html`, exit code 1 and no completed response.
+These are explicit supplied witnesses, not automatic satisfying-input generation.
+Readable regular-file GET/HEAD cases
+now reach the explicit successful Buffer-return gap; they do not return fake
+text or count as safe completed paths. Next are shared Buffer/value semantics
+and the later `instanceof`, path.parse and HTTP response-write boundaries needed
+for successful file serving. Wider URL forms, filesystem environments and
+schedules remain expansions. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
 records the concrete domain, original wildcard listen behavior, and file hashes.
@@ -217,11 +247,14 @@ The first useful proof is deliberately bounded and must be labeled that way:
   initially a finite symbolic choice of request targets: a regular file, an
   absent path, and a directory. Include GET, HEAD, OPTIONS, and another method;
   broaden method strings and URL strings as their semantics become supported.
-- An explicit small POSIX filesystem rooted in a temporary/symbolic directory:
-  readable file, missing path, directory with a present or absent default file.
-  Correlate `existsSync`, `statSync`, and `readFileSync` through this shared state;
-  they are not independently chosen return values. No symlinks or concurrent
-  filesystem changes in this first domain. File contents may start concrete.
+- A closed, case-sensitive UTF-8 namespace with selected Linux/macOS read/error
+  behavior and a valid cwd. Shared root/entry choices now correlate existsSync,
+  statSync and readFileSync; they are not independently chosen return values.
+  The first target exception proof chooses a missing path or an empty directory.
+  UTF-8 file reads work in generic model specs, but the target's successful
+  Buffer-valued read remains unsupported. No symlinks, permission/resource
+  failures or concurrent namespace changes are included. Metadata/atime and
+  partial-I/O effects are not proved absent; their observation remains unmodeled.
 - Synchronous filesystem exceptions and listener propagation follow pinned Node.
   Add permission failures, races, Buffer contents, richer URL forms, repeated
   requests, startup/network failures, and other schedules as separate expansions.
@@ -249,10 +282,12 @@ been analyzed. Keep both source coverage and domain coverage visible.
    original template and console output under a healthy-stdout assumption.
    Scoped direct response headers and the pinned status-code catalog now complete
    OPTIONS/POST/DELETE responses. Scoped legacy URL parsing and POSIX
-   join/normalize now compute the actual GET/HEAD request path before stopping at
-   fs.existsSync. Source-based warning eligibility distinguishes the installed
+   join/normalize now compute the actual GET/HEAD request path, and shared
+   filesystem state completes absent-path 404 or propagates the missing-index
+   ENOENT. Source-based warning eligibility distinguishes the installed
    package from the checkout; default warning delivery is a separate transition.
-   Broader URL/path APIs and filesystem behavior remain.
+   Successful default Buffer reads, broader URL/path APIs and filesystem
+   environments remain.
    Any uncovered `instanceof`/property semantics need shared support and relevant
    complete Test262 cases. Add the required Node response/Buffer, URL/path,
    filesystem, and broader listen
@@ -262,14 +297,18 @@ been analyzed. Keep both source coverage and domain coverage visible.
    and correlated filesystem choices. Retain every reachable normal/throw path,
    exception location, condition, ordered effects, and final resource state.
    The supplied request-event domain with a non-GET/HEAD method now proves the missing Allow field and conditional
-   200/405 status. This is the first bounded effect finding, not filesystem-path
-   coverage. Continue toward the existing-directory/missing-default-file exception.
+   200/405 status. The GET/HEAD directory-state choice now also proves absent-path
+   404 versus an escaping missing-default-file ENOENT, with the unfinished
+   response state. Continue through readable-file and broader environment paths.
    Assert a valid property, a violating path if one exists, and a result that
    must remain unknown. An unsupported operation must be recorded as a coverage
    gap, never counted as a safe path.
 4. **Actionable result and replay.** Turn a feasible violating path into a concrete
    request, configuration, filesystem fixture, and event schedule, then reproduce
-   the observation in pinned Node against the same unmodified source. The initial
+   the observation in pinned Node against the same unmodified source. The bounded
+   GET/HEAD `/docs` proof now has four matching, manually supplied native witnesses
+   for absent versus empty-directory state. Automatic extraction remains future
+   work. The initial
    finite choices allow a selected concrete witness without requiring a general
    string/SMT solver. Add a general witness mechanism only when the execution
    representation supports it; failed proof and unresolved constraints are not
@@ -284,10 +323,10 @@ been analyzed. Keep both source coverage and domain coverage visible.
 Shared event listeners, arrow functions, identifier defaults, data-object
 spread, numeric listen overloads, untagged templates, scoped console output and
 direct response headers now support startup and the non-GET/HEAD response proof.
-POSIX join/normalize and path-only legacy URL parsing now reach the actual
-fs.existsSync lookup, with explicit open-string and broader-API gaps. Next model
-correlated filesystem existence, type and read outcomes, including failures,
-toward the unhandled-exception goal. Broader headers and transport remain separate work;
+POSIX join/normalize, path-only legacy URL parsing and shared symbolic filesystem
+state now classify the bounded 404/escaping-ENOENT case in the original server.
+Next support successful Buffer-valued reads and their later language/path/response
+consumers, then expand filesystem errors, inputs and schedules. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.

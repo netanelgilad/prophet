@@ -116,7 +116,7 @@ function removeTree(directory: string) {
   rmdirSync(directory);
 }
 
-function observeServer(method: string, target: string) {
+function observeServer(method: string, target: string, docsExists = false) {
   assertPinnedNode();
   // Explicit first domain: POSIX paths, one request, fixed readable contents,
   // no symlinks, no concurrent filesystem changes and no exception recovery.
@@ -125,6 +125,7 @@ function observeServer(method: string, target: string) {
   try {
     mkdirSync(join(directory, "ready"));
     mkdirSync(join(directory, "empty"));
+    if (docsExists) mkdirSync(join(directory, "docs"));
     writeFileSync(join(directory, "hello.txt"), fileBody);
     writeFileSync(join(directory, "ready", "index.html"), indexBody);
     const result = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath,
@@ -292,3 +293,31 @@ describe("unmodified pico-static-server 3.0.3: concrete pinned Node reference", 
     });
   }
 });
+
+
+for (const method of ["GET", "HEAD"]) for (const directoryExists of [false, true]) {
+  test(`replay the symbolic /docs filesystem branch in pinned Node: ${method}, directory=${directoryExists}`, () => {
+    // These are the two concrete environments represented by the symbolic
+    // directory choice in the analysis spec, using the same request target.
+    const result = observeServer(method, "/docs", directoryExists);
+    if (directoryExists) {
+      expect(result.status).toBe(1);
+      expect(result.signal).toBeNull();
+      expect(observedFilesystem(result.events)).toEqual([
+        ...existingPath("docs", true),
+        { kind: "fs-call", operation: "readFileSync", path: "docs/index.html" },
+        { kind: "fs-throw", operation: "readFileSync", path: "docs/index.html", name: "Error", code: "ENOENT", syscall: "open" }
+      ]);
+      expect(result.events.filter(event => event.kind === "uncaught")).toMatchObject([
+        { code: "ENOENT", syscall: "open", path: "docs/index.html", response: { headersSent: false, ended: false } }
+      ]);
+      expect(result.events.some(event => event.kind === "response" || event.kind === "handler-return")).toBe(false);
+    } else {
+      expectResponse(result, 404, "Not Found", "");
+      expect(observedFilesystem(result.events)).toEqual([
+        { kind: "fs-call", operation: "existsSync", path: "docs" },
+        { kind: "fs-return", operation: "existsSync", path: "docs", value: false }
+      ]);
+    }
+  });
+}

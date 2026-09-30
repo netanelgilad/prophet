@@ -27,8 +27,9 @@
 | Response headers, status catalog, and the real server's missing Allow proof | `stack/http-response-headers` | `stack/console-template-startup` | [#45](https://github.com/netanelgilad/prophet/pull/45) |
 | POSIX path operations and conditional path-building proofs | `stack/node-posix-path` | `stack/http-response-headers` | [#46](https://github.com/netanelgilad/prophet/pull/46) |
 | Legacy URL parsing, deferred warnings and source provenance | `stack/node-legacy-url` | `stack/node-posix-path` | [#47](https://github.com/netanelgilad/prophet/pull/47) |
+| Shared symbolic filesystem state and missing-index exception proof | `stack/node-filesystem-state` | `stack/node-legacy-url` | [#48](https://github.com/netanelgilad/prophet/pull/48) |
 
-Current development tip: `stack/node-legacy-url`.
+Current development tip: `stack/node-filesystem-state`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when

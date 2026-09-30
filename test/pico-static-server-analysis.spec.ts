@@ -1,23 +1,26 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { createCommonJSLoader, createConsoleModel, createHTTPModel, createLegacyURLModel, createPosixPathModel, evaluateCode, isForkedCompletion,
+import { createCommonJSLoader, createConsoleModel, createFileSystemModel, fileSystemDirectory, fileSystemFile, createHTTPModel, createLegacyURLModel, createPosixPathModel, evaluateCode, isForkedCompletion,
   nodeInitialExecutionContext } from "../src";
 import { isESFunction } from "../src/Function/Function";
 import { ESObject } from "../src/Object";
 import { effectPaths } from "../src/effects";
 import { ExecutionContext, setVariablesInScope, TExecutionContext } from "../src/execution-context/ExecutionContext";
 import { getProperties } from "../src/execution-context/Heap";
-import { isThrownValue, WithProperties } from "../src/types";
+import { Any, ESNull, isThrownValue, WithProperties } from "../src/types";
 import { ESString } from "../src/string/String";
-import { resolveBoolean, strictEquality } from "../src/symbolic";
-import { assumeInContext } from "../src/execution-context/branches";
+import { resolveBoolean, selectValue, strictEquality } from "../src/symbolic";
+import { assumeInContext, BranchResult } from "../src/execution-context/branches";
+import { ESBoolean } from "../src/boolean/ESBoolean";
 
 const packageDirectory = join(__dirname, "fixtures/pico-static-server-3.0.3/package");
 
-function packageLoader(layout: "installed" | "checkout" = "installed") {
+function packageLoader(layout: "installed" | "checkout" = "installed",
+  root: Any = fileSystemDirectory({ site: fileSystemDirectory({}) })) {
   const http = createHTTPModel();
   const consoleModel = createConsoleModel();
   const url = createLegacyURLModel();
+  const filesystem = createFileSystemModel({ root });
   const moduleDirectory = layout === "installed" ? "/app/node_modules/pico-static-server" : "/app/fixture/package";
   // These modules promise identity only. Any attempted member access stops
   // analysis. Loading an unused import does not establish API compatibility.
@@ -33,8 +36,8 @@ function packageLoader(layout: "installed" | "checkout" = "installed") {
     [moduleDirectory + "/package.json"]: readFileSync(join(packageDirectory, "package.json"), "utf8"),
     [moduleDirectory + "/index.js"]: readFileSync(join(packageDirectory, "index.js"), "utf8")
   }, { builtins: { http: http.module, https: opaque("https"), url: url.module,
-    process: url.process, fs: opaque("fs"), path: createPosixPathModel().module } });
-  return { http, consoleModel, url, loader, context };
+    process: url.process, fs: filesystem.module, path: createPosixPathModel().module } });
+  return { http, consoleModel, url, filesystem, loader, context };
 }
 
 test("the unmodified published static-server module loads its actual arrow factory", () => {
@@ -181,22 +184,28 @@ test("a delivered request event with an unknown non-GET/HEAD method proves Allow
 });
 
 for (const method of ["GET", "HEAD"]) for (const layout of ["installed", "checkout"] as Array<"installed" | "checkout">) {
-  test(`the real ${method} handler normalizes the request path before its filesystem boundary (${layout})`, () => {
+  test(`the real ${method} handler normalizes the request path and returns 404 for the missing file (${layout})`, () => {
     const setup = packageLoader(layout);
     const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
     const [, started] = evaluateCode('const server = factory({ port: 0, staticPath: "/site" });',
       setVariablesInScope(loaded, { factory }));
     const server = started.value.scope.server;
     const [, ready] = setup.http.completeListen(server, started);
-    // A read-only observer sees state at the next unsupported lookup. It does
-    // not supply fs.existsSync or fabricate a filesystem result.
+    // A read-only observer retains the original path computation. The shared
+    // filesystem model then resolves the path from the declared empty /site.
     let boundary: TExecutionContext | undefined;
     const observed = ExecutionContext({ ...ready.value, validateRead: (_object: object, name: string, current: TExecutionContext) => {
       if (name === "existsSync") boundary = current;
     } });
-    expect(() => setup.http.deliverRequest(server, {
+    const delivered = setup.http.deliverRequest(server, {
       method: ESString(method), url: ESString("/folder/../missing?download=1")
-    }, observed)).toThrow("Unmodeled host property 'existsSync': Unimplemented Node fs API");
+    }, observed);
+    expect(isThrownValue(delivered.result[0])).toBe(false);
+    expect(isForkedCompletion(delivered.result[0])).toBe(false);
+    const [, finished] = setup.http.completeResponse(delivered.response, delivered.result[1]);
+    expect(setup.http.inspectResponse(delivered.response, finished)).toMatchObject({
+      statusCode: { value: 404 }, body: { value: "" }
+    });
     expect(boundary).toBeDefined();
     expect(boundary!.value.scope.requestPath).toMatchObject({ value: "/site/missing" });
     const calls = effectPaths(boundary!.value.effects!)[0].events.filter(event => event.kind === "call");
@@ -218,3 +227,79 @@ test("overriding the real factory's protocol reaches the explicitly unmodeled HT
   expect(() => evaluateCode('factory({ protocol: "https" });', setVariablesInScope(context, { factory })))
     .toThrow("Unmodeled host property 'createServer': Unimplemented Node https API");
 });
+
+
+function completionLeaves(result: BranchResult): BranchResult[] {
+  return isForkedCompletion(result[0])
+    ? completionLeaves(result[0].consequent).concat(completionLeaves(result[0].alternate)) : [result];
+}
+
+for (const method of ["GET", "HEAD"]) {
+  test(`the unchanged ${method} handler classifies symbolic filesystem state as 404 or escaping missing-index ENOENT`, () => {
+    // Same request and application source on both paths. A closed, stable,
+    // case-sensitive tree has either no docs entry or an empty docs directory.
+    // No index file is supplied in either state. Binding/transport/stdout use
+    // the existing declared success domain; no process exception recovery hook.
+    const directoryExists = ESBoolean();
+    const root = fileSystemDirectory({ site: fileSystemDirectory({
+      docs: selectValue(directoryExists, fileSystemDirectory({}), ESNull)
+    }) });
+    const setup = packageLoader("installed", root);
+    const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
+    const [, started] = evaluateCode('const server = factory({ port: 0, staticPath: "/site" });',
+      setVariablesInScope(loaded, { factory }));
+    const server = started.value.scope.server;
+    const [, ready] = setup.http.completeListen(server, started);
+    const delivered = setup.http.deliverRequest(server, { method: ESString(method), url: ESString("/docs") }, ready);
+    expect(isForkedCompletion(delivered.result[0])).toBe(true);
+    const leaves = completionLeaves(delivered.result);
+    expect(leaves).toHaveLength(2);
+    for (const [completion, context] of leaves) {
+      const exists = resolveBoolean(directoryExists, context.value.knowledge);
+      expect(exists).not.toBeUndefined();
+      const response = getProperties(delivered.response, context);
+      const events = effectPaths(context.value.effects, context.value.knowledge)[0].events;
+      const filesystemCalls = events.filter(event => event.kind === "call" && event.call.operation.startsWith("fs."));
+      if (exists) {
+        expect(isThrownValue(completion)).toBe(true);
+        if (!isThrownValue(completion)) throw new Error("Expected escaping file-read exception");
+        expect(getProperties(completion.value as WithProperties, context)).toMatchObject({
+          code: { value: "ENOENT" }, syscall: { value: "open" }, path: { value: "/site/docs/index.html" }
+        });
+        expect(response.headersSent).toMatchObject({ value: false });
+        expect(response.writableEnded).toMatchObject({ value: false });
+        expect(filesystemCalls.map(event => event.call.operation)).toEqual([
+          "fs.existsSync", "fs.statSync", "fs.Stats.isDirectory", "fs.readFileSync"
+        ]);
+        expect(filesystemCalls[3].call.args[0]).toMatchObject({ value: "/site/docs/index.html" });
+        expect(events.some(event => event.kind === "throw" && event.call.operation === "http.server.request")).toBe(true);
+        expect(events.some(event => event.call.operation === "http.response.writeHead")).toBe(false);
+      } else {
+        expect(isThrownValue(completion)).toBe(false);
+        expect(response.headersSent).toMatchObject({ value: true });
+        expect(response.writableEnded).toMatchObject({ value: true });
+        expect(filesystemCalls.map(event => event.call.operation)).toEqual(["fs.existsSync"]);
+        const [, finished] = setup.http.completeResponse(delivered.response, context);
+        expect(setup.http.inspectResponse(delivered.response, finished)).toMatchObject({
+          statusCode: { value: 404 }, body: { value: "" }
+        });
+      }
+    }
+    expect(resolveBoolean(directoryExists, delivered.result[1].value.knowledge)).toBeUndefined();
+    expect(setup.filesystem.inspectRoot(ready)).toBe(root);
+  });
+
+  test(`the real ${method} readable-file path reaches the explicit Buffer return gap`, () => {
+    const setup = packageLoader("installed", fileSystemDirectory({ site: fileSystemDirectory({
+      "index.txt": fileSystemFile("contents")
+    }) }));
+    const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
+    const [, started] = evaluateCode('const server = factory({ port: 0, staticPath: "/site" });',
+      setVariablesInScope(loaded, { factory }));
+    const server = started.value.scope.server;
+    const [, ready] = setup.http.completeListen(server, started);
+    expect(() => setup.http.deliverRequest(server, {
+      method: ESString(method), url: ESString("/index.txt")
+    }, ready)).toThrow("successful Buffer-valued readFileSync");
+  });
+}

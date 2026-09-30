@@ -107,15 +107,17 @@ path.join(options.staticPath, path.normalize(url.parse(request.url).pathname))
 The [legacy URL model](node-url.md) now evaluates the nested parse call for
 supported path-only strings. For `/folder/../missing?download=1` and staticPath
 `/site`, the explicit normalize call and join's current normalize call produce
-`/site/missing`. Execution then stops at the actual `fs.existsSync` lookup. A
-read-only observer records the preceding scope/effects; no filesystem method
-or result is substituted.
+`/site/missing`. The [filesystem model](node-filesystem.md) now checks the declared
+empty `/site` and the original handler completes 404. A read-only observer records
+the preceding scope/effects without supplying a filesystem result. The shared
+symbolic tree also classifies `/docs`: missing directory returns 404; empty
+directory causes the original index read to throw ENOENT before any response
+commit. Matching native GET/HEAD witnesses reproduce those two conditions.
 
-The next work is correlated filesystem existence/type/read outcomes and errors,
-then remaining path/response operations reached by the unchanged source. Source
-provenance preserves DEP0169 eligibility, with warning delivery separate from
-the synchronous handler. The missing-default-file exception is still only a
-native reference observation.
+The next boundary is a successful default Buffer-valued read, then remaining
+language/path/response operations. Source provenance preserves DEP0169
+eligibility, with warning delivery separate from the synchronous handler.
+Broader filesystem inputs, metadata, failures and schedules remain open.
 Existing successful-bind, healthy-stdout, delivered-request-event and transport
 assumptions remain unchanged, as does the scoped symbolic missing-Allow finding.
 
