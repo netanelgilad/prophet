@@ -178,6 +178,56 @@ describe("recursive summaries agree with concrete JavaScript", () => {
     )).toThrow(/captured binding undefined/);
   });
 
+  test("caller shadows cannot change a recursive closure's proof dependencies", () => {
+    const context = execute(`
+      function fold(a) { ${minimum} }
+      const saved = fold;
+      function invoke(fold) { return saved(input); }
+      const result = invoke(function () { return 42; });
+      const proof = input[0] < result;
+      const uncertain = result < input[0];
+    `, setVariablesInScope(nodeInitialExecutionContext, { input: inputFor() }));
+    expect(context.value.scope.proof).toMatchObject({ value: false });
+    expect((context.value.scope.uncertain as TESBoolean).value).toBeUndefined();
+    expect(getInferredSummaries(context.value.scope.saved)[0].facts).toEqual(["finite", "notNaN", "lower"]);
+  });
+
+  test("rebinding the captured recursive name prevents reuse of its old proof", () => {
+    const input = symbolicNumberArray({ minimumLength: 2, element: finiteTemplate() });
+    const context = execute(`
+      function fold(a) { ${minimum} }
+      const saved = fold;
+      const first = saved(input);
+      fold = function (a) { return 42; };
+      const second = saved(input);
+      const proof = second <= 42;
+      const uncertain = second < input[0];
+    `, setVariablesInScope(nodeInitialExecutionContext, { input }));
+    expect(context.value.scope.proof).toMatchObject({ value: true });
+    expect((context.value.scope.uncertain as TESBoolean).value).toBeUndefined();
+    expect(getInferredSummaries(context.value.scope.saved)[0].applications).toBe(1);
+  });
+
+  test("a departed shadow cannot conceal captured reads or writes from validation", () => {
+    for (const [operation, error] of [
+      ["if (a.length === 0xffffffff) return captured;", /captured binding captured/],
+      ["captured = 1;", /writes outside local/]
+    ] as Array<[string, RegExp]>) {
+      const defined = execute(`
+        let captured = 0;
+        function fold(a) {
+          { let captured = a[0]; }
+          ${operation}
+          ${minimum}
+        }
+      `);
+      expect(() => execute("const result = fold(input);",
+        setVariablesInScope(defined, { input: inputFor() })
+      )).toThrow(error);
+      expect(getInferredSummaries(defined.value.scope.fold)).toEqual([]);
+    }
+  });
+
   test("mutable self properties and unverified local operations cannot publish summaries", () => {
     const cases: Array<[string, string, RegExp]> = [
       [minimum.replace("return a[0];", "return fold.mode;"), "fold.mode = 0;",

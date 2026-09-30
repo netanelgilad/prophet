@@ -6,8 +6,9 @@
 | Test262 baseline and CI | `stack/test262-baseline` | `revive-symbolic-min` | [#24](https://github.com/netanelgilad/prophet/pull/24) |
 | Unknown-length recursion | `stack/unknown-length-recursion` | `stack/test262-baseline` | [#25](https://github.com/netanelgilad/prophet/pull/25) |
 | Spec-first development workflow | `stack/spec-first-workflow` | `stack/unknown-length-recursion` | [#26](https://github.com/netanelgilad/prophet/pull/26) |
+| Lexical environments and captured validators | `stack/lexical-environments` | `stack/spec-first-workflow` | [#27](https://github.com/netanelgilad/prophet/pull/27) |
 
-Current development tip: `stack/spec-first-workflow`.
+Current development tip: `stack/lexical-environments`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when

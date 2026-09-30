@@ -19,8 +19,30 @@ describe("Test262 runner cannot silently pass failures", () => {
       "requires a concrete primitive"
     );
     expect(() => run("assert.sameValue([], []);")).toThrow(
-      "requires a concrete primitive"
+      "sameValue failed"
     );
+  });
+
+  test("SameValue checks concrete reference identity and rejects conditional references", () => {
+    run(`
+      var object = {};
+      var array = [];
+      var fn = function () {};
+      assert.sameValue(object, object);
+      assert.sameValue(array, array);
+      assert.sameValue(fn, fn);
+      assert.notSameValue(object, {});
+      assert.notSameValue(array, []);
+      assert.notSameValue(fn, function () {});
+      assert.notSameValue(object, null);
+    `);
+    expect(() => run("var object = {}; assert.notSameValue(object, object);")).toThrow(
+      "notSameValue failed"
+    );
+    expect(() => run(`
+      var value = Math.random() < 0.5 ? {} : {};
+      assert.sameValue(value, value);
+    `)).toThrow("requires a concrete primitive");
   });
 
   test("test failures and VM errors propagate", () => {

@@ -1,5 +1,5 @@
 import { Any, ESNumber, TESNumber, FunctionBinding, isESNumber, isFunction } from "../types";
-import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
+import { ExecutionContext, TExecutionContext, Environment, resolveBinding } from "../execution-context/ExecutionContext";
 import { evaluateThrowableIterator } from "../evaluate";
 import { getProperties } from "../execution-context/Heap";
 import { functionDefinition, FunctionDefinition } from "./definition";
@@ -31,18 +31,86 @@ function unsupported(message: string): never {
 // Inference is deliberately restricted to pure functions over one dense array.
 // This is an eligibility check, not recognition of a particular algorithm. The
 // actual body determines which candidate facts survive the proof below.
-function eligible(definition: FunctionDefinition, fn: Any, context: TExecutionContext): boolean {
-  let recursive = false;
-  const scan = (node: any): void => {
+function walkReferences(
+  definition: FunctionDefinition,
+  visit: (node: any, local: boolean, parent?: any, parentKey?: string) => void
+): void {
+  const variables = new Set<string>();
+  definition.params.forEach(parameter => {
+    if (parameter.type === "Identifier") variables.add(parameter.name);
+  });
+  const collectVariables = (node: any): void => {
     if (!node || typeof node !== "object") return;
-    if (node.type === "Identifier" && context.value.scope[node.name] === fn) recursive = true;
+    if (node.type === "FunctionDeclaration" || node.type === "FunctionExpression" ||
+        node.type === "ArrowFunctionExpression") return;
+    if (node.type === "VariableDeclaration" && node.kind === "var") {
+      node.declarations.forEach((declaration: any) => {
+        if (declaration.id.type === "Identifier") variables.add(declaration.id.name);
+      });
+    }
     Object.keys(node).forEach(key => {
       const child = node[key];
-      if (Array.isArray(child)) child.forEach(scan);
-      else scan(child);
+      if (Array.isArray(child)) child.forEach(collectVariables);
+      else collectVariables(child);
     });
   };
-  definition.statements.forEach(scan);
+  definition.statements.forEach(collectVariables);
+  const lexicalNames = (statements: any[]): Set<string> => {
+    const names = new Set<string>();
+    statements.forEach(statement => {
+      if (statement.type === "VariableDeclaration" && statement.kind !== "var") {
+        statement.declarations.forEach((declaration: any) => {
+          if (declaration.id.type === "Identifier") names.add(declaration.id.name);
+        });
+      }
+      if (statement.type === "FunctionDeclaration" && statement.id) names.add(statement.id.name);
+    });
+    return names;
+  };
+  const walk = (node: any, scopes: Array<Set<string>>, parent?: any, parentKey?: string): void => {
+    if (!node || typeof node !== "object") return;
+    if (node.type === "FunctionDeclaration" || node.type === "FunctionExpression" ||
+        node.type === "ArrowFunctionExpression") return;
+    if (node.type === "BlockStatement") {
+      const blockScopes = scopes.concat(lexicalNames(node.body));
+      node.body.forEach((statement: any) => walk(statement, blockScopes, node, "body"));
+      return;
+    }
+    if (node.type === "VariableDeclarator") {
+      walk(node.init, scopes, node, "init");
+      return;
+    }
+    if (node.type === "Identifier") {
+      visit(node, scopes.some(scope => scope.has(node.name)), parent, parentKey);
+      return;
+    }
+    Object.keys(node).forEach(key => {
+      if (node.type === "MemberExpression" && key === "property" && !node.computed) return;
+      const child = node[key];
+      if (Array.isArray(child)) child.forEach(item => walk(item, scopes, node, key));
+      else walk(child, scopes, node, key);
+    });
+  };
+  const scopes = [variables, lexicalNames(definition.statements)];
+  definition.statements.forEach(statement => walk(statement, scopes));
+}
+
+function isRecursiveReference(
+  definition: FunctionDefinition, fn: Any, context: TExecutionContext,
+  node: any, local: boolean, parent?: any, parentKey?: string
+): boolean {
+  if (local || !parent || parent.type !== "CallExpression" || parentKey !== "callee") return false;
+  const resolved = resolveBinding(context, node.name, definition.environment);
+  return !!resolved && resolved.binding.initialized === true && resolved.binding.value === fn;
+}
+
+function eligible(definition: FunctionDefinition, fn: Any, context: TExecutionContext): boolean {
+  let recursive = false;
+  walkReferences(definition, (node, local) => {
+    if (local) return;
+    const resolved = resolveBinding(context, node.name, definition.environment);
+    if (resolved && resolved.binding.initialized === true && resolved.binding.value === fn) recursive = true;
+  });
   return recursive;
 }
 
@@ -50,58 +118,19 @@ function validateDefinition(definition: FunctionDefinition, fn: Any, context: TE
   if (definition.params.length !== 1 || definition.params[0].type !== "Identifier") {
     unsupported("one identifier parameter is required");
   }
-  const parameter = (definition.params[0] as { name: string }).name;
-  const locals = new Set([parameter]);
-  const lexical = new Set<string>();
-  const constants = new Set<string>();
   const allowed = new Set([
     "BlockStatement", "IfStatement", "ReturnStatement", "VariableDeclaration",
     "VariableDeclarator", "ExpressionStatement", "EmptyStatement", "Identifier", "Literal",
     "MemberExpression", "CallExpression", "BinaryExpression", "LogicalExpression",
     "ConditionalExpression", "UnaryExpression", "AssignmentExpression", "UpdateExpression"
   ]);
-  const collect = (node: any, blockDepth = 0): void => {
+  const inspect = (node: any, parent?: any, parentKey?: string): void => {
     if (!node || typeof node !== "object") return;
     if (typeof node.type === "string" && !allowed.has(node.type)) {
       unsupported(`syntax ${node.type} is outside the pure summary subset`);
     }
-    if (node.type === "VariableDeclaration" && node.kind !== "var") {
-      if (blockDepth !== 0) unsupported("block-scoped declarations need lexical-environment support");
-      node.declarations.forEach((declaration: any) => {
-        lexical.add(declaration.id.name);
-        if (node.kind === "const") constants.add(declaration.id.name);
-      });
-    }
     if (node.type === "VariableDeclarator") {
       if (node.id.type !== "Identifier") unsupported("destructured declarations are unsupported");
-      if (locals.has(node.id.name)) unsupported("shadowed or repeated local declarations are unsupported");
-      locals.add(node.id.name);
-    }
-    Object.keys(node).forEach(key => {
-      const child = node[key];
-      const depth = blockDepth + (node.type === "BlockStatement" ? 1 : 0);
-      if (Array.isArray(child)) child.forEach(item => collect(item, depth));
-      else collect(child, depth);
-    });
-  };
-  definition.statements.forEach(statement => collect(statement));
-  const initialized = new Set(Array.from(locals).filter(name => !lexical.has(name)));
-  const inspect = (node: any, parent?: any, parentKey?: string): void => {
-    if (!node || typeof node !== "object") return;
-    if (node.type === "VariableDeclarator") {
-      inspect(node.init);
-      initialized.add(node.id.name);
-      return;
-    }
-    if (node.type === "Identifier") {
-      if (lexical.has(node.name) && !initialized.has(node.name)) {
-        unsupported(`lexical binding ${node.name} is read before initialization`);
-      }
-      if (!locals.has(node.name)) {
-        const recursiveCallee = context.value.scope[node.name] === fn && parent &&
-          parent.type === "CallExpression" && parentKey === "callee";
-        if (!recursiveCallee) unsupported(`captured binding ${node.name} is not a verified dependency`);
-      }
     }
     if (node.type === "MemberExpression") {
       const name = node.computed
@@ -116,10 +145,9 @@ function validateDefinition(definition: FunctionDefinition, fn: Any, context: TE
     }
     if (node.type === "AssignmentExpression" || node.type === "UpdateExpression") {
       const target = node.left || node.argument;
-      if (target.type !== "Identifier" || !locals.has(target.name)) {
+      if (target.type !== "Identifier") {
         unsupported("writes outside local bindings are unsupported");
       }
-      if (constants.has(target.name)) unsupported("writes to const bindings are invalid");
     }
     Object.keys(node).forEach(key => {
       if (node.type === "MemberExpression" && key === "property" && !node.computed) return;
@@ -129,6 +157,17 @@ function validateDefinition(definition: FunctionDefinition, fn: Any, context: TE
     });
   };
   definition.statements.forEach(statement => inspect(statement));
+  // Validate every reference before a cache lookup, including references on
+  // paths that the current input will not execute. Otherwise a cached proof
+  // could silently acquire a new mutable dependency.
+  walkReferences(definition, (node, local, parent, key) => {
+    const writing = parent && (parent.type === "UpdateExpression" ||
+      (parent.type === "AssignmentExpression" && key === "left"));
+    if (!local && writing) unsupported("writes outside local bindings are unsupported");
+    if (!local && !isRecursiveReference(definition, fn, context, node, local, parent, key)) {
+      unsupported(`captured binding ${node.name} is not a verified dependency`);
+    }
+  });
 }
 
 function summaryValue(array: Any, candidates: Candidate[]): TESNumber {
@@ -156,6 +195,13 @@ function infer(fn: Any, template: TESNumber, caller: TExecutionContext): Inferre
     const context = ExecutionContext({
       ...caller.value, knowledge: [], heap: new Map(),
       evaluationBudget: { remaining: 10000 },
+      validateBinding: (environment: Environment, name: string,
+        current: TExecutionContext, access: "read" | "write") => {
+        if (!caller.value.environments.has(environment)) return;
+        const binding = current.value.environments.get(environment)!.get(name);
+        if (access === "read" && binding && binding.initialized === true && binding.value === fn) return;
+        unsupported(`captured binding ${name} is not a verified ${access} dependency`);
+      },
       validateRead: (object: Any, _name: string, current: TExecutionContext) => {
         if (!getSymbolicArrayShape(object, current)) {
           unsupported("property reads require a verified symbolic array receiver");
@@ -190,11 +236,21 @@ function infer(fn: Any, template: TESNumber, caller: TExecutionContext): Inferre
     if (result[1].value.heap && result[1].value.heap.size !== 0) {
       unsupported("the function changed object state");
     }
-    const before = caller.value.scope, after = result[1].value.scope;
-    if (Object.keys(after).length !== Object.keys(before).length ||
-        Object.keys(before).some(name => before[name] !== after[name])) {
-      unsupported("the function changed a captured binding");
-    }
+    // Restoring the caller's environment pointer must not hide writes to a
+    // captured record. Fresh activation/block records are local proof state;
+    // every record that existed before execution must remain unchanged.
+    caller.value.environments.forEach((before, environment) => {
+      const after = result[1].value.environments.get(environment);
+      if (!after || after.size !== before.size) unsupported("the function changed a captured binding");
+      before.forEach((binding, name) => {
+        const observed = after!.get(name);
+        if (!observed || observed.value !== binding.value ||
+            observed.initialized !== binding.initialized ||
+            observed.mutable !== binding.mutable || observed.kind !== binding.kind) {
+          unsupported("the function changed a captured binding");
+        }
+      });
+    });
     return result as [TESNumber, TExecutionContext];
   };
 

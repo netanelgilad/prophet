@@ -138,13 +138,33 @@ test("empty and possible-NaN inputs cannot borrow the nonempty finite contract",
     symbolicNumberArray({ minimumLength: 1, element: ESNumber() }))).toThrow(/exclude NaN/);
 });
 
-test("summary validation rejects lexical behavior the current flat environment cannot implement", () => {
-  for (const [source, error] of [
-    [minimum.replace("if (a.length", "typeof rest; if (a.length"), /before initialization/],
-    [minimum.replace("const rest", "{ const hidden = a[0]; } const rest"), /lexical-environment/],
-    [minimum.replace("return a[0] < rest", "rest = a[0]; return a[0] < rest"), /const bindings/]
-  ] as Array<[string, RegExp]>) {
-    expect(() => run(source + "const value = reduce(input);")).toThrow(error);
+test("block bindings and shadowed local names retain the recursive proof", () => {
+  const source = minimum.replace("const rest", `
+    {
+      const rest = a[0];
+      const reduce = rest;
+      { let a = reduce; a = 0; }
+    }
+    const rest
+  `);
+  const result = run(source + `
+    const value = reduce(input);
+    const proof = input[0] < value;
+    const uncertain = value < input[0];
+  `);
+  expect(result.proof).toMatchObject({ value: false });
+  expect((result.uncertain as TESBoolean).value).toBeUndefined();
+  expect(getInferredSummaries(result.reduce)[0].facts).toEqual(["finite", "notNaN", "lower"]);
+});
+
+test("TDZ and const failures cannot acquire numeric summaries", () => {
+  for (const source of [
+    minimum.replace("if (a.length", "typeof rest; if (a.length"),
+    minimum.replace("return a[0] < rest", "rest = a[0]; return a[0] < rest")
+  ]) {
+    // The shared VM now executes the lexical error. A numeric recursive summary
+    // cannot describe this throwing function; exception summaries remain a gap.
+    expect(() => run(source + "const value = reduce(input);")).toThrow(/all paths must return a number/);
   }
 });
 
