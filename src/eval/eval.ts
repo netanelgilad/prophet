@@ -48,7 +48,10 @@ export function evaluateEval(args: Any[], caller: TExecutionContext, direct: boo
     for (const name of Array.from(variableNames(statements))) {
       for (let environment: Environment | undefined = parent; environment; environment = environment.parent) {
         const binding = caller.value.environments.get(environment)!.get(name);
-        if (binding && (binding.kind === "let" || binding.kind === "const")) {
+        if (binding && binding.unmodeled && environment.kind === "parameters") {
+          throw new Error(`Eval declaration crosses an unmodeled binding: ${binding.unmodeled}`);
+        }
+        if (binding && (binding.kind === "let" || binding.kind === "const" || environment.kind === "parameters")) {
           return [bindingError("SyntaxError", `Identifier '${name}' has already been declared`), caller];
         }
         if (environment === variableEnvironment) break;

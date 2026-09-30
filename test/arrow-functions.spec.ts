@@ -207,7 +207,11 @@ for (const name of ["name", "caller", "arguments", "length"]) {
   });
 }
 
-for (const parameters of ["value = 1", "...values", "{ value }", "[value]"]) {
+test("an arrow applies an identifier default when invoked without a value", () => {
+  compare("const callback = (value = 1) => value; const result = callback() === 1 && callback(7) === 7;");
+});
+
+for (const parameters of ["...values", "{ value }", "[value]"]) {
   test(`unsupported arrow parameter initialization is an invocation gap: ${parameters}`, () => {
     const source = `const callback = (${parameters}) => 7;`;
     const [created, context] = evaluateCode(source, nodeInitialExecutionContext);

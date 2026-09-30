@@ -39,7 +39,7 @@ export function loadTest262(path: string): Test262File {
 export function variantsFor(file: Test262File): Variant[] {
   const { flags, includes, negative } = file.attrs;
   for (const flag of Object.keys(flags)) {
-    if (!["onlyStrict", "noStrict", "raw"].includes(flag)) {
+    if (!["onlyStrict", "noStrict", "raw", "generated"].includes(flag)) {
       throw new Error(`Unsupported Test262 flag: ${flag} (${file.file})`);
     }
   }

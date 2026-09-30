@@ -165,7 +165,9 @@ are recorded in the target document and linked from `AGENTS.md`.
 [Pinned Node references](test/pico-static-server-reference.spec.ts) now reproduce
 an uncaught missing-default-file error and record the package's actual headers.
 [Prophet](test/pico-static-server-analysis.spec.ts) loads the unchanged module
-and produces its arrow factory, but invocation stops at default parameters.
+and invokes its arrow factory with omitted, undefined, or supplied options.
+Default-parameter initialization now completes; execution stops at the next
+statement's object spread while constructing options.
 Other Node imports are opaque identities at this loading stage, not implemented
 APIs. The server's request paths have not yet been symbolically classified.
 
@@ -625,14 +627,15 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **204 strict/sloppy variants of 106 complete,
+The active Test262 baseline runs **230 strict/sloppy variants of 119 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
 eval environments, expression evaluation order, catch/finally precedence,
 arithmetic primitives, unary signs, and parameter/lexical-declaration early
 errors, plus Error construction/formatting, string concatenation/coercion, and
-selected synchronous arrow-function behavior. Strictness follows actual directive
+selected synchronous arrow-function behavior and default-parameter initialization.
+Strictness follows actual directive
 source text; escaped or parenthesized strings do not become `use strict`.
 Parse-negative cases do not imply runtime support for their syntax.
 Further arithmetic boundary cases need
@@ -648,19 +651,27 @@ The parser accepts JavaScript, so omit TypeScript annotations in interpreted
 source. The known-length minimum specs execute recursive calls. The
 unknown-length specs infer and verify reusable summaries as described below.
 
-Functions support identifier parameters, lexical captures, and block/catch
-scopes. [Synchronous arrow specs](test/arrow-functions.spec.ts) cover expression
+Functions support identifier parameters with defaults, lexical captures, and block/catch
+scopes. [Default-parameter specs](test/default-parameters.spec.ts) cover omitted
+and undefined arguments, left-to-right initialization, earlier parameter reads,
+uninitialized later parameters, and initializer exceptions. Closures created in
+defaults retain parameter bindings separately from body variables. A symbolic
+argument that may be undefined conditionally runs its default, preserving the
+result, writes, and throws on their paths. These use the shared expression and
+completion operations, not a special rule for configuration objects.
+[Synchronous arrow specs](test/arrow-functions.spec.ts) cover expression
 and block returns, lexical `this`, current captured bindings, `.call` ignoring
 the supplied receiver, conditional returns/throws, non-construction, absent own
 `prototype`, and syntax-derived `length`. Arrows introduce no implicit
-`arguments` binding. Their name inference and restricted caller/arguments
+`arguments` binding. Interpreted functions share syntax-derived `length`;
+name inference and restricted caller/arguments
 accessors remain explicit metadata gaps. Pure recursive arrows can use the same
 verified array summaries; lexical `this` dependencies remain outside that subset.
 Eval also instantiates declarations, isolates lexical names and strict
 vars, and distinguishes direct caller lookup from indirect global lookup.
 Its general statement completion values remain incomplete; conditional creation
 of a var in an existing scope is explicitly rejected until binding presence can
-be represented on each path. Default/rest/destructured parameter initialization,
+be represented on each path. Rest/destructured parameter initialization,
 implicit `arguments` objects, async functions, complete global-object binding
 semantics, and sloppy block function
 compatibility rules (Annex B) remain incomplete. Environment records

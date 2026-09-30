@@ -113,6 +113,22 @@ const activeCorpus = [
   "language/directive-prologue/14.1-5-s.js",
   "language/directive-prologue/14.1-14-s.js",
 
+  // Identifier default parameters preserve TDZ and the separate parameter/body
+  // environments. The generated marker is metadata, not a source transformation.
+  "language/expressions/arrow-function/dflt-params-ref-prior.js",
+  "language/expressions/arrow-function/dflt-params-ref-later.js",
+  "language/expressions/arrow-function/dflt-params-ref-self.js",
+  "language/expressions/function/dflt-params-ref-prior.js",
+  "language/expressions/function/dflt-params-ref-later.js",
+  "language/expressions/function/dflt-params-ref-self.js",
+  "language/statements/function/dflt-params-ref-prior.js",
+  "language/statements/function/dflt-params-ref-later.js",
+  "language/statements/function/dflt-params-ref-self.js",
+  "language/expressions/arrow-function/scope-paramsbody-var-open.js",
+  "language/expressions/arrow-function/scope-paramsbody-var-close.js",
+  "language/expressions/function/scope-paramsbody-var-open.js",
+  "language/expressions/function/scope-paramsbody-var-close.js",
+
   // Formal parameter names cannot be redeclared lexically in the same
   // function body. Parse-negative cases do not imply generator/async runtime
   // support; each complete upstream source must fail before evaluation.

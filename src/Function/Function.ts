@@ -4,16 +4,17 @@ import {
 } from "../types";
 import {
   TExecutionContext, ExecutionContext, enterEnvironment, setEnvironment,
-  declareBinding, putBinding, setCurrentThisValue
+  setCurrentThisValue
 } from "../execution-context/ExecutionContext";
-import { evaluateStatements, mapCompletions } from "../evaluate";
+import { bindNormal, evaluateStatements, mapCompletions } from "../evaluate";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { ESObject } from "../Object";
 import { tuple } from "@deaven/tuple";
 import { parseECMACompliant } from "../parseECMACompliant";
 import { ESTree } from "cherow";
 import { registerDefinition } from "./definition";
-import { hasUseStrict, identifierName, instantiateDeclarations } from "./instantiate";
+import { hasUseStrict } from "./instantiate";
+import { initializeParameters, instantiateFunctionBody } from "./parameters";
 import { isObjectValue } from "../conversion/toString";
 
 export function ESFunction(implementation: FunctionImplementation) {
@@ -76,36 +77,27 @@ export function createFunction(
       else if (!isObjectValue(self)) throw new Error("Sloppy receiver boxing is not yet supported");
     }
     activation = setCurrentThisValue(activation, thisValue);
-    params.forEach((parameter, index) => {
-      activation = declareBinding(activation, identifierName(parameter), "parameter", true,
-        args[index] === undefined ? Undefined : args[index]);
-    });
-    if (!kind.arrow && !params.some(parameter => identifierName(parameter) === "arguments")) {
-      activation = putBinding(activation, activation.value.environment, "arguments", {
-        kind: "var", mutable: true, initialized: true, value: Undefined,
-        unmodeled: "Implicit arguments objects are not yet supported"
-      });
-    }
-    activation = instantiateDeclarations(statements, activation, true);
-    return mapCompletions(evaluateStatements(statements, activation), (completion, context) => tuple(
+    const execution = bindNormal(initializeParameters(params, args, activation, !!kind.arrow, statements),
+      (_value, initialized) => evaluateStatements(statements, instantiateFunctionBody(statements, params, initialized)));
+    return mapCompletions(execution, (completion, context) => tuple(
       isReturnValue(completion) ? completion.value : isThrownValue(completion) ? completion : Undefined,
       ExecutionContext({
         ...setEnvironment(context, callerEnvironment).value, strict: execContext.value.strict
       })
     ));
   });
+  const firstOptional = params.findIndex(parameter =>
+    parameter.type === "AssignmentPattern" || parameter.type === "RestElement");
+  Object.assign(result.properties, { length: ESNumber(firstOptional < 0 ? params.length : firstOptional) });
+  Object.assign(result, {
+    unmodeledPropertyReads: ["name", "caller", "arguments"],
+    unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
+  });
   if (kind.arrow) {
     // Arrows have neither [[Construct]] nor an own prototype. Their lexical
     // receiver is independent of calls through .call or a property reference.
     delete (result.properties as WithProperties["properties"]).prototype;
-    const firstOptional = params.findIndex(parameter =>
-      parameter.type === "AssignmentPattern" || parameter.type === "RestElement");
-    Object.assign(result.properties, { length: ESNumber(firstOptional < 0 ? params.length : firstOptional) });
-    Object.assign(result, {
-      nonConstructible: true,
-      unmodeledPropertyReads: ["name", "caller", "arguments"],
-      unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
-    });
+    Object.assign(result, { nonConstructible: true });
   }
   registerDefinition(result, { statements, params, environment });
   return result;
