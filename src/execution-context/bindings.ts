@@ -1,14 +1,17 @@
-import { Any, ThrownValue, Undefined } from "../types";
-import { ESObject } from "../Object";
+import { Any, ThrownValue, Undefined, TESBoolean } from "../types";
+import { createError } from "../error/Error";
 import { ESString } from "../string/String";
-import { getProperties, writeProperty } from "./Heap";
+import { writeProperty } from "./Heap";
+import { hasProperty } from "../Object/prototype";
+import { readMember } from "../ASTResolvers";
+import { ESBoolean } from "../boolean/ESBoolean";
 import { TExecutionContext, Environment, resolveBinding, putBinding, declareBinding } from "./ExecutionContext";
 import { BranchResult, evaluateBranches } from "./branches";
 
 // These are interpreted abrupt completions, so ordinary JavaScript catch and
 // finally can handle them. Unsupported VM operations still use host errors.
 export function bindingError(name: "ReferenceError" | "TypeError" | "SyntaxError", message: string) {
-  return ThrownValue(ESObject({ name: ESString(name), message: ESString(message) }));
+  return ThrownValue(createError(name, ESString(message)));
 }
 
 export function readBinding(context: TExecutionContext, name: string): BranchResult {
@@ -28,17 +31,16 @@ export function readBinding(context: TExecutionContext, name: string): BranchRes
       ? (resolved.binding.initialized ? available : unavailable)(context)
       : evaluateBranches(resolved.binding.initialized, context, available, unavailable);
   }
-  const properties = getProperties(context.value.global, context);
-  return [Object.prototype.hasOwnProperty.call(properties, name) ? properties[name] :
-    bindingError("ReferenceError", `${name} is not defined`), context];
+  return evaluateBranches(hasProperty(context.value.global, name, context), context,
+    branch => readMember(branch.value.global, name, branch),
+    branch => [bindingError("ReferenceError", `${name} is not defined`), branch]);
 }
 
-export function hasBinding(context: TExecutionContext, name: string): boolean {
-  return !!resolveBinding(context, name) ||
-    Object.prototype.hasOwnProperty.call(getProperties(context.value.global, context), name);
+export function hasBinding(context: TExecutionContext, name: string): TESBoolean {
+  return resolveBinding(context, name) ? ESBoolean(true) : hasProperty(context.value.global, name, context);
 }
 
-export type BindingReference = { environment?: Environment; resolvable: boolean };
+export type BindingReference = { environment?: Environment; resolvable: TESBoolean };
 
 export function bindingReference(context: TExecutionContext, name: string): BindingReference {
   const resolved = resolveBinding(context, name);
@@ -79,10 +81,10 @@ export function assignBinding(
       ? (binding.initialized ? available : unavailable)(context)
       : evaluateBranches(binding.initialized, context, available, unavailable);
   }
-  if (context.value.strict && !reference.resolvable) {
-    return [bindingError("ReferenceError", `${name} is not defined`), context];
-  }
-  return [value, writeProperty(context.value.global, name, value, context)];
+  const write = (branch: TExecutionContext): BranchResult =>
+    [value, writeProperty(branch.value.global, name, value, branch)];
+  return context.value.strict ? evaluateBranches(reference.resolvable, context, write,
+    branch => [bindingError("ReferenceError", `${name} is not defined`), branch]) : write(context);
 }
 
 export function initializeBinding(context: TExecutionContext, name: string, value: Any): TExecutionContext {

@@ -73,9 +73,14 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolu
   and target selection with Node. [Symbolic package specs](test/commonjs-package-symbolic.spec.ts)
   preserve cache identity, initialization counts, and denied imports per path.
 - [Published invariant](test/published-invariant.spec.ts) executes the unmodified
-  `tiny-invariant` 1.3.3 package through its real exports map. For accepted random
-  inputs it proves normalized bounds and that the lazy message is never called,
-  in development and production with an explicitly supplied environment.
+  `tiny-invariant` 1.3.3 package through its real exports map. For any JavaScript
+  number, it proves rejection or a normalized result in [0, 1]. The lazy message
+  runs once on development rejection, never on success or in production.
+  Each environment is supplied explicitly.
+- [Error construction](test/error-construction.spec.ts) and
+  [string concatenation](test/string-concat.spec.ts) preserve user conversion
+  calls, effects, and exceptions. [Prototype state](test/prototype-state.spec.ts)
+  keeps inherited values available when another path creates an own property.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
 `src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
@@ -110,8 +115,9 @@ unmodified, pinned published build of `tiny-invariant`:
    package imports, further host APIs, and broader Node compatibility remain.
 5. **Real dependency:** add the Error, string, environment, and remaining
    semantics required by the pinned library; execute its actual source in a
-   spec. The actual package's accepted-input proof now runs. Full rejection-path
-   behavior is next; each package proof must state its supported Node subset.
+   spec. The actual package now proves normalization or rejection for every
+   JavaScript number, including NaN and infinities, with lazy-message effects.
+   Each package proof states its supported Node subset.
 6. **Replayable counterexamples:** generate a concrete violating input, then
    independently replay it against that same source. Sample testing alone must
    never establish a universal proof.
@@ -378,13 +384,24 @@ explicitly rejected rather than assuming Node uses ordinary `JSON.parse` there.
 The [published-package spec](test/published-invariant.spec.ts) supplies all files
 from the verified `tiny-invariant` 1.3.3 tarball without altering source or metadata.
 It loads `require("tiny-invariant")` and invokes the actual library inside a
-percentage normalizer. For `Math.random() * 100`, Prophet proves the returned
-percentage is in [0, 1] and the lazy message callback count is zero. The same
-proof runs with supplied development and production `process.env.NODE_ENV`
-values. This is an accepted-input proof; Error construction and
-`String.prototype.concat` on rejection remain shared VM work, so the full
-all-number validator goal is still open. See the fixture's
+percentage normalizer. With an unrestricted `ESNumber()` input, Prophet proves
+the call throws exactly when `value >= 0 && value <= 100` fails, otherwise
+returns a number in [0, 1]. NaN and infinities are included. The lazy message
+callback runs once on development rejection, never on success or in production;
+Error names and messages are concrete. The proof supplies each environment's
+`process.env.NODE_ENV`. Concrete edge inputs and callback/conversion failures
+also agree with pinned Node. See the fixture's
 [provenance](test/fixtures/tiny-invariant-1.3.3/PROVENANCE.md).
+
+Shared Error constructors, `String()`, `String.prototype.concat`, and ordinary
+object string conversion execute through the VM's normal calls and completions.
+An object's `toString` can mutate state or throw; `valueOf` is tried when it
+returns an object. Inherited Error fields use live prototype links. Heap joins
+record conditional own-property presence separately from its value, so a
+missing property still reaches the prototype on the appropriate path.
+This follows the language's [ToString operation](https://tc39.es/ecma262/multipage/abstract-operations.html#sec-tostring)
+and [Error operations](https://tc39.es/ecma262/multipage/fundamental-objects.html#sec-error-objects),
+within the supported subset described below.
 
 The loader exposes `module.exports`, `id`, `filename`, `path`, and `loaded`.
 Writes to metadata other than `exports`, other module fields, and extra require
@@ -417,13 +434,14 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **143 strict/sloppy variants of 72 complete,
+The active Test262 baseline runs **183 strict/sloppy variants of 92 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
 eval environments, expression evaluation order, catch/finally precedence,
 arithmetic primitives, unary signs, and parameter/lexical-declaration early
-errors. Parse-negative cases do not imply runtime support for their syntax.
+errors, plus Error construction/formatting and string concatenation/coercion.
+Parse-negative cases do not imply runtime support for their syntax.
 Further arithmetic boundary cases need
 the missing `Number` constants and global `isNaN`; the harness does not supply
 host substitutes for those runtime gaps.
@@ -446,8 +464,13 @@ be represented on each path. Default/destructured parameters, `arguments`, arrow
 functions, complete global-object binding semantics, and sloppy block function
 compatibility rules (Annex B) remain incomplete. Environment records
 are retained in execution snapshots; reclamation of unreachable records is not
-implemented yet. Binding errors carry readable name/message properties, but
-full Error constructors and prototype behavior remain future work.
+implemented yet. Binding errors now use shared Error instances. Error cause
+options, stack inspection, property descriptors/accessors, exotic coercion
+(`Symbol.toPrimitive`), and complete prototype mutation remain unsupported.
+String wrapper construction and sloppy function receiver boxing stop analysis;
+strict functions preserve primitive receivers, and sloppy nullish receivers use
+their global object. Primitive own-property queries, object-literal prototype
+setters, and default array/function source string conversion are explicit gaps.
 Array indexing uses concrete keys.
 Symbolic dense arrays retain stable element identities and guarded reads; writes
 to these snapshots are currently rejected. Object-to-primitive coercions are

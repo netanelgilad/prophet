@@ -74,8 +74,8 @@ symbolic names. The [local compatibility suite](../test/commonjs/README.md) runs
 against pinned Node v24.21.0. Export patterns, package imports, host disk
 access, further module metadata, implicit arguments, and global eval declarations
 remain explicit gaps; no complete upstream Node test is claimed as passing yet.
-The next published-package layer is shared Error construction and string-method
-support for rejection paths; broader resolution remains a parallel backlog.
+Shared Error construction and string conversion now support the package's
+rejection paths; broader resolution remains a parallel backlog.
 
 ## First published dependency proof
 
@@ -90,18 +90,22 @@ resolution path. Its Error, `String.prototype.concat`, module, and `process.env`
 must use shared VM implementations. Supply the modeled environment explicitly,
 including development and production settings.
 
-The initial proof supplies `process.env.NODE_ENV` and covers accepted inputs:
-for `Math.random() * 100`, the application's normalized result lies in [0, 1]
-and its lazy message is never invoked, in both environments. Error construction
-and `String.prototype.concat` are not implemented by this increment. The full
-rejection and all-number proof below remains the next milestone.
+The percentage-normalizer milestone now passes. Its input is an unrestricted
+JavaScript number: no finite or non-NaN assumption is supplied. Evaluating both
+application and library proves rejection exactly when the range check fails,
+or a result in [0, 1]. The lazy message runs once on development rejection,
+never on success or in production. Rejection's Error name and message are
+concrete. The accepted `Math.random() * 100` proof remains covered too.
+Pinned Node comparisons check numeric edge inputs, callback/conversion failures,
+and their effect order. The VM uses shared Error, ToString, concat, invocation,
+and property operations; no rule recognizes the library's name or source.
 
-The application-level target is a percentage normalizer that calls the library
-to assert its numeric input lies in [0, 100], then returns the input divided by
-100. For any JavaScript number, it must throw or return a value in [0, 1]; NaN
-and infinities must be rejected. Also prove that the lazy message callback runs
-once on rejection in development, never on success, and never in production.
-Derive the guarantee by evaluating both the application and library code.
+The next proof milestone is a replayable counterexample: deliberately weaken
+the application's guard, obtain a concrete violating number from the surviving
+path constraints, and replay it against the same published package and application
+in pinned Node. Start with supported numeric constraints and report unsupported
+witness generation explicitly. A failed proof or unknown result alone is not
+a counterexample. This is separate from the continuing effectful-server target.
 
 ## Side-effecting functions and a simple Express server
 

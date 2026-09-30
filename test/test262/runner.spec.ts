@@ -5,6 +5,14 @@ function run(source: string) {
 }
 
 describe("Test262 runner cannot silently pass failures", () => {
+  test("assert.throws checks interpreted exception constructor and rejects analysis failures", () => {
+    run('assert.throws(TypeError, function() { throw new TypeError("expected"); });');
+    expect(() => run('assert.throws(Error, function() { throw new TypeError(); });')).toThrow(/constructor/);
+    expect(() => run('assert.throws(Error, function() { return Error(); });')).toThrow(/expected an exception/);
+    expect(() => run('assert.throws(TypeError, function() { throw "TypeError"; });')).toThrow(/object/);
+    expect(() => run('assert.throws(Error, function() { new String(); });')).toThrow(/not yet supported/);
+    expect(() => run('assert.throws(Error, function() { if (Math.random() < 0.5) throw Error(); });')).toThrow(/symbolic/);
+  });
   test("assert requires exactly true, and SameValue distinguishes signed zero", () => {
     run("assert(true); assert.sameValue(1, 1); assert.notSameValue(0, -0);");
     expect(() => run("assert(false);")).toThrow("expected exactly true");

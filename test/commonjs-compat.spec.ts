@@ -236,6 +236,28 @@ describe("CommonJS source execution agrees with Node 24.21.0", () => {
     compareModule('throw "module failure";');
   });
 
+  for (const name of ["Error", "TypeError"]) {
+    test(`an unhandled ${name} is observed through its inherited name`, () => {
+      const result = compareModule(`throw new ${name}("module failure");`);
+      expect(result.actual).toEqual({ kind: "throw", error: name });
+    });
+  }
+
+  test("an unhandled Error may override its inherited name", () => {
+    const result = compareModule('const error = new Error("module failure"); error.name = "Renamed"; throw error;');
+    expect(result.actual).toEqual({ kind: "throw", error: "Renamed" });
+  });
+
+  test("a thrown plain object with a name field stays a plain object", () => {
+    const result = compareModule('throw { name: "Error", message: "plain object" };');
+    expect(result.actual).toEqual({
+      kind: "throw", value: { type: "object", entries: [
+        ["message", { type: "string", value: "plain object" }],
+        ["name", { type: "string", value: "Error" }]
+      ] }
+    });
+  });
+
   for (const source of [
     "const exports = 1;",
     '"use strict"; let module = 1;',

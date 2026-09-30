@@ -1,10 +1,10 @@
 import { TESString } from "../string/String";
 import {
-  Any, Undefined, FunctionImplementation, FunctionBinding, isReturnValue, isThrownValue
+  Any, Undefined, FunctionImplementation, FunctionBinding, WithProperties, isReturnValue, isThrownValue, isUndefined, isESNull
 } from "../types";
 import {
   TExecutionContext, ExecutionContext, enterEnvironment, setEnvironment,
-  declareBinding, putBinding
+  declareBinding, putBinding, setCurrentThisValue
 } from "../execution-context/ExecutionContext";
 import { evaluateStatements, mapCompletions } from "../evaluate";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
@@ -14,13 +14,22 @@ import { parseECMACompliant } from "../parseECMACompliant";
 import { ESTree } from "cherow";
 import { registerDefinition } from "./definition";
 import { hasUseStrict, identifierName, instantiateDeclarations } from "./instantiate";
+import { isObjectValue } from "../conversion/toString";
 
 export function ESFunction(implementation: FunctionImplementation) {
-  return {
+  const result = {
     type: "function",
     properties: { prototype: ESObject() },
     function: { implementation }
   };
+  Object.assign(result.properties.prototype.properties, { constructor: result });
+  return result;
+}
+
+export function ESBuiltinFunction(implementation: FunctionImplementation) {
+  const result = ESFunction(implementation);
+  delete (result.properties as WithProperties["properties"]).prototype;
+  return Object.assign(result, { nonConstructible: true });
 }
 
 export function isESFunction(arg: any): arg is FunctionBinding {
@@ -49,11 +58,17 @@ export function createFunction(
   // Each call gets a fresh record; surviving closures keep that record alive in
   // the persistent store carried by the returned execution context.
   const result = ESFunction(function*(
-    _self: Any, args: Array<Any>, execContext: TExecutionContext
+    self: Any, args: Array<Any>, execContext: TExecutionContext
   ) {
     const callerEnvironment = execContext.value.environment;
     let activation = enterEnvironment(execContext, "function", environment);
     activation = ExecutionContext({ ...activation.value, strict });
+    let thisValue = self;
+    if (!strict) {
+      if (isUndefined(self) || isESNull(self)) thisValue = creationContext.value.global;
+      else if (!isObjectValue(self)) throw new Error("Sloppy receiver boxing is not yet supported");
+    }
+    activation = setCurrentThisValue(activation, thisValue);
     params.forEach((parameter, index) => {
       activation = declareBinding(activation, identifierName(parameter), "parameter", true,
         args[index] === undefined ? Undefined : args[index]);

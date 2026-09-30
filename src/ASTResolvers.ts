@@ -24,7 +24,7 @@ import { unimplemented } from "@deaven/unimplemented";
 import { Array as ESArray, TArray } from "./array/Array";
 import { choiceOf } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
-import { getProperties, getArrayElements, writeArrayElements,
+import { getProperties, getArrayElements, ownPropertyPresence, writeArrayElements,
   writeProperty, isArrayIndex } from "./execution-context/Heap";
 import { getSymbolicArrayShape, readSymbolicIndex } from "./array/symbolic";
 import { summarizeCall } from "./Function/summaries";
@@ -32,6 +32,7 @@ import { assignBinding, bindingReference, readBinding, hasBinding, initializeBin
 import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
 import { evalFn, evaluateEval } from "./eval/eval";
 import { isForkedCompletion } from "./execution-context/Completion";
+import { prototypeOf } from "./Object/prototype";
 
 export type ASTResolver<TAST extends ESTree.Node> = (
   ast: TAST, context: TExecutionContext
@@ -73,7 +74,7 @@ function withMemberReference(
 export const MemberExpressionResolver: ASTResolver<ESTree.MemberExpression> = (ast, context) =>
   withMemberReference(ast, context, readMember);
 
-function readMember(object: Any, name: string, context: TExecutionContext): BranchResult {
+export function readMember(object: Any, name: string, context: TExecutionContext): BranchResult {
   const choice = choiceOf(object);
   if (choice) return evaluateBranches(choice.condition, context,
     branch => readMember(choice.consequent, name, branch),
@@ -84,19 +85,27 @@ function readMember(object: Any, name: string, context: TExecutionContext): Bran
   }
   const properties = getProperties(unsafeCast<WithProperties>(object), context);
   assert(properties, "Cannot read a property of null or undefined");
-  assertModeledProperty(object, name, properties);
-  const property = Object.prototype.hasOwnProperty.call(properties, name) ? properties[name] : Undefined;
-  if (isArray(object) && isArrayIndex(name) &&
-      getArrayElements(object as TArray<any>, context) === undefined &&
-      !Object.prototype.hasOwnProperty.call(properties, name)) {
-    throw new Error("Indexed reads require known element positions or a symbolic dense array");
+  if ((object as WithProperties).unmodeledPropertyReads &&
+      (object as WithProperties).unmodeledPropertyReads!.includes(name)) {
+    throw new Error(`Unmodeled property read '${name}'`);
   }
-  // Only a direct member call supplies a receiver. Legacy native methods use
-  // their method object as a stable identity across repeated property reads.
-  if (isFunction(property)) return tuple({
-    type: "function", id: property, properties: {}, function: property
-  }, context);
-  return tuple(property, context);
+  assertModeledProperty(object, name, properties);
+  return evaluateBranches(ownPropertyPresence(object as WithProperties, name, context), context, branch => {
+    const property = properties[name];
+    // Legacy native methods use their method object as a stable identity.
+    return isFunction(property) ? tuple({
+      type: "function", id: property, properties: {}, function: property
+    }, branch) : tuple(property, branch);
+  }, branch => {
+    if (isArray(object) && isArrayIndex(name) && getArrayElements(object as TArray<any>, branch) === undefined) {
+      throw new Error("Indexed reads require known element positions or a symbolic dense array");
+    }
+    if (isArray(object) && name === "toString") {
+      throw new Error("Default array string conversion is not yet supported");
+    }
+    const prototype = prototypeOf(object);
+    return isESNull(prototype) ? tuple(Undefined, branch) : readMember(prototype, name, branch);
+  });
 }
 
 function withArguments(
@@ -135,7 +144,7 @@ export const CallExpressionResolver: ASTResolver<ESTree.CallExpression> = (ast, 
   return bindNormal(evaluate(ast.callee, context), (callee, after) => call(callee, after));
 };
 
-function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?: Any, directEval = false): BranchResult {
+export function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?: Any, directEval = false): BranchResult {
   const receiverChoice = receiver && choiceOf(receiver);
   if (receiverChoice) return evaluateBranches(receiverChoice.condition, context,
     branch => invoke(callee, args, branch, receiverChoice.consequent, directEval),
@@ -153,7 +162,7 @@ function invoke(callee: Any, args: Any[], context: TExecutionContext, receiver?:
     const summarized = summarizeCall(callee, args, context);
     if (summarized) return summarized;
   }
-  const self = receiver || context.value.global;
+  const self = receiver === undefined ? Undefined : receiver;
   const result = callee === evalFn ? evaluateEval(args, context, directEval) :
     evaluateThrowableIterator(binding.function.implementation(self, args, setCurrentThisValue(context, self)));
   return mapCompletions(result, (value, after) => tuple(value, setCurrentThisValue(after, context.value.thisValue)));
@@ -270,6 +279,8 @@ export const ObjectExpressionResolver: ASTResolver<ESTree.ObjectExpression> = (a
         name = propertyName(key[0]);
         after = key[1];
       } else name = entry.key.type === "Identifier" ? entry.key.name : String((entry.key as ESTree.Literal).value);
+      assert(entry.computed || entry.method || entry.shorthand || name !== "__proto__",
+        "Object literal prototype setters are not yet supported");
       const value = evaluate(entry.value!, after);
       if (needsContinuation(value[0])) return bindNormal(value, (item, afterValue) =>
         build(next, { ...prior, [name]: item }, afterValue));
@@ -409,8 +420,11 @@ export const UpdateExpressionResolver: ASTResolver<ESTree.UpdateExpression> = (a
 };
 
 export const UnaryExpressionResolver: ASTResolver<ESTree.UnaryExpression> = (ast, context) => {
-  if (ast.operator === "typeof" && ast.argument.type === "Identifier" && !hasBinding(context, ast.argument.name)) {
-    return tuple(ESString("undefined"), context);
+  if (ast.operator === "typeof" && ast.argument.type === "Identifier") {
+    return evaluateBranches(hasBinding(context, ast.argument.name), context,
+      branch => bindNormal(evaluate(ast.argument, branch), (argument, after) =>
+        UnaryOperatorResolvers.get("typeof")!(argument, after)),
+      branch => tuple(ESString("undefined"), branch));
   }
   return bindNormal(evaluate(ast.argument, context), (value, after) => {
     const resolver = UnaryOperatorResolvers.get(ast.operator);

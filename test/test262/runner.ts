@@ -6,6 +6,9 @@ import { ESFunction } from "../../src/Function/Function";
 import { ESBoolean } from "../../src/boolean/ESBoolean";
 import { Any, Undefined, isThrownValue } from "../../src/types";
 import { isForkedCompletion } from "../../src/execution-context/Completion";
+import { invoke, readMember } from "../../src/ASTResolvers";
+import { isObjectValue } from "../../src/conversion/toString";
+import { tuple } from "@deaven/tuple";
 import {
   setVariablesInScope,
   TExecutionContext
@@ -108,6 +111,15 @@ function assertionContext(): TExecutionContext {
     return Undefined;
   });
   Object.assign(assert.properties, {
+    throws: ESFunction(function*(_self, args, context) {
+      const [completion, afterCall] = invoke(args[1], [], context, Undefined);
+      if (isForkedCompletion(completion)) throw new Error("assert.throws cannot accept a symbolic completion");
+      if (!isThrownValue(completion)) throw new Error("assert.throws expected an exception");
+      if (!isObjectValue(completion.value)) throw new Error("assert.throws requires an exception object");
+      const [constructor, afterRead] = readMember(completion.value, "constructor", afterCall);
+      if (!sameValue(constructor, args[0])) throw new Error("assert.throws received the wrong exception constructor");
+      return tuple(Undefined, afterRead);
+    }),
     sameValue: callback(args => {
       if (!sameValue(args[0], args[1])) {
         throw new Error("Test262 assert.sameValue failed");

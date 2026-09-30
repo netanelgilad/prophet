@@ -3,7 +3,7 @@ import { Any, TESBoolean, Undefined, WithProperties, isArray,
 import { TArray } from "../array/Array";
 import { assume, resolveBoolean, selectValue } from "../symbolic";
 import { Binding, ExecutionContext, TExecutionContext } from "./ExecutionContext";
-import { getArrayElements, getProperties, HeapEntry } from "./Heap";
+import { getArrayElements, getProperties, ownPropertyPresence, HeapEntry } from "./Heap";
 import { isForkedCompletion } from "./Completion";
 import { ESBoolean } from "../boolean/ESBoolean";
 
@@ -53,6 +53,12 @@ export function mergeContexts(
         getProperties(object, alternate)
       )
     };
+    const presence: { [name: string]: TESBoolean } = Object.create(null);
+    Object.keys(entry.properties).forEach(name => {
+      presence[name] = select(ownPropertyPresence(object, name, consequent),
+        ownPropertyPresence(object, name, alternate)) as TESBoolean;
+    });
+    entry.presence = presence;
     if (isArray(value)) {
       const yes = getArrayElements(value as TArray<any>, consequent);
       const no = getArrayElements(value as TArray<any>, alternate);

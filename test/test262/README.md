@@ -14,7 +14,10 @@ metadata select their appropriate variants. Parse-negative tests must fail in
 the parser with the declared `SyntaxError`; runtime failures cannot satisfy them.
 
 The supported harness surface is native `assert`, `assert.sameValue`,
-`assert.notSameValue`, `assert._isSameValue`, `$ERROR`, and `$DONOTEVALUATE`.
+`assert.notSameValue`, `assert._isSameValue`, `assert.throws`, `$ERROR`, and `$DONOTEVALUATE`.
+`assert.throws` invokes the callback inside Prophet, requires an interpreted
+exception with the exact constructor, and rejects unresolved completions.
+Host analysis errors cannot satisfy it.
 Primitive SameValue checks distinguish signed zero and handle NaN. An unknown
 primitive or conditional reference passed to these equality checks fails
 explicitly: it cannot accidentally count as a concrete pass. Concrete object,
@@ -34,8 +37,9 @@ of arithmetic and logical expressions, function-body throws, and return/throw
 precedence through nested `catch` and `finally` blocks. These concrete cases
 protect JavaScript behavior while the local symbolic specs exercise calls that
 return on some paths and throw on others. Constructor throws are currently
-covered by local specs; the pinned Test262 candidates require additional
-unsupported language or built-in behavior.
+covered by local specs. Complete Error construction/formatting and string concat
+cases now cover ordinary conversion, generic receivers, and nullish receiver
+TypeErrors. Other candidates still need unsupported built-ins and descriptors.
 
 The arithmetic cases cover primitive addition, subtraction, multiplication,
 division, unary signs, negative zero, finite decimals, and operand sequencing.
