@@ -11,8 +11,9 @@ import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { mapCompletions } from "../evaluate";
 import { choiceOf } from "../symbolic";
 import { executeCommonJS } from "./commonjs";
-import { createModuleResolver, ModuleFormat } from "./resolution";
+import { createModuleResolver, ModuleFormat, ModuleResolutionError } from "./resolution";
 import { InvalidPackageConfig } from "./package-config";
+import { PackageExportError } from "./package-exports";
 import { parseJSONModule } from "./json";
 
 export type CommonJSLoader = {
@@ -31,8 +32,8 @@ function loaderError(name: string, code?: string) {
 
 /**
  * A closed, immutable snapshot of files, without symlinks or external search
- * paths. No host files are read during analysis. Local CommonJS/JSON loading
- * and package main/type metadata are supported; bare package lookup is not.
+ * paths. No host files are read during analysis. Local CommonJS/JSON loading,
+ * node_modules lookup, and exact conditional package exports share one cache.
  * Source and cache identities are shared; cache CONTENTS live only in each
  * execution context's persistent heap, so forks and snapshots stay independent.
  */
@@ -118,6 +119,9 @@ export function createCommonJSLoader(files: { readonly [filename: string]: strin
     } catch (error) {
       if (error instanceof InvalidPackageConfig) {
         return [loaderError("Error", "ERR_INVALID_PACKAGE_CONFIG"), context];
+      }
+      if (error instanceof PackageExportError || error instanceof ModuleResolutionError) {
+        return [loaderError(error.name, error.code), context];
       }
       throw error;
     }

@@ -13,8 +13,9 @@
 | CommonJS source execution | `stack/commonjs-execution` | `stack/host-runtime-roadmap` | [#31](https://github.com/netanelgilad/prophet/pull/31) |
 | CommonJS loading, cache, cycles, and retries | `stack/commonjs-module-cache` | `stack/commonjs-execution` | [#32](https://github.com/netanelgilad/prophet/pull/32) |
 | Local CommonJS resolution and JSON configuration | `stack/commonjs-local-resolution` | `stack/commonjs-module-cache` | [#33](https://github.com/netanelgilad/prophet/pull/33) |
+| Package lookup, conditional exports, and published invariant proof | `stack/commonjs-package-exports` | `stack/commonjs-local-resolution` | [#34](https://github.com/netanelgilad/prophet/pull/34) |
 
-Current development tip: `stack/commonjs-local-resolution`.
+Current development tip: `stack/commonjs-package-exports`.
 
 Create the next feature branch from that tip and open its PR against the tip.
 Keep each layer independently reviewable and validated. Update this record when

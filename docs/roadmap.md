@@ -66,26 +66,35 @@ Current progress: `evaluateCommonJS` executes supplied source with private scope
 named wrapper parameters, receiver/export semantics, and normal/throwing paths.
 `createCommonJSLoader` loads an immutable supplied graph through local relative
 and absolute requests, with extension probes, directory main/index selection,
-package type scopes, and JSON modules. Its cache is part of each execution context,
+package type scopes, JSON modules, ancestor package lookup, self-reference, and
+exact conditional exports. Its cache is part of each execution context,
 so cycles, retries, retained effects, and conditional loads use ordinary VM
 branch state. It supports finite choices of request names and rejects open
 symbolic names. The [local compatibility suite](../test/commonjs/README.md) runs
-against pinned Node v24.21.0. Package-name lookup, conditional exports, host disk
+against pinned Node v24.21.0. Export patterns, package imports, host disk
 access, further module metadata, implicit arguments, and global eval declarations
 remain explicit gaps; no complete upstream Node test is claimed as passing yet.
-The next resolution layer is package lookup and conditional exports, followed
-by the Error/string/environment behavior needed by the pinned package.
+The next published-package layer is shared Error construction and string-method
+support for rejection paths; broader resolution remains a parallel backlog.
 
 ## First published dependency proof
 
-Interpret the unmodified published CommonJS build of `tiny-invariant` 1.3.3,
-recording its provenance and integrity when adding the fixture. Its
+The [published invariant spec](../test/published-invariant.spec.ts) now interprets
+the unmodified CommonJS build of `tiny-invariant` 1.3.3. Its complete published
+tarball is vendored with verified integrity, per-file hashes, and its original
+license; see [provenance](../test/fixtures/tiny-invariant-1.3.3/PROVENANCE.md). Its
 [published metadata](https://registry.npmjs.org/tiny-invariant/1.3.3) uses nested
 conditional exports: a require selects the default branches leading to
 `dist/tiny-invariant.cjs.js`. Honoring only `main` would bypass the actual package
 resolution path. Its Error, `String.prototype.concat`, module, and `process.env` behavior
 must use shared VM implementations. Supply the modeled environment explicitly,
 including development and production settings.
+
+The initial proof supplies `process.env.NODE_ENV` and covers accepted inputs:
+for `Math.random() * 100`, the application's normalized result lies in [0, 1]
+and its lazy message is never invoked, in both environments. Error construction
+and `String.prototype.concat` are not implemented by this increment. The full
+rejection and all-number proof below remains the next milestone.
 
 The application-level target is a percentage normalizer that calls the library
 to assert its numeric input lies in [0, 100], then returns the input divided by

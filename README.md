@@ -25,6 +25,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/arithmetic-bounds.spec.
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-compat.spec.ts test/commonjs-symbolic.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.spec.ts test/commonjs-loader-symbolic.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-compat.spec.ts test/commonjs-package-config.spec.ts test/commonjs-resolution-symbolic.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts test/commonjs-package-symbolic.spec.ts test/published-invariant.spec.ts
 ```
 
 - [Recursive minimum](test/min.spec.ts) proves `d[0] < min(d)` false for ten
@@ -66,6 +67,15 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-com
   Node. [Configuration proofs](test/commonjs-resolution-symbolic.spec.ts) load a
   normalizer through a directory entry and prove its bounds using JSON limits,
   while preserving conditional configuration choices and mutations.
+- [Package lookup](test/commonjs-package-resolution.spec.ts) and
+  [conditional exports](test/commonjs-package-exports.spec.ts) compare ancestor
+  `node_modules` search, self-reference, public subpaths, condition ordering,
+  and target selection with Node. [Symbolic package specs](test/commonjs-package-symbolic.spec.ts)
+  preserve cache identity, initialization counts, and denied imports per path.
+- [Published invariant](test/published-invariant.spec.ts) executes the unmodified
+  `tiny-invariant` 1.3.3 package through its real exports map. For accepted random
+  inputs it proves normalized bounds and that the lazy message is never called,
+  in development and production with an explicitly supplied environment.
 
 Specs execute JavaScript through `evaluateCode(source, initialContext)` from
 `src/index.ts`. `context.value.scope` exposes the initialized, visible bindings
@@ -96,11 +106,12 @@ unmodified, pinned published build of `tiny-invariant`:
    caching, cycles, resolution, and failures in separate increments. Test262
    covers ECMAScript; Node's host APIs require their own compatibility tests.
    Supplied-source execution, caching/cycles, local file/directory resolution,
-   and JSON are covered. Package-name lookup, conditional exports, and the host
-   APIs needed by the package come next.
+   JSON, package-name lookup, and exact conditional exports are covered. Patterns,
+   package imports, further host APIs, and broader Node compatibility remain.
 5. **Real dependency:** add the Error, string, environment, and remaining
    semantics required by the pinned library; execute its actual source in a
-   spec. The first package proof must state its supported Node subset.
+   spec. The actual package's accepted-input proof now runs. Full rejection-path
+   behavior is next; each package proof must state its supported Node subset.
 6. **Replayable counterexamples:** generate a concrete violating input, then
    independently replay it against that same source. Sample testing alone must
    never establish a universal proof.
@@ -324,6 +335,11 @@ Relative and absolute requests try an exact file, then `.js`, `.json`, `.node`,
 then a directory's `package.json` main or index files. Selecting a native addon
 stops analysis; it never falls through to another candidate. `.cjs` works when
 explicitly named, but Node does not infer that extension.
+Bare and scoped package names search ancestor `node_modules` directories.
+Self-reference and package exports take precedence over legacy file/main lookup;
+exact subpaths, ordered/nested conditions, and array targets are supported.
+An unexported path cannot fall through to a private file or farther package.
+Resolved filenames determine cache identity across local and package aliases.
 The entry is loaded as a required file, not as Node's process entry point.
 
 The loader can analyze a consumer of the validator above:
@@ -354,10 +370,21 @@ loaded `package.json` data does not rewrite the resolver's source snapshot.
 
 `.js` files respect the nearest package `type`. Without an explicit type,
 successful CommonJS wrapper parsing permits execution; a parse failure reports
-the missing ESM syntax-detection support. ESM, package-name lookup, conditional
-exports, built-ins, and extra file formats remain gaps. Package metadata supports
+the missing ESM syntax-detection support. ESM, export patterns, `#imports`, custom
+conditions, built-ins, and extra file formats remain gaps. Package metadata supports
 valid JSON with unique, unescaped top-level keys; native-parser edge cases are
 explicitly rejected rather than assuming Node uses ordinary `JSON.parse` there.
+
+The [published-package spec](test/published-invariant.spec.ts) supplies all files
+from the verified `tiny-invariant` 1.3.3 tarball without altering source or metadata.
+It loads `require("tiny-invariant")` and invokes the actual library inside a
+percentage normalizer. For `Math.random() * 100`, Prophet proves the returned
+percentage is in [0, 1] and the lazy message callback count is zero. The same
+proof runs with supplied development and production `process.env.NODE_ENV`
+values. This is an accepted-input proof; Error construction and
+`String.prototype.concat` on rejection remain shared VM work, so the full
+all-number validator goal is still open. See the fixture's
+[provenance](test/fixtures/tiny-invariant-1.3.3/PROVENANCE.md).
 
 The loader exposes `module.exports`, `id`, `filename`, `path`, and `loaded`.
 Writes to metadata other than `exports`, other module fields, and extra require
