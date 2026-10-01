@@ -291,9 +291,10 @@ for (const method of ["GET", "HEAD"]) {
     expect(setup.filesystem.inspectRoot(ready)).toBe(root);
   });
 
-  for (const target of ["/index.txt", "/docs"]) test(`the real ${method} ${target} Buffer passes instanceof and reaches path.parse`, () => {
+  for (const target of ["/index.txt", "/docs", "/asset.unknown"]) test(`the real ${method} ${target} selects MIME and commits headers before response.write`, () => {
     const setup = packageLoader("installed", fileSystemDirectory({ site: fileSystemDirectory({
       "index.txt": fileSystemFile("café 😀"),
+      "asset.unknown": fileSystemFile("café 😀"),
       docs: fileSystemDirectory({ "index.html": fileSystemFile("café 😀") })
     }) }));
     const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
@@ -303,6 +304,7 @@ for (const method of ["GET", "HEAD"]) {
     const [, ready] = setup.http.completeListen(server, started);
     const observations: TExecutionContext[] = [];
     const mimeLookups: TExecutionContext[] = [];
+    const writeLookups: Array<{ response: Any; context: TExecutionContext }> = [];
     // Observe the actual local binding after readFileSync returns. This hook
     // supplies no values and changes no source, filesystem result or control flow.
     const observed = ExecutionContext({ ...ready.value,
@@ -311,6 +313,9 @@ for (const method of ["GET", "HEAD"]) {
       },
       validateRead: (object: Any, name: string, context: TExecutionContext) => {
         if (object === setup.path.module && name === "parse") mimeLookups.push(context);
+        if (name === "write" && (object as WithProperties).unknownProperties === "Node HTTP response API") {
+          writeLookups.push({ response: object, context });
+        }
       } });
     let boundary: ASTEvaluationError | undefined;
     try {
@@ -320,23 +325,46 @@ for (const method of ["GET", "HEAD"]) {
       boundary = error;
     }
     expect(boundary).toBeDefined();
-    expect(boundary!.message).toContain("Unmodeled host property 'parse'");
+    expect(boundary!.message).toContain("Unmodeled host property 'write'");
     expect(boundary!.ast).toMatchObject({ type: "CallExpression", callee: { type: "MemberExpression",
-      object: { type: "Identifier", name: "path" }, property: { type: "Identifier", name: "parse" } } });
-    expect(observations).toHaveLength(1);
+      object: { type: "Identifier", name: "response" }, property: { type: "Identifier", name: "write" } } });
+    expect(observations.length).toBeGreaterThan(0);
+    expect(writeLookups).toHaveLength(1);
     expect(mimeLookups).toHaveLength(1);
     expect(mimeLookups[0].value.scope.url).toMatchObject({ value:
-      target === "/docs" ? "/site/docs/index.html" : "/site/index.txt" });
+      target === "/docs" ? "/site/docs/index.html" : "/site" + target });
     const reached = observations[0];
-    const paths = effectPaths(reached.value.effects!);
+    const writing = writeLookups[0];
+    const paths = effectPaths(writing.context.value.effects!);
     expect(paths).toHaveLength(1);
     const events = paths[0].events;
     const reads = events.filter(event => event.call.operation === "fs.readFileSync" && event.kind === "return");
     expect(reads).toHaveLength(1);
     const read = reads[0];
-    expect(read.call.args[0]).toMatchObject({ value: target === "/docs" ? "/site/docs/index.html" : "/site/index.txt" });
+    expect(read.call.args[0]).toMatchObject({ value: target === "/docs" ? "/site/docs/index.html" : "/site" + target });
     expect(read.kind === "return" && read.value).toBe(reached.value.scope.data);
-    expect(events.some(event => event.call.operation === "http.response.writeHead")).toBe(false);
+    const parsed = events.filter(event => event.kind === "return" && event.call.operation === "path.posix.parse");
+    expect(parsed).toHaveLength(1);
+    const parseReturn = parsed[0];
+    expect(parseReturn.kind === "return" && getProperties(parseReturn.value as WithProperties, writing.context).ext)
+      .toMatchObject({ value: target === "/docs" ? ".html" : target === "/index.txt" ? ".txt" : ".unknown" });
+    const head = events.filter(event => event.kind === "return" && event.call.operation === "http.response.writeHead");
+    expect(head).toHaveLength(1);
+    const intendedHeaders = getProperties(head[0].call.args[1] as WithProperties, writing.context);
+    expect(intendedHeaders["Content-type"]).toMatchObject({ value: target === "/docs" ? "text/html" : "text/plain" });
+    expect(intendedHeaders["Content-length"]).toMatchObject({ value: 10 });
+    expect(getProperties(writing.response as WithProperties, writing.context)).toMatchObject({
+      headersSent: { value: true }, writableEnded: { value: false }
+    });
+    const actual = setup.http.inspectResponse(writing.response, writing.context);
+    expect(actual.statusCode).toMatchObject({ value: 200 });
+    // The original app reverses writeHead's arguments: MIME was computed, but
+    // the supplied "OK" string becomes numeric headers instead of that object.
+    expect(getProperties(actual.headers as WithProperties, writing.context)).toMatchObject({
+      "0": { value: "O" }, "1": { value: "K" }
+    });
+    expect(getProperties(actual.headers as WithProperties, writing.context)["content-type"]).toBeUndefined();
+    expect(events.some(event => event.call.operation === "http.response.end")).toBe(false);
     const [, inspected] = evaluateCode(`const bufferProof = data instanceof Object && !(data instanceof Error) &&
       data.length === 10 && data[3] === 195 && data.toString() === "café 😀";`,
       ExecutionContext({ ...reached.value, validateBinding: undefined, validateRead: undefined }));

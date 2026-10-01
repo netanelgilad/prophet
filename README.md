@@ -33,6 +33,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-url.spec.ts test/node-warnings.spec.ts test/node-url-path.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-filesystem.spec.ts test/filesystem-state.spec.ts test/pico-static-server-analysis.spec.ts test/pico-static-server-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-buffer.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path-parse.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/instanceof.spec.ts test/instanceof-internal.spec.ts test/test262.spec.ts
 ```
 
@@ -155,7 +156,7 @@ unmodified, pinned published build of `tiny-invariant`:
    then independently replay it against that same source. Sample testing alone
    must never establish a universal proof.
 
-Each step belongs in the PR stack with focused specs and relevant Test262 cases.
+Each increment goes to `master` with focused specs and relevant Test262 cases.
 Full JavaScript conformance and broader symbolic domains remain parallel goals.
 The [detailed roadmap](docs/roadmap.md) records CommonJS compatibility criteria,
 external-effect modeling requirements, and the Node HTTP milestones leading to
@@ -247,8 +248,9 @@ correlated multibyte decoding while the resulting text remains unknown.
 After reading either a regular file or a present directory index, the unchanged
 GET/HEAD handler now proves `data instanceof Error` false through the shared
 [prototype operation](docs/instanceof.md). It enters its original success branch
-and reaches `path.parse` while computing the MIME type. That path operation and
-response.write are the next boundaries; no completed file response is claimed yet.
+and uses `path.parse` to compute the MIME type. It commits status 200 before
+reaching the unmodeled response.write. The original reversed writeHead arguments
+still discard its intended MIME/length headers; no completed file response is claimed.
 Stats fields/options, other path forms, filesystem writes and wider
 platform/metadata behavior remain recorded gaps. Symbolic execution performs no
 real filesystem I/O; native fixture creation belongs only to reference specs.
@@ -378,8 +380,9 @@ be passed to `createHTTPModel(events)`.
 
 Scoped POSIX path, legacy URL, correlated filesystem state and Buffer reads now
 run through the real factory's GET/HEAD paths. Shared `instanceof` now follows
-prototype links and preserves conditional errors. Next implement the reached
-path.parse and response-write operations. Header
+prototype links and preserves conditional errors. POSIX path.parse now returns
+five fresh mutable fields for concrete strings and finite choices, retaining
+symbolic correlations. Next implement the reached response-write operation. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open
 symbolic text, and transport-sensitive fields including Content-Length remain
 explicit gaps in the backlog. Request body delivery and JSON parsing later lead back to
@@ -450,8 +453,8 @@ together:
    make the spec pass. Record temporary strategy/input limits explicitly and
    expand them with cases such as empty/sparse arrays, NaN/infinities, aliases,
    side effects, and alternative control flow.
-4. Run the affected spec files while developing. Before publishing the next
-   stacked PR, run the full specs and typecheck. Existing passing behavior must
+4. Run the affected spec files while developing. Before pushing the next
+   increment to `master`, run the full specs and typecheck. Existing passing behavior must
    remain covered; unsupported or skipped cases do not count as conformance.
 
 Boundary specs that currently expect an unsupported-analysis error protect
@@ -461,7 +464,7 @@ with the appropriate JavaScript behavior and symbolic results. Keep remaining
 limits visible; do not make the tests permanently enforce a shortcut.
 
 Maintain the [implementation gap backlog](docs/implementation-gaps.md) alongside
-each PR. It records known unsupported behavior, assumptions such as successful
+each increment. It records known unsupported behavior, assumptions such as successful
 socket binding or healthy output, legacy behavior awaiting a soundness audit,
 and unverified coverage including the retained skipped tests. New limits need
 an entry with evidence and a closure criterion; partial improvements must leave
@@ -959,8 +962,8 @@ accelerate known-length arrays; those keep their existing concrete/symbolic
 execution and exact results. Broader summary domains and reuse across equivalent
 input contracts can be added separately.
 
-## Development stack
+## Development workflow
 
-Development proceeds on a stack of GitHub PRs. Treat the latest branch as the
-working base for the next feature, and target each PR at its immediate predecessor.
-The current stack is recorded in [docs/stack.md](docs/stack.md).
+Develop directly on `master` and push focused, validated increments to
+`origin/master`. The former PR stack is fully merged; its feature and review
+history is preserved in [docs/stack.md](docs/stack.md).

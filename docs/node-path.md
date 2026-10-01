@@ -2,6 +2,7 @@
 
 The reference runtime is **Node v24.21.0**, upstream commit
 `955266bfdd854cd280dffd47548673914484e4c0`. The [local path specs](../test/node-path.spec.ts)
+and [parse specs](../test/node-path-parse.spec.ts)
 execute the same complete fixture modules through Prophet and an independent
 pinned Node child. These are local compatibility tests, separate from Test262
 and from complete upstream Node cases.
@@ -15,7 +16,8 @@ paths merely because the machine running Prophet can run Windows software.
 
 ## Supported operations
 
-The model implements `normalize(path)` and `join(...paths)` for concrete strings
+The model implements `normalize(path)`, `join(...paths)` and `parse(path)` for
+concrete strings
 and symbolic choices whose leaves contain concrete strings. String values known
 only through equality constraints are not yet materialized into those choices.
 Their behavior follows the pinned
@@ -24,6 +26,24 @@ Normalization handles repeated separators, `.` and `..`, absolute versus
 relative paths and trailing slashes. Empty input normalizes to `.`. Joining
 validates its arguments in order, ignores empty segments and joins the remaining
 text before normalization; no arguments or all-empty arguments produce `.`.
+
+Parsing returns a fresh ordinary object with five own string properties, in
+insertion order `root`, `dir`, `base`, `ext`, `name`. Empty input leaves all five
+empty. Ordinary property reads, writes, enumeration, spread and object
+identity use the shared VM; parsing does not introduce a separate result type.
+Branches retain their own correlated results, including relationships between
+multiple parsed fields. An extension shared by every input choice can be proved,
+while a differing filename remains unknown until a branch is selected.
+
+`parse` does not normalize the path. It ignores trailing separators when finding
+the final component, but retains intervening separators and `.`/`..` in the
+directory text: `/foo///bar.baz` has `dir === "/foo//"`. A leading dot usually
+does not begin an extension (`.profile` has none), while `...` has extension `.`.
+The exact pinned algorithm also gives `/..` and `/../` extension `.` and name `.`,
+although `..`, `../`, `//..` and `a/..` have no extension. Compatibility specs
+retain that runtime behavior rather than replacing it with a basename shortcut.
+`parse` calls no exported normalize, basename or extname method, and its captured
+String operations are unaffected by replacements of public String methods.
 
 These operations are lexical string operations. They do not read files, obtain
 the current directory, decode URLs, follow symlinks or check permissions. Only
@@ -56,7 +76,8 @@ uses captured String operations, and the compatibility specs cover their
 independence from public String method replacements.
 
 The original methods ignore supplied call receivers and are not constructors.
-Their names and lengths are modeled (`normalize.length === 1`, `join.length === 0`).
+Their names and lengths are modeled (`normalize.length === 1`, `join.length === 0`,
+`parse.length === 1`).
 Host-operation traces may record their calls and returns, including the nested
 normalize call; those records do not represent filesystem I/O.
 
@@ -80,13 +101,13 @@ and [error implementation](https://github.com/nodejs/node/blob/955266bfdd854cd28
 
 Open symbolic path strings are unsupported. Knowing only that an argument is a
 string, or constraining an otherwise unknown string to a finite set through
-equality facts, is insufficient for the present segment algorithm; the model
+equality facts, is insufficient for the present lexical algorithms; the model
 stops analysis instead of choosing a convenient string or claiming containment.
 Broader symbolic normalization, concatenation and path relationships remain
 future reasoning work. This is distinct from the supported unknown-number
 argument error with an imprecise message.
 
-The remaining path APIs (`parse`, `resolve`, `relative`, `basename`, `dirname`,
+The remaining path APIs (`resolve`, `relative`, `basename`, `dirname`,
 `extname`, `isAbsolute`, `format`, and others), Win32/device/UNC behavior, full
 module/function descriptors and reflection, and metadata mutation remain gaps.
 In particular, this increment neither supplies process.cwd nor changes the
@@ -115,7 +136,13 @@ directory causes the original index read to throw ENOENT before any response
 commit. Matching native GET/HEAD witnesses reproduce those two conditions.
 
 Default reads return Buffer values and the shared `instanceof` check is false.
-The next actual boundary is path.parse during MIME selection, then response consumption. Source provenance preserves DEP0169
+The original MIME function now evaluates `path.parse(url).ext`, chooses
+`text/plain` for `.txt` and an unmapped `.unknown` extension, and `text/html` for the directory
+index. The original handler then commits status 200. Its existing reversed
+`writeHead` arguments produce numeric header fields `0: "O"` and `1: "K"` from
+the supplied `"OK"` string, rather than the intended content headers. Execution
+stops at the unmodeled `response.write` member; no file-body write, response end
+or completed successful response is claimed. Source provenance preserves DEP0169
 eligibility, with warning delivery separate from the synchronous handler.
 Broader filesystem inputs, metadata, failures and schedules remain open.
 Existing successful-bind, healthy-stdout, delivered-request-event and transport
@@ -137,6 +164,13 @@ fragment:
 - [`test-path-normalize.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-path-normalize.js)
   mixes extensive Windows and POSIX assertions; Win32 and the common/assert
   harness prevent whole-file activation.
+- [`test-path-parse-format.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-path-parse-format.js)
+  exercises parsing and formatting together across POSIX and Win32, including
+  trailing separators. Whole-file activation still needs Win32, format, dirname,
+  basename, extname, common/assert, loops/destructuring, Array forEach/apply/includes,
+  and JSON diagnostics. Its invalid-object diagnostics also exceed the current
+  primitive-error model. The pinned tree has no separate parse-only case; local
+  parse compatibility specs do not count as this whole upstream case passing.
 - [`test-path.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-path.js)
   checks invalid values across both platforms and many further path APIs. It
   also needs arguments objects, Array.from/apply, for-of, assert.throws and

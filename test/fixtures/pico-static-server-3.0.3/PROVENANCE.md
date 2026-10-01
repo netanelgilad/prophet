@@ -127,14 +127,16 @@ suppresses DEP0169, while the identical source at `/app/fixture/package/index.js
 schedules it, matching the native checkout fixture. Interpreted callbacks retain
 their source filenames. Neither synchronous request handler delivers the warning;
 the scoped warning model provides separate default delivery under healthy stderr.
-Default readable-file reads now return modeled Buffer values. Four GET/HEAD
-cases for `/index.txt` and a populated `/docs/index.html` observe the original
+Default readable-file reads now return modeled Buffer values. Six GET/HEAD
+cases for `/index.txt`, a populated `/docs/index.html` and `/asset.unknown` observe the original
 `data` binding and the completed fs.readFileSync effect, including exact UTF-8
 bytes. Shared `instanceof` now establishes that this Buffer is not an Error;
-the actual success branch calls getMimeType and reaches its path.parse lookup.
-A read-only observer records the exact filename there, and analysis stops at
-that unmodeled API. Observers supply no values or control-flow replacements. No successful
-response is claimed yet. Broader URL/path APIs, including later path.parse,
+the actual success branch calls getMimeType and obtains the real path.parse
+extension. It selects text/plain, text/html, or the fallback text/plain, then
+commits status 200. Its reversed writeHead arguments still produce numeric O/K
+headers instead of the intended MIME/length fields. Analysis stops at the actual
+response.write lookup before end; observers supply no values or control-flow
+replacements. No completed file response is claimed. Broader URL/path APIs,
 language/response consumers and other filesystem
 failure families remain incomplete. An HTTPS
 override still reaches the opaque HTTPS API.

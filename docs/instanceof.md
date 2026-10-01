@@ -102,7 +102,8 @@ listed in the [implementation backlog](implementation-gaps.md).
 The original pico-static-server GET/HEAD handler now reads a regular file or an
 existing directory index into a Buffer, evaluates `data instanceof Error` as
 false through the shared operator, and enters its normal serving branch.
-Execution then reaches the unmodeled `path.parse` call while determining the
-MIME type. No replacement handler or function-name recognition supplies this
-result. Successful response writing and a complete 200 response remain later
-work; the earlier missing-directory 404 and missing-index ENOENT proof is retained.
+POSIX `path.parse` now determines the MIME type and the original handler
+commits status 200. Its reversed writeHead arguments still discard the intended
+MIME/length fields. Execution stops at response.write before body consumption or
+response end. No replacement handler or function-name recognition supplies this
+result. A complete 200 response remains later work; the earlier missing-directory 404 and missing-index ENOENT proof is retained.

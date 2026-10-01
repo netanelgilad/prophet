@@ -35,6 +35,29 @@ function normalizePath(path: string): string {
   return (absolute ? "/" : "") + joined + (trailing ? "/" : "");
 }
 
+// Lexical decomposition, independent of normalize and the mutable path module.
+// Return a fresh ordinary VM object so aliases and later field writes use the
+// same persistent heap as objects produced by interpreted JavaScript.
+function parsePath(path: string) {
+  const root = path[0] === "/" ? "/" : "";
+  let end = path.length;
+  while (end > 0 && path[end - 1] === "/") end--;
+  const separator = end > 0 ? path.lastIndexOf("/", end - 1) : -1;
+  const base = path.slice(separator + 1, end);
+  const dot = base.lastIndexOf(".");
+  // Pinned Node excludes a two-dot component from extension recognition,
+  // except immediately after a single root slash. Thus /.. has ext ".",
+  // whereas .., //.. and a/.. have ext "". Preserve that observable behavior.
+  const ext = dot > 0 && (base !== ".." || separator === 0) ? base.slice(dot) : "";
+  return ESObject({
+    root: ESString(root),
+    dir: ESString(separator > 0 ? path.slice(0, separator) : root),
+    base: ESString(base),
+    ext: ESString(ext),
+    name: ESString(base.slice(0, base.length - ext.length))
+  });
+}
+
 function withPath(value: Any, context: TExecutionContext,
   continuation: (path: string, context: TExecutionContext) => BranchResult): BranchResult {
   return withStringArgument("path", value, context, (input, branch) => {
@@ -56,7 +79,7 @@ function operation(name: string, length: number, model: HostModel) {
 }
 
 /**
- * Node v24.21.0 POSIX join/normalize. An embedding can register the same module
+ * Node v24.21.0 POSIX join/normalize/parse. An embedding can register the same module
  * as path/posix and, in an explicitly POSIX environment, path. Open string
  * reasoning, other APIs, Win32 and complete descriptors remain separate gaps.
  * Assumes the intrinsic Array.prototype.push is unchanged: pinned join uses it
@@ -70,6 +93,8 @@ export function createPosixPathModel() {
   module.properties.posix = module;
   module.properties.normalize = operation("normalize", 1, (call, context) =>
     withPath(call.args[0] || Undefined, context, (path, branch) => [ESString(normalizePath(path)), branch]));
+  module.properties.parse = operation("parse", 1, (call, context) =>
+    withPath(call.args[0] || Undefined, context, (path, branch) => [parsePath(path), branch]));
   module.properties.join = operation("join", 0, (call, context) => {
     // All arguments are validated before reading normalize. Persistent branch
     // state and independent segment lists prevent symbolic choices leaking.

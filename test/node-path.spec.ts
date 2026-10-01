@@ -245,7 +245,7 @@ test("an open symbolic number still throws the known argument error while its me
 
 for (const body of [
   'path.normalize({});', 'path.join("valid", []);', 'path.normalize(function() {});',
-  'path.parse("a");', 'path.resolve("a");', 'path.win32;',
+  'path.resolve("a");', 'path.win32;',
   'path.normalize.name = "changed";', 'path.join.length = 1;',
   'path.normalize.caller;', 'path.join.arguments;',
   'Object.prototype.hasOwnProperty.call(path.normalize, "prototype");',

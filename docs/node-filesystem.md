@@ -161,9 +161,10 @@ Readable regular-file and existing directory-index GET/HEAD cases now return
 the shared Buffer value from readFileSync. The original handler's actual `data`
 binding is observed without supplying results or changing control flow; byte
 length, indexed contents and UTF-8 decoding are checked. Shared `instanceof`
-now proves the Buffer is not an Error, so the actual success branch reaches
-path.parse during MIME selection. Successful file serving still needs that path
-operation and response-write behavior.
+now proves the Buffer is not an Error. The actual success branch uses path.parse
+for MIME selection and commits status 200 before stopping at response.write.
+The original reversed writeHead arguments still discard the intended MIME/length
+headers; successful file serving still needs response-write behavior.
 The entire server is not analyzed for every file, request or environment.
 
 ## Complete upstream cases reviewed

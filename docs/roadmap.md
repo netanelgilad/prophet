@@ -11,7 +11,7 @@ symbolic VM.
 
 The [implementation gap backlog](implementation-gaps.md) is the durable register
 of known missing semantics, assumptions, legacy audit debt, and unverified
-coverage. Reconcile it in every PR, including any newly narrowed proof domain.
+coverage. Reconcile it in every increment, including any newly narrowed proof domain.
 Do not remove an assumption such as successful binding merely because the next
 application statement can execute; closing it needs the recorded evidence.
 
@@ -69,7 +69,9 @@ GET/HEAD regular-file and populated-directory-index paths reach their actual
 `data instanceof Error` expression, now false through shared prototype reasoning.
 Twenty-six complete Test262 files protect the ordinary operator; symbolic specs
 retain conditional relationships and errors. The original success branch now
-reaches path.parse during MIME selection. Next implement that path operation and response consumption;
+uses path.parse during MIME selection and commits status 200 before reaching
+response.write. The original writeHead argument reversal still discards the
+intended Content-type/Content-length object. Next implement response consumption;
 broaden filesystem outcomes and schedules afterward.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
@@ -82,7 +84,7 @@ The shared VM already handles selected symbolic branches, mutable objects,
 closures, return/throw paths, recursive summaries, numeric bounds, and CommonJS
 supplied-source execution, cached local module resolution, and JSON modules. Broader
 host compatibility and server analysis remain future work. Each increment
-belongs in the PR stack and starts with specs.
+starts with specs and is validated before pushing to `master`.
 
 ## CommonJS and require are a compatibility milestone
 
@@ -324,7 +326,7 @@ this contract are compared with the real Node operation. Other failure modes,
 partial writes, complete filesystem Error fields, socket failures, and arbitrary
 host API arguments remain gaps, not guarantees established by this proof.
 
-Continue in these layers, each with specs and its own stacked PR:
+Continue in these increments, each with specs and a focused commit to `master`:
 
 1. **Complete Node HTTP reference:** established; the exact source now also has
    symbolic proof assertions and concrete model/Node response comparisons.
@@ -361,7 +363,7 @@ Continue in these layers, each with specs and its own stacked PR:
    witnesses replay both conditions. Source-based DEP0169 eligibility and a
    separate default-warning queue preserve the diagnostic boundary. Successful
    default reads now return Buffer values and the shared `instanceof` check is false;
-   the actual next stop is path.parse in MIME selection.
+   path.parse now selects MIME and the next stop is response.write after header commit.
    Byte mutations reuse the persistent heap and retain symbolic correlations.
    Broader filesystem classification remains open. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add

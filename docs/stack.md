@@ -1,4 +1,4 @@
-# Development stack
+# Historical development stack
 
 | Layer | Branch | Base | Pull request |
 | --- | --- | --- | --- |
@@ -31,9 +31,11 @@
 | Buffer-valued reads and persistent symbolic bytes | `stack/node-buffer-reads` | `stack/node-filesystem-state` | [#49](https://github.com/netanelgilad/prophet/pull/49) |
 | Shared instanceof and declared prototype relationships | `stack/shared-instanceof` | `stack/node-buffer-reads` | [#50](https://github.com/netanelgilad/prophet/pull/50) |
 
-Status: fully merged into `master` at `fe881c1` (PRs #23–#50).
+Status: PRs #23–#50 were merged into `master` by commit `323d11a`.
+The last stacked feature commit is `fe881c1`.
 
-Create the next feature branch from `master` and open its PR against `master`.
-Keep each layer independently reviewable and validated. Update this record when
-adding a layer or when merges change the appropriate PR bases. Do not combine
-new features into the older foundation PRs.
+As of 2026-10-01, work proceeds directly on `master` with validated pushes to
+`origin/master`, at the user's request. This table preserves the original
+feature and review history; no new stack layer or PR is required. Keep each
+increment focused, start with specs, update the gap backlog, and run affected
+specs followed by the full suite and typecheck before pushing.

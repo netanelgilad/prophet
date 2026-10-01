@@ -155,7 +155,9 @@ source at `/app/fixture/package` schedules it, matching the native checkout
 fixture's eligibility. Neither case delivers a warning while its synchronous
 handler is still executing. Default reads now return Buffer values; the
 `instanceof` expression now resolves false through shared prototype reasoning.
-The next target boundary is path.parse in MIME selection, then response writing.
+The target now parses the filename for MIME selection and commits headers; the
+next boundary is response.write. The original writeHead argument reversal still
+discards the intended MIME/length fields.
 Broader filesystem failures, HTTPS and wider URL forms remain gaps; existing bind,
 stdout, delivered-request-event and transport assumptions remain in force.
 

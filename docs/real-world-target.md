@@ -36,7 +36,9 @@ to throw ENOENT out of the registered listener before a response is committed.
 Both conditions are proved without deciding which tree was supplied. This
 symbolically reproduces the native reference's exception, under the declared
 environment. Readable-file success now returns a Buffer, passes the original
-`instanceof` check, and reaches the unmodeled path.parse call for MIME selection.
+`instanceof` check, and parses the filename for MIME selection. It commits status
+200 before reaching the unmodeled response.write call; reversed writeHead
+arguments still discard the intended MIME/length fields.
 Source placement determines DEP0169 eligibility; HTTPS remains opaque. No native
 implementation runs during symbolic exploration.
 
@@ -103,7 +105,7 @@ Express, routing, or filesystem-success shortcut is allowed.
 | Can an ordinary request cause an exception to escape its request listener when the requested directory exists but its default file does not? | Now proved for GET/HEAD `/docs` over the missing/empty-directory choice: the empty directory causes ENOENT at the original index read. Both conditions, ordered effects and unfinished response state have matching native witnesses. |
 | Does the response actually contain the Allow field the application supplies? | Now proved absent for the declared delivered-request-event domain with method neither GET nor HEAD because writeHead receives reversed arguments; retain conditional status, actual numeric header fields and the successful-transport assumptions. |
 | Which request methods reach filesystem operations? | A proof relating the method to attempted filesystem reads, rather than a handful of successful requests. |
-| For a readable existing file or an absent path, what response is committed? | Absent paths now complete 404 with an empty body. Readable-file reads return Buffer values, pass the actual instanceof check and reach path.parse in MIME selection; later status/body/write behavior and HEAD semantics need their own support. |
+| For a readable existing file or an absent path, what response is committed? | Absent paths now complete 404 with an empty body. Readable-file reads return Buffer values, pass the actual instanceof check and parse the extension for MIME selection. Status 200 is committed, but reversed writeHead arguments discard the intended MIME/length fields. Response.write and later body/end/HEAD behavior remain unsupported for this path. |
 | Can a filesystem failure leave a response unfinished, or can the application's apparent error-response branch actually handle it? | The bounded missing-index proof leaves headersSent and writableEnded false: the throw prevents the subsequent `data instanceof Error` branch from running. Broader failure families remain open. |
 
 The first question came from inspecting the original source: it checks the
@@ -232,13 +234,16 @@ modeled Buffer from the original readFileSync. A read-only binding observer
 records that exact value and its completed read effect; the specs verify its
 10-byte UTF-8 contents for `café 😀`. The shared `data instanceof Error` operation
 now follows the real Buffer prototype chain and returns false. The original
-success branch calls getMimeType, where a read-only observer records the exact
-filename passed to the still-unmodeled path.parse lookup. These are incomplete
-response paths, not safe completed requests. The shared [Buffer model](node-buffer.md)
+success branch calls getMimeType and parses the filename extension. Six GET/HEAD
+cases cover a regular .txt file, a populated directory index (.html), and an
+unmapped .unknown extension using the fallback. The original respond function
+then commits status 200, with numeric O/K headers from its reversed writeHead
+arguments instead of the intended MIME/length fields. Read-only observers and
+effect records verify both computed and committed headers before analysis stops
+at response.write. These are incomplete response paths, not safe completed requests. The shared [Buffer model](node-buffer.md)
 separately supports byte reads, persistent numeric writes and UTF-8 decoding,
 including correlated symbolic mutations and mandatory unknown results. Next are
-path.parse and HTTP response-write behavior for successful
-file serving. Wider URL forms, filesystem environments and
+HTTP response-write behavior and subsequent completion for successful file serving. Wider URL forms, filesystem environments and
 schedules remain expansions. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
@@ -262,7 +267,8 @@ The first useful proof is deliberately bounded and must be labeled that way:
   UTF-8 file reads return strings; default reads return fresh Buffer values.
   Finite choices of contents and numeric byte writes are supported, while open
   symbolic bytes, broader Buffer APIs and backing-store views remain gaps.
-  The target's successful read passes its `instanceof` check and reaches path.parse.
+  The target's successful read passes its `instanceof` check, determines MIME,
+  and commits headers before reaching response.write.
   No symlinks, permission/resource
   failures or concurrent namespace changes are included. Metadata/atime and
   partial-I/O effects are not proved absent; their observation remains unmodeled.
@@ -298,7 +304,8 @@ been analyzed. Keep both source coverage and domain coverage visible.
    ENOENT. Source-based warning eligibility distinguishes the installed
    package from the checkout; default warning delivery is a separate transition.
    Successful default reads now return Buffer values; shared `instanceof` evaluates
-   false and reaches path.parse in the actual success branch;
+   false; path.parse selects MIME and the actual success branch commits status 200
+   before reaching response.write;
    broader Buffer, URL/path APIs and filesystem environments remain.
    Any uncovered `instanceof`/property semantics need shared support and relevant
    complete Test262 cases. Add the required Node response/Buffer, URL/path,
@@ -338,7 +345,8 @@ direct response headers now support startup and the non-GET/HEAD response proof.
 POSIX join/normalize, path-only legacy URL parsing and shared symbolic filesystem
 state now classify the bounded 404/escaping-ENOENT case in the original server.
 Default reads return Buffer values, and shared `instanceof` now establishes they
-are not Errors. Next support the reached path.parse and response consumers, then expand filesystem
+are not Errors. POSIX path.parse now determines MIME and the original code commits
+headers. Next support response.write and subsequent completion, then expand filesystem
 errors, inputs and schedules. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic

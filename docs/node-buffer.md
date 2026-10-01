@@ -101,11 +101,13 @@ regular file and a directory's existing index file. The actual local `data`
 binding contains the byte value, with its length, indexed bytes and decoded text
 checked by a read-only observer. The shared JavaScript `data instanceof Error`
 operator now returns false by following these prototype links. The original
-success branch reaches path.parse in getMimeType, where analysis stops explicitly.
+success branch computes MIME through path.parse and commits status 200 before
+stopping at the unmodeled response.write lookup.
 
-This advances the successful-read path; it does not yet prove a 200 response or
-successful file serving. `path.parse` and response writing remain
-later boundaries. The missing-directory 404 versus missing-index ENOENT proof
+This establishes header commit, not a completed 200 response or successful file
+serving. The application still reverses its writeHead arguments, discarding the
+intended MIME/length fields. Buffer consumption by response.write remains the
+next boundary. The missing-directory 404 versus missing-index ENOENT proof
 and its independent native witnesses remain intact.
 
 ## Complete upstream cases reviewed
