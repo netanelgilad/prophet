@@ -1,3 +1,12 @@
+# Product direction
+
+Prophet is an agent-first JavaScript VM for explaining and proving behavior of real,
+unmodified programs under declared inputs and environments, with concrete execution
+as a subset of symbolic execution. Its goals include correctness analysis and
+pre-execution supply-chain security for dependency installation, import and use;
+follow [the roadmap](docs/roadmap.md) and [the agent/security contract](docs/agent-security-analysis.md),
+reporting unknowns and coverage limits explicitly.
+
 # Repository workflow
 
 Work directly on `master` and push validated changes to `origin/master`, as
@@ -13,13 +22,17 @@ subset of symbolic execution; preserve JavaScript semantics in both.
 The durable product goal is useful analysis of real, unmodified Node applications:
 identify conditions leading to unhandled exceptions or unwanted state/effects,
 and prove useful properties across explicitly declared inputs and environments.
-Read [the real-world target](docs/real-world-target.md) and
-[the roadmap](docs/roadmap.md) when choosing the next increment. The first external
+Read the relevant milestone in [the roadmap](docs/roadmap.md),
+[the real-world target](docs/real-world-target.md), or
+[the agent/security contract](docs/agent-security-analysis.md) when choosing the
+next increment. The immediate priority is the agent request/report contract over
+the existing real-server proof, followed by a small generic dependency-effect
+proof; deeper host modeling follows demonstrated blockers. The first external
 target is pinned `pico-static-server` 3.0.3: evaluate its complete server setup and
 request handling, classify filesystem failure paths, and eventually replay a
 concrete violating case in pinned Node. It is a target, not a completed proof or
 a claimed new vulnerability. Prefer the smallest reusable feature that advances
-this target; existing health/discount examples remain regression and integration
+the current roadmap milestone; existing health/discount examples remain regression and integration
 milestones. Then grow to larger applications and dependency graphs. Keep source
 and dependency provenance, proof domains, unknown results, and unsupported paths
 visible; neither sampled runs nor partial coverage justify an all-path claim.

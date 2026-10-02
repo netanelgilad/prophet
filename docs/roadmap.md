@@ -1,6 +1,6 @@
 # Proof milestones and host runtime coverage
 
-The North Star is useful analysis of real, unmodified JavaScript applications
+The North Star is useful, agent-facing analysis of real, unmodified JavaScript applications
 and their dependencies: explain which inputs and environmental outcomes can
 produce an unhandled exception or unwanted state/effect, and prove useful
 properties across a declared domain. This includes programs that interact with
@@ -8,6 +8,40 @@ their environment, not just functions that return values. Unknown results and
 unsupported behavior must remain explicit. Automatic counterexample generation
 is a later consumer of execution results, not a prerequisite for extending the
 symbolic VM.
+
+A durable security objective is **pre-execution dependency admission**: analyze
+incoming packages' installation, import and declared use for unapproved network
+operations, credential disclosure, protected-file changes and unexpected process
+execution. Benchmark against controlled, pinned Shai-Hulud incident artifacts
+and clean controls. The [agent/security contract](agent-security-analysis.md)
+defines the proposed library + JSON CLI + later npm adapter, declarative symbolic
+scenarios, machine-readable evidence, policy/coverage distinctions, approval
+integrity and incremental acceptance criteria. It is a roadmap, not a claim that
+Prophet currently scans malware or certifies arbitrary packages.
+
+## Immediate product milestones
+
+1. Expose the existing unchanged-server proof through a versioned agent
+   request/report library contract: named inputs/environment, source locations,
+   conditions, effects, outcomes, provenance and structured unknown/unsupported
+   results. This makes the existing real-world milestone directly consumable.
+2. Add a small benign dependency proof over a shared outbound-effect boundary,
+   with exact/finite/unknown destinations, a no-egress control, secret-bearing
+   requests, and an explicitly inconclusive subprocess case. Repair or reject
+   reached legacy/unverified semantics before granting security proofs.
+3. Add a thin JSON CLI and a pinned npm lifecycle subset, then one immutable
+   original Shai-Hulud loader/first-effect benchmark, and finally a package-manager
+   admission adapter that binds decisions to exact bytes, graph and scenario.
+   Install, module load, later export calls and deferred triggers have separate
+   coverage. A partial scan with no finding cannot authorize a clean verdict.
+
+These are the next priorities. Post-open filesystem failures/descriptor lifetime,
+transport refinements and other existing gaps stay recorded; deepen those models
+when a declared product scenario or shared semantic correctness needs them.
+The [first real application](real-world-target.md) remains an active proof target
+and the first report consumer. Full Test262 coverage remains the language goal.
+
+## Existing proof milestones and engine work
 
 The [implementation gap backlog](implementation-gaps.md) is the durable register
 of known missing semantics, assumptions, legacy audit debt, and unverified
@@ -28,9 +62,11 @@ within its declared domain, not complete server analysis. Selection,
 immutable provenance, input/environment domains, result criteria, and the growth
 plan are in [the real-world target contract](real-world-target.md).
 
-After shared event listeners, prioritize the language and Node operations needed
-to execute this complete target, then classify symbolic request/filesystem paths
-and replay a supported violating path. Request streams, JSON, and the discount
+The earlier execution layers prioritized the language and Node operations needed
+to execute this complete target and classify symbolic request/filesystem paths
+with supported native witnesses. The next product step exposes that evidence to
+agents and adds the first dependency-effect policy proof described above.
+Request streams, JSON, and the discount
 endpoint remain valuable milestones, but are not prerequisites for a static
 server that does not consume request bodies. Grow to larger real applications
 after demonstrating useful analysis on this small one. Each session should
@@ -86,9 +122,10 @@ symbolic execution retains all sixteen input combinations. Independent real
 Node permissions/exhaustion fixtures validate error priority and replay actual
 server failures. The platform input defaults to Linux and supports Darwin's
 empty-path priority. The baseline applies at filesystem calls, not to a shared
-process-wide FD pool: HTTP startup/acceptance still assumes success. Next model
-post-open fstat/read/close failures and descriptor lifetime, then namespace races,
-transport outcomes and schedules.
+process-wide FD pool: HTTP startup/acceptance still assumes success. Post-open
+fstat/read/close failures, descriptor lifetime, namespace races, transport outcomes
+and schedules remain backlog work; the agent/security milestones above set the
+immediate priority.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations

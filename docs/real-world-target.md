@@ -42,6 +42,18 @@ reversed writeHead arguments still discard the intended MIME/length fields.
 Source placement determines DEP0169 eligibility; HTTPS remains opaque. No native
 implementation runs during symbolic exploration.
 
+## Role in the agent and security product
+
+This unchanged server is the first consumer of the proposed
+[agent request/report contract](agent-security-analysis.md): an agent supplies a
+source graph and symbolic scenario, then receives outcomes, conditions, ordered
+effects, exception locations and explicit coverage limits. The broader goals
+also include pre-execution dependency admission and controlled Shai-Hulud
+benchmarks for install/import/use effects. They share the VM; they do not replace
+this target or imply a completed security scanner. The next increment exposes
+existing evidence through that contract, then adds a small generic outbound-effect
+proof before deepening filesystem internals without a scenario that needs them.
+
 ## Why this project
 
 The published package is an actual static-file server, with HTTP and HTTPS
@@ -257,8 +269,8 @@ traversal yields 404, then EMFILE takes priority over EACCES at the read, with
 status 200 and the matching body on success. Native GET/HEAD witnesses use actual
 chmod denial or exhaustion after request acceptance; both exceptions escape the
 original `index.js:126` read. No application source is rewritten. Descriptor
-availability is not yet coupled to HTTP socket allocation. Next model post-open
-fstat/read/close failures and descriptor lifetime. Wider URL forms, filesystem environments and
+availability is not yet coupled to HTTP socket allocation. Post-open
+fstat/read/close failures and descriptor lifetime remain tracked gaps. Wider URL forms, filesystem environments and
 schedules remain expansions. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
@@ -366,8 +378,11 @@ state now classify the bounded 404/escaping-ENOENT case in the original server.
 Default reads return Buffer values, and shared `instanceof` now establishes they
 are not Errors. POSIX path.parse now determines MIME and the original code commits
 headers and completes write/end/finish. Shared choice-aware equality now also
-proves the combined GET/HEAD domain and its body relationship. Next expand
-filesystem errors, inputs and schedules, preserving successful and throwing paths together. Broader headers and transport remain separate work;
+proves the combined GET/HEAD domain and its body relationship. Effective access
+and descriptor availability add EACCES/EMFILE/404 outcomes and matching native
+witnesses. Exposing those results through the agent contract is next; broader
+filesystem errors, inputs and schedules remain expansions that preserve successful
+and throwing paths together. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.
