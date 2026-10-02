@@ -787,7 +787,16 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand
 node .yarn/releases/yarn-3.1.1.cjs typecheck
 ```
 
-The active Test262 baseline runs **333 strict/sloppy variants of 171 complete,
+[Symbolic string specs](test/symbolic-strings.spec.ts) now prove concatenation
+length bounds and recover known prefixes/suffixes with `String.prototype.slice`.
+For unrestricted `text`, `("/users/" + text + ".json").slice(7, -5) === text`
+is true, while the middle's contents stay unknown. Slice preserves UTF-16 units,
+conversion effects/throws and finite-choice correlations; unknown indices retain
+symbolic results. See [the string boundary](docs/symbolic-strings.md) for remaining
+precision, API and allocation assumptions. Run the spec with
+`node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-strings.spec.ts`.
+
+The active Test262 baseline runs **361 strict/sloppy variants of 185 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
@@ -809,7 +818,7 @@ the missing `Number` constants and global `isNaN`; the harness does not supply
 host substitutes for those runtime gaps.
 Historical selections remain explicitly skipped and are tracked as unassessed
 activation debt in the [gap backlog](docs/implementation-gaps.md). The pinned
-snapshot has **35,960 test files** after excluding `_FIXTURE.js` files; 171 selected files are about **0.48%** of that file inventory. The other
+snapshot has **35,960 test files** after excluding `_FIXTURE.js` files; 185 selected files are about **0.51%** of that file inventory. The other
 35,789 files have not been comprehensively assessed, including the 46 historical
 skips. This is an activation share, not a whole-suite pass rate or a percentage
 of JavaScript behavior implemented. The corpus is an old pinned revision, not

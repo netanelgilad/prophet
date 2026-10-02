@@ -19,6 +19,7 @@ export type Expression =
   | { kind: "truthy"; operand: Any }
   | SelectExpression
   | { kind: "binary"; operator: string; left: Any; right: Any }
+  | { kind: "string-slice"; operand: Any; start: TESNumber; end?: TESNumber }
   | { kind: "unary"; operator: string; operand: Any };
 
 export type OrderFact = {

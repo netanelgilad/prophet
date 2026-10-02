@@ -402,3 +402,17 @@ and regression cases; they never replace an all-input symbolic proof. Effect
 snapshots currently inspect heap state and facts; they must not be used to
 recreate stale environments for deferred callbacks. Event delivery needs the
 current execution context and the listener's normal captured environment.
+
+
+## String reasoning alongside the host boundary
+
+The [symbolic string increment](symbolic-strings.md) adds shared concatenation
+length relationships and slice inference over unrestricted string middles.
+Known prefix/suffix extraction and removal now prove useful properties without
+enumerating possible input text. Concrete/coercion semantics have complete
+Test262 cases and independent pinned Node comparisons; unprovable content stays
+unknown. This prepares richer request/path reasoning for the real target without
+claiming filesystem containment from textual prefixes. Next string work includes
+startsWith/endsWith, richer length/equality constraints and slice composition;
+regex/search, characters, legacy split/substr and allocation failures remain in
+the backlog. It is independent of the next HTTP response increment.

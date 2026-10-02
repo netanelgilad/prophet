@@ -51,7 +51,9 @@ facts, are not converted into arbitrary concrete examples.
 
 Node's legacy parser observes some mutable String operations. Replacements of
 `String.prototype.charCodeAt` or `slice` stop analysis until those effects can be
-modeled. It also uses live operations on internal RegExp and Set objects. Their
+modeled. The [shared slice intrinsic](symbolic-strings.md) is now implemented;
+the URL guard compares its current identity with that intrinsic instead of
+assuming the property is absent. It also uses live operations on internal RegExp and Set objects. Their
 constructors/prototypes are currently outside the VM's supported library, so
 this model assumes those intrinsics unchanged; future support must preserve
 their observable mutations. These are implementation gaps, not URL validity

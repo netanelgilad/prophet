@@ -12,6 +12,7 @@ import { compareNumbers } from "./number/symbolic";
 import { Knowledge, choiceOf, assume, selectValue, strictEquality, negate, resolveBoolean } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
 import { ArithmeticOperator, arithmeticNumber, negateNumber } from "./symbolic/arithmetic";
+import { concatenateStrings } from "./string/concat";
 import { instanceOf } from "./Function/instanceof";
 
 export type BinaryOperatorResolver = (
@@ -91,6 +92,7 @@ function arithmetic(operator: ArithmeticOperator): BinaryOperatorResolver {
           case "%": return ESNumber(l % r);
         }
       }
+      if (operator === "+" && isESString(a) && isESString(b)) return concatenateStrings(a, b);
       if (operator === "+" && (isESString(a) || isESString(b))) {
         return { ...ESString(), expression: { kind: "binary", operator, left: a, right: b } };
       }
