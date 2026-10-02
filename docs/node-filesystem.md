@@ -10,12 +10,19 @@ running Prophet unless an embedding actually supplies and validates that snapsho
 
 ## One shared symbolic filesystem state
 
-`createFileSystemModel({ root, cwd? })` exposes `.module` for registration as
-`fs` (including the loader's `node:fs` alias) and `inspectRoot(context)` for host
+`createFileSystemModel({ root, cwd?, fileDescriptorsAvailable?, platform? })` exposes `.module` for registration as
+`fs` (including the loader's `node:fs` alias) and `inspectRoot(context)` plus `inspectFileDescriptorsAvailable(context)` for host
 inspection. `fileSystemDirectory(entries)` builds a closed directory:
-unlisted names and `ESNull` mean missing. `fileSystemFile(text)` supplies a readable
-regular file containing concrete UTF-8 text. The default cwd is `/`; a supplied
+unlisted names and `ESNull` mean missing. `fileSystemFile(text, { readable? })` supplies a regular file containing concrete
+UTF-8 text. Directory helpers also accept `{ readable?, searchable? }`. These are
+VM Booleans, including unknown Booleans and ordinary symbolic choices; omitted
+access flags and descriptor availability explicitly select the healthy assumption.
+`platform` selects `"linux"` (the default) or `"darwin"`; it is not inferred from
+the machine running Prophet. The default cwd is `/`; a supplied
 cwd must be a canonical absolute directory that exists on every setup path.
+That structural check does not assume access. Relative operations start from the
+already-held cwd directory, so inaccessible ancestors do not block them; absolute
+operations still traverse from root.
 
 The state can be symbolic. The [state specs](../test/filesystem-state.spec.ts)
 use the same choices as other VM values, for example:
@@ -50,7 +57,8 @@ operations with independent pinned Node fixtures. Paths are strings or choices
 with concrete string leaves. The model accepts absolute paths and relative paths
 against its declared cwd. It traverses components in order, including before
 `.` and `..`: a missing or non-directory prefix is not erased by lexical
-normalization. Trailing slash requires a directory. These filesystem operations
+normalization. Trailing slash requires a directory but does not itself demand that final
+directory's search access. An explicit `/.` does. These filesystem operations
 are distinct from the lexical [path model](node-path.md).
 
 Names and string paths pass through UTF-8 encoding, including replacement of lone
@@ -63,7 +71,8 @@ Longer inputs stop analysis rather than being reported missing.
 Supported operations are:
 
 - `existsSync(path)`: returns true for an existing file/directory, false for a
-  missing/non-directory traversal or a string containing NUL.
+  missing/non-directory/inaccessible traversal or a string containing NUL.
+  False therefore does not prove that a file is absent.
 - `statSync(path)` with omitted/undefined options: returns a partial Stats value
   exposing shared `isDirectory` and `isFile` methods. Methods may be borrowed
   between modeled Stats receivers; arbitrary receivers, mode/_checkModeProperty
@@ -88,22 +97,73 @@ No real filesystem operation occurs during symbolic exploration. Concrete
 reference specs create their own isolated fixtures; they do not supply return
 values to the symbolic calls.
 
+## Effective access and descriptor availability
+
+The [failure specs](../test/filesystem-failures.spec.ts) use ordinary symbolic
+Booleans as stable facts about this process and its environment:
+
+```ts
+const readable = ESBoolean();
+const available = ESBoolean();
+const root = fileSystemDirectory({ "data.txt": fileSystemFile("hello", { readable }) });
+const filesystem = createFileSystemModel({ root, fileDescriptorsAvailable: available });
+```
+
+Here existsSync/statSync succeed on `data.txt` regardless of the two unknowns.
+A read throws EMFILE if no descriptor is available, EACCES if a descriptor is
+available but reading is denied, and returns the bytes otherwise. Repeated reads
+consult the same facts; catching an error can establish the relevant input facts.
+The original unknowns remain unknown after merging. Successful synchronous reads
+restore the same declared baseline; this is not a descriptor counter or a model
+of concurrent allocations. The baseline applies at modeled filesystem calls;
+it is not a process-wide pool shared with HTTP listen/accept. The native server
+witness exhausts descriptors after accepting the request. Cross-module resource
+coupling remains FS-001/HTTP-001, and startup still has its separate success assumption. Inspection of earlier contexts is unchanged.
+
+Directory search access is checked before each further component, including
+`.` and `..`, before deciding whether a child exists. Its own final metadata can
+still be inspected without its search/read access. Directory read access is
+independent: traversal may succeed while opening the directory for a read throws
+EACCES, before the later EISDIR outcome. Entry metadata is private and separate
+from filenames such as `readable` or `searchable`.
+
+These inputs describe **effective access**, not an implementation of permission
+bits, ownership, groups, ACLs, capabilities, or Node's permission subsystem. A
+caller connecting the model to a real deployment must establish those inputs.
+They are not independently chosen return values for each API call.
+
+EACCES and EMFILE errors retain code, negative errno, original UTF-8 path,
+syscall `open` (or `stat` for denied stat traversal), message and fresh identity.
+NUL validation precedes resource access. For a nonempty supported path,
+per-process descriptor exhaustion precedes path traversal. Empty filenames are
+platform dependent: Linux yields ENOENT before allocating a descriptor; Darwin
+can yield EMFILE first. Overlong inputs retain an analysis boundary, even when
+capacity is unavailable, because kernel name validation has its own priority.
+
+The independent [native failure specs](../test/node-filesystem-failures-reference.spec.ts)
+use real chmod permissions and bounded descriptor exhaustion in isolated pinned
+Node children, including restoration after close. Full server references also
+reproduce EACCES/EMFILE escaping the unchanged listener for GET and HEAD of an
+existing index, and the application's 404 for an inaccessible child.
+
 ## Declared environment and residual gaps
 
-The tree describes a stable, closed namespace of readable regular files and
-directories. It excludes symlinks, namespace races, permission denial and
-resource failures. Linux/macOS read/error behavior is selected explicitly;
+The tree still describes a stable, closed namespace of regular files and
+directories, now with symbolic effective access and descriptor availability.
+It excludes symlinks, namespace races, credential/access changes and concurrent
+resource allocation. Linux/macOS read/error behavior is selected explicitly;
 directory reads on AIX/FreeBSD and other platform rules differ. Case folding,
 Unicode-normalizing filesystems, arbitrary byte contents, open symbolic names
 and unbounded trees remain separate work.
 
 Stable contents do not imply all real filesystem metadata is unchanged: reading
-can update access timestamps. Metadata/atime effects, descriptor allocation and
-ownership, open/read/close failures, partial I/O, cancellation and concurrent
-changes remain unmodeled. Stats metadata guards keep those observations outside
-the current proof domain. Successful text and Buffer reads assume the declared
-readable data and successful required resource operations; they do not prove
-operating system availability.
+can update access timestamps. Metadata/atime effects, descriptor identities and
+ownership, post-open fstat/read/close failures, partial I/O, cancellation,
+process-wide transitions, ENFILE and allocation failures remain unmodeled.
+Successful reads assume the later resource operations succeed, including closing
+the temporary descriptor; an EACCES/EMFILE open failure creates no descriptor.
+An EISDIR result still assumes successful allocation/cleanup on that read path.
+Stats guards keep unmodeled metadata observations outside the proof domain.
 
 Other APIs, asynchronous/promises/stream operations, writes, Buffer/typed-array
 or URL path arguments, file descriptors, richer encodings and options remain
@@ -119,7 +179,7 @@ The slow/default read path also assumes Node's Buffer allocation and internal
 primitives are unchanged. Public Buffer constructors/allocators are not yet
 exposed to interpreted code. A nonempty file calls Buffer.allocUnsafe(size);
 an empty file calls allocUnsafe(8192) and then Buffer.concat. Node may allocate
-before a directory read reports EISDIR. Resource failures are excluded here;
+before a directory read reports EISDIR. Allocator failures are still excluded here;
 future allocator support must preserve replacement effects and throws rather
 than bypassing them, including on paths that ultimately fail.
 
@@ -166,13 +226,62 @@ for MIME selection, commits status 200 and completes write/end/finish under the
 declared successful transport schedule. The original reversed writeHead arguments
 still discard the intended MIME/length headers. Symbolic index presence now
 classifies success versus escaping ENOENT, including GET/HEAD body suppression.
-The entire server is not analyzed for every file, request or environment.
+One new full-module proof combines unknown GET/HEAD, search access to the static
+root, index read access and descriptor availability. It preserves all sixteen
+assignments in one symbolic execution: failed traversal produces 404; otherwise
+EMFILE takes priority over read denial, then EACCES, then status 200 with the
+appropriate GET/HEAD body. Throwing paths retain the attempted read and unfinished
+response, with no substituted 500. Healthy startup/stdout/transport, a stable
+tree and successful post-open operations remain assumptions. The entire server
+is not analyzed for every file, request or environment.
 
 ## Complete upstream cases reviewed
 
 These complete files were reviewed at the pinned revision. Their filesystem
 fixtures, setup, asynchronous cases and platform branches are part of the tests;
 matching one local synchronous operation does not activate an upstream file.
+
+The separate [failure references](../test/node-filesystem-failures-reference.spec.ts)
+exercise real OS permission denial and descriptor exhaustion. They create
+isolated fixtures, drop the child uid when the runner is root, and fail rather
+than skip when the declared environment cannot establish the failure. Resource
+exhaustion uses a child-only limit of 64 descriptors, bounded allocation and
+`finally` cleanup. The hard limit must accompany the soft limit because pinned
+[Node initialization](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/src/node.cc#L622-L641)
+raises the soft limit toward the inherited hard limit. The parent is unaffected.
+These are local compatibility specs, not complete upstream case activation.
+
+An unreadable final file can still exist and stat successfully. Directory
+search denial affects traversal, including explicit `.` and missing children;
+a final directory's trailing slash requires its directory kind without an
+extra `.` lookup. Relative paths start from the existing cwd directory, so a
+denied ancestor need not prevent relative reads. A directory without read
+permission fails at `open` before a directory read could produce EISDIR.
+Nonempty read paths encounter EMFILE before traversal errors when the process
+has no descriptor capacity; exists/stat do not allocate a descriptor. Empty
+paths differ: Linux's
+[open implementation](https://github.com/torvalds/linux/blob/v6.12/fs/open.c#L1317-L1343)
+calls [getname](https://github.com/torvalds/linux/blob/v6.12/fs/namei.c#L144-L154)
+before descriptor allocation and returns ENOENT, whereas the pinned macOS
+reference produces EMFILE. Both paths still reject a NUL-containing JavaScript
+string before attempting an OS open. Linux/macOS references keep this boundary
+explicit rather than treating every POSIX platform as identical.
+
+- [`test-fs-access.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-fs-access.js)
+  combines synchronous, callback and promise access checks; real writes/chmod,
+  uid/platform handling, flags and argument diagnostics, internal bindings,
+  stack checks and the common/assert harness. It remains inactive: effective
+  read/search permissions for exists/stat/read do not supply the access API or
+  those setup and asynchronous behaviors.
+- [`test-fs-open.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-fs-open.js)
+  exercises public synchronous, callback and promise open APIs, file handles,
+  flags, modes and validation. A readFileSync environmental capacity condition
+  does not implement descriptor ownership or those public APIs.
+- [`test-fs-copyfile-respect-permissions.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-fs-copyfile-respect-permissions.js)
+  preserves destination contents after failed synchronous/callback/promise
+  copies and contains uid/platform exclusions. Writes, chmod, copy operations,
+  callback/promise delivery and its complete harness remain unsupported;
+  read permission failures are not coverage for this complete file.
 
 - [`test-fs-exists.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-fs-exists.js)
   combines existsSync with asynchronous exists, URL/object/absent arguments,

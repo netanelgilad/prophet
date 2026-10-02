@@ -1,6 +1,6 @@
 import { spawnSync } from "child_process";
 import { createHash } from "crypto";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmdirSync, statSync, unlinkSync, writeFileSync } from "fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmdirSync, statSync, unlinkSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join, resolve, sep } from "path";
 import { assertPinnedNode } from "./commonjs/oracle";
@@ -27,6 +27,11 @@ const referenceDriver = `
   const marker = ${JSON.stringify(marker)};
   const root = process.argv[2];
   let activeResponse;
+  const environment = process.argv[5];
+  const heldDescriptors = [];
+  function releaseDescriptors() {
+    for (const descriptor of heldDescriptors.splice(0)) fs.closeSync(descriptor);
+  }
   function emit(event) { output(1, marker + JSON.stringify(event) + "\\n"); }
   function responseState() {
     return activeResponse ? { status: activeResponse.statusCode,
@@ -35,6 +40,7 @@ const referenceDriver = `
   }
   // Monitoring does not recover the exception or change Node's default exit.
   process.on("uncaughtExceptionMonitor", function(error, origin) {
+    releaseDescriptors();
     emit({ kind: "uncaught", origin: origin, name: error.name, code: error.code,
       syscall: error.syscall, path: typeof error.path === "string" ? path.relative(root, error.path) : null,
       message: error.message, stack: error.stack, response: responseState() });
@@ -60,14 +66,26 @@ const referenceDriver = `
       }
     };
   }
+  if (environment !== "healthy" && process.getuid() === 0) {
+    process.setgroups([]); process.setgid(65534); process.setuid(65534);
+  }
   const server = createServer({ port: 0, staticPath: root, defaultFile: "index.html" });
   emit({ kind: "created", requestListeners: server.listenerCount("request") });
   server.prependListener("request", function(request, response) {
     activeResponse = response;
     emit({ kind: "request", method: request.method, url: request.url });
+    if (environment === "exhausted") {
+      let code;
+      for (let count = 0; count < 64; count++) {
+        try { heldDescriptors.push(fs.openSync(root + "/hello.txt", "r")); }
+        catch (error) { code = error.code; break; }
+      }
+      if (code !== "EMFILE") throw new Error("Fixture failed to establish descriptor exhaustion");
+      emit({ kind: "descriptor-exhaustion", code });
+    }
     response.on("finish", function() { emit({ kind: "finish", response: responseState() }); });
   });
-  server.on("request", function() { emit({ kind: "handler-return", response: responseState() }); });
+  server.on("request", function() { releaseDescriptors(); emit({ kind: "handler-return", response: responseState() }); });
   server.on("error", function(error) { throw error; });
   server.once("listening", function() {
     emit({ kind: "listening", listening: server.listening });
@@ -108,6 +126,7 @@ interface Observation {
 }
 
 function removeTree(directory: string) {
+  chmodSync(directory, 0o755);
   for (const name of readdirSync(directory)) {
     const filename = join(directory, name);
     if (statSync(filename).isDirectory()) removeTree(filename);
@@ -116,20 +135,32 @@ function removeTree(directory: string) {
   rmdirSync(directory);
 }
 
-function observeServer(method: string, target: string, docsExists = false) {
+function observeServer(method: string, target: string, docsExists = false,
+  environment: "healthy" | "read-denied" | "search-denied" | "exhausted" = "healthy") {
   assertPinnedNode();
   // Explicit first domain: POSIX paths, one request, fixed readable contents,
   // no symlinks, no concurrent filesystem changes and no exception recovery.
   if (sep !== "/") throw new Error("The initial pico reference domain requires POSIX paths");
-  const directory = mkdtempSync(join(tmpdir(), "prophet-pico-"));
+  // Failure fixtures may drop root privileges: /tmp stays traversable even
+  // when the invoking user's private TMPDIR does not.
+  const directory = mkdtempSync(join(environment === "healthy" ? tmpdir() : "/tmp", "prophet-pico-"));
   try {
     mkdirSync(join(directory, "ready"));
     mkdirSync(join(directory, "empty"));
     if (docsExists) mkdirSync(join(directory, "docs"));
     writeFileSync(join(directory, "hello.txt"), fileBody);
     writeFileSync(join(directory, "ready", "index.html"), indexBody);
-    const result = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath,
-      ["--no-global-search-paths", "-e", referenceDriver, packageDirectory, directory, method, target], {
+    if (environment !== "healthy") {
+      chmodSync(directory, 0o755);
+      chmodSync(join(directory, "hello.txt"), 0o644);
+      chmodSync(join(directory, "ready", "index.html"), environment === "read-denied" ? 0 : 0o644);
+      chmodSync(join(directory, "ready"), environment === "search-denied" ? 0o444 : 0o755);
+    }
+    const node = process.env.PROPHET_NODE_BINARY || process.execPath;
+    const args = ["--no-global-search-paths", "-e", referenceDriver, packageDirectory, directory, method, target, environment];
+    // Node raises a soft-only limit at startup; cap both in this child shell.
+    const result = spawnSync(environment === "exhausted" ? "/bin/sh" : node,
+      environment === "exhausted" ? ["-c", 'ulimit -n 64 || exit $?; exec "$@"', "prophet-pico-capacity", node, ...args] : args, {
         encoding: "utf8", timeout: 10000,
         env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" }, stdio: ["ignore", "pipe", "pipe"]
       });
@@ -319,5 +350,35 @@ for (const method of ["GET", "HEAD"]) for (const directoryExists of [false, true
         { kind: "fs-return", operation: "existsSync", path: "docs", value: false }
       ]);
     }
+  });
+}
+
+for (const method of ["GET", "HEAD"]) {
+  for (const environment of ["read-denied", "exhausted"] as Array<"read-denied" | "exhausted">) {
+    test(`real ${method} existing index escapes ${environment} before any response`, () => {
+      const result = observeServer(method, "/ready", false, environment);
+      const code = environment === "read-denied" ? "EACCES" : "EMFILE";
+      expect(result.status).toBe(1);
+      expect(result.signal).toBeNull();
+      expect(observedFilesystem(result.events)).toEqual([
+        ...existingPath("ready", true),
+        { kind: "fs-call", operation: "readFileSync", path: "ready/index.html" },
+        { kind: "fs-throw", operation: "readFileSync", path: "ready/index.html", name: "Error", code, syscall: "open" }
+      ]);
+      const uncaught = result.events.filter(event => event.kind === "uncaught");
+      expect(uncaught).toHaveLength(1);
+      expect(uncaught[0]).toMatchObject({ code, syscall: "open", path: "ready/index.html",
+        response: { headersSent: false, ended: false, finished: false } });
+      expect(uncaught[0].stack).toContain("index.js:126:");
+      expect(result.events.some(event => ["response", "finish", "handler-return"].includes(event.kind))).toBe(false);
+    });
+  }
+  test(`real ${method} search-denied child yields the application's 404`, () => {
+    const result = observeServer(method, "/ready/index.html", false, "search-denied");
+    expectResponse(result, 404, "Not Found", "");
+    expect(observedFilesystem(result.events)).toEqual([
+      { kind: "fs-call", operation: "existsSync", path: "ready/index.html" },
+      { kind: "fs-return", operation: "existsSync", path: "ready/index.html", value: false }
+    ]);
   });
 }

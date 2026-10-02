@@ -105,8 +105,8 @@ Express, routing, or filesystem-success shortcut is allowed.
 | Can an ordinary request cause an exception to escape its request listener when the requested directory exists but its default file does not? | Now proved for GET/HEAD `/docs` over the missing/empty-directory choice: the empty directory causes ENOENT at the original index read. Both conditions, ordered effects and unfinished response state have matching native witnesses. |
 | Does the response actually contain the Allow field the application supplies? | Now proved absent for the declared delivered-request-event domain with method neither GET nor HEAD because writeHead receives reversed arguments; retain conditional status, actual numeric header fields and the successful-transport assumptions. |
 | Which request methods reach filesystem operations? | A proof relating the method to attempted filesystem reads, rather than a handful of successful requests. |
-| For a readable existing file or an absent path, what response is committed? | Absent paths now complete 404 with an empty body. Readable-file reads return Buffer values, pass the actual instanceof check and parse the extension for MIME selection. Status 200 is committed, but reversed writeHead arguments discard the intended MIME/length fields. Response.write and later body/end/HEAD behavior remain unsupported for this path. |
-| Can a filesystem failure leave a response unfinished, or can the application's apparent error-response branch actually handle it? | The bounded missing-index proof leaves headersSent and writableEnded false: the throw prevents the subsequent `data instanceof Error` branch from running. Broader failure families remain open. |
+| For a readable existing file or an absent path, what response is committed? | Absent paths now complete 404 with an empty body. Readable-file reads return Buffer values, pass the actual instanceof check and parse the extension for MIME selection. Status 200 is committed, but reversed writeHead arguments discard the intended MIME/length fields. The original write/end/finish path now serves GET bytes and suppresses the HEAD body under the declared healthy transport schedule. |
+| Can a filesystem failure leave a response unfinished, or can the application's apparent error-response branch actually handle it? | The bounded missing-index proof leaves headersSent and writableEnded false: the throw prevents the subsequent `data instanceof Error` branch from running. Effective access and descriptor availability now also classify EACCES/EMFILE before response commitment; later read/close/allocation failures remain open. |
 
 The first question came from inspecting the original source: it checks the
 requested path, may append a default filename, calls `readFileSync`, and examines
@@ -250,8 +250,15 @@ not filtered from inspection. General guard-relationship precision remains SYM-0
 supports byte reads, persistent numeric writes and UTF-8 decoding, including
 correlated mutations and mandatory unknowns. The [HTTP schedule](node-http.md)
 assumes no flush between synchronous writes and consumption at end; normal write
-returns remain unknown without capacity facts. Next expand environmental
-filesystem failures. Wider URL forms, filesystem environments and
+returns remain unknown without capacity facts. A new proof supplies independent
+unknown effective search access, index read access and filesystem-call descriptor
+availability alongside GET/HEAD. All sixteen combinations are retained: denied
+traversal yields 404, then EMFILE takes priority over EACCES at the read, with
+status 200 and the matching body on success. Native GET/HEAD witnesses use actual
+chmod denial or exhaustion after request acceptance; both exceptions escape the
+original `index.js:126` read. No application source is rewritten. Descriptor
+availability is not yet coupled to HTTP socket allocation. Next model post-open
+fstat/read/close failures and descriptor lifetime. Wider URL forms, filesystem environments and
 schedules remain expansions. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
@@ -278,11 +285,14 @@ The first useful proof is deliberately bounded and must be labeled that way:
   The target's successful read passes its `instanceof` check, determines MIME,
   and completes headers/write/end/finish under the declared healthy consume-at-end
   schedule. This is not a proof over all transports or flush timings.
-  No symlinks, permission/resource
-  failures or concurrent namespace changes are included. Metadata/atime and
+  Effective read/search access and per-call baseline descriptor availability
+  may be symbolic; defaults select allowed/available, with Linux the default
+  explicit platform and Darwin selectable. Credential/ACL/mode policy, shared
+  process-wide FD accounting, post-open/allocator failures, symlinks and concurrent
+  namespace changes remain outside the domain. Metadata/atime and
   partial-I/O effects are not proved absent; their observation remains unmodeled.
 - Synchronous filesystem exceptions and listener propagation follow pinned Node.
-  Add permission failures, races, Buffer contents, richer URL forms, repeated
+  Add post-open failures, races, raw Buffer contents, richer URL forms, repeated
   requests, startup/network failures, and other schedules as separate expansions.
 
 Finite URL/tree choices are an initial coverage limitation, not an implicit

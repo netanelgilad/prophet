@@ -7,7 +7,7 @@ import { ESObject } from "../src/Object";
 import { effectPaths } from "../src/effects";
 import { ExecutionContext, setVariablesInScope, TExecutionContext } from "../src/execution-context/ExecutionContext";
 import { getProperties } from "../src/execution-context/Heap";
-import { Any, ESNull, isThrownValue, WithProperties } from "../src/types";
+import { Any, ESNull, ESNumber, isThrownValue, WithProperties } from "../src/types";
 import { ESString, TESString } from "../src/string/String";
 import { resolveBoolean, selectValue, strictEquality } from "../src/symbolic";
 import { assumeInContext, BranchResult } from "../src/execution-context/branches";
@@ -16,12 +16,13 @@ import { ESBoolean } from "../src/boolean/ESBoolean";
 const packageDirectory = join(__dirname, "fixtures/pico-static-server-3.0.3/package");
 
 function packageLoader(layout: "installed" | "checkout" = "installed",
-  root: Any = fileSystemDirectory({ site: fileSystemDirectory({}) })) {
+  root: Any = fileSystemDirectory({ site: fileSystemDirectory({}) }),
+  fileDescriptorsAvailable = ESBoolean(true)) {
   const http = createHTTPModel();
   const consoleModel = createConsoleModel();
   const url = createLegacyURLModel();
   const path = createPosixPathModel();
-  const filesystem = createFileSystemModel({ root });
+  const filesystem = createFileSystemModel({ root, fileDescriptorsAvailable });
   const moduleDirectory = layout === "installed" ? "/app/node_modules/pico-static-server" : "/app/fixture/package";
   // These modules promise identity only. Any attempted member access stops
   // analysis. Loading an unused import does not establish API compatibility.
@@ -309,6 +310,83 @@ test(`the real ${method} server proves index-presence outcomes and matching resp
   expect(resolveBoolean(hasIndex, delivered.result[1].value.knowledge)).toBeUndefined();
   expect(resolveBoolean(head, delivered.result[1].value.knowledge))
     .toBe(method === "symbolic GET/HEAD" ? undefined : method === "HEAD");
+  expect(setup.filesystem.inspectRoot(ready)).toBe(root);
+});
+
+test("the unchanged server classifies shared access and descriptor availability for symbolic GET/HEAD", () => {
+  // Stable closed tree, effective access for this process, and one baseline
+  // descriptor-availability fact. No races, later read/close/allocation failure,
+  // process recovery or transport failure. No concrete API results are supplied.
+  const head = ESBoolean(), searchable = ESBoolean(), readable = ESBoolean(), available = ESBoolean();
+  const root = fileSystemDirectory({ site: fileSystemDirectory({ docs: fileSystemDirectory({
+    "index.html": fileSystemFile("café 😀", { readable })
+  }) }, { searchable }) });
+  const setup = packageLoader("installed", root, available);
+  const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
+  const [, started] = evaluateCode('const server = factory({ port: 0, staticPath: "/site" });',
+    setVariablesInScope(loaded, { factory }));
+  const [, ready] = setup.http.completeListen(started.value.scope.server, started);
+  const delivered = setup.http.deliverRequest(started.value.scope.server, {
+    method: selectValue(head, ESString("HEAD"), ESString("GET")) as TESString, url: ESString("/docs")
+  }, ready);
+  const inputs = { head, searchable, readable, available };
+  const leaves = completionLeaves(delivered.result);
+  expect(leaves.some(([value]) => isThrownValue(value))).toBe(true);
+  expect(leaves.some(([value]) => !isThrownValue(value))).toBe(true);
+  for (const [completion, merged] of leaves) for (const path of effectPaths(merged.value.effects, merged.value.knowledge)) {
+    const context = ExecutionContext({ ...merged.value, knowledge: path.knowledge });
+    if (isThrownValue(completion)) {
+      const [, checked] = evaluateCode(`const proof = searchable && error.syscall === "open" &&
+        error.path === "/site/docs/index.html" &&
+        (available ? !readable && error.code === "EACCES" : error.code === "EMFILE");`,
+        setVariablesInScope(context, { ...inputs, error: completion.value }));
+      expect(checked.value.scope.proof).toMatchObject({ value: true });
+      expect(getProperties(delivered.response, context)).toMatchObject({
+        headersSent: { value: false }, writableEnded: { value: false }
+      });
+      expect(path.events.some(event => event.call.operation === "http.response.writeHead")).toBe(false);
+      expect(path.events.filter(event => event.call.operation === "fs.readFileSync").map(event => event.kind))
+        .toEqual(["call", "throw"]);
+    } else {
+      const [, finished] = setup.http.completeResponse(delivered.response, context);
+      const wire = setup.http.inspectResponse(delivered.response, finished);
+      const [, checked] = evaluateCode(`const proof = searchable
+        ? available && readable && status === 200 && body === (head ? "" : "café 😀")
+        : status === 404 && body === "";`, setVariablesInScope(finished,
+          { ...inputs, status: wire.statusCode, body: wire.body }));
+      expect(checked.value.scope.proof).toMatchObject({ value: true });
+    }
+  }
+  // Every one of the 16 input combinations must still be represented by this
+  // one symbolic result, including resource failure with denied file access.
+  for (const isHead of [false, true]) for (const canSearch of [false, true])
+  for (const canRead of [false, true]) for (const hasDescriptor of [false, true]) {
+    const constrain = (context: TExecutionContext) => assumeInContext(assumeInContext(
+      assumeInContext(assumeInContext(context, head, isHead), searchable, canSearch), readable, canRead), available, hasDescriptor);
+    const constrained = constrain(ready);
+    let [completion, context] = delivered.result;
+    while (isForkedCompletion(completion)) {
+      const selected = resolveBoolean(completion.condition, constrained.value.knowledge);
+      expect(typeof selected).toBe("boolean");
+      [completion, context] = selected ? completion.consequent : completion.alternate;
+    }
+    const projected = constrain(context);
+    expect(isThrownValue(completion)).toBe(canSearch && (!hasDescriptor || !canRead));
+    const source = isThrownValue(completion)
+      ? 'const retained = error.code === expected;'
+      : 'const retained = status === expected && body === expectedBody;';
+    const wire = setup.http.inspectResponse(delivered.response, projected);
+    const [, checked] = evaluateCode(source, setVariablesInScope(projected, {
+      error: isThrownValue(completion) ? completion.value : ESNull,
+      expected: isThrownValue(completion) ? ESString(hasDescriptor ? "EACCES" : "EMFILE") :
+        ESNumber(canSearch ? 200 : 404),
+      status: wire.statusCode, body: wire.body, expectedBody: ESString(canSearch && !isHead ? "café 😀" : "")
+    }));
+    expect(checked.value.scope.retained).toMatchObject({ value: true });
+  }
+  for (const input of [head, searchable, readable, available]) {
+    expect(resolveBoolean(input, delivered.result[1].value.knowledge)).toBeUndefined();
+  }
   expect(setup.filesystem.inspectRoot(ready)).toBe(root);
 });
 

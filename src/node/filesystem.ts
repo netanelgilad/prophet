@@ -3,18 +3,19 @@ import { withValue } from "../conversion/toString";
 import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
-import { BranchResult } from "../execution-context/branches";
+import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getProperties } from "../execution-context/Heap";
 import { ESObject, TESObject } from "../Object";
 import { getObjectPrototype, hasProperty } from "../Object/prototype";
 import { ESString } from "../string/String";
 import { choiceOf, resolveBoolean } from "../symbolic";
-import { Any, ESNull, ESNumber, isESNull, isESString, isUndefined, ThrownValue, Undefined } from "../types";
+import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isUndefined, TESBoolean, ThrownValue, Undefined } from "../types";
 import { createBufferValue } from "./buffer";
 
 const entries = new WeakMap<object, "directory" | "file">();
-type LookupFailure = "ENOENT" | "ENOTDIR";
-type LookupResult = { node: TESObject } | { error: LookupFailure };
+const access = new WeakMap<object, { readable: TESBoolean; searchable: TESBoolean }>();
+type LookupFailure = "ENOENT" | "ENOTDIR" | "EACCES";
+type LookupResult = { node: TESObject; parents: TESObject[] } | { error: LookupFailure };
 
 function unsupported(detail: string): never {
   throw new Error(`Filesystem analysis is not yet supported: ${detail}`);
@@ -25,7 +26,16 @@ function unsupported(detail: string): never {
 // or Unicode normalization. This is not a model of every POSIX filesystem.
 function utf8(text: string): string { return Buffer.from(text, "utf8").toString("utf8"); }
 
-function entry(kind: "directory" | "file", properties: { [key: string]: Any }): TESObject {
+function accessFact(value: TESBoolean | undefined): TESBoolean {
+  if (value === undefined) return ESBoolean(true);
+  if (!value || typeof value !== "object" || !isESBoolean(value)) {
+    throw new Error("Filesystem access and availability require VM Boolean values");
+  }
+  return value;
+}
+
+function entry(kind: "directory" | "file", properties: { [key: string]: Any },
+  options: { readable?: TESBoolean; searchable?: TESBoolean }): TESObject {
   const node = Object.assign(ESObject(Object.freeze(properties)), {
     unknownProperties: "Private filesystem state",
     unmodeledOwnPropertyInspection: "Private filesystem state",
@@ -33,17 +43,21 @@ function entry(kind: "directory" | "file", properties: { [key: string]: Any }): 
     unmodeledPropertyWrites: Object.keys(properties)
   });
   entries.set(node, kind);
+  // Effective access for the declared process, not mode/UID/ACL inference.
+  // Keep metadata out of the filename table and snapshot the supplied options.
+  access.set(node, Object.freeze({ readable: accessFact(options.readable), searchable: accessFact(options.searchable) }));
   return Object.freeze(node);
 }
 
-/** Embedding input: a readable regular file written from concrete UTF-8 text. */
-export function fileSystemFile(contents: string): TESObject {
+/** Embedding input: regular UTF-8 file with concrete or symbolic effective read access. */
+export function fileSystemFile(contents: string, options: { readable?: TESBoolean } = {}): TESObject {
   if (typeof contents !== "string") return unsupported("open file contents or non-text setup");
-  return entry("file", { text: ESString(utf8(contents)) });
+  return entry("file", { text: ESString(utf8(contents)) }, options);
 }
 
 /** Embedding input: closed directory; absent names or ESNull mean missing. */
-export function fileSystemDirectory(children: { [name: string]: Any }): TESObject {
+export function fileSystemDirectory(children: { [name: string]: Any },
+  options: { readable?: TESBoolean; searchable?: TESBoolean } = {}): TESObject {
   const copy: { [name: string]: Any } = Object.create(null);
   for (const original of Object.keys(children)) {
     const name = utf8(original);
@@ -54,7 +68,7 @@ export function fileSystemDirectory(children: { [name: string]: Any }): TESObjec
     if (Object.prototype.hasOwnProperty.call(copy, name)) throw new Error("Filesystem UTF-8 entry name collision");
     copy[name] = children[original];
   }
-  return entry("directory", copy);
+  return entry("directory", copy, options);
 }
 
 function operation(name: string, length: number, model: HostModel, publicName = name) {
@@ -70,10 +84,11 @@ function operation(name: string, length: number, model: HostModel, publicName = 
   return method;
 }
 
-function systemError(code: LookupFailure | "EISDIR", syscall: "stat" | "open" | "read", path?: string): Any {
-  const description = { ENOENT: "no such file or directory", ENOTDIR: "not a directory", EISDIR: "illegal operation on a directory" }[code];
+function systemError(code: LookupFailure | "EISDIR" | "EMFILE", syscall: "stat" | "open" | "read", path?: string): Any {
+  const description = { ENOENT: "no such file or directory", ENOTDIR: "not a directory", EISDIR: "illegal operation on a directory",
+    EACCES: "permission denied", EMFILE: "too many open files" }[code];
   const error = createError("Error", ESString(`${code}: ${description}, ${syscall}${path === undefined ? "" : ` '${path}'`}`));
-  Object.assign(error.properties, { code: ESString(code), errno: ESNumber({ ENOENT: -2, ENOTDIR: -20, EISDIR: -21 }[code]),
+  Object.assign(error.properties, { code: ESString(code), errno: ESNumber({ ENOENT: -2, ENOTDIR: -20, EISDIR: -21, EACCES: -13, EMFILE: -24 }[code]),
     syscall: ESString(syscall), ...(path === undefined ? {} : { path: ESString(path) }) });
   Object.assign(error, { unmodeledPropertyReads: ["stack", "constructor"],
     unmodeledPropertyWrites: ["stack", "constructor"], unmodeledOwnPropertyInspection: "Node filesystem error descriptors" });
@@ -91,13 +106,17 @@ function nullByteError(): Any {
 }
 
 /**
- * A stable closed tree with readable regular files/directories: no symlinks,
- * namespace changes, permission or resource failures. Each operation consults
- * the same VM root and branch knowledge. No real filesystem operation occurs.
+ * A stable closed tree with effective read/search access and baseline descriptor
+ * availability. Later read/close/allocation failures, symlinks and namespace
+ * changes remain outside the model. Operations share VM state and knowledge;
+ * no real filesystem operation occurs.
  * Read/error behavior follows pinned Node on Linux/macOS;
  * other platforms, options, descriptors and mutation remain explicit gaps.
  */
-export function createFileSystemModel(options: { root: Any; cwd?: string }) {
+export function createFileSystemModel(options: { root: Any; cwd?: string; fileDescriptorsAvailable?: TESBoolean;
+  platform?: "linux" | "darwin" }) {
+  const platform = options.platform === undefined ? "linux" : options.platform;
+  if (platform !== "linux" && platform !== "darwin") return unsupported("filesystem platform");
   const validate = (node: Any, ancestors: Any[], root = false): void => {
     if (ancestors.includes(node)) throw new Error("Cyclic filesystem setup");
     const choice = choiceOf(node);
@@ -113,45 +132,60 @@ export function createFileSystemModel(options: { root: Any; cwd?: string }) {
       validate((node as TESObject).properties[name], ancestors.concat([node])));
   };
   validate(options.root, [], true);
-  const state = ESObject({ root: options.root });
+  const state = ESObject({ root: options.root, fileDescriptorsAvailable: accessFact(options.fileDescriptorsAvailable) });
   const cwd = utf8(options.cwd === undefined ? "/" : options.cwd);
   if (!cwd.startsWith("/") || cwd.includes("\0") ||
       (cwd !== "/" && cwd.slice(1).split("/").some(part => !part || part === "." || part === ".."))) {
     throw new Error("Filesystem cwd must be a canonical absolute directory path");
   }
 
-  type Found = (result: LookupResult, context: TExecutionContext) => BranchResult;
-  const lookup = (path: string, context: TExecutionContext, found: Found): BranchResult => {
-    if (!path) return found({ error: "ENOENT" }, context);
+  const validatePathDomain = (path: string): void => {
     const absolute = path[0] === "/" ? path : (cwd === "/" ? "/" : cwd + "/") + path;
     // Kernel/filesystem limits vary. Reject outside the common small-path
     // domain rather than falsely concluding that an overlong name is absent.
     if (Buffer.byteLength(absolute, "utf8") >= 1024 || absolute.split("/").some(part => Buffer.byteLength(part, "utf8") > 255)) {
       return unsupported("overlong paths or components");
     }
-    const components = absolute.split("/").filter(part => part.length > 0);
-    if (absolute.endsWith("/")) components.push(".");
-    const step = (node: Any, position: number, parents: TESObject[], current: TExecutionContext): BranchResult =>
+  };
+  type Found = (result: LookupResult, context: TExecutionContext) => BranchResult;
+  const lookup = (path: string, context: TExecutionContext, found: Found, checkAccess = true): BranchResult => {
+    if (!path) return found({ error: "ENOENT" }, context);
+    validatePathDomain(path);
+    const walk = (node: Any, components: string[], parents: TESObject[], current: TExecutionContext,
+      permissions: boolean, directoryRequired: boolean, finish: Found): BranchResult =>
       withValue(node, current, (selected, branch) => {
-        if (isESNull(selected)) return found({ error: "ENOENT" }, branch);
+        if (isESNull(selected)) return finish({ error: "ENOENT" }, branch);
         const kind = entries.get(selected);
         if (!kind) return unsupported("invalid filesystem state");
-        if (position === components.length) return found({ node: selected as TESObject }, branch);
-        if (kind !== "directory") return found({ error: "ENOTDIR" }, branch);
-        const component = components[position];
-        if (component === ".") return step(selected, position + 1, parents, branch);
-        if (component === "..") return step(parents.length ? parents[parents.length - 1] : selected,
-          position + 1, parents.slice(0, -1), branch);
-        const children = getProperties(selected as TESObject, branch);
-        const child = Object.prototype.hasOwnProperty.call(children, component) ? children[component] : ESNull;
-        return step(child, position + 1, parents.concat([selected as TESObject]), branch);
+        if (!components.length) return finish(directoryRequired && kind !== "directory"
+          ? { error: "ENOTDIR" } : { node: selected as TESObject, parents }, branch);
+        if (kind !== "directory") return finish({ error: "ENOTDIR" }, branch);
+        const traverse = (afterAccess: TExecutionContext): BranchResult => {
+          const component = components[0], rest = components.slice(1);
+          if (component === ".") return walk(selected, rest, parents, afterAccess, permissions, directoryRequired, finish);
+          if (component === "..") return walk(parents.length ? parents[parents.length - 1] : selected,
+            rest, parents.slice(0, -1), afterAccess, permissions, directoryRequired, finish);
+          const children = getProperties(selected as TESObject, afterAccess);
+          const child = Object.prototype.hasOwnProperty.call(children, component) ? children[component] : ESNull;
+          return walk(child, rest, parents.concat([selected as TESObject]), afterAccess, permissions, directoryRequired, finish);
+        };
+        return permissions ? evaluateBranches(access.get(selected)!.searchable, branch, traverse,
+          denied => finish({ error: "EACCES" }, denied)) : traverse(branch);
       });
-    return step(getProperties(state, context).root, 0, [], context);
+    const root = getProperties(state, context).root;
+    const components = path.split("/").filter(part => part.length > 0);
+    if (path[0] === "/") return walk(root, components, [], context, checkAccess, path.endsWith("/"), found);
+    // Relative lookup starts at the already-held cwd directory, not at root.
+    // Resolving its structural identity must not demand access to its ancestors.
+    return walk(root, cwd.split("/").filter(Boolean), [], context, false, true, (location, branch) => {
+      if ("error" in location) return unsupported("invalid cwd state");
+      return walk(location.node, components, location.parents, branch, checkAccess, path.endsWith("/"), found);
+    });
   };
   // Cwd is declared environment state, not a guessed success. Check every
   // feasible setup path using the same choice/knowledge machinery as reads.
   const [cwdValid] = lookup(cwd, ExecutionContext({}), (result, branch) =>
-    [ESBoolean("node" in result && entries.get(result.node) === "directory"), branch]);
+    [ESBoolean("node" in result && entries.get(result.node) === "directory"), branch], false);
   if (resolveBoolean(cwdValid as ReturnType<typeof ESBoolean>) !== true) {
     throw new Error("Filesystem cwd must exist as a directory on every setup path");
   }
@@ -215,15 +249,25 @@ export function createFileSystemModel(options: { root: Any; cwd?: string }) {
       }
       return withPath(call.args[0] || Undefined, branch, (path, afterPath) => {
         if (path.includes("\0")) return [nullByteError(), afterPath];
-        return lookup(path, afterPath, (result, after) => {
-          if ("error" in result) return [systemError(result.error, "open", path), after];
-          if (entries.get(result.node) === "directory") return [systemError("EISDIR", "read"), after];
-          const text = getProperties(result.node, after).text;
-          if (!isESString(text) || typeof text.value !== "string") return unsupported("invalid file text state");
-          if (!encoded) return [createBufferValue(Array.from(Buffer.from(text.value, "utf8"))), after];
-          return [text, after];
-        });
+        // Outside this bounded path domain, kernel name validation can precede
+        // descriptor exhaustion. Never turn that analysis gap into EMFILE.
+        validatePathDomain(path);
+        // Linux copies/validates the pathname before allocating an fd; Darwin
+        // allocates first. Select the environment explicitly, not from the host.
+        if (!path && platform === "linux") return [systemError("ENOENT", "open", path), afterPath];
+        return evaluateBranches(getProperties(state, afterPath).fileDescriptorsAvailable as TESBoolean, afterPath,
+          available => lookup(path, available, (result, after) => {
+            if ("error" in result) return [systemError(result.error, "open", path), after];
+            return evaluateBranches(access.get(result.node)!.readable, after, readable => {
+              if (entries.get(result.node) === "directory") return [systemError("EISDIR", "read"), readable];
+              const text = getProperties(result.node, readable).text;
+              if (!isESString(text) || typeof text.value !== "string") return unsupported("invalid file text state");
+              if (!encoded) return [createBufferValue(Array.from(Buffer.from(text.value, "utf8"))), readable];
+              return [text, readable];
+            }, denied => [systemError("EACCES", "open", path), denied]);
+          }), exhausted => [systemError("EMFILE", "open", path), exhausted]);
       });
     }));
-  return { module, inspectRoot: (context: TExecutionContext) => getProperties(state, context).root };
+  return { module, inspectRoot: (context: TExecutionContext) => getProperties(state, context).root,
+    inspectFileDescriptorsAvailable: (context: TExecutionContext) => getProperties(state, context).fileDescriptorsAvailable as TESBoolean };
 }

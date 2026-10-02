@@ -79,7 +79,16 @@ now proves the combined GET/HEAD and index-presence domain: every path reaches
 the actual read, an absent index escapes as ENOENT, and success returns 200
 with the corresponding body. The false 405 path is eliminated by shared facts,
 without filtering. General disjunctive relationships remain unknown under SYM-001.
-Next broaden environmental filesystem failures, then transport outcomes and schedules.
+Shared symbolic effective read/search access and descriptor availability now
+classify inaccessible traversal as 404, denied reads as EACCES, exhausted
+descriptors as EMFILE, and permitted reads as 200 with the GET/HEAD body. One
+symbolic execution retains all sixteen input combinations. Independent real
+Node permissions/exhaustion fixtures validate error priority and replay actual
+server failures. The platform input defaults to Linux and supports Darwin's
+empty-path priority. The baseline applies at filesystem calls, not to a shared
+process-wide FD pool: HTTP startup/acceptance still assumes success. Next model
+post-open fstat/read/close failures and descriptor lifetime, then namespace races,
+transport outcomes and schedules.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations
@@ -378,6 +387,9 @@ Continue in these increments, each with specs and a focused commit to `master`:
    correlation and excluding the impossible 405 without filtering paths. General
    disjunctive relationships remain mandatory unknowns (SYM-001).
    Byte mutations reuse the persistent heap and retain symbolic correlations.
+   Effective access and baseline descriptor availability now establish EACCES,
+   EMFILE, 404 and successful GET/HEAD outcomes with native witnesses. Credential
+   policy, cross-host descriptor accounting, post-open failures and races remain.
    Broader filesystem classification remains open. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add
    symbolic request and filesystem choices, classify exception

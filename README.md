@@ -32,7 +32,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-write.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts test/node-http-lifecycle.spec.ts test/node-http-lifecycle-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/pico-static-server-analysis.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-url.spec.ts test/node-warnings.spec.ts test/node-url-path.spec.ts
-node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-filesystem.spec.ts test/filesystem-state.spec.ts test/pico-static-server-analysis.spec.ts test/pico-static-server-reference.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-filesystem.spec.ts test/filesystem-state.spec.ts test/filesystem-failures.spec.ts test/node-filesystem-failures-reference.spec.ts test/pico-static-server-analysis.spec.ts test/pico-static-server-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-buffer.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path-parse.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/instanceof.spec.ts test/instanceof-internal.spec.ts test/test262.spec.ts
@@ -238,9 +238,11 @@ both concrete tree choices confirm the corresponding 404 or process exit from
 an uncaught exception. This is a bounded reproduction of the recorded behavior,
 not a novel vulnerability or a claim about every filesystem/request.
 
-The initial tree has a case-sensitive UTF-8 namespace, readable regular files
-and directories, and no symlinks, permission/resource failures or concurrent
-changes. UTF-8 reads return text; default successful reads now return fresh
+The tree has a case-sensitive UTF-8 namespace and regular files/directories,
+with shared symbolic effective read/search access and descriptor availability.
+It still excludes symlinks, concurrent changes, and post-open read/close/allocation
+failures. Access defaults to allowed; the filesystem platform defaults to Linux
+with explicit Darwin selection for differing error priority. UTF-8 reads return text; default successful reads now return fresh
 [Buffer values](docs/node-buffer.md) with byte length, indexed reads/writes and
 UTF-8 decoding. Bytes live in the persistent VM heap: aliases observe a write,
 earlier contexts and the file retain their contents, and symbolic changes keep
@@ -397,7 +399,12 @@ Shared [choice equality](docs/symbolic-choice-equality.md) now preserves the
 combined GET/HEAD proof: an existing index gives 200 and the appropriate body;
 a missing index escapes as ENOENT. Every path reaches the read, without an
 impossible 405 or filtering. General disjunctive relationships remain unknown.
-Next expand environmental filesystem failures and their response conditions. Header
+Shared filesystem access/capacity inputs now prove 404 for inaccessible traversal,
+EACCES for denied reads, EMFILE for descriptor exhaustion, or 200 with the correct
+GET/HEAD body. All sixteen method/access/capacity combinations remain represented;
+real Node server witnesses reproduce the failures. Descriptor availability is a
+baseline at filesystem calls, not a resource pool coupled to HTTP startup.
+Next model post-open read/close failures and descriptor lifetime. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open
 symbolic text, and transport-sensitive fields including Content-Length remain
 explicit gaps in the backlog. Request body delivery and JSON parsing later lead back to

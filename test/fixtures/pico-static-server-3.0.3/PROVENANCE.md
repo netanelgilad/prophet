@@ -25,7 +25,7 @@ Node's real CommonJS loader and calls its public factory with `port: 0`, a
 temporary `staticPath`, and `defaultFile: "index.html"`. The real registered
 request callback handles a real request; it is never extracted or invoked
 directly. Each case has a separate Node **v24.21.0** child process and temporary
-POSIX tree, fixed readable contents, one request, no symlinks or concurrent
+POSIX tree, fixed contents and declared access/capacity, one request, no symlinks or concurrent
 filesystem mutation, and no exception recovery. References are validated locally
 on macOS/arm64; the spec checks POSIX separators and records its actual platform.
 The Node version/revision contract is in `docs/node-http.md`.
@@ -145,7 +145,17 @@ with no intervening flush; they do not establish all-schedule safety. Broader
 URL/path APIs, language/response behavior and other filesystem
 failure families remain incomplete. An HTTPS
 override still reaches the opaque HTTPS API.
-Broader filesystem permissions, races, symlinks, paths,
+The effective-access/resource increment adds actual chmod and bounded descriptor
+exhaustion witnesses. GET/HEAD of an existing `ready/index.html` escapes EACCES or
+EMFILE from the original read before committing a response; denied traversal of
+an existing child returns 404. The exhaustion fixture caps only its isolated
+child's soft/hard descriptor limits and fills the remaining slots after request
+acceptance; observers preserve native API behavior and do not replace errors.
+The matching symbolic proof combines GET/HEAD with effective search/read access
+and descriptor availability at filesystem calls, retaining all sixteen inputs.
+It is not a shared process-wide resource model with HTTP startup/acceptance.
+Post-open fstat/read/close failures, allocation failures, credential policy,
+races, symlinks, paths,
 protocols, configuration, and schedules remain outside
 this initial reference domain. See `docs/real-world-target.md` for the durable
 analysis goal and limitations.
