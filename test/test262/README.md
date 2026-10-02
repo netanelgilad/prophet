@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **171 complete files / 333 strictness variants**,
+The active corpus contains **185 complete files / 361 strictness variants**,
 including 13 parse-negative files / 25 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -42,6 +42,23 @@ parameter and declaration shadowing, variable/function hoisting, and named
 function-expression scope, plus direct eval's lexical lookup and strict variable
 isolation. Each source file is run whole, including both
 strictness variants where its metadata calls for them.
+
+Fourteen complete `built-ins/String/prototype/slice` files add 28 variants:
+`S15.5.4.13_A1_T4/T7/T8/T10/T11/T13/T14`, `A3_T1/T2/T3`, `A6`, `A7`,
+`A11`, and `this-value-not-obj-coercible`. The numeric-hint conversions, their
+ordered effects/throws, generic receivers and constructor/nullish failures run
+through shared VM semantics. The [symbolic string specs](../symbolic-strings.spec.ts)
+add unrestricted-string length/boundary proofs and mandatory unknowns.
+
+All 35 files in the pinned slice directory were inspected. The other 21 remain
+inactive: `A1_T1/T2/T6/T9/T12` and `A2_T1` through `A2_T9` need Boolean/String/Object
+primitive wrappers; `A1_T5` additionally needs omitted-argument Function
+construction and function source conversion; `A1_T15` needs modeled Number
+prototype lookup for primitive receivers; `A3_T4` needs sequence expressions;
+`A8` needs propertyIsEnumerable and for-in; `A9` needs delete/descriptors;
+`A10` and `name.js` need propertyHelper and descriptor semantics. No complete
+file was reduced to only its currently supported assertions. Slice metadata
+writes remain explicit descriptor gaps, despite the readable name/length values.
 
 Twenty-six complete `language/expressions/instanceof` files add 52 variants:
 ordinary prototype identity/chains, Error inheritance, primitive operands,

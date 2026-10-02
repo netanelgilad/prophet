@@ -43,6 +43,22 @@ const activeCorpus = [
   "language/expressions/template-literal/middle-list-many-expr-member-expr.js",
   "language/expressions/template-literal/middle-list-many-expr-template.js",
 
+  // Whole slice cases: generic conversion, numeric hints, effects and errors.
+  "built-ins/String/prototype/slice/S15.5.4.13_A1_T10.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A1_T11.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A1_T13.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A1_T14.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A1_T4.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A1_T7.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A1_T8.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A3_T1.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A3_T2.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A3_T3.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A6.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A11.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A7.js",
+  "built-ins/String/prototype/slice/this-value-not-obj-coercible.js",
+
   // String concatenation uses ordinary conversion, including ordered throws.
   "built-ins/String/prototype/concat/S15.5.4.6_A1_T4.js",
   "built-ins/String/prototype/concat/S15.5.4.6_A1_T5.js",

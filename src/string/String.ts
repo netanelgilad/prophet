@@ -18,6 +18,7 @@ import { ESObject, TESObject } from "../Object";
 import { createError } from "../error/Error";
 import { toString } from "../conversion/toString";
 import { concat } from "./concat";
+import { stringSlice } from "./slice";
 
 export type TESString = Type<"string"> &
   WithProperties<{
@@ -40,6 +41,11 @@ export function getStringPrototype(): TESObject {
     prototype.properties.concat = {
       ...ESBuiltinFunction(concat),
       properties: { length: ESNumber(1), name: ESString("concat") },
+      unmodeledPropertyWrites: ["length", "name"]
+    };
+    prototype.properties.slice = {
+      ...ESBuiltinFunction(stringSlice),
+      properties: { length: ESNumber(2), name: ESString("slice") },
       unmodeledPropertyWrites: ["length", "name"]
     };
     const stringValue = (name: string) => ({ ...ESBuiltinFunction(function*(self, _args, context) {
@@ -90,6 +96,8 @@ function calculateLength(value?: string | Array<TESString>): TESNumber {
   const length = ESNumber();
   length.knowledge = [
     { kind: "finite", subject: length },
+    { kind: "integer", subject: length },
+    { kind: "order", left: length, right: ESNumber(Number.MAX_SAFE_INTEGER), strict: false },
     { kind: "order", left: ESNumber(0), right: length, strict: false }
   ];
   return length;

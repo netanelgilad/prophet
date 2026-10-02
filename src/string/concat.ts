@@ -1,10 +1,11 @@
-import { Any, FunctionImplementation, isESNull, isUndefined, isThrownValue, isReturnValue, ThrownValue } from "../types";
+import { Any, FunctionImplementation, isESNull, isUndefined, isThrownValue, isReturnValue, ThrownValue, ESNumber } from "../types";
 import { ESString, TESString } from "./String";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
 import { choiceOf } from "../symbolic";
+import { arithmeticNumber } from "../symbolic/arithmetic";
 import { toString } from "../conversion/toString";
 import { isForkedCompletion } from "../execution-context/Completion";
 
@@ -16,7 +17,17 @@ export function concatenateStrings(left: TESString, right: TESString): TESString
   if (typeof left.value === "string" && typeof right.value === "string") {
     return ESString(left.value + right.value);
   }
-  return { ...ESString(), expression: { kind: "binary", operator: "+", left, right } };
+  const result: TESString = { ...ESString(), expression: { kind: "binary", operator: "+", left, right } };
+  const a = left.properties.length, b = right.properties.length;
+  const length = arithmeticNumber("+", a, b);
+  length.knowledge = (length.knowledge || []).concat(
+    { kind: "finite", subject: length }, { kind: "integer", subject: length },
+    { kind: "order", left: ESNumber(0), right: length, strict: false },
+    { kind: "order", left: length, right: ESNumber(Number.MAX_SAFE_INTEGER), strict: false },
+    { kind: "order", left: a, right: length, strict: false },
+    { kind: "order", left: b, right: length, strict: false });
+  result.properties.length = length;
+  return result;
 }
 
 function append(left: TESString, right: TESString, context: TExecutionContext): BranchResult {
