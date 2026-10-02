@@ -12,10 +12,11 @@ import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getProperties, writeProperty } from "../execution-context/Heap";
 import { ESString, TESString } from "../string/String";
-import { resolveBoolean, selectValue, strictEquality } from "../symbolic";
-import { Any, ESNumber, TESBoolean, isESNumber, isESNull, isESString, isUndefined,
+import { resolveBoolean, strictEquality } from "../symbolic";
+import { Any, ESNumber, ESNull, TESBoolean, isESNumber, isESNull, isESString, isUndefined,
   ThrownValue, Undefined } from "../types";
 import { createEventEmitterModel } from "./events";
+import { withHTTPChunk, appendHTTPChunk, consumeHTTPBody } from "./http-body";
 import { createHTTPStatusCodes } from "./http-status-codes";
 import { headerError, invalidHeaderText, serializeResponseHeaders, withHeaderText } from "./http-headers";
 
@@ -48,6 +49,10 @@ function change(object: TESObject, properties: { [name: string]: Any }, context:
  * The embedding chooses when those events and already-dispatched request events
  * arrive. Wire dispatch (for example CONNECT/upgrade) is not modeled. Binding
  * failures, cluster workers, and other schedules need compatible models.
+ * The body schedule queues writes until synchronous end consumes all bytes;
+ * Buffer mutations before end remain visible, and finish is delivered later.
+ * Other flush times, partial transport/failure and callbacks are not modeled.
+ * A normal write's Boolean result stays unknown without socket capacity facts.
  */
 export function createHTTPModel(events = createEventEmitterModel()) {
   // Node's default-reason lookup closes over this original table. Entry writes
@@ -214,35 +219,60 @@ export function createHTTPModel(events = createEventEmitterModel()) {
       });
   });
 
+  const withHeaders = (response: TESObject, context: TExecutionContext,
+    continuation: (context: TExecutionContext) => BranchResult): BranchResult =>
+    evaluateBranches(getProperties(responseState(response), context).headerStored as TESBoolean, context,
+      continuation, branch => bindNormal(invoke(writeHead,
+        [getProperties(response, branch).statusCode], branch, response), (_value, after) => continuation(after)));
+
+  const queueChunk = (response: TESObject, chunk: Any, context: TExecutionContext,
+    continuation: (suppressed: boolean, context: TExecutionContext) => BranchResult): BranchResult => {
+    const state = responseState(response);
+    const properties = getProperties(state, context);
+    const ignored = (branch: TExecutionContext) => continuation(true, branch);
+    return evaluateBranches(properties.bodySuppressed as TESBoolean, context, ignored,
+      branch => evaluateBranches(properties.head as TESBoolean, branch, ignored,
+        after => continuation(false, change(state, {
+          chunks: appendHTTPChunk(getProperties(state, after).chunks, chunk)
+        }, after))));
+  };
+
+  const write = operation("http.response.write", (call, context) => {
+    const response = call.receiver as TESObject;
+    const state = responseState(response);
+    if (call.args.length > 1) return unsupported("write encoding/callback overloads");
+    // Invalid chunks synchronously throw even after end. A valid post-end
+    // write instead schedules an error, which requires a later queue model.
+    return withHTTPChunk(call.args[0] || Undefined, context, (chunk, branch) => {
+      requireState(state, "open", branch);
+      return withHeaders(response, branch, after => queueChunk(response, chunk, after,
+        (suppressed, queued) => [suppressed ? ESBoolean(true) : ESBoolean(), queued]));
+    });
+  });
+
   const end = operation("http.response.end", (call, context) => {
-    const state = responseState(call.receiver);
-    requireState(state, "open", context);
-    if (call.args.length > 1) unsupported("end encoding/callback overloads");
+    const response = call.receiver as TESObject;
+    const state = responseState(response);
+    if (call.args.length > 1) return unsupported("end encoding/callback overloads");
+    const finishBody = (current: TExecutionContext): BranchResult =>
+      consumeHTTPBody(getProperties(state, current).chunks, current, (body, bodyBytes, consumed) => {
+        const ended = change(state, { phase: ESString("ended"), body, bodyBytes }, consumed);
+        return [response, change(response, { writableEnded: ESBoolean(true) }, ended)];
+      });
     return withValue(call.args[0] || Undefined, context, (data, branch) => {
-      if (!isESString(data) && !isUndefined(data) && !isESNull(data)) {
-        return unsupported("end requires a string, null, or undefined");
-      }
-      const finishBody = (afterHeader: TExecutionContext): BranchResult => {
-        const properties = getProperties(state, afterHeader);
-        // Inspect decoded UTF-8 output, not the original JS code units. In
-        // particular a lone surrogate is replaced on the wire. An unknown
-        // string stays unknown without the unsound claim that it is unchanged.
-        const payload = !isESString(data) ? ESString("") : typeof data.value === "string"
-          ? ESString(Buffer.from(data.value, "utf8").toString("utf8")) : ESString();
-        const body = selectValue(properties.bodySuppressed as TESBoolean, ESString(""),
-          selectValue(properties.head as TESBoolean, ESString(""), payload, afterHeader.value.knowledge),
-          afterHeader.value.knowledge);
-        const written = change(state, {
-          phase: ESString("ended"), body
-        }, afterHeader);
-        return [call.receiver, change(call.receiver as TESObject, {
-          writableEnded: ESBoolean(true)
-        }, written)];
-      };
-      return evaluateBranches(getProperties(state, branch).headerStored as TESBoolean, branch,
-        finishBody,
-        leaf => bindNormal(invoke(writeHead, [getProperties(call.receiver as TESObject, leaf).statusCode], leaf, call.receiver),
-          (_value, after) => finishBody(after)));
+      if (isESFunction(data)) return unsupported("end callback overload");
+      // Node only validates a truthy payload. Empty repeated end returns the
+      // response, while truthy repeated end needs deferred error delivery.
+      return evaluateBranches(coerceToBoolean(data, branch.value.knowledge), branch,
+        present => {
+          requireState(state, "open", present);
+          return withHTTPChunk(data, present, (chunk, valid) => withHeaders(response, valid,
+            after => queueChunk(response, chunk, after, (_suppressed, queued) => finishBody(queued))));
+        }, absent => withValue(getProperties(state, absent).phase, absent, (phase, selected) => {
+          if (isESString(phase) && ["ended", "finished"].includes(phase.value as string)) return [response, selected];
+          requireState(state, "open", selected);
+          return withHeaders(response, selected, finishBody);
+        }));
     });
   });
 
@@ -303,14 +333,14 @@ export function createHTTPModel(events = createEventEmitterModel()) {
       });
       const response = Object.assign(ESObject({ statusCode: ESNumber(200), statusMessage: Undefined,
         writableEnded: ESBoolean(false), writableFinished: ESBoolean(false),
-        headersSent: ESBoolean(false), writeHead, end
+        headersSent: ESBoolean(false), writeHead, write, end
       }), {
         unknownProperties: "Node HTTP response API",
         unmodeledOwnPropertyInspection: "Node HTTP response descriptors",
         unmodeledPropertyWrites: ["writableEnded", "writableFinished", "headersSent", "writeHead"]
       });
       const state = ESObject({ head: strictEquality(input.method, ESString("HEAD"), context.value.knowledge),
-        body: Undefined, statusCode: Undefined, statusMessage: Undefined, headers: Undefined,
+        body: Undefined, bodyBytes: Undefined, chunks: ESNull, statusCode: Undefined, statusMessage: Undefined, headers: Undefined,
         headerStored: ESBoolean(false), bodySuppressed: ESBoolean(false) });
       responses.set(response, state);
       const initialized = events.attach(response, context, responseEvents);
@@ -318,6 +348,11 @@ export function createHTTPModel(events = createEventEmitterModel()) {
     },
     completeResponse(response: Any, context: TExecutionContext): BranchResult {
       return invoke(finish, [response], context);
+    },
+    // Read-only embedding projection of consumed bytes; Undefined before end,
+    // an unknown array for open text, or a conditional/concrete numeric array.
+    inspectResponseBytes(response: Any, context: TExecutionContext): Any {
+      return getProperties(responseState(response), context).bodyBytes;
     },
     inspectResponse(response: Any, context: TExecutionContext): { body: Any; statusCode: Any; statusMessage: Any; headers: Any } {
       const properties = getProperties(responseState(response), context);

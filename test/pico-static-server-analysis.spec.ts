@@ -7,12 +7,11 @@ import { ESObject } from "../src/Object";
 import { effectPaths } from "../src/effects";
 import { ExecutionContext, setVariablesInScope, TExecutionContext } from "../src/execution-context/ExecutionContext";
 import { getProperties } from "../src/execution-context/Heap";
-import { Any, ESNull, isThrownValue, WithProperties } from "../src/types";
-import { ESString } from "../src/string/String";
+import { Any, ESNull, ESNumber, isThrownValue, WithProperties } from "../src/types";
+import { ESString, TESString } from "../src/string/String";
 import { resolveBoolean, selectValue, strictEquality } from "../src/symbolic";
 import { assumeInContext, BranchResult } from "../src/execution-context/branches";
 import { ESBoolean } from "../src/boolean/ESBoolean";
-import { ASTEvaluationError } from "../src/evaluate";
 
 const packageDirectory = join(__dirname, "fixtures/pico-static-server-3.0.3/package");
 
@@ -236,6 +235,74 @@ function completionLeaves(result: BranchResult): BranchResult[] {
     ? completionLeaves(result[0].consequent).concat(completionLeaves(result[0].alternate)) : [result];
 }
 
+for (const method of ["GET", "HEAD", "symbolic GET/HEAD"])
+test(`the real ${method} server retains index-presence outcomes and unresolved method-choice precision`, () => {
+  // A stable closed tree contains /site/docs; its index may be absent. Binding,
+  // stdout and transport succeed; queued bytes are consumed at synchronous end.
+  const hasIndex = ESBoolean();
+  const head = method === "symbolic GET/HEAD" ? ESBoolean() : ESBoolean(method === "HEAD");
+  const root = fileSystemDirectory({ site: fileSystemDirectory({ docs: fileSystemDirectory({
+    "index.html": selectValue(hasIndex, fileSystemFile("café 😀"), ESNull)
+  }) }) });
+  const setup = packageLoader("installed", root);
+  const [factory, loaded] = setup.loader.load("/app/entry.cjs", setup.context);
+  const [, started] = evaluateCode('const server = factory({ port: 0, staticPath: "/site" });',
+    setVariablesInScope(loaded, { factory }));
+  const [, ready] = setup.http.completeListen(started.value.scope.server, started);
+  const delivered = setup.http.deliverRequest(started.value.scope.server, {
+    method: selectValue(head, ESString("HEAD"), ESString("GET")) as TESString, url: ESString("/docs")
+  }, ready);
+  expect(isForkedCompletion(delivered.result[0])).toBe(true);
+  const leaves = completionLeaves(delivered.result);
+  expect(leaves.some(([completion]) => isThrownValue(completion))).toBe(true);
+  expect(leaves.some(([completion]) => !isThrownValue(completion))).toBe(true);
+  let sawUnresolvedMethod = false;
+  // Normal branches may merge. Inspect each retained effect path, preserving
+  // its knowledge rather than treating the merged condition as a conjunction.
+  for (const [completion, merged] of leaves) for (const path of effectPaths(merged.value.effects, merged.value.knowledge)) {
+    const context = ExecutionContext({ ...merged.value, knowledge: path.knowledge });
+    const exists = resolveBoolean(hasIndex, context.value.knowledge);
+    const status = setup.http.inspectResponse(delivered.response, context).statusCode;
+    if (!isThrownValue(completion) && strictEquality(status, ESNumber(405)).value === true) {
+      // The current equality solver cannot exclude the contradictory branch
+      // method !== GET && method !== HEAD of a string choice. Retain this
+      // overapproximation explicitly; it is not a feasible failure witness.
+      expect(method).toBe("symbolic GET/HEAD");
+      expect(exists).toBeUndefined();
+      expect(path.events.some(event => event.call.operation.startsWith("fs."))).toBe(false);
+      sawUnresolvedMethod = true;
+      continue;
+    }
+    expect(exists).toBe(!isThrownValue(completion));
+    if (isThrownValue(completion)) {
+      expect(getProperties(completion.value as WithProperties, context)).toMatchObject({
+        code: { value: "ENOENT" }, path: { value: "/site/docs/index.html" }
+      });
+      expect(getProperties(delivered.response, context).headersSent).toMatchObject({ value: false });
+      expect(setup.http.inspectResponseBytes(delivered.response, context)).toMatchObject({ type: "undefined" });
+    } else {
+      const [, finished] = setup.http.completeResponse(delivered.response, context);
+      const wire = setup.http.inspectResponse(delivered.response, finished);
+      const [, verified] = evaluateCode(`
+        const proof = status === 200 && body === (head ? "" : "café 😀") &&
+          bytes.length === (head ? 0 : 10);
+      `, setVariablesInScope(finished, { head, status: wire.statusCode, body: wire.body,
+        bytes: setup.http.inspectResponseBytes(delivered.response, finished) }));
+      // The same lost string-choice relationship prevents the combined proof
+      // from connecting HEAD suppression back to the original Boolean input.
+      expect(verified.value.scope.proof).toMatchObject({
+        type: "boolean", value: method === "symbolic GET/HEAD" ? undefined : true
+      });
+      expect(getProperties(delivered.response, finished).writableFinished).toMatchObject({ value: true });
+    }
+  }
+  expect(resolveBoolean(hasIndex, delivered.result[1].value.knowledge)).toBeUndefined();
+  expect(sawUnresolvedMethod).toBe(method === "symbolic GET/HEAD");
+  expect(resolveBoolean(head, delivered.result[1].value.knowledge))
+    .toBe(method === "symbolic GET/HEAD" ? undefined : method === "HEAD");
+  expect(setup.filesystem.inspectRoot(ready)).toBe(root);
+});
+
 for (const method of ["GET", "HEAD"]) {
   test(`the unchanged ${method} handler classifies symbolic filesystem state as 404 or escaping missing-index ENOENT`, () => {
     // Same request and application source on both paths. A closed, stable,
@@ -291,7 +358,7 @@ for (const method of ["GET", "HEAD"]) {
     expect(setup.filesystem.inspectRoot(ready)).toBe(root);
   });
 
-  for (const target of ["/index.txt", "/docs", "/asset.unknown"]) test(`the real ${method} ${target} selects MIME and commits headers before response.write`, () => {
+  for (const target of ["/index.txt", "/docs", "/asset.unknown"]) test(`the real ${method} ${target} serves its Buffer through write, end and finish`, () => {
     const setup = packageLoader("installed", fileSystemDirectory({ site: fileSystemDirectory({
       "index.txt": fileSystemFile("café 😀"),
       "asset.unknown": fileSystemFile("café 😀"),
@@ -317,17 +384,10 @@ for (const method of ["GET", "HEAD"]) {
           writeLookups.push({ response: object, context });
         }
       } });
-    let boundary: ASTEvaluationError | undefined;
-    try {
-      setup.http.deliverRequest(server, { method: ESString(method), url: ESString(target) }, observed);
-    } catch (error) {
-      if (!(error instanceof ASTEvaluationError)) throw error;
-      boundary = error;
-    }
-    expect(boundary).toBeDefined();
-    expect(boundary!.message).toContain("Unmodeled host property 'write'");
-    expect(boundary!.ast).toMatchObject({ type: "CallExpression", callee: { type: "MemberExpression",
-      object: { type: "Identifier", name: "response" }, property: { type: "Identifier", name: "write" } } });
+    const delivered = setup.http.deliverRequest(server, { method: ESString(method), url: ESString(target) }, observed);
+    expect(isThrownValue(delivered.result[0])).toBe(false);
+    expect(isForkedCompletion(delivered.result[0])).toBe(false);
+    const handled = delivered.result[1];
     expect(observations.length).toBeGreaterThan(0);
     expect(writeLookups).toHaveLength(1);
     expect(mimeLookups).toHaveLength(1);
@@ -335,7 +395,7 @@ for (const method of ["GET", "HEAD"]) {
       target === "/docs" ? "/site/docs/index.html" : "/site" + target });
     const reached = observations[0];
     const writing = writeLookups[0];
-    const paths = effectPaths(writing.context.value.effects!);
+    const paths = effectPaths(handled.value.effects!);
     expect(paths).toHaveLength(1);
     const events = paths[0].events;
     const reads = events.filter(event => event.call.operation === "fs.readFileSync" && event.kind === "return");
@@ -364,7 +424,19 @@ for (const method of ["GET", "HEAD"]) {
       "0": { value: "O" }, "1": { value: "K" }
     });
     expect(getProperties(actual.headers as WithProperties, writing.context)["content-type"]).toBeUndefined();
-    expect(events.some(event => event.call.operation === "http.response.end")).toBe(false);
+    const writes = events.filter(event => event.kind === "return" && event.call.operation === "http.response.write");
+    expect(writes).toHaveLength(1);
+    expect(writes[0].call.args[0]).toBe(reached.value.scope.data);
+    expect(writes[0].kind === "return" && writes[0].value).toMatchObject({ type: "boolean" });
+    expect(events.filter(event => event.kind === "return" && event.call.operation === "http.response.end")).toHaveLength(1);
+    expect(getProperties(delivered.response, handled)).toMatchObject({
+      writableEnded: { value: true }, writableFinished: { value: false }
+    });
+    expect(setup.http.inspectResponse(delivered.response, handled).body).toMatchObject({ value: method === "HEAD" ? "" : "café 😀" });
+    expect(setup.http.inspectResponse(delivered.response, writing.context).body).toMatchObject({ type: "undefined" });
+    const [, finished] = setup.http.completeResponse(delivered.response, handled);
+    expect(getProperties(delivered.response, finished).writableFinished).toMatchObject({ value: true });
+    expect(setup.http.inspectResponse(delivered.response, finished).body).toMatchObject({ value: method === "HEAD" ? "" : "café 😀" });
     const [, inspected] = evaluateCode(`const bufferProof = data instanceof Object && !(data instanceof Error) &&
       data.length === 10 && data[3] === 195 && data.toString() === "café 😀";`,
       ExecutionContext({ ...reached.value, validateBinding: undefined, validateRead: undefined }));

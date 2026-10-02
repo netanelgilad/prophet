@@ -104,6 +104,8 @@ existing directory index into a Buffer, evaluates `data instanceof Error` as
 false through the shared operator, and enters its normal serving branch.
 POSIX `path.parse` now determines the MIME type and the original handler
 commits status 200. Its reversed writeHead arguments still discard the intended
-MIME/length fields. Execution stops at response.write before body consumption or
-response end. No replacement handler or function-name recognition supplies this
-result. A complete 200 response remains later work; the earlier missing-directory 404 and missing-index ENOENT proof is retained.
+MIME/length fields. Execution now completes write/end/finish and serves the Buffer
+under the declared successful transport schedule. No replacement handler or
+function-name recognition supplies this result. The missing-directory 404 and
+missing-index ENOENT proof is retained; symbolic index presence also classifies
+success versus an escaping exception.

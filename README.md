@@ -28,6 +28,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-com
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts test/commonjs-package-symbolic.spec.ts test/published-invariant.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts test/discount-server.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-write.spec.ts test/pico-static-server-analysis.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts test/node-http-lifecycle.spec.ts test/node-http-lifecycle-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/pico-static-server-analysis.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-url.spec.ts test/node-warnings.spec.ts test/node-url-path.spec.ts
@@ -248,9 +249,13 @@ correlated multibyte decoding while the resulting text remains unknown.
 After reading either a regular file or a present directory index, the unchanged
 GET/HEAD handler now proves `data instanceof Error` false through the shared
 [prototype operation](docs/instanceof.md). It enters its original success branch
-and uses `path.parse` to compute the MIME type. It commits status 200 before
-reaching the unmodeled response.write. The original reversed writeHead arguments
-still discard its intended MIME/length headers; no completed file response is claimed.
+and uses `path.parse` to compute the MIME type. It now completes status 200,
+`write`, `end`, and explicit finish delivery, serving the file on GET and
+suppressing its bytes on HEAD. The original reversed writeHead arguments still
+discard its intended MIME/length headers. A symbolic index-presence choice
+classifies successful serving versus escaping ENOENT. The declared healthy
+transport consumes queued bytes at synchronous end; other flush schedules and
+transport failures remain open.
 Stats fields/options, other path forms, filesystem writes and wider
 platform/metadata behavior remain recorded gaps. Symbolic execution performs no
 real filesystem I/O; native fixture creation belongs only to reference specs.
@@ -345,8 +350,11 @@ exported table does not replace the original table used for default reasons.
 
 This proof assumes successful `listen(0, "127.0.0.1"[, callback])`, one delivered
 request, and successful response completion. The surface supports multiple
-request listeners, method/URL reads, numeric status values, and a string/null/
-undefined `end` payload. Other overloads, stream writes, broader EventEmitter APIs,
+request listeners, method/URL reads, numeric status values, string/Buffer `write`
+and `end` payloads, and falsy no-payload `end`. Writes queue Buffer references;
+consumption at synchronous end sees their current bytes. Normal write returns
+an unknown Boolean without socket-capacity facts, while suppression returns true.
+Other overloads, broader stream behavior and EventEmitter APIs,
 body parsing, bind failures, socket loss/backpressure, and general scheduling
 remain explicit gaps. Field values are modeled before full host descriptors:
 ownership inspection of partial server/response objects also reports a gap.
@@ -382,7 +390,12 @@ Scoped POSIX path, legacy URL, correlated filesystem state and Buffer reads now
 run through the real factory's GET/HEAD paths. Shared `instanceof` now follows
 prototype links and preserves conditional errors. POSIX path.parse now returns
 five fresh mutable fields for concrete strings and finite choices, retaining
-symbolic correlations. Next implement the reached response-write operation. Header
+symbolic correlations. Scoped HTTP response writes now complete the real file-serving
+path; [write specs](test/node-http-write.spec.ts) compare ordered text/raw bytes,
+mutations, suppression, validation and unknown backpressure with pinned Node.
+Next preserve correlations when comparing finite symbolic string choices: a
+combined GET/HEAD input currently retains an impossible 405 path (SYM-001).
+Then expand environmental filesystem failures and their response conditions. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open
 symbolic text, and transport-sensitive fields including Content-Length remain
 explicit gaps in the backlog. Request body delivery and JSON parsing later lead back to

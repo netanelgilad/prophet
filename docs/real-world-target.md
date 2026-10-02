@@ -37,8 +37,8 @@ Both conditions are proved without deciding which tree was supplied. This
 symbolically reproduces the native reference's exception, under the declared
 environment. Readable-file success now returns a Buffer, passes the original
 `instanceof` check, and parses the filename for MIME selection. It commits status
-200 before reaching the unmodeled response.write call; reversed writeHead
-arguments still discard the intended MIME/length fields.
+200 and completes write/end/finish under the declared healthy transport schedule;
+reversed writeHead arguments still discard the intended MIME/length fields.
 Source placement determines DEP0169 eligibility; HTTPS remains opaque. No native
 implementation runs during symbolic exploration.
 
@@ -239,11 +239,17 @@ cases cover a regular .txt file, a populated directory index (.html), and an
 unmapped .unknown extension using the fallback. The original respond function
 then commits status 200, with numeric O/K headers from its reversed writeHead
 arguments instead of the intended MIME/length fields. Read-only observers and
-effect records verify both computed and committed headers before analysis stops
-at response.write. These are incomplete response paths, not safe completed requests. The shared [Buffer model](node-buffer.md)
-separately supports byte reads, persistent numeric writes and UTF-8 decoding,
-including correlated symbolic mutations and mandatory unknown results. Next are
-HTTP response-write behavior and subsequent completion for successful file serving. Wider URL forms, filesystem environments and
+effect records verify both computed and committed headers. The original
+write/end now consumes the file bytes, with HEAD suppression and explicit finish
+delivery. For each GET/HEAD method, symbolic index presence classifies successful serving
+versus escaping ENOENT. Combining an unknown GET/HEAD choice currently retains
+an impossible 405 branch because shared string-choice equality loses correlation
+(SYM-001); that result is explicitly inconclusive, not a counterexample. The shared [Buffer model](node-buffer.md)
+supports byte reads, persistent numeric writes and UTF-8 decoding, including
+correlated mutations and mandatory unknowns. The [HTTP schedule](node-http.md)
+assumes no flush between synchronous writes and consumption at end; normal write
+returns remain unknown without capacity facts. Next repair shared finite-choice
+equality precision, then expand environmental filesystem failures. Wider URL forms, filesystem environments and
 schedules remain expansions. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
@@ -268,7 +274,8 @@ The first useful proof is deliberately bounded and must be labeled that way:
   Finite choices of contents and numeric byte writes are supported, while open
   symbolic bytes, broader Buffer APIs and backing-store views remain gaps.
   The target's successful read passes its `instanceof` check, determines MIME,
-  and commits headers before reaching response.write.
+  and completes headers/write/end/finish under the declared healthy consume-at-end
+  schedule. This is not a proof over all transports or flush timings.
   No symlinks, permission/resource
   failures or concurrent namespace changes are included. Metadata/atime and
   partial-I/O effects are not proved absent; their observation remains unmodeled.
@@ -305,7 +312,7 @@ been analyzed. Keep both source coverage and domain coverage visible.
    package from the checkout; default warning delivery is a separate transition.
    Successful default reads now return Buffer values; shared `instanceof` evaluates
    false; path.parse selects MIME and the actual success branch commits status 200
-   before reaching response.write;
+   and serves the file through write/end/finish under the declared transport schedule;
    broader Buffer, URL/path APIs and filesystem environments remain.
    Any uncovered `instanceof`/property semantics need shared support and relevant
    complete Test262 cases. Add the required Node response/Buffer, URL/path,
@@ -346,8 +353,9 @@ POSIX join/normalize, path-only legacy URL parsing and shared symbolic filesyste
 state now classify the bounded 404/escaping-ENOENT case in the original server.
 Default reads return Buffer values, and shared `instanceof` now establishes they
 are not Errors. POSIX path.parse now determines MIME and the original code commits
-headers. Next support response.write and subsequent completion, then expand filesystem
-errors, inputs and schedules. Broader headers and transport remain separate work;
+headers and completes write/end/finish. Next improve shared finite-choice
+equality for combined GET/HEAD proofs, then expand filesystem errors, inputs and
+schedules, preserving successful and throwing paths together. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.

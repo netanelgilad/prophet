@@ -134,10 +134,14 @@ bytes. Shared `instanceof` now establishes that this Buffer is not an Error;
 the actual success branch calls getMimeType and obtains the real path.parse
 extension. It selects text/plain, text/html, or the fallback text/plain, then
 commits status 200. Its reversed writeHead arguments still produce numeric O/K
-headers instead of the intended MIME/length fields. Analysis stops at the actual
-response.write lookup before end; observers supply no values or control-flow
-replacements. No completed file response is claimed. Broader URL/path APIs,
-language/response consumers and other filesystem
+headers instead of the intended MIME/length fields. The original response.write
+and end now serve the Buffer, followed by explicit successful finish delivery.
+Observers supply no values or control-flow replacements. For each GET/HEAD method, symbolic index presence classifies successful bytes
+versus escaping ENOENT. A combined method choice retains an extra impossible
+405 from shared equality imprecision; that mandatory unknown is kept in specs. These
+results assume a healthy transport consuming queued bytes at synchronous end,
+with no intervening flush; they do not establish all-schedule safety. Broader
+URL/path APIs, language/response behavior and other filesystem
 failure families remain incomplete. An HTTPS
 override still reaches the opaque HTTPS API.
 Broader filesystem permissions, races, symlinks, paths,

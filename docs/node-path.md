@@ -141,8 +141,8 @@ The original MIME function now evaluates `path.parse(url).ext`, chooses
 index. The original handler then commits status 200. Its existing reversed
 `writeHead` arguments produce numeric header fields `0: "O"` and `1: "K"` from
 the supplied `"OK"` string, rather than the intended content headers. Execution
-stops at the unmodeled `response.write` member; no file-body write, response end
-or completed successful response is claimed. Source provenance preserves DEP0169
+now completes `response.write`, `end` and explicit finish delivery with the
+expected GET bytes and empty HEAD output under the bounded transport schedule. Source provenance preserves DEP0169
 eligibility, with warning delivery separate from the synchronous handler.
 Broader filesystem inputs, metadata, failures and schedules remain open.
 Existing successful-bind, healthy-stdout, delivered-request-event and transport

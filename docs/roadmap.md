@@ -69,10 +69,15 @@ GET/HEAD regular-file and populated-directory-index paths reach their actual
 `data instanceof Error` expression, now false through shared prototype reasoning.
 Twenty-six complete Test262 files protect the ordinary operator; symbolic specs
 retain conditional relationships and errors. The original success branch now
-uses path.parse during MIME selection and commits status 200 before reaching
-response.write. The original writeHead argument reversal still discards the
-intended Content-type/Content-length object. Next implement response consumption;
-broaden filesystem outcomes and schedules afterward.
+uses path.parse during MIME selection and completes status 200, response.write,
+end and explicit finish delivery. GET serves bytes and HEAD suppresses them;
+symbolic index presence also distinguishes success from escaping ENOENT. The
+original writeHead argument reversal still discards the intended content headers.
+Queued Buffer references are consumed at synchronous end under a declared
+healthy schedule without earlier flushes. Next improve shared finite-choice
+equality: a combined symbolic GET/HEAD input currently retains an impossible
+405 branch and loses the body relationship to its original Boolean (SYM-001).
+Then broaden environmental filesystem failures, transport outcomes and schedules.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations
@@ -256,8 +261,8 @@ pinned runtime and corresponding source/tests as the behavioral reference.
 The model supports optional/multiple request listeners, numeric
 `listen(port[, callback])` and `listen(port, "127.0.0.1"[, callback])`,
 explicit successful listening/request/finish delivery, selected response fields,
-direct writeHead, the pinned status catalog, and `end` with a string/null/undefined
-payload. Resource state uses the persistent
+direct writeHead, the pinned status catalog, string/Buffer writes and end payloads,
+and falsy no-payload end. Resource state uses the persistent
 heap, and callbacks use the current context and their captured environment.
 Under the declared successful-binding environment, omitted-host calls bind
 immediately while listening callbacks stay deferred. The explicit loopback-host
@@ -338,8 +343,10 @@ Continue in these increments, each with specs and a focused commit to `master`:
    status conversion, null/empty payloads, 204/304, and UTF-8 edge cases have
    independent Node checks. Direct writeHead now commits explicit data/string
    header fields and a status/reason, with failure-order and snapshot checks.
-   Progressive/framing headers, stream writes, socket failures, and richer
-   completion schedules remain. No real sockets run in symbolic analysis.
+   Ordered string/Buffer writes now assemble bytes at synchronous end, preserving
+   alias mutation and symbolic paths. Normal write returns stay unknown without
+   capacity facts. Progressive/framing headers, write callbacks/encodings, socket
+   failures, backpressure events and richer completion schedules remain. No real sockets run in symbolic analysis.
 4. **Shared event listeners:** the scoped registration, invocation order,
    removal, one-time listeners, mutation during delivery, failures, and
    path-dependent state now pass. HTTP listening/request/finish callbacks reuse
@@ -363,7 +370,11 @@ Continue in these increments, each with specs and a focused commit to `master`:
    witnesses replay both conditions. Source-based DEP0169 eligibility and a
    separate default-warning queue preserve the diagnostic boundary. Successful
    default reads now return Buffer values and the shared `instanceof` check is false;
-   path.parse now selects MIME and the next stop is response.write after header commit.
+   path.parse now selects MIME and the original write/end/finish path serves files
+   under the declared healthy consume-at-end schedule. Per-method symbolic index
+   presence distinguishes successful bytes from escaping ENOENT. Combining
+   GET/HEAD retains an impossible 405 and loses body correlation due to shared
+   choice-equality imprecision (SYM-001), covered as mandatory unknowns.
    Byte mutations reuse the persistent heap and retain symbolic correlations.
    Broader filesystem classification remains open. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add

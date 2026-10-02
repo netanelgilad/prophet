@@ -35,10 +35,15 @@ function uint8(value: number): number {
 
 // Decode the current persistent heap, not an allocation-time copy. Choices in
 // bytes use the same path knowledge as every other VM value.
-function decode(value: TESObject, length: number, context: TExecutionContext): BranchResult {
+export function isBufferValue(value: Any): boolean { return lengths.has(value); }
+
+export function withBufferBytes(value: Any, context: TExecutionContext,
+  continuation: (bytes: ReadonlyArray<number>, context: TExecutionContext) => BranchResult): BranchResult {
+  const length = lengths.get(value);
+  if (length === undefined) return unsupported("byte consumption requires a modeled Buffer");
   const step = (position: number, bytes: number[], current: TExecutionContext): BranchResult => {
     for (let index = position; index < length; index++) {
-      const byte = getProperties(value, current)[String(index)];
+      const byte = getProperties(value as TESObject, current)[String(index)];
       if (choiceOf(byte)) {
         const next = index + 1;
         return withValue(byte, current, (selected, branch) => {
@@ -49,7 +54,7 @@ function decode(value: TESObject, length: number, context: TExecutionContext): B
       if (!isESNumber(byte) || typeof byte.value !== "number") return unsupported("open symbolic bytes");
       bytes.push(byte.value);
     }
-    return [ESString(Buffer.from(bytes).toString("utf8")), current];
+    return continuation(bytes, current);
   };
   return step(0, [], context);
 }
@@ -70,7 +75,8 @@ function getBufferPrototype(): TESObject {
                 ["utf8", "utf-8"].includes(encoding.value.toLowerCase()))) {
               return unsupported("toString encodings and encoding coercion");
             }
-            return decode(receiver as TESObject, length, afterEncoding);
+            return withBufferBytes(receiver, afterEncoding, (bytes, afterBytes) =>
+              [ESString(Buffer.from(bytes.slice()).toString("utf8")), afterBytes]);
           });
         }));
     })), {

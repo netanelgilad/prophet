@@ -96,15 +96,15 @@ rule for the static server's source.
 
 `writeHead` returns the response. A successful call serializes and commits its
 status, reason and explicit fields, making `headersSent` true before `end`.
-It does not establish that bytes have flushed. `end` reuses that committed
+It does not establish that bytes have flushed. `write` and `end` reuse that committed
 state; later changes to public status fields or the original header object do
-not rewrite it. If no header has been committed, `end` invokes the same
+not rewrite it. If no header has been committed, either operation invokes the same
 modeled `writeHead` operation to create the implicit header.
 
 Validation order follows the pinned
 [`writeHead`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_server.js)
 and [`_storeHeader`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_outgoing.js)
-implementations. A repeated write throws `ERR_HTTP_HEADERS_SENT` before new
+implementations. A repeated `writeHead` throws `ERR_HTTP_HEADERS_SENT` before new
 argument validation. Status range failure precedes public assignments; invalid
 reason/name/value failures retain the assignments already made while leaving
 `headersSent` false. Body suppression from 204/304 is also retained if a later
@@ -143,6 +143,63 @@ Inherited values and conditional mutations follow shared lookup rules. Full
 descriptor reflection, deletion and symbolic computed property keys remain
 shared VM gaps; selecting between concrete lookups is supported separately.
 
+## Writing a response body
+
+The [write specs](../test/node-http-write.spec.ts) load complete application
+modules and compare actual responses with pinned Node. `write(chunk)` and
+`end(chunk)` accept strings and [modeled Buffers](node-buffer.md), including
+finite symbolic choices and conditional byte mutations. The implementation
+uses shared values, the persistent heap and host effects; it does not recognize
+a particular server or its source.
+
+The declared transport schedule is a **healthy live connection with no body
+consumption between synchronous `write` calls and `end`, followed by consumption
+of all queued bytes during `end`**. Buffer references remain in the persistent
+queue until that boundary. For example, writing the same Buffer twice and
+changing its byte before `end` changes both queued occurrences. Mutating it
+after `end` leaves the consumed output unchanged. Native fixtures independently
+check those observations for small live responses. Earlier, later, partial or
+failed consumption is a residual scheduling gap, not a fact established by
+the JavaScript program. See HTTP-003 and HOST-002 in the
+[implementation-gap backlog](implementation-gaps.md).
+
+A valid `write` creates implicit headers when needed, including an empty string
+or empty Buffer write. `headersSent` is then true while `writableEnded` remains
+false; header commitment does not establish successful transport. A normal
+write returns an **unknown Boolean**, even for an empty payload, because socket
+capacity is not declared. In Node, false requests backpressure handling rather
+than rejecting the chunk. The model preserves both possible application
+branches without implementing capacity accounting or a later `drain` event.
+A HEAD request or status 204/304 suppresses the body after header creation and
+returns concretely true, without consuming the suppressed Buffer. The optional
+`rejectNonStandardBodyWrites` server mode remains unsupported.
+
+Each string chunk is UTF-8 encoded separately, then all bytes are assembled in
+order. This prevents a high surrogate in one string write from combining with
+a low surrogate in another. Conversely, one multibyte character split across
+Buffer writes is decoded correctly in the combined output. At `end`,
+`inspectResponse(...).body` exposes decoded UTF-8 text and
+`inspectResponseBytes` exposes the consumed bytes as a VM array. Both projections
+are undefined before consumption. Symbolic choices retain their conditions.
+An unrestricted string produces unknown text and an unknown array; known
+prefixes, byte bounds, numeric element constraints and encoding relationships
+are not yet retained in that overapproximation; indexing that unknown array
+reports an analysis gap instead of inventing a missing byte. These projections are embedding
+inspection APIs, not new methods on Node's response object.
+
+Chunk validation follows pinned
+[`write_`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_outgoing.js#L941):
+`write(null)` throws interpreted TypeError / `ERR_STREAM_NULL_VALUES`;
+undefined, number and Boolean chunks throw TypeError / `ERR_INVALID_ARG_TYPE`.
+This precedes implicit headers, body suppression and the post-end lifecycle
+check. Thus invalid primitive writes remain catchable even after `end`.
+Object/function diagnostics, non-Buffer Uint8Arrays, exact general error
+messages, coded-error reflection and write encoding/callback overloads remain
+unsupported. A valid write after end instead requires deferred error delivery;
+the model stops analysis rather than turning that asynchronous error into a
+synchronous catchable throw. Encoding/callback/extra-argument guards currently
+reject the broader overload before simulating its native validation order.
+
 ## Ending a response and completing delivery
 
 Keep application-visible response state separate from captured response output:
@@ -150,8 +207,14 @@ Keep application-visible response state separate from captured response output:
 - A new response defaults to status 200 and an undefined `statusMessage`, with `headersSent`, `writableEnded`,
   and `writableFinished` false.
 - `end` returns the response. On the supported successful path it finalizes the
-  implicit headers and marks `writableEnded` true. It must preserve the status
-  and body selected when the output was committed.
+  implicit headers, consumes the queued body under the declared schedule, and
+  marks `writableEnded` true. It preserves the committed status and output.
+  Following Node's truthiness check, omitted, undefined, null, false, zero, NaN
+  and empty-string payloads append nothing. Repeating one of those forms without
+  a callback returns the response unchanged, including after completion. An
+  empty Buffer is a valid truthy chunk. A truthy invalid primitive on an open
+  response throws before headers; a truthy repeated `end` instead needs deferred
+  write-after-end error delivery and remains unsupported.
 - `writableFinished` becomes true only when the output has finished flushing,
   immediately before the `finish` event. An `end` call and successful completion
   of transport are distinct modeled transitions. `completeResponse` marks that
@@ -159,8 +222,9 @@ Keep application-visible response state separate from captured response output:
   their receiver. A listener registered after `end` but before completion still
   runs; registering after completion does not replay the event.
 - Later assignment to `statusCode` or `statusMessage` must not rewrite the
-  committed status/reason. A HEAD request has no wire body even when application code supplies a
-  string to `end`. Status 204 and 304 also suppress a body.
+  committed status/reason. A HEAD request has no wire body even when application
+  code supplies a string or Buffer to `write` or `end`. Status 204 and 304 also
+  suppress a body.
 
 These rules follow Node's
 [`ServerResponse`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/_http_server.js#L204),
@@ -199,9 +263,9 @@ transitions. Rejected or unmodeled operations must not silently succeed.
 The supported surface is deliberately limited to server creation with an
 optional request callback, the documented numeric listen forms, the shared listener
 operations above, request method/URL inspection, scoped direct `writeHead`, the
-status catalog, and a string, null, or omitted `end` payload. Broader overloads, the remaining
-EventEmitter APIs, request bodies/streams, Buffer payloads,
-progressive header APIs, backpressure, socket aborts and errors, startup failures, timers,
+status catalog, string/Buffer writes and the documented end forms. Broader
+overloads, the remaining EventEmitter APIs, request bodies/streams,
+progressive header APIs, capacity/drain behavior, socket aborts and errors, startup failures, timers,
 promises, and arbitrary concurrent schedules remain explicit gaps until their
 semantics and independent tests are added. Distinguish a language-visible Node
 error from an unsupported-analysis error. Unsupported public property access or
@@ -228,10 +292,14 @@ normalizes them with Node's integer conversion, and supports final codes
 200–999. Invalid codes produce the modeled RangeError; informational completion
 and nonnumeric/open symbolic status conversion remain unsupported. A repeated
 listen on an already bound server is a modeled error; overlapping listen calls
-while explicit-host lookup is still pending remain unsupported. Repeated end
-calls and delivery into unresolved lifecycle states also remain explicit gaps.
-Unknown output strings lose their
-identity through UTF-8 encoding until a more precise encoding model exists.
+while explicit-host lookup is still pending remain unsupported. Truthy repeated
+end calls, end callbacks, valid post-end writes and delivery into unresolved
+lifecycle states also remain explicit gaps. Unknown output strings lose their
+identity, length relationships and byte precision through UTF-8 encoding until
+a more precise encoding model exists. Explicit `cork`, `uncork`, `flushHeaders`,
+strict Content-Length enforcement and interleaved transport consumption remain
+outside the declared body schedule. No normal-write true/false result establishes
+successful eventual delivery or describes all socket states.
 
 Header support excludes progressive `setHeader`/`appendHeader`/`getHeader`/
 `getHeaders`/`removeHeader` caching, raw header arrays, duplicate case-insensitive
@@ -295,12 +363,13 @@ additional capabilities:
   client requests, closing, and the common/assert harness.
 - [`test-http-outgoing-writableFinished.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-writableFinished.js)
   includes successful transport and three failing-flush scenarios. Complete
-  execution needs custom Duplex streams, socket injection, writes, finish/error/
+  execution needs custom Duplex streams, socket injection, write callbacks, finish/error/
   close events, end callbacks, `setImmediate`, and the common/assert harness.
   Keeping only its first scenario would not count as activating this case.
 - [`test-http-outgoing-finish.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-finish.js)
   tests backpressure and callback/event ordering with Buffer writes, loops,
-  request streams, an HTTP client, and `process.nextTick`.
+  request streams, an HTTP client, and `process.nextTick`. Scoped Buffer writes
+  do not supply the capacity/drain behavior, callbacks or harness it requires.
 - [`test-http-response-writehead-returns-this.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-response-writehead-returns-this.js)
   is a small complete case for chaining `writeHead(...).end(...)` and receiving
   the supplied header/body. It still needs the common/assert harness,
@@ -328,6 +397,24 @@ additional capabilities:
   HTTP client or raw net/stream behavior, address inspection, closing and Buffer
   APIs. Comparing the complete exported status catalog independently does not
   establish those end-to-end protocol cases.
+
+The following whole body-write cases were additionally reviewed at the same
+pinned revision. All remain inactive; local differential specs are separate
+evidence, not trimmed replacements for these files.
+
+| Complete upstream case | Relevant behavior and remaining dependencies |
+| --- | --- |
+| [`test-http-outgoing-write-types.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-write-types.js) | Invalid array plus valid string, Uint8Array and Buffer writes. Needs object diagnostics, public Uint8Array/Buffer construction, string repeat, HTTP client, address/close and common/assert. |
+| [`test-http-res-write-end-dont-take-array.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-res-write-end-dont-take-array.js) | String/Buffer writes and ends, array rejections, and two requests. Needs object diagnostics, Buffer.from, client/readable-stream delivery, address/close and common/assert. |
+| [`test-http-outgoing-end-types.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-end-types.js) | Array rejection by end. Needs object diagnostics, HTTP client, address/close and common/assert. |
+| [`test-http-write-empty-string.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-write-empty-string.js) | Empty writes between nonempty chunks preserve output order. Needs HTTP client, stream encoding/data/end events, address/close and common/assert. |
+| [`test-http-zero-length-write.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-zero-length-write.js) | Empty chunks through old-style piped request/response streams. Needs streams/pipe, timers, array shift, HTTP client, process exit events and common/assert. |
+| [`test-http-zerolengthbuffer.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-zerolengthbuffer.js) | Empty Buffer with explicit Content-Length. Needs Buffer.alloc, framing headers, client/data/end delivery, address/close and common. |
+| [`test-http-head-response-has-no-body.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-head-response-has-no-body.js) | HEAD must omit even the chunked terminator. Needs complete wire framing, HTTP client/readable-stream delivery, address/close and common. |
+| [`test-http-head-throw-on-response-body-write.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-head-throw-on-response-body-write.js) | Default and explicit rejectNonStandardBodyWrites modes, including rejection at 204. Needs createServer options, body-not-allowed errors, HTTP client/readable-stream delivery, address/close and common/assert. |
+| [`test-http-outgoing-buffer.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-buffer.js) | Detached OutgoingMessage buffering reaches its high-water mark. Needs that constructor and internals, loops, stream capacity APIs and common/assert. |
+| [`test-http-outgoing-end-multiple.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-outgoing-end-multiple.js) | Repeated end callbacks before/after finish, cork state and deferred errors. Needs callback/error scheduling, writableCorked, HTTP client, address/close and common/assert. |
+| [`test-http-server-write-after-end.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-server-write-after-end.js) | A later write reports its error to a callback after completion. Needs setImmediate, deferred errors/callbacks, HTTP client, address/close and common. |
 
 Local specs cover the supported behavior while these dependencies are missing;
 they do not replace the complete upstream cases. Express is a later consumer of
