@@ -1,11 +1,11 @@
 # Product direction
 
-Prophet is an agent-first JavaScript VM for explaining and proving behavior of real,
-unmodified programs under declared inputs and environments, with concrete execution
-as a subset of symbolic execution. Its goals include correctness analysis and
-pre-execution supply-chain security for dependency installation, import and use;
-follow [the roadmap](docs/roadmap.md) and [the agent/security contract](docs/agent-security-analysis.md),
-reporting unknowns and coverage limits explicitly.
+Prophet is a use-case-agnostic symbolic execution runtime: for a chosen program
+and runtime, it transforms a symbolic starting environment into the resulting
+symbolic environment, with concrete execution as the fully known case. Prioritize
+the implementation-language-independent CLI and [runtime/state contract](docs/symbolic-runtime.md);
+security, debugging and performance tools consume its results and own their
+policies, classifications and verdicts ([roadmap](docs/roadmap.md)).
 
 # Repository workflow
 
@@ -22,12 +22,12 @@ subset of symbolic execution; preserve JavaScript semantics in both.
 The durable product goal is useful analysis of real, unmodified Node applications:
 identify conditions leading to unhandled exceptions or unwanted state/effects,
 and prove useful properties across explicitly declared inputs and environments.
-Read the relevant milestone in [the roadmap](docs/roadmap.md),
-[the real-world target](docs/real-world-target.md), or
-[the agent/security contract](docs/agent-security-analysis.md) when choosing the
-next increment. The immediate priority is the agent request/report contract over
-the existing real-server proof, followed by a small generic dependency-effect
-proof; deeper host modeling follows demonstrated blockers. The first external
+Read [the runtime/state contract](docs/symbolic-runtime.md) and the relevant
+milestone in [the roadmap](docs/roadmap.md), [real-world target](docs/real-world-target.md),
+or [downstream security use case](docs/agent-security-analysis.md) when choosing
+an increment. The immediate priority is the CLI and symbolic environment
+input/output representation, using existing real-server execution as evidence;
+library exports are optional and deeper host modeling follows demonstrated blockers. The first external
 target is pinned `pico-static-server` 3.0.3: evaluate its complete server setup and
 request handling, classify filesystem failure paths, and eventually replay a
 concrete violating case in pinned Node. It is a target, not a completed proof or

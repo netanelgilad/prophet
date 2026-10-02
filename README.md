@@ -5,13 +5,20 @@ Concrete execution is the fully known case of the same evaluation model. The
 long-term goal is a JavaScript VM with Test262 conformance and symbolic execution;
 the current implementation supports a limited subset of JavaScript.
 
-The product is built for agents: analyze unchanged applications/dependencies and
-return structured outcomes, conditions, effects and explicit coverage limits.
-A durable goal is pre-execution supply-chain scanning of install/import/use for
-unapproved network effects, secret disclosure and tampering, including controlled
-Shai-Hulud benchmarks. The proposed [library/JSON CLI/security contract](docs/agent-security-analysis.md)
-and [roadmap](docs/roadmap.md) separate that goal from today's bounded proofs;
-no dependency-admission CLI or complete malware scanner is implemented yet.
+The product is a use-case-agnostic symbolic execution runtime with a primary
+CLI surface: **symbolic environment → symbolic environment**, for a selected
+program/runtime. Input and output use the same representation; a concrete
+starting environment may be constructed when none is supplied. The result
+retains conditional state, completions and observable history, including the
+program's output and possible external effects. See the [runtime/state contract](docs/symbolic-runtime.md).
+
+Security scanning, debugging, correctness and performance tools consume this
+result. Sensitivity labels, policies and verdicts belong to those tools. The
+CLI/serialization contract remains proposed; the current internal TypeScript
+exports are not a commitment to the eventual implementation language. The
+[roadmap](docs/roadmap.md) and [security use-case plan](docs/agent-security-analysis.md)
+retain the real-server and controlled Shai-Hulud goals without claiming a
+complete runtime CLI or dependency scanner already exists.
 
 ## Run the specs
 
@@ -412,8 +419,8 @@ EACCES for denied reads, EMFILE for descriptor exhaustion, or 200 with the corre
 GET/HEAD body. All sixteen method/access/capacity combinations remain represented;
 real Node server witnesses reproduce the failures. Descriptor availability is a
 baseline at filesystem calls, not a resource pool coupled to HTTP startup.
-The immediate product step is the [agent request/report contract](docs/agent-security-analysis.md)
-and a small dependency-effect proof. Post-open read/close failures and descriptor
+The immediate product step is the [runtime CLI/state contract](docs/symbolic-runtime.md),
+then generic observable effects usable by independent consumer tools. Post-open read/close failures and descriptor
 lifetime remain backlog work driven by those scenarios. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open
 symbolic text, and transport-sensitive fields including Content-Length remain

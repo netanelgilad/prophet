@@ -1,45 +1,60 @@
-# Proof milestones and host runtime coverage
+# Symbolic runtime roadmap
 
-The North Star is useful, agent-facing analysis of real, unmodified JavaScript applications
-and their dependencies: explain which inputs and environmental outcomes can
-produce an unhandled exception or unwanted state/effect, and prove useful
-properties across a declared domain. This includes programs that interact with
-their environment, not just functions that return values. Unknown results and
-unsupported behavior must remain explicit. Automatic counterexample generation
-is a later consumer of execution results, not a prerequisite for extending the
-symbolic VM.
+Prophet is a use-case-agnostic symbolic execution runtime / VM. For a chosen
+program, runtime/version and launch arguments, it transforms the **symbolic
+starting environment into the resulting symbolic environment**. Concrete values
+and environments use that same representation. Output preserves state,
+conditional completions, observable history and unfinished execution boundaries.
+The authoritative [runtime/state contract](symbolic-runtime.md) records this
+architecture and supersedes the earlier library-first policy-report proposal.
 
-A durable security objective is **pre-execution dependency admission**: analyze
-incoming packages' installation, import and declared use for unapproved network
-operations, credential disclosure, protected-file changes and unexpected process
-execution. Benchmark against controlled, pinned Shai-Hulud incident artifacts
-and clean controls. The [agent/security contract](agent-security-analysis.md)
-defines the proposed library + JSON CLI + later npm adapter, declarative symbolic
-scenarios, machine-readable evidence, policy/coverage distinctions, approval
-integrity and incremental acceptance criteria. It is a roadmap, not a claim that
-Prophet currently scans malware or certifies arbitrary packages.
+The **CLI is the primary public interface**. Agents should be able to substitute
+Prophet for a runtime command, supply a symbolic environment file or use a
+supported concrete default, and redirect one serialized result from stdout.
+A JS library export is an optional convenience; neither the public protocol nor
+the roadmap assumes that Prophet will remain implemented in JS/TypeScript.
+JSON and possible JS environment builders are input-authoring choices, not a
+requirement to use a particular programming language. Exact CLI/schema details
+are future work.
+
+Security, bug-finding/debugging, correctness and performance analysis are
+higher-level consumers. They own sensitivity classifications, policies, verdicts
+and approvals. The core provides values, relationships, state transitions and
+effects. Generic origin/dependency information or operation observations can
+support many consumers; application-specific meaning stays outside the VM.
+Automatic witness generation is another consumer of execution results.
 
 ## Immediate product milestones
 
-1. Expose the existing unchanged-server proof through a versioned agent
-   request/report library contract: named inputs/environment, source locations,
-   conditions, effects, outcomes, provenance and structured unknown/unsupported
-   results. This makes the existing real-world milestone directly consumable.
-2. Add a small benign dependency proof over a shared outbound-effect boundary,
-   with exact/finite/unknown destinations, a no-egress control, secret-bearing
-   requests, and an explicitly inconclusive subprocess case. Repair or reject
-   reached legacy/unverified semantics before granting security proofs.
-3. Add a thin JSON CLI and a pinned npm lifecycle subset, then one immutable
-   original Shai-Hulud loader/first-effect benchmark, and finally a package-manager
-   admission adapter that binds decisions to exact bytes, graph and scenario.
-   Install, module load, later export calls and deferred triggers have separate
-   coverage. A partial scan with no finding cannot authorize a clean verdict.
+1. Specify and implement a first **CLI + symbolic environment input/output**
+   contract in specs. Exercise explicit symbolic and concrete starting states,
+   supported default-state construction, runtime selection, command arguments,
+   program output captured inside the result, and distinct CLI/program status.
+   Round-trip the supported state subset, preserving identities/correlations;
+   expose unsupported serialization or unfinished execution explicitly.
+2. Use the unchanged static-server milestone to validate that the public result
+   preserves the already-proved outcomes, conditions, effects and unfinished
+   responses. Keep source/runtime provenance and execution limits. No sensitivity
+   or policy fields are needed to execute this program.
+3. Extend generic observable-effect and value relationships through a small
+   benign dependency fixture. Independent tools/specs can ask about possible
+   network operations, exceptions or work/costs using the same result. Repair or
+   reject reached inaccurate/unverified semantics for every consumer.
+4. Develop the [downstream security use case](agent-security-analysis.md): pinned
+   install/import/use executions, a controlled original Shai-Hulud first-effect
+   benchmark with a clean control, and later an npm admission adapter. The
+   adapter supplies initial state, invokes the runtime and applies its own policy.
 
-These are the next priorities. Post-open filesystem failures/descriptor lifetime,
-transport refinements and other existing gaps stay recorded; deepen those models
-when a declared product scenario or shared semantic correctness needs them.
-The [first real application](real-world-target.md) remains an active proof target
-and the first report consumer. Full Test262 coverage remains the language goal.
+These priorities precede optional JS library packaging and deeper descriptor
+internals without a scenario needing them. Filesystem/transport/language gaps
+remain recorded. The [first real application](real-world-target.md) remains an
+active regression milestone; full JavaScript/Test262 coverage and advanced
+symbolic evaluation remain engine goals.
+
+Longer term, extend the same runtime abstraction to **Bash and GNU tools**,
+including cross-process state, pipes and effects when a shell launches Node.
+Each runtime/tool needs its own compatible semantics and explicit unsupported
+boundaries; this is not current support or permission for native fallbacks.
 
 ## Existing proof milestones and engine work
 
@@ -64,8 +79,8 @@ plan are in [the real-world target contract](real-world-target.md).
 
 The earlier execution layers prioritized the language and Node operations needed
 to execute this complete target and classify symbolic request/filesystem paths
-with supported native witnesses. The next product step exposes that evidence to
-agents and adds the first dependency-effect policy proof described above.
+with supported native witnesses. The next product step preserves that evidence
+in the runtime's serialized resulting environment for agents and other tools.
 Request streams, JSON, and the discount
 endpoint remain valuable milestones, but are not prerequisites for a static
 server that does not consume request bodies. Grow to larger real applications
@@ -124,8 +139,8 @@ server failures. The platform input defaults to Linux and supports Darwin's
 empty-path priority. The baseline applies at filesystem calls, not to a shared
 process-wide FD pool: HTTP startup/acceptance still assumes success. Post-open
 fstat/read/close failures, descriptor lifetime, namespace races, transport outcomes
-and schedules remain backlog work; the agent/security milestones above set the
-immediate priority.
+and schedules remain backlog work; the runtime CLI/state milestones above set
+the immediate priority.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations

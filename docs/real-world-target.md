@@ -42,17 +42,18 @@ reversed writeHead arguments still discard the intended MIME/length fields.
 Source placement determines DEP0169 eligibility; HTTPS remains opaque. No native
 implementation runs during symbolic exploration.
 
-## Role in the agent and security product
+## Role in the symbolic runtime
 
-This unchanged server is the first consumer of the proposed
-[agent request/report contract](agent-security-analysis.md): an agent supplies a
-source graph and symbolic scenario, then receives outcomes, conditions, ordered
-effects, exception locations and explicit coverage limits. The broader goals
-also include pre-execution dependency admission and controlled Shai-Hulud
-benchmarks for install/import/use effects. They share the VM; they do not replace
-this target or imply a completed security scanner. The next increment exposes
-existing evidence through that contract, then adds a small generic outbound-effect
-proof before deepening filesystem internals without a scenario that needs them.
+This unchanged server is a regression target for the proposed
+[runtime CLI/state contract](symbolic-runtime.md): supply a symbolic starting
+environment, execute the program under declared runtime semantics, and retain the
+resulting symbolic environment with its conditional state, completions and
+observable history. A debugger, correctness checker, performance analyzer or
+security tool can interpret the same result. Security policies and sensitivity
+labels do not belong to the VM's values. The [security roadmap](agent-security-analysis.md)
+retains dependency admission and controlled Shai-Hulud benchmarks as downstream
+uses. Prioritize the CLI/state representation; optional JS exports do not bind
+the implementation language. Deeper host features follow actual semantic blockers.
 
 ## Why this project
 
@@ -380,7 +381,7 @@ are not Errors. POSIX path.parse now determines MIME and the original code commi
 headers and completes write/end/finish. Shared choice-aware equality now also
 proves the combined GET/HEAD domain and its body relationship. Effective access
 and descriptor availability add EACCES/EMFILE/404 outcomes and matching native
-witnesses. Exposing those results through the agent contract is next; broader
+witnesses. Retaining those results through the runtime CLI/state contract is next; broader
 filesystem errors, inputs and schedules remain expansions that preserve successful
 and throwing paths together. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
@@ -391,9 +392,10 @@ Request body streams/JSON are not needed by this static
 server; do not make them a gate before demonstrating its first useful
 exception/effect result.
 
-An analysis report must distinguish **proved within domain**, **violation with
+A higher-level analysis consumer must distinguish **proved within domain**, **violation with
 feasible evidence** (and whether replay passed), **unknown**, and **unsupported**.
-These are reporting requirements, not an API already implemented. Include source
+These are consumer requirements, not VM value classifications or an implemented API.
+The runtime result must provide source
 revision, Node/OS reference, assumptions, schedules/bounds, coverage gaps, and
 path conditions. Only claim all relevant exception paths within a domain once
 every path is accounted for, including analysis gaps and exhaustion. General

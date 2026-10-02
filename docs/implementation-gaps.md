@@ -192,18 +192,32 @@ success assumption. FS-002 retains API/error/Stats gaps; BUFFER-002 still assume
 successful allocation even on a directory read. No Test262 case or historical
 skip changed, and no complete upstream Node file is claimed passing.
 
-Reconciled in the agent/security planning increment on **2026-10-02**:
-[the proposed product contract](agent-security-analysis.md) adds REPORT-001 and
+Historical agent/security planning increment on **2026-10-02**, superseded
+by the runtime-contract clarification below: the initial proposal added REPORT-001 and
 SECURITY-001/002 for the missing agent protocol, dependency admission semantics,
 information-flow policies and adversarial-artifact/approval boundary. These are
 newly recorded goals/gaps, not implemented capabilities. Existing LANG/CJS/SYM/
 HOST/LEGACY groups retain their detailed semantics and precision blockers;
-known inaccurate legacy behavior must be repaired or rejected on a security
-proof path, not silently trusted. Immediate priority is reporting the existing
-real-server proof, then a benign outbound-effect dependency fixture; deeper FD
-work remains open. No source, spec, selected Test262 or skipped inventory changed,
+the initial plan required rejecting inaccurate legacy semantics for security
+proofs; the clarification applies that requirement to every runtime consumer.
+It prioritized a library report over the real-server proof, then a benign
+outbound fixture; the CLI/state contract below replaces that priority. No source,
+spec, selected Test262 or skipped inventory changed,
 and no Shai-Hulud artifact was acquired or executed. There are now **62 stable
 open gap groups**, with no group closed by this planning work.
+
+Reconciled after the runtime-contract clarification on **2026-10-02**:
+[the symbolic-runtime contract](symbolic-runtime.md) supersedes the earlier
+library-first policy report. The primary surface is a language-independent CLI:
+symbolic initial environment to resulting symbolic environment, with the same
+representation for concrete values and an optional concrete default capture.
+REPORT-001 retains its stable ID but now tracks state serialization/round trips,
+CLI/default-state construction and explicit partial execution, not core policies.
+SECURITY-001/002 remain downstream consumer/gate objectives. Classification,
+sensitivity, policy and verdict fields are removed from the proposed VM input;
+bugs, correctness and performance are equally valid consumer use cases. Bash/GNU
+tool profiles are a future runtime extension (HOST-001/002), not native fallbacks.
+No runtime or test behavior changed and none of the 62 groups closed.
 
 At reconciliation there were **77 source files**, **83 spec files**, and
 **390 source lines in 51 files** matching the broad guard/placeholder search
@@ -337,12 +351,12 @@ presence does not mean every recent proof uses them.
 | CONSOLE-001 — open — unsupported | The [console model](../src/node/console.ts) supports default ungrouped log with zero arguments or one string, shared global/builtin identity and ordered captured stdout chunks. Multiargument/nonstring formatting, util.format/inspect/custom inspection, colors/options, groups/timers, stderr/other methods, Console construction, log/config replacement and full descriptors/metadata remain gaps. See [console specs](../test/node-console.spec.ts). | Add each formatter/API/configuration through the shared VM and independently compare formatting, conversion effects, receiver binding and exceptions with pinned Node. One-string logging is not full console support. |
 | CONSOLE-002 — open — assumption/unsupported | Captured log output assumes healthy writable default UTF-8 stdout, no stream replacement, diagnostics subscribers or inspector hooks. Swallowed synchronous write failures, asynchronous error delivery, ignoreErrors, backpressure/drain, flush/exit loss and alternate encoding are unmodeled. Concrete surrogate replacement is modeled; unknown encoded text remains unknown. | Represent stream/config/environment outcomes and actual console failure handling, including when the application sees no throw despite failed output. Distinguish calling log, accepting a write and durably emitting/flushing bytes. |
 
-## Agent contract and supply-chain security
+## Runtime CLI/state contract and downstream supply-chain security
 
 | ID / status / kind | Current boundary and evidence | Closure criterion |
 | --- | --- | --- |
-| REPORT-001 — open — unsupported/precision | [The proposed agent contract](agent-security-analysis.md) is not implemented: there is no versioned declarative request/report API or scan CLI, stable serialized expression graph, source-attributed effect report, structured partial/unsupported/budget outcome, or policy/coverage protocol. Current low-level library values/effect traces use internal identities and exceptions. Existing real-server specs establish bounded outcomes but do not provide the agent product surface. | Add schema/serialization/library specs over unchanged real source, deterministic provenance and conditions, actionable source/effect paths, partial result/error distinctions and mandatory inconclusive outcomes. CLI must consume the same contract. Separate policy verdict, feasibility and coverage; budget exhaustion is not a narrowed input domain or proof. |
-| SECURITY-001 — open — unsupported/assumption/testing | Dependency admission is a goal, not present behavior. npm lifecycle/resolution/acquisition orchestration is unmodeled; importing a CommonJS module does not cover install scripts, ESM, future exports, shell/native/Bun programs or asynchronous triggers. No shared outbound-network/DNS/socket/subprocess model, endpoint inventory, secret dataflow/control-flow policy, protected-file/publish policy or original Shai-Hulud benchmark exists. Existing LANG/CJS/HOST/SYM/FS/BUFFER gaps apply; reached LEGACY-001/002/003 and absent-unmodeled-builtin fallbacks can invalidate security conclusions, even without an explicit rejection. | Establish a strict admitted-semantics contract, generic benign policy fixtures with safe/violating/unknown controls, and separately pinned install/import/use scopes. Then analyze an immutable original incident loader and clean control with conditions, feasible forbidden effects, evidence and complete blocker inventory. Model unknown destinations/continuations soundly; an allowed host does not authorize secret disclosure. No names, hashes or malware-source patterns become inference rules. |
+| REPORT-001 — open — unsupported/precision | [The symbolic-runtime contract](symbolic-runtime.md) is not implemented: there is no supported runtime CLI, portable versioned symbolic environment input/output, concrete default-state capture, stable serialized graph/reference identities, complete host/closure/state round trips, source-attributed observable history, or structured partial/unsupported/budget output. Current internal TypeScript values, private metadata and effect traces are not portable snapshots. Concrete defaults need explicit capture boundaries; future observations cannot be guessed. A JS export/builder is optional and does not bind the implementation language. | Add CLI/state specs over supported commands and the unchanged real server: same representation for symbolic/concrete input and result, explicit/default starting-state handling, deterministic identities/provenance, captured program stdout distinct from result stdout, separate CLI/target completions, conditional effects and honest unfinished work. Verify supported serialization round trips and reject omitted state. Keep sensitivity/policies/verdicts in consumers, not core VM values. |
+| SECURITY-001 — open — unsupported/assumption/testing | Dependency admission is a goal, not present behavior. npm lifecycle/resolution/acquisition orchestration is unmodeled; importing a CommonJS module does not cover install scripts, ESM, future exports, shell/native/Bun programs or asynchronous triggers. No shared outbound-network/DNS/socket/subprocess semantics or complete generic value/control relationships support those questions yet. Endpoint inventories, external sensitivity classifications, secret-flow/protected-file/publish policies and verdicts belong to downstream consumers, which are also unimplemented; no original Shai-Hulud benchmark exists. Existing LANG/CJS/HOST/SYM/FS/BUFFER gaps apply; reached LEGACY-001/002/003 and absent-unmodeled-builtin fallbacks can invalidate any consumer's conclusions, even without an explicit rejection. | Repair or reject reached inaccurate semantics for all runtime uses; establish generic execution/effect fixtures and separate consumer policies with safe/violating/unknown controls, and separately pinned install/import/use scopes. Then analyze an immutable original incident loader and clean control with conditions, feasible forbidden effects, evidence and complete blocker inventory. Model unknown destinations/continuations soundly; an allowed host does not authorize secret disclosure. No names, hashes or malware-source patterns become inference rules. |
 | SECURITY-002 — open — assumption/unsupported/testing | Prophet is not a hardened adversarial-code sandbox or enforcement gate. Archive/parser/interpreter resource/escape risks, safe artifact acquisition, exact-byte/transitive-graph integrity, policy/model/scenario-bound caches and approvals, prevention of pre-scan hooks, runtime capability enforcement and separately isolated adversarial replay are not implemented. A future registry fetch by the trusted adapter is distinct from granting package network authority. | Validate inert acquisition/extraction/analysis isolation and resource limits; test traversal/unsafe archives, tamper/cache invalidation, script-before-scan and alternate-command bypasses. Bind admission/exception decisions to reviewed bytes, graph, scope and model versions and enforce actual capabilities separately. Unknown scans must not silently pass; accepted risk is not a proof. Never execute original malware natively in ordinary Jest/developer runs. |
 
 ## Real application, evidence and coverage
