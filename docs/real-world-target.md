@@ -44,6 +44,16 @@ implementation runs during symbolic exploration.
 
 ## Role in the symbolic runtime
 
+The next concrete milestone is to run the vendored, unchanged
+[`examples/pico-http-server.js`](../test/fixtures/pico-static-server-3.0.3/package/examples/pico-http-server.js)
+as Prophet's CLI entry script **without specifying an environment file**. It
+loads the original package, configures its static directory through `__dirname`,
+and requests port 8080. The CLI must construct the starting state and retain the
+modeled server waiting for requests; existing specs' hand-built model/source
+setup is not the public interface. The [roadmap acceptance criteria](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
+distinguish successful startup from unresolved bind work and defer arbitrary
+request input and full resumption. The CLI is not implemented yet.
+
 This unchanged server is a regression target for the proposed
 [runtime CLI/state contract](symbolic-runtime.md): supply a symbolic starting
 environment, execute the program under declared runtime semantics, and retain the

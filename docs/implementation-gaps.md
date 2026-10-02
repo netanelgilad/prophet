@@ -219,6 +219,19 @@ bugs, correctness and performance are equally valid consumer use cases. Bash/GNU
 tool profiles are a future runtime extension (HOST-001/002), not native fallbacks.
 No runtime or test behavior changed and none of the 62 groups closed.
 
+Reconciled when selecting the **pico CLI startup without an environment file**
+milestone on **2026-10-02**: REPORT-001 first covers CLI/default-state capture and
+serialized startup/waiting state. CJS-001 retains automatic disk/source acquisition;
+HOST-002 retains event scheduling; HTTP-001 and CONSOLE-002
+retain binding and output failure assumptions. Existing specs manually build
+the graph/models and deliver listening; those are not yet a default runtime.
+The unchanged upstream example requests port 8080, whose availability is not
+established by capturing files or by unrelated ephemeral-port reference runs.
+Pending/unsupported binding is truthful interim progress, not ready-server
+evidence. Explicit environment input and full resumption remain open subsequent
+work. No source, spec, selected corpus or historical skip changed; all 62 groups
+remain open. See [the acceptance criteria](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file).
+
 At reconciliation there were **77 source files**, **83 spec files**, and
 **390 source lines in 51 files** matching the broad guard/placeholder search
 below. These are search hits, including internal validation and comments, **not

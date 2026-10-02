@@ -170,13 +170,21 @@ the public CLI/state format should not assume the implementation language is JS.
 
 ## Next increment and acceptance
 
-Specify a first version of the symbolic environment representation and the CLI
-invocation/output contract in specs. Use the existing unchanged static-server
-execution as a regression target and simpler supported commands where needed to
-establish the interface incrementally. Preserve its symbolic input correlations,
-all existing completion/effect paths and native reference comparisons.
+The next agreed milestone is [running the unchanged pico HTTP startup script
+through the CLI without an environment file](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file).
+Automatically construct its supported starting environment and return the
+modeled server state, including startup output and waiting for future requests.
+This is an execution snapshot, not evidence that a long-running server terminated
+or that every future request was explored. Keep unknown bind/host outcomes
+explicit; a partial bind boundary alone is not successful-startup evidence.
 
-Cover explicit symbolic and concrete inputs using the same representation,
+Start the CLI invocation/output contract with a simple CommonJS subprocess spec,
+then the original pico example, using the shared loader/VM and runtime models.
+Preserve existing symbolic input correlations, completion/effect paths and native
+reference comparisons. Caller-supplied environment files and full resumption are
+subsequent increments, not prerequisites for this initial default-state run.
+
+Then cover explicit symbolic and concrete inputs using the same representation,
 captured/default-state boundaries, program stdout inside the result, deterministic
 state identities, conditional completion, and partial/unsupported output. Test
 round trips for the supported state subset and reject serialization gaps rather

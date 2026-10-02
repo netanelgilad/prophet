@@ -25,9 +25,12 @@ and prove useful properties across explicitly declared inputs and environments.
 Read [the runtime/state contract](docs/symbolic-runtime.md) and the relevant
 milestone in [the roadmap](docs/roadmap.md), [real-world target](docs/real-world-target.md),
 or [downstream security use case](docs/agent-security-analysis.md) when choosing
-an increment. The immediate priority is the CLI and symbolic environment
-input/output representation, using existing real-server execution as evidence;
-library exports are optional and deeper host modeling follows demonstrated blockers. The first external
+an increment. The immediate milestone is running the unchanged pico HTTP startup
+script through Prophet's CLI **without an explicit environment file**, using an
+automatically constructed starting state and returning the modeled server's
+waiting state. Follow [the acceptance criteria](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file);
+explicit environment authoring and full resumption follow, library exports are
+optional, and deeper host modeling follows demonstrated blockers. The first external
 target is pinned `pico-static-server` 3.0.3: evaluate its complete server setup and
 request handling, classify filesystem failure paths, and eventually replay a
 concrete violating case in pinned Node. It is a target, not a completed proof or

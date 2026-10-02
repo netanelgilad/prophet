@@ -24,11 +24,65 @@ effects. Generic origin/dependency information or operation observations can
 support many consumers; application-specific meaning stays outside the VM.
 Automatic witness generation is another consumer of execution results.
 
-## Immediate product milestones
+## Next milestone: pico startup through the CLI, with no environment file
 
-1. Specify and implement a first **CLI + symbolic environment input/output**
-   contract in specs. Exercise explicit symbolic and concrete starting states,
-   supported default-state construction, runtime selection, command arguments,
+Agreed on **2026-10-02**: run the pinned package's **unchanged Node HTTP startup
+script** through Prophet, without supplying a symbolic environment file or
+building VM/model objects in caller code. The existing upstream example is the
+acceptance target; its package source and options remain unchanged.
+
+Illustrative command (the CLI and flag names are still to be implemented):
+
+```sh
+prophet --runtime node@24.21.0 -- test/fixtures/pico-static-server-3.0.3/package/examples/pico-http-server.js > result.json
+```
+
+Success criteria:
+
+1. The CLI loads the entry script and its relative CommonJS imports from disk,
+   preserving `__filename`, `__dirname`, source identities and the pinned package
+   bytes. The shared VM executes the original factory, server creation, listener
+   registration and listen call; no caller-supplied source graph is required.
+2. Prophet builds a documented, read-only starting snapshot automatically, using
+   the same symbolic state representation as future explicit input. Capture
+   cwd, arguments and required source/runtime facts with provenance; expose
+   uncaptured state and resource outcomes. No environment file is required.
+3. One versioned JSON result appears on stdout. It retains modeled state,
+   server/callback identities and lexical scope links, ordered effects, program
+   output, pending work and assumptions. Diagnostics use stderr; target completion
+   and Prophet's own status stay distinct. Incomplete serialization is explicit.
+4. A supported startup path reaches a modeled server ready and **waiting for
+   requests**, after its listening callback and startup message. Top-level
+   script completion does not imply server termination. Preserve unresolved
+   startup alternatives and future input; do not invent a request to finish the
+   run. A partial result stopped at bind is an intermediate step, not this goal's
+   successful-startup evidence.
+5. A missing environment file is not evidence that port 8080 is available or
+   stdout healthy. Any remaining bind, output or scheduling assumptions are
+   explicit in the result and backlog; unsupported outcomes remain boundaries.
+   No real socket, target filesystem write or native package execution occurs
+   during symbolic execution. Separate pinned Node checks validate modeled
+   behavior without establishing availability for the target's fixed port.
+6. CLI subprocess specs exercise the real command and parse its output, alongside
+   entry/import failures and partial execution. Retain package integrity checks,
+   existing symbolic request regressions and independent Node startup evidence.
+
+**First implementation increment:** add a CLI subprocess spec for a small
+supported CommonJS script, automatic immutable source capture, shared runtime
+assembly and versioned result/completion output. Then run the original pico
+script through that same path and implement each exposed shared blocker. Keep
+new test drivers inside specs; the vendored upstream example is already a fixture.
+
+Explicit environment authoring, arbitrary request exploration and full snapshot
+resumption follow this milestone. Preserve the representation needed for them,
+but do not make a complete input schema or general resumable VM a prerequisite
+for this first no-environment-file run. See [the runtime contract](symbolic-runtime.md)
+and gaps REPORT-001, CJS-001, HOST-002, HTTP-001 and CONSOLE-002.
+
+## Following product milestones
+
+1. Extend the first CLI/state contract with explicit symbolic and concrete
+   starting environments. Exercise runtime selection, command arguments,
    program output captured inside the result, and distinct CLI/program status.
    Round-trip the supported state subset, preserving identities/correlations;
    expose unsupported serialization or unfinished execution explicitly.

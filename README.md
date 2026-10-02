@@ -20,6 +20,11 @@ exports are not a commitment to the eventual implementation language. The
 retain the real-server and controlled Shai-Hulud goals without claiming a
 complete runtime CLI or dependency scanner already exists.
 
+The [next milestone](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
+is running the unchanged pico HTTP startup script through Prophet's CLI **without
+an environment file**, automatically constructing its starting state and returning
+the modeled server waiting for requests. Explicit environment input follows.
+
 ## Run the specs
 
 Behavior examples live in `test/*.spec.ts`, alongside their interpreted source,
@@ -419,8 +424,9 @@ EACCES for denied reads, EMFILE for descriptor exhaustion, or 200 with the corre
 GET/HEAD body. All sixteen method/access/capacity combinations remain represented;
 real Node server witnesses reproduce the failures. Descriptor availability is a
 baseline at filesystem calls, not a resource pool coupled to HTTP startup.
-The immediate product step is the [runtime CLI/state contract](docs/symbolic-runtime.md),
-then generic observable effects usable by independent consumer tools. Post-open read/close failures and descriptor
+The immediate product step is the [pico CLI startup without an environment file](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file),
+then explicit environment input and generic observable effects usable by
+independent consumer tools. Post-open read/close failures and descriptor
 lifetime remain backlog work driven by those scenarios. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open
 symbolic text, and transport-sensitive fields including Content-Length remain
