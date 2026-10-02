@@ -241,32 +241,57 @@ function sameFact(left: Fact, right: Fact): boolean {
   return false;
 }
 
+function withSharedFacts(facts: Knowledge, alternatives: Knowledge[]): Knowledge {
+  if (!alternatives.length) return facts;
+  // A condition may be satisfied in several ways. Only facts established in
+  // every feasible alternative can be used outside that alternative.
+  return facts.concat(alternatives[0].filter(fact =>
+    !facts.some(existing => sameFact(existing, fact)) &&
+    alternatives.every(branch => branch.some(existing => sameFact(existing, fact)))
+  ));
+}
+
 export function assume(knowledge: Knowledge, condition: TESBoolean, truth: boolean): Knowledge {
   let facts: Knowledge = knowledge.concat({ kind: "truth", condition, truth });
   const expression = condition.expression;
   if (!expression) return facts;
   if (expression.kind === "not") return assume(facts, expression.operand, !truth);
   if (expression.kind === "select" && isESBoolean(expression.consequent) && isESBoolean(expression.alternate)) {
-    const guard = resolveBoolean(expression.condition, facts);
+    const guard = resolveBoolean(expression.condition, knowledge);
     const alternatives: Knowledge[] = [];
     for (const selected of [true, false]) {
       if (guard !== undefined && guard !== selected) continue;
       const branch = selected ? expression.consequent : expression.alternate;
-      const branchFacts = assume(facts, expression.condition, selected);
+      const branchFacts = assume(knowledge, expression.condition, selected);
       // Test feasibility before assuming the requested result. Otherwise that
       // new truth fact would conceal an already established contradiction.
       const value = resolveBoolean(branch, branchFacts);
       if (value !== undefined && value !== truth) continue;
       alternatives.push(assume(branchFacts, branch, truth));
     }
-    if (!alternatives.length) return facts;
-    // A compound condition can be satisfied along several paths. Only facts
-    // shared by every feasible alternative survive, including for && and ||.
-    const shared = alternatives[0].filter(fact =>
-      !facts.some(existing => sameFact(existing, fact)) &&
-      alternatives.every(branch => branch.some(existing => sameFact(existing, fact)))
-    );
-    return facts.concat(shared);
+    return withSharedFacts(facts, alternatives);
+  }
+  if (expression.kind === "strict-equal") {
+    const { left, right } = expression;
+    const selected = choiceOf(left) ? left : choiceOf(right) ? right : undefined;
+    if (selected) {
+      const choice = choiceOf(selected)!;
+      const guard = resolveBoolean(choice.condition, knowledge);
+      const alternatives: Knowledge[] = [];
+      for (const branch of [true, false]) {
+        if (guard !== undefined && guard !== branch) continue;
+        // Use knowledge from before this assumption: remembering the desired
+        // result first can hide a contradiction in an aliased comparison.
+        const branchFacts = assume(knowledge, choice.condition, branch);
+        const value = branch ? choice.consequent : choice.alternate;
+        const equality = strictEquality(selected === left ? value : left,
+          selected === right ? value : right, branchFacts);
+        const resolved = resolveBoolean(equality, branchFacts);
+        if (resolved !== undefined && resolved !== truth) continue;
+        alternatives.push(assume(branchFacts, equality, truth));
+      }
+      facts = withSharedFacts(facts, alternatives);
+    }
   }
   if (expression.kind === "compare") {
     const reversed = expression.operator === ">" || expression.operator === ">=";

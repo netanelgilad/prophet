@@ -74,15 +74,16 @@ end and explicit finish delivery. GET serves bytes and HEAD suppresses them;
 symbolic index presence also distinguishes success from escaping ENOENT. The
 original writeHead argument reversal still discards the intended content headers.
 Queued Buffer references are consumed at synchronous end under a declared
-healthy schedule without earlier flushes. Next improve shared finite-choice
-equality: a combined symbolic GET/HEAD input currently retains an impossible
-405 branch and loses the body relationship to its original Boolean (SYM-001).
-Then broaden environmental filesystem failures, transport outcomes and schedules.
+healthy schedule without earlier flushes. Shared [choice equality](symbolic-choice-equality.md)
+now proves the combined GET/HEAD and index-presence domain: every path reaches
+the actual read, an absent index escapes as ENOENT, and success returns 200
+with the corresponding body. The false 405 path is eliminated by shared facts,
+without filtering. General disjunctive relationships remain unknown under SYM-001.
+Next broaden environmental filesystem failures, then transport outcomes and schedules.
 Protocol-to-event dispatch remains a gap: Node treats CONNECT separately, so the
 symbolic callback-input domain is not a claim that every wire method reaches it.
 Broader property descriptors, later expressions, and the required Node operations
-still need their own semantics and specs before file-serving or broader server
-claims. Destructured/rest
+still need their own semantics and specs before broader server claims. Destructured/rest
 parameters and implicit arguments remain separate language gaps.
 
 The shared VM already handles selected symbolic branches, mutable objects,
@@ -372,9 +373,10 @@ Continue in these increments, each with specs and a focused commit to `master`:
    default reads now return Buffer values and the shared `instanceof` check is false;
    path.parse now selects MIME and the original write/end/finish path serves files
    under the declared healthy consume-at-end schedule. Per-method symbolic index
-   presence distinguishes successful bytes from escaping ENOENT. Combining
-   GET/HEAD retains an impossible 405 and loses body correlation due to shared
-   choice-equality imprecision (SYM-001), covered as mandatory unknowns.
+   presence distinguishes successful bytes from escaping ENOENT. Shared equality
+   refinement now proves the combined GET/HEAD domain too, preserving method/body
+   correlation and excluding the impossible 405 without filtering paths. General
+   disjunctive relationships remain mandatory unknowns (SYM-001).
    Byte mutations reuse the persistent heap and retain symbolic correlations.
    Broader filesystem classification remains open. Continue filling shared language, response,
    URL/path, and filesystem gaps needed for concrete module execution. Add

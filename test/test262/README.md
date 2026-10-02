@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **185 complete files / 361 strictness variants**,
+The active corpus contains **194 complete files / 379 strictness variants**,
 including 13 parse-negative files / 25 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -42,6 +42,21 @@ parameter and declaration shadowing, variable/function hoisting, and named
 function-expression scope, plus direct eval's lexical lookup and strict variable
 isolation. Each source file is run whole, including both
 strictness variants where its metadata calls for them.
+
+Nine complete strict equality/inequality files add 18 variants: signed-zero
+equality, Boolean/string/null inequality, assignment order, and throwing operands.
+The existing Boolean/string/null equality cases remain active. These concrete
+language cases accompany local symbolic specs for refining the guards of finite
+choices after `===` or `!==`; symbolic proofs do not substitute for whole
+upstream files.
+
+Reviewed whole NaN candidates `strict-equals/S11.9.4_A4.1_T1/T2` and
+`strict-does-not-equals/S11.9.5_A4.1_T1/T2` remain inactive because their complete
+sources need runtime `Number` constants. The object-identity `A7` files in both
+directories also require primitive boxing through `Object`, `Boolean`, `Number`
+and `String`. Local NaN and reference-identity specs cover supported values;
+they do not count as passing these complete upstream cases. Their sources are
+not reduced to the currently supported assertions.
 
 Fourteen complete `built-ins/String/prototype/slice` files add 28 variants:
 `S15.5.4.13_A1_T4/T7/T8/T10/T11/T13/T14`, `A3_T1/T2/T3`, `A6`, `A7`,

@@ -122,6 +122,17 @@ const activeCorpus = [
   "language/expressions/strict-equals/S11.9.4_A3.js",
   "language/expressions/strict-equals/S11.9.4_A5.js",
   "language/expressions/strict-equals/S11.9.4_A6.2.js",
+  // Whole equality cases protect signed zero, primitive inequality, operand
+  // effects and abrupt completion alongside symbolic choice refinement.
+  "language/expressions/strict-equals/S11.9.4_A4.2.js",
+  "language/expressions/strict-equals/S11.9.4_A2.4_T1.js",
+  "language/expressions/strict-equals/S11.9.4_A2.4_T2.js",
+  "language/expressions/strict-does-not-equals/S11.9.5_A3.js",
+  "language/expressions/strict-does-not-equals/S11.9.5_A5.js",
+  "language/expressions/strict-does-not-equals/S11.9.5_A6.2.js",
+  "language/expressions/strict-does-not-equals/S11.9.5_A4.2.js",
+  "language/expressions/strict-does-not-equals/S11.9.5_A2.4_T1.js",
+  "language/expressions/strict-does-not-equals/S11.9.5_A2.4_T2.js",
   "language/expressions/conditional/S11.12_A3_T4.js",
   "language/expressions/conditional/S11.12_A4_T4.js",
   "language/expressions/logical-and/S11.11.1_A3_T4.js",

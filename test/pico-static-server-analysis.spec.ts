@@ -7,7 +7,7 @@ import { ESObject } from "../src/Object";
 import { effectPaths } from "../src/effects";
 import { ExecutionContext, setVariablesInScope, TExecutionContext } from "../src/execution-context/ExecutionContext";
 import { getProperties } from "../src/execution-context/Heap";
-import { Any, ESNull, ESNumber, isThrownValue, WithProperties } from "../src/types";
+import { Any, ESNull, isThrownValue, WithProperties } from "../src/types";
 import { ESString, TESString } from "../src/string/String";
 import { resolveBoolean, selectValue, strictEquality } from "../src/symbolic";
 import { assumeInContext, BranchResult } from "../src/execution-context/branches";
@@ -236,7 +236,7 @@ function completionLeaves(result: BranchResult): BranchResult[] {
 }
 
 for (const method of ["GET", "HEAD", "symbolic GET/HEAD"])
-test(`the real ${method} server retains index-presence outcomes and unresolved method-choice precision`, () => {
+test(`the real ${method} server proves index-presence outcomes and matching response bytes`, () => {
   // A stable closed tree contains /site/docs; its index may be absent. Binding,
   // stdout and transport succeed; queued bytes are consumed at synchronous end.
   const hasIndex = ESBoolean();
@@ -256,23 +256,14 @@ test(`the real ${method} server retains index-presence outcomes and unresolved m
   const leaves = completionLeaves(delivered.result);
   expect(leaves.some(([completion]) => isThrownValue(completion))).toBe(true);
   expect(leaves.some(([completion]) => !isThrownValue(completion))).toBe(true);
-  let sawUnresolvedMethod = false;
   // Normal branches may merge. Inspect each retained effect path, preserving
   // its knowledge rather than treating the merged condition as a conjunction.
   for (const [completion, merged] of leaves) for (const path of effectPaths(merged.value.effects, merged.value.knowledge)) {
     const context = ExecutionContext({ ...merged.value, knowledge: path.knowledge });
     const exists = resolveBoolean(hasIndex, context.value.knowledge);
-    const status = setup.http.inspectResponse(delivered.response, context).statusCode;
-    if (!isThrownValue(completion) && strictEquality(status, ESNumber(405)).value === true) {
-      // The current equality solver cannot exclude the contradictory branch
-      // method !== GET && method !== HEAD of a string choice. Retain this
-      // overapproximation explicitly; it is not a feasible failure witness.
-      expect(method).toBe("symbolic GET/HEAD");
-      expect(exists).toBeUndefined();
-      expect(path.events.some(event => event.call.operation.startsWith("fs."))).toBe(false);
-      sawUnresolvedMethod = true;
-      continue;
-    }
+    // Every retained path must reach the file read. A spurious 405 must fail
+    // this assertion, not be filtered out of the combined method proof.
+    expect(path.events.some(event => event.call.operation === "fs.readFileSync")).toBe(true);
     expect(exists).toBe(!isThrownValue(completion));
     if (isThrownValue(completion)) {
       expect(getProperties(completion.value as WithProperties, context)).toMatchObject({
@@ -288,16 +279,34 @@ test(`the real ${method} server retains index-presence outcomes and unresolved m
           bytes.length === (head ? 0 : 10);
       `, setVariablesInScope(finished, { head, status: wire.statusCode, body: wire.body,
         bytes: setup.http.inspectResponseBytes(delivered.response, finished) }));
-      // The same lost string-choice relationship prevents the combined proof
-      // from connecting HEAD suppression back to the original Boolean input.
-      expect(verified.value.scope.proof).toMatchObject({
-        type: "boolean", value: method === "symbolic GET/HEAD" ? undefined : true
-      });
+      expect(verified.value.scope.proof).toMatchObject({ type: "boolean", value: true });
       expect(getProperties(delivered.response, finished).writableFinished).toMatchObject({ value: true });
     }
   }
+  // Project the SAME symbolic execution onto every input combination. Paths
+  // with identical effects can merge without fixing head, so do not require
+  // a separate effect path for each method, or rerun the source concretely.
+  const methods = method === "symbolic GET/HEAD" ? [false, true] : [method === "HEAD"];
+  for (const isHead of methods) for (const exists of [false, true]) {
+    const constrained = assumeInContext(assumeInContext(ready, head, isHead), hasIndex, exists);
+    let [completion, context] = delivered.result;
+    while (isForkedCompletion(completion)) {
+      const selected = resolveBoolean(completion.condition, constrained.value.knowledge);
+      expect(typeof selected).toBe("boolean");
+      [completion, context] = selected ? completion.consequent : completion.alternate;
+    }
+    expect(isThrownValue(completion)).toBe(!exists);
+    const projected = assumeInContext(assumeInContext(context, head, isHead), hasIndex, exists);
+    if (exists) {
+      const body = setup.http.inspectResponse(delivered.response, projected).body;
+      const [, checked] = evaluateCode('const retained = body === expected;',
+        setVariablesInScope(projected, { body, expected: ESString(isHead ? "" : "café 😀") }));
+      expect(checked.value.scope.retained).toMatchObject({ value: true });
+    } else {
+      expect(getProperties(delivered.response, projected).headersSent).toMatchObject({ value: false });
+    }
+  }
   expect(resolveBoolean(hasIndex, delivered.result[1].value.knowledge)).toBeUndefined();
-  expect(sawUnresolvedMethod).toBe(method === "symbolic GET/HEAD");
   expect(resolveBoolean(head, delivered.result[1].value.knowledge))
     .toBe(method === "symbolic GET/HEAD" ? undefined : method === "HEAD");
   expect(setup.filesystem.inspectRoot(ready)).toBe(root);

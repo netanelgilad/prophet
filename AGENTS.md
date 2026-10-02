@@ -2,7 +2,8 @@
 
 Work directly on `master` and push validated changes to `origin/master`, as
 requested by the user. PRs #23–#50 have been merged; [docs/stack.md](docs/stack.md)
-is the historical record, not the development base. Keep increments focused and
+is the historical record, not the development base. The separate symbolic-string
+PR #51 is also merged. Keep increments focused and
 reviewable, and preserve unrelated work in the shared checkout.
 
 Develop toward full Test262 coverage and advanced symbolic evaluation by adding

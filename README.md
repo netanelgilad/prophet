@@ -393,9 +393,11 @@ five fresh mutable fields for concrete strings and finite choices, retaining
 symbolic correlations. Scoped HTTP response writes now complete the real file-serving
 path; [write specs](test/node-http-write.spec.ts) compare ordered text/raw bytes,
 mutations, suppression, validation and unknown backpressure with pinned Node.
-Next preserve correlations when comparing finite symbolic string choices: a
-combined GET/HEAD input currently retains an impossible 405 path (SYM-001).
-Then expand environmental filesystem failures and their response conditions. Header
+Shared [choice equality](docs/symbolic-choice-equality.md) now preserves the
+combined GET/HEAD proof: an existing index gives 200 and the appropriate body;
+a missing index escapes as ENOENT. Every path reaches the read, without an
+impossible 405 or filtering. General disjunctive relationships remain unknown.
+Next expand environmental filesystem failures and their response conditions. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open
 symbolic text, and transport-sensitive fields including Content-Length remain
 explicit gaps in the backlog. Request body delivery and JSON parsing later lead back to

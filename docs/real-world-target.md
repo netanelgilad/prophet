@@ -9,7 +9,7 @@ a small external project, keep its code unchanged, and then grow to larger
 applications and dependency graphs. Application names and source patterns must
 never become VM inference rules.
 
-**Bounded symbolic header and unhandled-exception findings established; successful file serving remains incomplete.** The first target is
+**Bounded header, file-serving and exception proofs established; broader application analysis remains incomplete.** The first target is
 [`udivankin/pico-static-server` 3.0.3](https://github.com/udivankin/pico-static-server/tree/6b553fb34e3b5b5bccf3c082bb2cae5f93b9e3be).
 The complete published fixture is retained with its license and integrity
 records. Independent Node specs now exercise its real server and reproduce an
@@ -242,14 +242,16 @@ arguments instead of the intended MIME/length fields. Read-only observers and
 effect records verify both computed and committed headers. The original
 write/end now consumes the file bytes, with HEAD suppression and explicit finish
 delivery. For each GET/HEAD method, symbolic index presence classifies successful serving
-versus escaping ENOENT. Combining an unknown GET/HEAD choice currently retains
-an impossible 405 branch because shared string-choice equality loses correlation
-(SYM-001); that result is explicitly inconclusive, not a counterexample. The shared [Buffer model](node-buffer.md)
+versus escaping ENOENT. Shared choice-aware equality now proves the combined
+GET/HEAD domain too: every path reaches readFileSync, an absent index throws
+before commitment, and a present index gives status 200 with the GET bytes or
+empty HEAD output. The impossible 405 is eliminated through shared branch facts,
+not filtered from inspection. General guard-relationship precision remains SYM-001. The shared [Buffer model](node-buffer.md)
 supports byte reads, persistent numeric writes and UTF-8 decoding, including
 correlated mutations and mandatory unknowns. The [HTTP schedule](node-http.md)
 assumes no flush between synchronous writes and consumption at end; normal write
-returns remain unknown without capacity facts. Next repair shared finite-choice
-equality precision, then expand environmental filesystem failures. Wider URL forms, filesystem environments and
+returns remain unknown without capacity facts. Next expand environmental
+filesystem failures. Wider URL forms, filesystem environments and
 schedules remain expansions. Overriding `protocol` to `https` still reaches the opaque
 `https.createServer` member.
 The [fixture provenance](../test/fixtures/pico-static-server-3.0.3/PROVENANCE.md)
@@ -353,9 +355,9 @@ POSIX join/normalize, path-only legacy URL parsing and shared symbolic filesyste
 state now classify the bounded 404/escaping-ENOENT case in the original server.
 Default reads return Buffer values, and shared `instanceof` now establishes they
 are not Errors. POSIX path.parse now determines MIME and the original code commits
-headers and completes write/end/finish. Next improve shared finite-choice
-equality for combined GET/HEAD proofs, then expand filesystem errors, inputs and
-schedules, preserving successful and throwing paths together. Broader headers and transport remain separate work;
+headers and completes write/end/finish. Shared choice-aware equality now also
+proves the combined GET/HEAD domain and its body relationship. Next expand
+filesystem errors, inputs and schedules, preserving successful and throwing paths together. Broader headers and transport remain separate work;
 the current header projection does not include automatic fields. Spread over
 accessors, symbols, unknown key domains, arrays, functions, and legacy intrinsic
 layouts remains a separate language backlog; these cases stop analysis explicitly.

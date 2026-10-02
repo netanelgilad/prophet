@@ -137,8 +137,9 @@ commits status 200. Its reversed writeHead arguments still produce numeric O/K
 headers instead of the intended MIME/length fields. The original response.write
 and end now serve the Buffer, followed by explicit successful finish delivery.
 Observers supply no values or control-flow replacements. For each GET/HEAD method, symbolic index presence classifies successful bytes
-versus escaping ENOENT. A combined method choice retains an extra impossible
-405 from shared equality imprecision; that mandatory unknown is kept in specs. These
+versus escaping ENOENT. Shared equality refinement also proves the combined
+GET/HEAD choice: every path reaches the read, and successful bytes follow the
+method. No impossible 405 is filtered from the result. These
 results assume a healthy transport consuming queued bytes at synchronous end,
 with no intervening flush; they do not establish all-schedule safety. Broader
 URL/path APIs, language/response behavior and other filesystem
