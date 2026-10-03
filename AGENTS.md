@@ -40,6 +40,13 @@ milestones. Then grow to larger applications and dependency graphs. Keep source
 and dependency provenance, proof domains, unknown results, and unsupported paths
 visible; neither sampled runs nor partial coverage justify an all-path claim.
 
+Build the CLI from generic conditional state/effect graphs, starting with the
+branching-console regressions. Node public built-ins remain the modeling boundary.
+Keep test inspection helpers and backlog IDs out of the public state schema;
+preserved callbacks are not already-analyzed future behavior. Follow the
+[callback/execution distinction](docs/symbolic-runtime.md#conditional-history-and-callback-knowledge)
+when adding automatic symbolic event exploration.
+
 Keep behavior examples in `test/*.spec.ts`, with interpreted source, explicit
 input assumptions, and assertions together. Run individual spec files through
 the existing Jest command (for example,

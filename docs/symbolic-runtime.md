@@ -137,6 +137,58 @@ semantics or budgets. The conceptual environment transformation therefore needs
 an explicit partial/suspended result in those cases. Such a result is not a
 claim that execution completed or that every possible continuation was covered.
 
+## Conditional history and callback knowledge
+
+The **Node public built-in API boundary** remains the current runtime target.
+Its models may describe HTTP operations/resources; the shared VM preserves their
+symbolic arguments, identities, state and conditional effects. Interpreting Node's
+own JavaScript internals is not a prerequisite for this boundary. A flat top-level
+HTTP-request list is not the execution representation: consumers may derive such
+views from the graph while preserving conditions and ordering.
+
+The current [effect trace](../src/effects/model.ts) already represents an empty
+history, an event referring to its predecessor, or a choice between histories.
+This is a foundation for portable output, not a full event-loop graph or a
+resumable snapshot yet. Retain state/reference graphs, conditional history and
+pending work together. Console `inspectOutput().chunks` is a test inspection
+view of separate writes, not a symbolic-string field or a committed public schema.
+Backlog IDs are development bookkeeping, not semantic fields in the runtime API.
+Actual environment constraints and branch facts remain part of symbolic state;
+unimplemented behavior needs an explicit execution boundary, not an invented
+successful outcome decorated with a gap ID.
+
+A function value retains its code and lexical environment identity. Its existence
+does not establish that it was called or that all of its behavior has been derived.
+A future callback summary can describe the conditional transformation:
+
+```text
+(arguments, receiver, captured state, host state)
+    -> (completion, effects, resulting state)
+```
+
+The runtime can derive this knowledge by symbolically evaluating possible calls.
+Users should not have to invent a concrete HTTP request by hand: the Node model
+can eventually introduce valid symbolic request events and schedule the registered
+callbacks automatically. It still needs a model of event eligibility, arguments,
+receiver, resource identities and ordering. A function on an unreachable branch,
+or a removed listener, must not acquire reachable effects merely because its body
+contains them. A generic function summary can describe hypothetical behavior
+without claiming it happened during startup.
+
+Invocation-time state matters. A handler may set a captured `armed` flag on an
+`/arm` request and throw on `/fire` only when that flag is true. The same function
+cannot throw this way on its first request from `armed = false`, but can after a
+prior `/arm`. Summaries must retain that dependency, and exploration must connect
+each invocation to the state produced by earlier events. Registration-time values
+are not a frozen substitute for current captured bindings.
+
+One CLI invocation should eventually discover and analyze such reachable event
+behavior automatically. This does not promise exhaustive enumeration of arbitrary
+programs or indefinitely many events. Reusable summaries/invariants may cover
+unbounded cases; explored domains, unsupported transitions and unfinished work
+must remain visible. Today HTTP delivery is embedding-driven, and the existing
+recursive summaries cover a restricted pure subset, not eventful callbacks.
+
 ## Consumer tools own interpretation
 
 The VM does not assign values a security `sensitivity`, decide whether behavior

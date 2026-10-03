@@ -5,9 +5,9 @@ import { effectPaths } from "../src/effects";
 import { ExecutionContext, setVariablesInScope } from "../src/execution-context/ExecutionContext";
 import { getProperties } from "../src/execution-context/Heap";
 import { ESObject, isESObject } from "../src/Object";
-import { ESString } from "../src/string/String";
+import { ESString, TESString } from "../src/string/String";
 import { resolveBoolean } from "../src/symbolic";
-import { Any, isThrownValue, Undefined } from "../src/types";
+import { Any, isThrownValue, TESBoolean, Undefined } from "../src/types";
 import { assertPinnedNode } from "./commonjs/oracle";
 
 function run(source: string, inputs: { [name: string]: Any } = {}) {
@@ -126,6 +126,70 @@ test("conditional output remains absent on its other path and keeps ordering wit
       ["start\n", "selected\n", "end\n"] : ["start\n", "end\n"]);
   }
   expect(model.inspectOutput(initial)[0].chunks).toEqual([]);
+});
+
+test("Math.random branching retains alternative output histories and one shared trailing write", () => {
+  // No symbolic input is injected: the existing Math.random model supplies a
+  // fresh unknown in [0, 1). Console still has its declared healthy-stdout
+  // boundary. This is the VM regression for the first CLI example, not a CLI.
+  const { context } = run(`
+    if (Math.random() < 0.5) {
+      console.log("left");
+    } else {
+      console.log("right");
+    }
+    console.log("done");
+  `);
+
+  // Inspect the actual graph before deriving path views. The final log is a
+  // shared continuation after a choice, not concatenated alternative output.
+  let trace = context.value.effects!;
+  while (trace.kind === "event") trace = trace.previous;
+  expect(trace.kind).toBe("choice");
+  if (trace.kind !== "choice") throw new Error("Expected conditional output history");
+  const condition = trace.condition;
+  expect(resolveBoolean(condition, context.value.knowledge)).toBeUndefined();
+
+  const paths = effectPaths(context.value.effects!, context.value.knowledge);
+  expect(paths).toHaveLength(2);
+  const writes = paths.map(path => path.events.filter(event =>
+    event.kind === "return" && event.call.operation === "console.stdout.write"));
+  paths.forEach((path, index) => {
+    const chosen = resolveBoolean(condition, path.knowledge);
+    expect(chosen).not.toBeUndefined();
+    expect(writes[index].map(event => (event.call.args[0] as TESString).value))
+      .toEqual([chosen ? "left\n" : "right\n", "done\n"]);
+  });
+  // Both path views refer to the same trailing output event in the graph.
+  expect(writes[0][1]).toBe(writes[1][1]);
+});
+
+test("two fresh random draws keep four output alternatives rather than correlating independent choices", () => {
+  const { model, context } = run(`
+    const first = Math.random() < 0.5;
+    const second = Math.random() < 0.5;
+    if (first) console.log("left"); else console.log("right");
+    if (second) console.log("up"); else console.log("down");
+    console.log("done");
+  `);
+  const first = context.value.scope.first as TESBoolean;
+  const second = context.value.scope.second as TESBoolean;
+  expect(resolveBoolean(first, context.value.knowledge)).toBeUndefined();
+  expect(resolveBoolean(second, context.value.knowledge)).toBeUndefined();
+  const paths = model.inspectOutput(context);
+  expect(paths).toHaveLength(4);
+  const decisions = new Set<string>();
+  for (const path of paths) {
+    const left = resolveBoolean(first, path.knowledge);
+    const up = resolveBoolean(second, path.knowledge);
+    expect(left).not.toBeUndefined();
+    expect(up).not.toBeUndefined();
+    decisions.add(`${left}:${up}`);
+    expect(path.chunks.map(chunk => chunk.value)).toEqual([
+      left ? "left\n" : "right\n", up ? "up\n" : "down\n", "done\n"
+    ]);
+  }
+  expect(decisions).toEqual(new Set(["false:false", "false:true", "true:false", "true:true"]));
 });
 
 test("finite string choices keep their path conditions through stdout encoding", () => {

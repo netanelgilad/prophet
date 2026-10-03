@@ -67,17 +67,30 @@ Success criteria:
    entry/import failures and partial execution. Retain package integrity checks,
    existing symbolic request regressions and independent Node startup evidence.
 
-**First implementation increment:** add a CLI subprocess spec for a small
-supported CommonJS script, automatic immutable source capture, shared runtime
-assembly and versioned result/completion output. Then run the original pico
-script through that same path and implement each exposed shared blocker. Keep
-new test drivers inside specs; the vendored upstream example is already a fixture.
+**First implementation increment:** the [console specs](../test/node-console.spec.ts)
+now pin the initial example's VM behavior: an unknown `Math.random() < 0.5`
+selects left or right output, followed by one shared `done` write. A second case
+keeps independent draws independent. They use the existing effect graph and
+inspection functions, not a new public JSON schema. Next add the CLI subprocess
+version with automatic immutable source capture, shared runtime assembly and
+versioned result/completion output. Then run the original pico script through
+that same path and implement each exposed shared blocker. Keep new test drivers
+inside specs; the vendored upstream example is already a fixture.
 
 Explicit environment authoring, arbitrary request exploration and full snapshot
 resumption follow this milestone. Preserve the representation needed for them,
 but do not make a complete input schema or general resumable VM a prerequisite
 for this first no-environment-file run. See [the runtime contract](symbolic-runtime.md)
 and gaps REPORT-001, CJS-001, HOST-002, HTTP-001 and CONSOLE-002.
+
+Automatic exploration of registered callbacks is a later execution capability:
+the Node model can supply symbolic events without requiring a hand-authored
+concrete request. Preserve [callback summaries and invocation-state dependencies](symbolic-runtime.md#conditional-history-and-callback-knowledge);
+retaining a function is not evidence that all its paths were analyzed. The
+current startup milestone does not claim coverage of arbitrary future event
+sequences. Keep Node public built-ins as the modeling boundary and generic
+conditional state/effect graphs as the representation; derive HTTP-focused
+inspection views in consumers.
 
 ## Following product milestones
 
