@@ -1,13 +1,11 @@
-import { TESString } from "../string/String";
 import {
-  Any, Undefined, ESNumber, FunctionImplementation, FunctionBinding, WithProperties, isReturnValue, isThrownValue, isUndefined, isESNull
+  Any, Undefined, ESNumber, FunctionImplementation, FunctionBinding, WithProperties, isReturnValue, isThrownValue, isUndefined, isESNull, isESString
 } from "../types";
 import {
   TExecutionContext, ExecutionContext, enterEnvironment, setEnvironment,
   setCurrentThisValue
 } from "../execution-context/ExecutionContext";
 import { bindNormal, evaluateStatements, mapCompletions } from "../evaluate";
-import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { ESObject } from "../Object";
 import { tuple } from "@deaven/tuple";
 import { parseECMACompliant } from "../parseECMACompliant";
@@ -40,17 +38,33 @@ export function isESFunction(arg: any): arg is FunctionBinding {
 export const FunctionConstructor = ESFunction(function*(
   _self: Any, args: Any[], execContext: TExecutionContext
 ) {
-  const blockStatement = ((parseECMACompliant(
-    `() => {${unsafeCast<TESString>(args[0]).value as string}}`
-  ).body[0] as ESTree.ExpressionStatement).expression as ESTree.ArrowFunctionExpression)
-    .body as ESTree.BlockStatement;
+  if (!args.length || args.some(arg => !isESString(arg) || typeof arg.value !== "string")) {
+    throw new Error("Function constructor requires concrete string arguments and a body; other argument forms are not yet supported");
+  }
+  const strings = args.map(arg => (arg as { value: string }).value);
+  const body = strings[strings.length - 1];
+  const parameters = strings.slice(0, -1).join(",");
+  const parse = (params: string, statements: string): ESTree.FunctionExpression => {
+    const parsed = parseECMACompliant(`(function anonymous(${params}\n) {\n${statements}\n})`);
+    const statement = parsed.body[0];
+    if (parsed.body.length !== 1 || statement.type !== "ExpressionStatement" ||
+        statement.expression.type !== "FunctionExpression") {
+      throw new Error("Function constructor source must remain within its parsed function wrapper");
+    }
+    return statement.expression;
+  };
+  // Parse the two grammar boundaries independently first. A comment or closing
+  // token in one argument must not consume the other grammar's delimiters.
+  parse(parameters, "");
+  parse("", body);
+  const definition = parse(parameters, body);
   let global = execContext.value.environment;
   while (global.parent) global = global.parent;
   // Generated source has no known lexical file. Reconstructing the engine's
   // caller/eval stack for location-sensitive host APIs is a separate boundary.
   const creationContext = ExecutionContext({ ...execContext.value, environment: global,
     strict: false, sourceFile: undefined });
-  return tuple(createFunction(blockStatement.body, [], creationContext), execContext);
+  return tuple(createFunction(definition.body.body, definition.params, creationContext), execContext);
 });
 
 export function createFunction(

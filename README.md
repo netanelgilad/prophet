@@ -14,8 +14,10 @@ program's output and possible external effects. See the [runtime/state contract]
 
 Security scanning, debugging, correctness and performance tools consume this
 result. Sensitivity labels, policies and verdicts belong to those tools. The
-CLI/serialization contract remains proposed; the current internal TypeScript
-exports are not a commitment to the eventual implementation language. The
+first CLI slice now emits a versioned graph for single-file CommonJS execution
+and console output. It is an inspection projection, not yet the complete
+environment input/output contract. The internal TypeScript exports are not a
+commitment to the eventual implementation language. The
 [roadmap](docs/roadmap.md) and [security use-case plan](docs/agent-security-analysis.md)
 retain the real-server and controlled Shai-Hulud goals without claiming a
 complete runtime CLI or dependency scanner already exists.
@@ -24,6 +26,35 @@ The [next milestone](docs/roadmap.md#next-milestone-pico-startup-through-the-cli
 is running the unchanged pico HTTP startup script through Prophet's CLI **without
 an environment file**, automatically constructing its starting state and returning
 the modeled server waiting for requests. Explicit environment input follows.
+
+## First CLI slice
+
+From an installed checkout:
+
+```sh
+./bin/prophet.js --runtime node@24.21.0 -- app.cjs > result.json
+```
+
+For example, the [CLI spec](test/cli.spec.ts) runs this source without an input
+environment file:
+
+```js
+if (Math.random() < 0.5) console.log("left");
+else console.log("right");
+console.log("done");
+```
+
+The result preserves both output histories (`left\ndone\n` or `right\ndone\n`),
+their condition and a shared final write. It includes initial/current state
+references and a modeled completion. Program output stays inside the graph;
+Prophet writes one JSON result to stdout. No target code runs natively.
+
+This slice captures one source file and relevant package-format metadata.
+Only the console builtin is connected; uncaptured imports and host APIs stop
+analysis. Default stdout is explicitly modeled as healthy; random draws stay
+symbolic. A stopped result retains one partial checkpoint, which may omit sibling
+histories. The graph is nonresumable, future callbacks are unexplored, and the
+pico startup milestone remains open. See the [CLI format and boundaries](docs/cli.md).
 
 ## Run the specs
 
@@ -37,6 +68,7 @@ compatibility oracle. A mismatch fails explicitly rather than skipping coverage.
 ```sh
 node .yarn/releases/yarn-3.1.1.cjs install --immutable
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/min.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/cli.spec.ts test/cli-runtime.spec.ts test/cli-graph.spec.ts test/cli-arguments.spec.ts test/analysis-failure-context.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-routing.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/lexical-environments.spec.ts
@@ -828,7 +860,7 @@ symbolic results. See [the string boundary](docs/symbolic-strings.md) for remain
 precision, API and allocation assumptions. Run the spec with
 `node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-strings.spec.ts`.
 
-The active Test262 baseline runs **361 strict/sloppy variants of 185 complete,
+The active Test262 baseline runs **381 strict/sloppy variants of 195 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
@@ -850,8 +882,8 @@ the missing `Number` constants and global `isNaN`; the harness does not supply
 host substitutes for those runtime gaps.
 Historical selections remain explicitly skipped and are tracked as unassessed
 activation debt in the [gap backlog](docs/implementation-gaps.md). The pinned
-snapshot has **35,960 test files** after excluding `_FIXTURE.js` files; 185 selected files are about **0.51%** of that file inventory. The other
-35,789 files have not been comprehensively assessed, including the 46 historical
+snapshot has **35,960 test files** after excluding `_FIXTURE.js` files; 195 selected files are about **0.54%** of that file inventory. The other
+35,765 files have not been comprehensively assessed, including the 46 historical
 skips. This is an activation share, not a whole-suite pass rate or a percentage
 of JavaScript behavior implemented. The corpus is an old pinned revision, not
 current upstream Test262. This is limited coverage, not a conformance claim. The

@@ -158,6 +158,15 @@ properties. The rejection specs show the pinned Node behavior independently.
 Indirect eval may still read/write modeled global properties, and strict eval
 declarations remain local to that evaluation.
 
+The [first CLI adapter](../../docs/cli.md) separately captures one regular UTF-8
+entry and package-format metadata, then uses the same CommonJS execution layer.
+It supplies process-main id `"."` and normal-completion `loaded`, but does not
+yet construct the dependency graph or implement the remaining main/require
+APIs. Uncaptured imports stop rather than fabricating `MODULE_NOT_FOUND`.
+Its subprocess specs do not activate the complete upstream module-wrapper or
+require cases below: their additional files, module/cache/resolve interfaces,
+process harness and external effects remain blockers.
+
 No complete upstream Node case is claimed as passing yet. Reviewed candidates
 at the pinned revision include:
 

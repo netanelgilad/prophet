@@ -89,10 +89,12 @@ false undefined read or ordinary own-property write. A genuine own data property
 created with the computed name `"__proto__"` remains ordinary data. Full strict
 versus sloppy descriptor/setter behavior still needs implementation.
 
-The legacy Function constructor remains incomplete: zero-argument calls and
-parameter/body handling for multiple strings need separate work. Some selected
-upstream files create such a function only to test a primitive left operand;
-they never invoke it and do not establish those constructor semantics. Complete
+The Function constructor now handles concrete string parameter lists and the
+final body through shared parsing/invocation, with an additional complete
+constructor invocation Test262 case. Zero arguments, nonstring coercion, unknown
+source, interpreted SyntaxErrors and metadata remain incomplete. The original
+primitive-left upstream files never invoke their generated functions and alone
+do not establish constructor semantics. Complete
 Symbol/descriptor/Proxy/bind cases stay inactive, as detailed in the
 [Test262 README](../test/test262/README.md). Language and host residuals remain
 listed in the [implementation backlog](implementation-gaps.md).

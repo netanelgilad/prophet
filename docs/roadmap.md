@@ -14,8 +14,8 @@ supported concrete default, and redirect one serialized result from stdout.
 A JS library export is an optional convenience; neither the public protocol nor
 the roadmap assumes that Prophet will remain implemented in JS/TypeScript.
 JSON and possible JS environment builders are input-authoring choices, not a
-requirement to use a particular programming language. Exact CLI/schema details
-are future work.
+requirement to use a particular programming language. The [first CLI schema](cli.md)
+is an experimental graph projection; full environment input/output is future work.
 
 Security, bug-finding/debugging, correctness and performance analysis are
 higher-level consumers. They own sensitivity classifications, policies, verdicts
@@ -31,7 +31,8 @@ script** through Prophet, without supplying a symbolic environment file or
 building VM/model objects in caller code. The existing upstream example is the
 acceptance target; its package source and options remain unchanged.
 
-Illustrative command (the CLI and flag names are still to be implemented):
+Acceptance command (the CLI exists, but this target's imports/host assembly are
+not yet connected):
 
 ```sh
 prophet --runtime node@24.21.0 -- test/fixtures/pico-static-server-3.0.3/package/examples/pico-http-server.js > result.json
@@ -67,14 +68,18 @@ Success criteria:
    entry/import failures and partial execution. Retain package integrity checks,
    existing symbolic request regressions and independent Node startup evidence.
 
-**First implementation increment:** the [console specs](../test/node-console.spec.ts)
-now pin the initial example's VM behavior: an unknown `Math.random() < 0.5`
-selects left or right output, followed by one shared `done` write. A second case
-keeps independent draws independent. They use the existing effect graph and
-inspection functions, not a new public JSON schema. Next add the CLI subprocess
-version with automatic immutable source capture, shared runtime assembly and
-versioned result/completion output. Then run the original pico script through
-that same path and implement each exposed shared blocker. Keep new test drivers
+**First implementation increment delivered:** [CLI subprocess specs](../test/cli.spec.ts)
+now run the random left/right example with a shared `done` write and preserve
+independent draws. The command captures one entry source plus package-format
+metadata, uses the shared VM and emits a versioned reference graph with initial
+and current state, conditional effects and program completions. Analysis failures
+retain an explicitly partial checkpoint. Output is a nonresumable projection,
+not the full state contract. Only console imports are connected today.
+
+**Next:** capture the entry's CommonJS source graph and connect existing built-in
+models through the shared loader, then run the original pico script through that
+same CLI path. Extend output for host resources/pending work as those paths expose
+the need; binding and stdout success must stay explicit. Keep new test drivers
 inside specs; the vendored upstream example is already a fixture.
 
 Explicit environment authoring, arbitrary request exploration and full snapshot

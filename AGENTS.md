@@ -40,8 +40,10 @@ milestones. Then grow to larger applications and dependency graphs. Keep source
 and dependency provenance, proof domains, unknown results, and unsupported paths
 visible; neither sampled runs nor partial coverage justify an all-path claim.
 
-Build the CLI from generic conditional state/effect graphs, starting with the
-branching-console regressions. Node public built-ins remain the modeling boundary.
+Build the CLI from generic conditional state/effect graphs. The [first slice](docs/cli.md)
+passes branching-console subprocess specs and emits a nonresumable projection;
+next connect captured CommonJS imports and existing host models for pico startup.
+Node public built-ins remain the modeling boundary.
 Keep test inspection helpers and backlog IDs out of the public state schema;
 preserved callbacks are not already-analyzed future behavior. Follow the
 [callback/execution distinction](docs/symbolic-runtime.md#conditional-history-and-callback-knowledge)

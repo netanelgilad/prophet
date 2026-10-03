@@ -32,8 +32,9 @@ The durable interface is a command-line runtime that agents can launch, pipe and
 redirect. A caller conceptually replaces `node` with Prophet and chooses the
 runtime being modeled, preserving the target program's arguments.
 
-Illustrative syntax only; **this CLI is not implemented and these flag names are
-not finalized**:
+The [first CLI slice](cli.md) now supports the second command below for a bounded
+single-file CommonJS/console domain. Explicit environment input in the first
+command remains proposed:
 
 ```sh
 prophet --runtime node@24.21.0 --environment initial.json -- app.js arg1 > final.json
@@ -44,8 +45,9 @@ The first form supplies the initial symbolic state. The second may construct a
 concrete starting environment, represented in exactly the same value/state model.
 The selected runtime/version defines program semantics; it is distinct from the
 implementation language or the runtime that happens to run Prophet itself.
-Naming a version is not evidence that it is supported. Current compatibility
-specs use Node v24.21.0; arbitrary Node versions are not yet implemented profiles.
+Naming a version is not evidence of complete support. Current compatibility
+specs and the CLI's only accepted profile use Node v24.21.0; arbitrary Node
+versions are not yet implemented profiles.
 
 Write one versioned, machine-readable symbolic result to stdout. The analyzed
 program's own stdout/stderr belongs inside the modeled environment/observations,
@@ -131,6 +133,11 @@ to interpret a result. Versioning and round-trip tests must make any difference
 between an initial state, a terminal state and a suspended state explicit.
 Complete serialization/resumption is future work; today's private WeakMaps and
 internal execution contexts are not already a portable snapshot format.
+The initial CLI transport preserves graph references, maps, special primitives,
+conditional histories and available function definitions, but labels its output
+as a nonresumable projection. Native closures and private resource metadata are
+opaque. At an analysis stop it retains one known checkpoint, not a reconstructed
+frontier of every explored/unvisited branch. See [the current schema](cli.md).
 
 General programs may not terminate, and some executions exceed supported
 semantics or budgets. The conceptual environment transformation therefore needs
@@ -230,8 +237,9 @@ This is an execution snapshot, not evidence that a long-running server terminate
 or that every future request was explored. Keep unknown bind/host outcomes
 explicit; a partial bind boundary alone is not successful-startup evidence.
 
-Start the CLI invocation/output contract with a simple CommonJS subprocess spec,
-then the original pico example, using the shared loader/VM and runtime models.
+The simple CommonJS branching-console subprocess spec now passes through the CLI.
+Next capture the module graph and assemble the shared host models for the original
+pico example, using the shared loader/VM rather than a special application path.
 Preserve existing symbolic input correlations, completion/effect paths and native
 reference comparisons. Caller-supplied environment files and full resumption are
 subsequent increments, not prerequisites for this initial default-state run.

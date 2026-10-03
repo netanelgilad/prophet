@@ -73,7 +73,7 @@ export function coerceToBoolean(val: Any, knowledge: Knowledge = []): TESBoolean
   return unimplemented();
 }
 
-export const ESBooleanConstructor = ESFunction(function*(
+export const ESBooleanConstructor = Object.assign(ESFunction(function*(
   _self: Any,
   args: Any[],
   execContext
@@ -82,4 +82,8 @@ export const ESBooleanConstructor = ESFunction(function*(
     Any,
     TExecutionContext
   ];
-});
+}), { unmodeledConstruct: "Boolean wrapper construction is not yet supported" });
+
+// Preserve the constructor alias without pretending this ordinary placeholder
+// has the Boolean prototype's internal [[BooleanData]] slot and methods.
+Object.assign(ESBooleanConstructor.properties.prototype, { unknownProperties: "Boolean prototype API" });

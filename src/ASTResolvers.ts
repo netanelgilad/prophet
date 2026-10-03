@@ -20,6 +20,7 @@ import { coerceToBoolean, ESBoolean } from "./boolean/ESBoolean";
 import { tuple } from "@deaven/tuple";
 import assert from "assert";
 import { ESTree } from "cherow";
+import { withAnalysisFailureContext } from "./execution-context/analysis-failure";
 import { unimplemented } from "@deaven/unimplemented";
 import { Array as ESArray, TArray } from "./array/Array";
 import { choiceOf } from "./symbolic";
@@ -192,7 +193,7 @@ function withArguments(
     values = values.concat([result[0]]);
     current = result[1];
   }
-  return continuation(values, current);
+  return withAnalysisFailureContext(current, () => continuation(values, current));
 }
 
 function needsContinuation(value: Any): boolean {

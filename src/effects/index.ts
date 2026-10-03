@@ -5,6 +5,7 @@ import { BranchResult } from "../execution-context/branches";
 import { mapCompletions } from "../evaluate";
 import { HostCall as Call, HostEffect as Effect, EffectTrace as Trace, EffectPath as Path } from "./model";
 import { appendEffect } from "./trace";
+import { withAnalysisFailureContext } from "../execution-context/analysis-failure";
 
 export { effectContext, effectPaths } from "./trace";
 export type HostCall = Call;
@@ -25,13 +26,13 @@ export function createHostFunction(operation: string, model?: HostModel) {
     const snapshot = (current: TExecutionContext) => ({ call,
       heap: current.value.heap, knowledge: current.value.knowledge || [] });
     const started = appendEffect({ ...snapshot(context), kind: "call" }, context);
-    return mapCompletions(model(call, started), (completion, after) => {
+    return withAnalysisFailureContext(started, () => mapCompletions(model(call, started), (completion, after) => {
       if (isReturnValue(completion)) throw new Error("Host models must return a value, not a ReturnValue completion");
       return [completion, appendEffect({ ...snapshot(after),
         kind: isThrownValue(completion) ? "throw" : "return",
         value: isThrownValue(completion) ? completion.value : completion
       }, after)];
-    });
+    }));
   });
   return fn;
 }

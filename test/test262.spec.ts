@@ -80,6 +80,9 @@ const activeCorpus = [
   "built-ins/Error/prototype/toString/15.11.4.4-8-2.js",
   "built-ins/Error/prototype/toString/15.11.4.4-9-1.js",
   "built-ins/Error/prototype/toString/15.11.4.4-10-1.js",
+  // Complete constructor case invokes the generated parameterized function;
+  // creation alone would miss using the wrong argument as its body.
+  "built-ins/Function/S15.3.2.1_A2_T1.js",
   "language/expressions/typeof/boolean.js",
   "language/expressions/typeof/undefined.js",
   "language/expressions/typeof/unresolvable-reference.js",

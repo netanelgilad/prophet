@@ -17,11 +17,14 @@ import { parseECMACompliant } from "./parseECMACompliant";
 import { ESTree } from "cherow";
 import { isForkedCompletion } from "./execution-context/Completion";
 import { mergeBranchResults, BranchResult } from "./execution-context/branches";
+import { analysisFailureContext, retainAnalysisFailureContext,
+  withAnalysisFailureContext } from "./execution-context/analysis-failure";
 
 export class ASTEvaluationError extends Error {
   constructor(err: Error, public ast: ESTree.Node) {
     super(err.message);
     this.stack = err.stack;
+    retainAnalysisFailureContext(this, analysisFailureContext(err));
   }
 }
 
@@ -45,7 +48,7 @@ export function evaluate<T extends ESTree.Node>(
   try {
     const budget = execContext && execContext.value.evaluationBudget;
     if (budget && --budget.remaining < 0) {
-      throw new Error("Recursive summary proof exceeded its evaluation budget");
+      throw new Error("Execution exceeded its evaluation budget");
     }
     const resolver = ASTResolvers.get(ast.type);
     assert(resolver, `Can't resolve type of ast type ${ast.type}`);
@@ -53,6 +56,7 @@ export function evaluate<T extends ESTree.Node>(
       resolver!(ast, execContext || ExecutionContext({}))
     );
   } catch (err) {
+    retainAnalysisFailureContext(err, execContext);
     if (
       err instanceof ASTEvaluationError ||
       err instanceof CodeEvaluationError
@@ -67,6 +71,7 @@ export function evaluateCode(code: string, execContext: TExecutionContext) {
   try {
     return evaluate(parseECMACompliant(code), execContext);
   } catch (err) {
+    retainAnalysisFailureContext(err, execContext);
     if (err instanceof CodeEvaluationError) {
       throw err;
     } else if (err instanceof ASTEvaluationError) {
@@ -139,7 +144,7 @@ export function mapCompletions(
       mapCompletions(value.consequent, transform),
       mapCompletions(value.alternate, transform));
   }
-  return transform(value, result[1]);
+  return withAnalysisFailureContext(result[1], () => transform(value, result[1]));
 }
 
 // Compose the next evaluation step only onto normal leaves. Its captured

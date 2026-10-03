@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **194 complete files / 379 strictness variants**,
+The active corpus contains **195 complete files / 381 strictness variants**,
 including 13 parse-negative files / 25 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -101,7 +101,12 @@ standard harness and declared includes in fresh native contexts: all 107 variant
 passed. This checks historical compatibility; it does not count as Prophet
 coverage. In particular, selected `S15.3.5.3_A1_T1..T8` create generated functions
 but never call them. Their primitive-left results do not validate parameter/body
-handling in the still-incomplete Function constructor.
+handling by themselves. The first CLI increment also activates complete
+`built-ins/Function/S15.3.2.1_A2_T1.js`, which invokes a generated function
+with three formal parameters and asserts its sum. Concrete string parameter/body
+handling now uses the shared parser and function activation. Zero arguments,
+nonstring coercion, unknown source and interpreted constructor SyntaxErrors
+remain gaps; this is not full Function constructor conformance.
 
 Local [instanceof specs](../instanceof.spec.ts) separately test symbolic choices,
 conditional exceptions and unknown partial-host relationships. The
