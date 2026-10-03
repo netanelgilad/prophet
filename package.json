@@ -2,9 +2,7 @@
   "name": "prophet",
   "version": "1.0.0",
   "main": "index.js",
-  "bin": {
-    "prophet": "bin/prophet.js"
-  },
+  "bin": "bin/prophet.js",
   "repository": "git@github.com:netanelgilad/prophet.git",
   "author": "Netanel Gilad <netanelgilad@gmail.com>",
   "license": "MIT",

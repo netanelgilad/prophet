@@ -5427,6 +5427,8 @@ __metadata:
     ts-node: ^8.0.3
     ts-toolbelt: ^4.13.5
     typescript: ^3.3.3333
+  bin:
+    prophet: bin/prophet.js
   languageName: unknown
   linkType: soft
 
