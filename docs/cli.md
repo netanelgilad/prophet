@@ -19,17 +19,34 @@ Packaging a standalone installation remains future work.
 
 ## Capture and execution
 
-The first slice reads one CommonJS entry and the relevant package-format metadata
-for `.js`. Source text and SHA-256 provenance are captured internally. `.cjs` selects
-CommonJS directly; ESM and other formats stop explicitly. The captured source is
-immutable during evaluation. Capture is read-only and is not an atomic snapshot
-of the filesystem or a symbolic model of source-acquisition failures.
+The CLI reads the CommonJS entry and acquires dependencies as interpreted
+`require` calls reach them. The same resolver and loader used by supplied-source
+specs handle local/nested imports, JSON, package main and supported exports rules,
+including finite symbolic choices of module names. This does not scan only
+literal `require` syntax: computed names and saved require functions use the
+same loading path. `.cjs` selects CommonJS directly; `.js` consults captured
+package-format metadata. ESM, native addons and other unsupported formats stop.
+
+Each first file/directory/missing probe and each file's first bytes/SHA-256 hash
+are retained internally across symbolic branches. Module evaluation and exports
+remain in the VM's persistent heap, so one branch's initialization does not mark
+a module loaded on another. The process main has id `"."`; dependencies cycling
+back to it observe the same module record and partial exports. Other main/module/
+require APIs remain partial.
+
+Acquisition is read-only, POSIX-only and non-atomic. It is separate from the
+target's modeled filesystem and never executes a dependency natively. Dependencies
+with symlinks at any path component, filename aliases, nonregular sources or
+invalid UTF-8 stop explicitly. An acquisition error after a positive probe is
+not converted to absence. Verified missing local candidates can produce a
+catchable `MODULE_NOT_FOUND`; an unresolved bare package stops because
+`NODE_PATH` and Node's global search paths have not been captured. Source-size,
+I/O, parser and serializer limits are not supplied by the AST evaluation budget.
 
 The VM receives a partial standard global object and one shared global/imported
 console model. `require("console")` and `require("node:console")` are connected.
-Other imports stop analysis, including existing local files; an uncaptured file
-is not reported as absent. Source graphs/package dependencies, general process
-state and HTTP/filesystem host assembly are the next CLI work. Launch args/cwd
+Other builtins stop analysis. General process state and HTTP/filesystem host
+assembly are the next CLI work. Launch args/cwd
 are retained internally as provenance; that alone does not implement `process.argv`/`cwd`.
 Unknown global names and missing Math members stop conservatively. Wider partial
 intrinsics still have the limitations in the implementation backlog.
@@ -69,8 +86,8 @@ versioning contract remain future work; explanatory prose is not a substitute.
 | CLI exit status | Meaning |
 | --- | --- |
 | `0` | A result containing the entry's modeled completion, even if that completion throws. Also used for `--help`. |
-| `2` | A result containing a partial analysis stop. |
-| `1` | Invocation, capture or serialization failed; stderr explains it, no graph is emitted. |
+| `2` | A result containing a partial analysis stop, including reached dependency-acquisition failures. |
+| `1` | Invocation, initial entry acquisition or serialization failed; stderr explains it, no graph is emitted. |
 
 These statuses are not modeled program exit codes or consumer policy verdicts.
 
@@ -118,13 +135,20 @@ output against pinned Node, conditional output and sharing, independent random
 choices, program throws, unsupported stops and absence of native target writes.
 [Runtime specs](../test/cli-runtime.spec.ts), [transport specs](../test/cli-graph.spec.ts)
 and [checkpoint specs](../test/analysis-failure-context.spec.ts) cover narrower
-capture, state and failure boundaries. No complete upstream Node CLI test is
+state and failure boundaries. [Import specs](../test/cli-imports.spec.ts) compare
+acquired local/package/JSON imports and main-module cycles with pinned Node,
+retain symbolic import/cache alternatives and test the actual CLI subprocess.
+[Capture specs](../test/cli-source-capture.spec.ts) cover retained bytes/absences,
+disappearance after a positive probe, symlink components, encoding and acquisition
+errors. No complete upstream Node CLI test is
 claimed passing; startup flags, main-module APIs, source resolution/formatting,
 environment capture and process scheduling remain broader compatibility work.
 
 The [pico startup milestone](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
-is still open. First connect captured CommonJS imports and existing host models;
-then retain resource/pending-state boundaries in the result. Full environment
+is still open. The unchanged example now follows `../index.js` into the pinned
+package, then stops at its unregistered `http` builtin. Next connect the required
+host models and retain resource/pending-state boundaries in the result; this
+increment makes no new successful-bind or transport assumption. Full environment
 input, portable round trips/resumption and automatic reachable callback analysis
 follow. Track residual scope under REPORT-001, CJS-001, HOST-002, CONSOLE-002,
 LANG/LIB/LEGACY and SECURITY-002 in the [backlog](implementation-gaps.md).

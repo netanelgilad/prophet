@@ -11,7 +11,7 @@ import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { mapCompletions } from "../evaluate";
 import { choiceOf } from "../symbolic";
 import { executeCommonJS } from "./commonjs";
-import { createModuleResolver, ModuleFormat, ModuleResolutionError } from "./resolution";
+import { createModuleResolver, ModuleFormat, ModuleResolutionError, ModuleResolver } from "./resolution";
 import { InvalidPackageConfig } from "./package-config";
 import { PackageExportError } from "./package-exports";
 import { parseJSONModule } from "./json";
@@ -22,6 +22,8 @@ export type CommonJSLoader = {
 };
 
 export type CommonJSLoaderOptions = {
+  // Optional process entry; dependencies and cycles share its cached record.
+  main?: string;
   // Explicit VM modules only; names use the pinned catalog without node:.
   // The map is snapshotted, but supplied values retain their VM identities.
   builtins?: { readonly [canonicalName: string]: Any };
@@ -51,7 +53,14 @@ function loaderError(name: string, code?: string) {
 export function createCommonJSLoader(
   files: { readonly [filename: string]: string }, options: CommonJSLoaderOptions = {}
 ): CommonJSLoader {
-  const resolver = createModuleResolver(files);
+  return createCommonJSLoaderFromResolver(createModuleResolver(files), options);
+}
+
+/** Resolution/acquisition adapters do not replace VM execution or its cache. */
+export function createCommonJSLoaderFromResolver(
+  resolver: ModuleResolver, options: CommonJSLoaderOptions = {}
+): CommonJSLoader {
+  const main = options.main;
   const cache = ESObject();
   const builtins = new Map<string, Any>();
   if (options.builtins) for (const name of Object.keys(options.builtins)) {
@@ -93,7 +102,7 @@ export function createCommonJSLoader(
       properties: {}, unknownProperties: "CommonJS require API"
     };
     const module: TESObject = {
-      ...ESObject({ exports: ESObject(), id: ESString(filename), filename: ESString(filename),
+      ...ESObject({ exports: ESObject(), id: ESString(filename === main ? "." : filename), filename: ESString(filename),
         path: ESString(dirname(filename)), loaded: ESBoolean(false) }),
       unknownProperties: "CommonJS module metadata",
       unmodeledPropertyWrites: ["id", "filename", "path", "loaded"]
@@ -124,15 +133,15 @@ export function createCommonJSLoader(
   };
 
   const cachedOrInitialize = (
-    entry: Any, filename: string, source: string, context: TExecutionContext
+    entry: Any, filename: string, context: TExecutionContext
   ): BranchResult => {
     const choice = choiceOf(entry);
     if (choice) return evaluateBranches(choice.condition, context,
-      branch => cachedOrInitialize(choice.consequent, filename, source, branch),
-      branch => cachedOrInitialize(choice.alternate, filename, source, branch));
-    return isUndefined(entry)
-      ? initialize(filename, source, resolver.format(filename), context)
-      : [getProperties(entry as WithProperties, context).exports, context];
+      branch => cachedOrInitialize(choice.consequent, filename, branch),
+      branch => cachedOrInitialize(choice.alternate, filename, branch));
+    if (!isUndefined(entry)) return [getProperties(entry as WithProperties, context).exports, context];
+    const format = resolver.format(filename);
+    return initialize(filename, resolver.readSource(filename), format, context);
   };
 
   const loadRequest = (request: string, context: TExecutionContext, parent?: string): BranchResult => {
@@ -146,10 +155,9 @@ export function createCommonJSLoader(
       }
       const path = resolver.resolve(request, parent);
       if (path === undefined) return [loaderError("Error", "MODULE_NOT_FOUND"), context];
-      const source = resolver.sources.get(path)!;
       const entries = getProperties(cache, context);
       const entry = Object.prototype.hasOwnProperty.call(entries, path) ? entries[path] : Undefined;
-      return cachedOrInitialize(entry, path, source, context);
+      return cachedOrInitialize(entry, path, context);
     } catch (error) {
       if (error instanceof InvalidPackageConfig) {
         return [loaderError("Error", "ERR_INVALID_PACKAGE_CONFIG"), context];

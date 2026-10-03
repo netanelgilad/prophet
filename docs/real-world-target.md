@@ -52,9 +52,12 @@ and requests port 8080. The CLI must construct the starting state and retain the
 modeled server waiting for requests; existing specs' hand-built model/source
 setup is not the public interface. The [roadmap acceptance criteria](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
 distinguish successful startup from unresolved bind work and defer arbitrary
-request input and full resumption. The first [CLI slice](cli.md) now covers
-single-file CommonJS and conditional console output; pico imports, host assembly
-and waiting-state output remain the next work.
+request input and full resumption. The [CLI](cli.md) now acquires reached
+CommonJS/JSON/package dependencies and preserves conditional console output.
+The unchanged example follows `../index.js` into the pinned package, then stops
+at its unregistered `http` builtin. Host assembly and waiting-state output remain
+the next work; following source imports does not establish successful binding
+or execute a request.
 
 This unchanged server is a regression target for the proposed
 [runtime CLI/state contract](symbolic-runtime.md): supply a symbolic starting

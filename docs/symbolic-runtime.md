@@ -33,7 +33,8 @@ redirect. A caller conceptually replaces `node` with Prophet and chooses the
 runtime being modeled, preserving the target program's arguments.
 
 The [first CLI slice](cli.md) now supports the second command below for a bounded
-single-file CommonJS/console domain. Explicit environment input in the first
+CommonJS/console domain with automatic acquisition of reached source dependencies.
+Explicit environment input in the first
 command remains proposed:
 
 ```sh

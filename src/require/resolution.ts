@@ -17,6 +17,23 @@ function directoryRequest(request: string): boolean {
   return request.endsWith(sep) || /(?:^|\/)\.{1,2}$/.test(request);
 }
 
+/**
+ * Source acquisition is separate from resolution and never executes target code.
+ * False/undefined mean established absence (or another known path kind), not an
+ * uninspected path. Unknown outcomes and acquisition failures must throw.
+ */
+export type ModuleSource = {
+  isFile(filename: string): boolean;
+  isDirectory(filename: string): boolean;
+  readFile(filename: string): string | undefined;
+};
+
+export type ModuleResolver = {
+  resolve(request: string, parent?: string): string | undefined;
+  format(filename: string): ModuleFormat;
+  readSource(filename: string): string;
+};
+
 /** A complete, immutable virtual filesystem. Only supplied files exist. */
 export function createModuleResolver(files: { readonly [filename: string]: string }) {
   const sources = new Map<string, string>();
@@ -40,26 +57,35 @@ export function createModuleResolver(files: { readonly [filename: string]: strin
     if (sources.has(path)) throw new Error(`CommonJS source path is both a file and a directory: ${path}`);
   });
 
+  return createModuleResolverFromSource({
+    isFile: filename => sources.has(filename),
+    isDirectory: filename => directories.has(filename),
+    readFile: filename => sources.get(filename)
+  });
+}
+
+/** Use the same resolution rules with a supplied, read-only source provider. */
+export function createModuleResolverFromSource(source: ModuleSource): ModuleResolver {
   const extensions = (base: string) => {
     for (const extension of [".js", ".json", ".node"]) {
-      if (sources.has(base + extension)) return base + extension;
+      if (source.isFile(base + extension)) return base + extension;
     }
     return undefined;
   };
-  const file = (path: string) => sources.has(path) ? path : undefined;
+  const file = (path: string) => source.isFile(path) ? path : undefined;
   const nearestPackage = (filename: string) => {
     let parent = dirname(filename);
     while (parent !== dirname(parent) && basename(parent) !== "node_modules") {
-      const source = sources.get(join(parent, "package.json"));
-      if (source !== undefined) return { directory: parent, config: readPackageConfig(source) };
+      const text = source.readFile(join(parent, "package.json"));
+      if (text !== undefined) return { directory: parent, config: readPackageConfig(text) };
       parent = dirname(parent);
     }
     return undefined;
   };
   const directory = (path: string): string | undefined => {
-    if (!directories.has(path)) return undefined;
-    const source = sources.get(join(path, "package.json"));
-    const main = source === undefined ? undefined : readPackageConfig(source).main;
+    if (!source.isDirectory(path)) return undefined;
+    const text = source.readFile(join(path, "package.json"));
+    const main = text === undefined ? undefined : readPackageConfig(text).main;
     if (main) {
       if (main.includes("\0")) throw new Error("CommonJS package main with null bytes is not yet supported");
       const target = resolve(path, main);
@@ -84,7 +110,7 @@ export function createModuleResolver(files: { readonly [filename: string]: strin
     if (target === undefined) throw new ModuleResolutionError("ERR_PACKAGE_PATH_NOT_EXPORTED");
     // Exports targets are exact. Neither extensions/directories nor another
     // array target/ancestor package can replace a selected missing file.
-    if (!sources.has(target)) throw new ModuleResolutionError("MODULE_NOT_FOUND");
+    if (!source.isFile(target)) throw new ModuleResolutionError("MODULE_NOT_FOUND");
     return target;
   };
 
@@ -106,10 +132,10 @@ export function createModuleResolver(files: { readonly [filename: string]: strin
     for (;;) {
       if (basename(current) !== "node_modules") {
         const search = join(current, "node_modules");
-        if (directories.has(search)) {
+        if (source.isDirectory(search)) {
           const packageDirectory = join(search, name);
-          const source = sources.get(join(packageDirectory, "package.json"));
-          const config = source === undefined ? undefined : readPackageConfig(source);
+          const text = source.readFile(join(packageDirectory, "package.json"));
+          const config = text === undefined ? undefined : readPackageConfig(text);
           if (config && config.exports != null) return exported(config.exports, subpath, packageDirectory);
           const found = local(resolve(search, request), request);
           if (found) return found;
@@ -160,5 +186,9 @@ export function createModuleResolver(files: { readonly [filename: string]: strin
     if (extension === "") return "ambiguous";
     throw new Error(`CommonJS loading of '${extension}' files is not yet supported`);
   };
-  return { sources, resolve: resolveRequest, format };
+  return { resolve: resolveRequest, format, readSource: filename => {
+    const text = source.readFile(filename);
+    if (text === undefined) throw new Error("Resolved CommonJS source was not captured");
+    return text;
+  } };
 }

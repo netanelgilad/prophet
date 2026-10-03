@@ -31,8 +31,8 @@ script** through Prophet, without supplying a symbolic environment file or
 building VM/model objects in caller code. The existing upstream example is the
 acceptance target; its package source and options remain unchanged.
 
-Acceptance command (the CLI exists, but this target's imports/host assembly are
-not yet connected):
+Acceptance command (the CLI follows this target's source imports; its required
+host models and waiting-state output are not yet connected):
 
 ```sh
 prophet --runtime node@24.21.0 -- test/fixtures/pico-static-server-3.0.3/package/examples/pico-http-server.js > result.json
@@ -69,19 +69,28 @@ Success criteria:
    entry/import failures and partial execution. Retain package integrity checks,
    existing symbolic request regressions and independent Node startup evidence.
 
-**First implementation increment delivered:** [CLI subprocess specs](../test/cli.spec.ts)
+**Delivered so far:** [CLI subprocess specs](../test/cli.spec.ts)
 now run the random left/right example with a shared `done` write and preserve
-independent draws. The command captures one entry source plus package-format
-metadata internally, uses the shared VM and emits a reference graph with initial
-and current state, conditional effects and program completions. Analysis failures
+independent draws. The command now captures reached CommonJS/JSON/package sources
+and package-format metadata through the shared loader, uses the shared VM and
+emits a reference graph with initial and current state, conditional effects and
+program completions. Analysis failures
 retain a checkpoint without a completion root, with a reached diagnostic on
 stderr and exit status 2. Stdout is exactly `{ roots, nodes }`, without the old
 report envelope or its implementation prose. Output is a nonresumable projection,
-not the full state contract. Only console imports are connected today.
+not the full state contract. Only the console builtin is connected today.
 
-**Next:** capture the entry's CommonJS source graph and connect existing built-in
-models through the shared loader, then run the original pico script through that
-same CLI path. Extend output for host resources/pending work as those paths expose
+[Import specs](../test/cli-imports.spec.ts) preserve module identities, main id
+`"."`, cycles and branch-specific initialization while acquisition shares cached
+source bytes and positive/negative probes. [Capture specs](../test/cli-source-capture.spec.ts)
+keep read-only non-atomic acquisition distinct from target filesystem execution.
+Unresolved bare packages, dependency symlinks/aliases, nonregular/invalid-UTF8
+sources and acquisition errors remain explicit boundaries. The unchanged pico
+example now enters its original `index.js` and stops at `require("http")`.
+
+**Next:** connect the required built-in models through the shared loader and
+advance the original pico script through that same CLI path. Extend output for
+host resources/pending work as those paths expose
 the need; binding and stdout success must stay explicit. Keep new test drivers
 inside specs; the vendored upstream example is already a fixture.
 

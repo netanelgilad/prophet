@@ -57,7 +57,7 @@ test("fresh symbolic randomness retains exclusive output alternatives and shared
   expect(paths.every(path => path.knowledge.length > 0)).toBe(true);
 });
 
-test.each(["require('./absent.js')", "require('fs')", "process.env", "Math.sin(0)", "typeof fetch"])(
+test.each(["require('fs')", "process.env", "Math.sin(0)", "typeof fetch"])(
   "unsupported startup cannot become an application exception or fabricated absence: %s", operation => {
     const result = run(`console.log("before"); try { ${operation}; } catch (error) { console.log("caught"); } console.log("after");`);
     expect(result.status).toBe("analysis-stop");
@@ -69,7 +69,7 @@ test.each(["require('./absent.js')", "require('fs')", "process.env", "Math.sin(0
   }
 );
 
-test("uncaptured local code is not executed natively", () => {
+test("captured local code is not executed natively", () => {
   const marker = join(directory, "marker");
   writeFileSync(marker, "unchanged");
   writeFileSync(join(directory, "dependency.js"), `require('fs').writeFileSync(${JSON.stringify(marker)}, 'changed');`);
@@ -97,7 +97,7 @@ test("package metadata selects the captured .js entry format while .cjs remains 
   const esm = run(`console.log("must not run");`, "entry.js");
   expect(esm.status).toBe("analysis-stop");
   expect(esm.current.value.effects).toBeUndefined();
-  expect(esm.input.packageScopes![0].source!.text).toContain('"module"');
+  expect(Array.from(esm.input.sources.values()).some(source => source.text.includes('"module"'))).toBe(true);
   expect(run(`module.exports = true;`, "entry.cjs").completion).toMatchObject({ value: true });
   writeFileSync(join(directory, "package.json"), JSON.stringify({ type: "commonjs" }));
   expect(run(`module.exports = true;`, "entry.js").completion).toMatchObject({ value: true });

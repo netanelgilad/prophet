@@ -14,8 +14,8 @@ program's output and possible external effects. See the [runtime/state contract]
 
 Security scanning, debugging, correctness and performance tools consume this
 result. Sensitivity labels, policies and verdicts belong to those tools. The
-first CLI slice now emits a reference graph for single-file CommonJS execution
-and console output. It is an inspection projection, not yet the complete
+CLI now emits a reference graph for CommonJS execution, automatically acquired
+dependencies and console output. It is an inspection projection, not yet the complete
 environment input/output contract. The internal TypeScript exports are not a
 commitment to the eventual implementation language. The
 [roadmap](docs/roadmap.md) and [security use-case plan](docs/agent-security-analysis.md)
@@ -50,12 +50,16 @@ references and a modeled completion. Program output stays inside the graph;
 Prophet writes the graph directly as `{ roots, nodes }` to stdout. Runtime
 diagnostics go to stderr; implementation notes stay in docs. No target code runs natively.
 
-This slice captures one source file and relevant package-format metadata.
-Only the console builtin is connected; uncaptured imports and host APIs stop
-analysis. Default stdout is explicitly modeled as healthy; random draws stay
-symbolic. A stopped result retains one partial checkpoint, which may omit sibling
+The CLI captures reached local, JSON and package imports through the shared
+CommonJS resolver and loader. Source bytes and positive/negative file probes are
+cached across symbolic branches; evaluated modules retain each branch's own
+cache state. Capture is read-only, POSIX-only and non-atomic. Unresolved bare
+packages stop because external search paths are not captured. Only the console
+builtin is connected; other host APIs stop analysis. Default stdout is modeled
+as healthy; random draws stay symbolic. A stopped result retains one partial checkpoint, which may omit sibling
 histories. The graph is nonresumable, future callbacks are unexplored, and the
-pico startup milestone remains open. See the [CLI format and boundaries](docs/cli.md).
+unchanged pico example now loads its package before stopping at `require("http")`.
+The pico startup milestone remains open. See the [CLI format and boundaries](docs/cli.md).
 
 ## Run the specs
 
@@ -70,6 +74,7 @@ compatibility oracle. A mismatch fails explicitly rather than skipping coverage.
 node .yarn/releases/yarn-3.1.1.cjs install --immutable
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/min.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/cli.spec.ts test/cli-runtime.spec.ts test/cli-graph.spec.ts test/cli-arguments.spec.ts test/analysis-failure-context.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/cli-imports.spec.ts test/cli-source-capture.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-routing.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/lexical-environments.spec.ts

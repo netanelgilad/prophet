@@ -129,7 +129,7 @@ test("CLI does not load an unsupported builtin natively even when source request
   expect(existsSync(marker)).toBe(false);
   const { child, roots } = run(`require("fs").writeFileSync(${JSON.stringify(marker)}, "bad");`);
   expect(child.status).toBe(2);
-  expect(child.stderr).toMatch(/module loading/i);
+  expect(child.stderr).toMatch(/builtin loading/i);
   expect(roots).not.toHaveProperty("completion");
   expect(existsSync(marker)).toBe(false);
 }, 40000);

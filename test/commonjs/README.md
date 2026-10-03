@@ -13,6 +13,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-loader-compat.
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-compat.spec.ts test/commonjs-package-config.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/cli-imports.spec.ts test/cli-source-capture.spec.ts
 ```
 
 When Jest itself runs under a different Node release, point `PROPHET_NODE_BINARY`
@@ -51,9 +52,11 @@ errors, missing supplied files, and `module.loaded` during and after evaluation.
 The original standalone `evaluateCommonJS` remains uncached and does not load
 dependencies.
 
-The source map is a complete virtual snapshot without symlinks or external
-search paths. The entry is loaded as a required file,
-so its `module.id` is its filename rather than a process entry's `"."`.
+The supplied source map is a complete virtual snapshot without symlinks or
+external search paths. By default its entry is loaded as a required file,
+so its `module.id` is its filename rather than a process entry's `"."`. The CLI
+uses the shared loader's main-module option to preserve `"."` and the same cached
+record when a dependency cycles back to the process entry.
 Cycle coverage concerns partial exports and state; Node's circular-require
 warning diagnostics and temporary warning prototypes are not modeled.
 
@@ -139,11 +142,12 @@ numeric-input behavior in development and production, including NaN/infinities,
 Error messages, and lazy-message effects. This is the numeric normalizer domain
 in the spec, not a claim about every possible JavaScript value or Node process API.
 
-This is an explicitly supplied source-graph layer, not a filesystem loader.
-Disk reads, symlink/realpath behavior, wider package imports/exports behavior,
+The supplied-source adapter performs no disk reads. The separate CLI acquisition
+provider below feeds the same resolver/loader from read-only disk observations.
+General symlink/realpath behavior, wider package imports/exports behavior,
 unregistered built-ins, ESM, and native addons remain unsupported. A missing
-supported request throws an interpreted `MODULE_NOT_FOUND`; unsupported request
-forms stop analysis explicitly. Other module metadata and require interfaces
+supported request in a complete supplied graph throws an interpreted
+`MODULE_NOT_FOUND`; unsupported request forms stop analysis explicitly. Other module metadata and require interfaces
 (`module.require`, `children`, `parent`, `paths`, `require.resolve`, `cache`,
 `main`, and `extensions`) are not modeled. Writes to loader metadata other than
 `exports` are also rejected until their effects on Node loading are implemented.
@@ -158,14 +162,32 @@ properties. The rejection specs show the pinned Node behavior independently.
 Indirect eval may still read/write modeled global properties, and strict eval
 declarations remain local to that evaluation.
 
-The [first CLI adapter](../../docs/cli.md) separately captures one regular UTF-8
-entry and package-format metadata, then uses the same CommonJS execution layer.
-It supplies process-main id `"."` and normal-completion `loaded`, but does not
-yet construct the dependency graph or implement the remaining main/require
-APIs. Uncaptured imports stop rather than fabricating `MODULE_NOT_FOUND`.
-Its subprocess specs do not activate the complete upstream module-wrapper or
-require cases below: their additional files, module/cache/resolve interfaces,
-process harness and external effects remain blockers.
+The [CLI adapter](../../docs/cli.md) now acquires reached dependencies and
+package-format metadata through the same resolver and loader. It handles
+computed/saved requires, local and parent-relative imports, JSON, package main,
+supported exact exports and finite symbolic names. Source bytes/hashes and
+positive/negative path probes are shared first observations; module evaluation
+cache contents remain in each execution context's persistent heap. The entry's
+process-main id `"."`, cycle identity and normal-completion `loaded` stay coherent.
+
+This POSIX acquisition layer rejects dependency symlinks at any component,
+filename aliases, nonregular sources, invalid UTF-8 and host acquisition errors.
+Entry paths are realpath-normalized; alternate Node symlink/launch modes remain
+unsupported. Verified missing local candidates can throw an interpreted
+`MODULE_NOT_FOUND`; unresolved bare package lookup stops because `NODE_PATH`
+and global search paths are uncaptured. Only `console` is registered as a builtin.
+Reads are non-atomic and source/probe caches are not a modeled target filesystem.
+Errors after a positive probe remain acquisition failures. Source bytes/hashes
+and probe provenance are retained internally, not yet in the stdout graph.
+General source-size/I/O/parser limits and the remaining process/main/require
+APIs are still open.
+
+The [CLI import specs](../cli-imports.spec.ts) compare supported resolution and
+cycles with pinned Node and retain symbolic alternatives without native target
+execution. [Acquisition specs](../cli-source-capture.spec.ts) test changing files,
+cached absence, failed reads and unsupported path/encoding domains. These specs
+do not activate the complete upstream cases below: their module/cache/resolve
+interfaces, process/assert harness and target external effects remain blockers.
 
 No complete upstream Node case is claimed as passing yet. Reviewed candidates
 at the pinned revision include:
@@ -179,10 +201,13 @@ at the pinned revision include:
   and [`test-module-wrapper.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-module-wrapper.js):
   these invoke fixture files using `child_process`; their fixtures additionally
   require the `assert` and `module` built-ins, mutate `Module.wrapper`, and load
-  another file. Those interfaces are outside source execution support.
+  another file. Local dependency loading is now connected in the CLI; the
+  child-process/public Module/assert interfaces remain outside support.
 - [`test-require-exceptions.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-require-exceptions.js):
   requires the upstream harness, `assert` with RegExp/error-shape matching, `fs`,
-  and filesystem resolution. Its synchronous arrows are supported. Local source-graph specs cover repeated
+  and target filesystem operations. Its synchronous arrows and supported
+  resolution rules are available. CLI acquisition does not implement the test's
+  `fs` API. Local source-graph specs cover repeated
   initialization failure and cache behavior; they do not replace this complete
   upstream case.
 - [`test-module-cache.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-module-cache.js)
