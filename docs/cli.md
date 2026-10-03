@@ -20,7 +20,7 @@ Packaging a standalone installation remains future work.
 ## Capture and execution
 
 The first slice reads one CommonJS entry and the relevant package-format metadata
-for `.js`. Source text and SHA-256 provenance are included. `.cjs` selects
+for `.js`. Source text and SHA-256 provenance are captured internally. `.cjs` selects
 CommonJS directly; ESM and other formats stop explicitly. The captured source is
 immutable during evaluation. Capture is read-only and is not an atomic snapshot
 of the filesystem or a symbolic model of source-acquisition failures.
@@ -30,50 +30,53 @@ console model. `require("console")` and `require("node:console")` are connected.
 Other imports stop analysis, including existing local files; an uncaptured file
 is not reported as absent. Source graphs/package dependencies, general process
 state and HTTP/filesystem host assembly are the next CLI work. Launch args/cwd
-are retained as provenance; that alone does not implement `process.argv`/`cwd`.
+are retained internally as provenance; that alone does not implement `process.argv`/`cwd`.
 Unknown global names and missing Math members stop conservatively. Wider partial
 intrinsics still have the limitations in the implementation backlog.
 
 Default console output assumes healthy writable UTF-8 stdout with the model's
-existing formatting/configuration boundaries. This assumption appears in
-`execution.modelDomain`; it is not inferred from an omitted environment file.
+existing formatting/configuration boundaries. This remains a modeling gap
+documented here and in the backlog, not a prose field in the runtime output.
+An omitted environment file does not establish stdout health.
 `Math.random()` introduces a fresh unknown in `[0, 1)`, not a sampled host value
 or a captured PRNG seed. No target external writes or native module execution
 occur. The runtime does not yet accept explicit input environments.
 
-## Result envelope
+## Output graph
 
-Prophet emits one JSON object to stdout, with program output inside its graph.
-Diagnostics for invocation/acquisition/serialization failure go to stderr.
+Prophet emits the graph directly to stdout, with exactly two fields: `roots`
+and `nodes`. Results include every referenced node. There is no surrounding report envelope,
+`modelDomain`, `limitations` prose, or metadata moved into special graph nodes.
+Program output is represented by effects in this same graph. Runtime diagnostics
+go to stderr; implementation boundaries belong in documentation and the backlog.
 
-| Field | Meaning |
-| --- | --- |
-| `format`, `version` | `"prophet.execution"`, `1`; experimental transport version. This is not a stable cross-version VM semantics identifier. |
-| `input` | Runtime selection, canonical entry path, launch args/cwd and captured source/package-format provenance. |
-| `state` | Currently `{ "representation": "projection", "resumable": false }`. |
-| `execution` | `evaluated` or `analysis-stop`, synchronous-entry scope, retained-state scope, optional diagnostic, step budget, model domain and limitations. |
-| `graph` | Reference graph with `initial`, `current` and, when available, `completion` roots. |
+`roots.completion` exists when synchronous entry evaluation produced a
+completion, including an undefined export, a throw, or conditional normal/throw
+alternatives. Its presence does not establish process exit, callback coverage
+or full JavaScript correctness. An analysis stop omits that root, returns exit
+status 2 and writes its reached diagnostic to stderr. `roots.current` then holds
+one deepest known checkpoint: already visited sibling histories and unvisited
+continuations may be absent. Some internal failures retain only an earlier
+checkpoint. Missing effects cannot be interpreted as impossible effects.
 
-`evaluated` means the supported synchronous entry evaluation produced a
-completion; that completion can include a throw or conditional normal/throw
-alternatives. It does not establish process exit, callback coverage or full
-JavaScript correctness. On `analysis-stop`, `current` is one deepest retained
-checkpoint. Already visited sibling histories and unvisited continuations may
-be absent; no completion root is fabricated. Some arbitrary internal failures
-can retain only an earlier checkpoint. Consumers must not infer that missing
-effects are impossible.
+This is still an experimental, nonresumable projection. The former envelope's
+schema version, captured source bytes/hashes, launch metadata and budget are not
+published. Source locations already in VM state remain in the graph. Saving JSON
+alone preserves completion versus partial state, but not stderr's stop reason or
+all run provenance. Proper environment/source representation and a portable
+versioning contract remain future work; explanatory prose is not a substitute.
 
 | CLI exit status | Meaning |
 | --- | --- |
 | `0` | A result containing the entry's modeled completion, even if that completion throws. Also used for `--help`. |
 | `2` | A result containing a partial analysis stop. |
-| `1` | Invocation, capture or serialization failed; stderr explains it, no result is emitted. |
+| `1` | Invocation, capture or serialization failed; stderr explains it, no graph is emitted. |
 
 These statuses are not modeled program exit codes or consumer policy verdicts.
 
 ## Graph containers
 
-`graph.roots` maps names to encoded values. `graph.nodes` is an array of nodes
+`roots` maps names to encoded values. `nodes` is an array of nodes
 with deterministic traversal-local IDs (`n0`, `n1`, ...). A reference is
 `{ "ref": "n0" }`; it always refers to a node in this result. IDs preserve
 sharing/cycles within a result, not identities across separate runs.
@@ -98,7 +101,7 @@ the value's own properties. It is not a derived behavior summary. Full strictnes
 arrow captures, native/private host metadata and resumable continuations are not
 portable yet. Execution contexts exclude debug hooks, the mutable analysis
 budget and legacy flattened scope/stderr inspection fields. This is why the
-output is explicitly a projection rather than a full machine snapshot.
+schema represents a projection rather than a full machine snapshot.
 
 The graph preserves the current VM value/fact and effect schemas inside these
 containers; these remain experimental. It keeps event predecessors, choices,

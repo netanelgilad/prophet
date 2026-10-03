@@ -49,7 +49,12 @@ Naming a version is not evidence of complete support. Current compatibility
 specs and the CLI's only accepted profile use Node v24.21.0; arbitrary Node
 versions are not yet implemented profiles.
 
-Write one versioned, machine-readable symbolic result to stdout. The analyzed
+Write the machine-readable symbolic graph directly to stdout. The current shape
+is `{ roots, nodes }`; there is no separate report envelope or hand-written
+model-domain/limitation narrative in the payload. Actual environment constraints
+belong in modeled state; development limitations belong in docs/backlog. Runtime
+diagnostics use stderr. A portable graph versioning contract remains future work.
+The analyzed
 program's own stdout/stderr belongs inside the modeled environment/observations,
 so it cannot corrupt the result stream. Prophet diagnostics and progress use its
 own stderr. Distinguish the CLI process's failure/status from modeled program
@@ -135,9 +140,11 @@ Complete serialization/resumption is future work; today's private WeakMaps and
 internal execution contexts are not already a portable snapshot format.
 The initial CLI transport preserves graph references, maps, special primitives,
 conditional histories and available function definitions, but labels its output
-as a nonresumable projection. Native closures and private resource metadata are
+as an inspection projection in its documentation. Native closures and private resource metadata are
 opaque. At an analysis stop it retains one known checkpoint, not a reconstructed
-frontier of every explored/unvisited branch. See [the current schema](cli.md).
+frontier of every explored/unvisited branch. The graph omits the completion root
+on a stop; its reached diagnostic goes to stderr with exit status 2. Internal
+capture metadata is not yet modeled as graph state. See [the current schema](cli.md).
 
 General programs may not terminate, and some executions exceed supported
 semantics or budgets. The conceptual environment transformation therefore needs

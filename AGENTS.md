@@ -44,6 +44,10 @@ Build the CLI from generic conditional state/effect graphs. The [first slice](do
 passes branching-console subprocess specs and emits a nonresumable projection;
 next connect captured CommonJS imports and existing host models for pico startup.
 Node public built-ins remain the modeling boundary.
+CLI stdout contains the graph (`roots`/`nodes`) directly. Do not wrap it in a
+report with hand-written model-domain or limitation prose, or relocate that
+prose into graph nodes. Runtime diagnostics use stderr; implementation boundaries
+belong in docs/backlog. Represent actual environment facts as modeled state.
 Keep test inspection helpers and backlog IDs out of the public state schema;
 preserved callbacks are not already-analyzed future behavior. Follow the
 [callback/execution distinction](docs/symbolic-runtime.md#conditional-history-and-callback-knowledge)

@@ -3,6 +3,7 @@ import { mkdtempSync, writeFileSync, unlinkSync, rmdirSync, existsSync } from "f
 import { tmpdir } from "os";
 import { join, resolve } from "path";
 import { effectPaths, isForkedCompletion } from "../src";
+import { getProperties } from "../src/execution-context/Heap";
 import { isThrownValue } from "../src/types";
 import { TESString } from "../src/string/String";
 import { assertPinnedNode } from "./commonjs/oracle";
@@ -52,12 +53,14 @@ function run(source: string, flags: string[] = [], args: string[] = []) {
   unlinkSync(filename);
   rmdirSync(directory);
   expect(child.error).toBeUndefined();
-  expect(child.stderr).toBe("");
   const result = JSON.parse(child.stdout);
-  expect(result.format).toBe("prophet.execution");
-  expect(result.version).toBe(1);
-  expect(result.state).toEqual({ representation: "projection", resumable: false });
-  return { child, result, roots: decodeGraph(result.graph) };
+  expect(Object.keys(result).sort()).toEqual(["nodes", "roots"]);
+  expect([0, 2]).toContain(child.status);
+  expect(Object.keys(result.roots).sort()).toEqual(child.status === 0
+    ? ["completion", "current", "initial"] : ["current", "initial"]);
+  if (child.status === 0) expect(child.stderr).toBe("");
+  else expect(child.stderr).toMatch(/^prophet: /);
+  return { child, result, roots: decodeGraph(result) };
 }
 
 function outputs(context: any): string[][] {
@@ -71,12 +74,11 @@ function outputs(context: any): string[][] {
 }
 
 test("CLI analyzes both random branches and retains one shared continuation in its JSON graph", () => {
-  const { child, result, roots } = run(`
+  const { child, roots } = run(`
     if (Math.random() < 0.5) console.log("left"); else console.log("right");
     console.log("done");
   `);
   expect(child.status).toBe(0);
-  expect(result.execution.status).toBe("evaluated");
   expect(outputs(roots.initial)).toEqual([[]]);
   expect(outputs(roots.current)).toEqual([["left\n", "done\n"], ["right\n", "done\n"]]);
   const paths = effectPaths(roots.current.value.effects);
@@ -85,7 +87,6 @@ test("CLI analyzes both random branches and retains one shared continuation in i
   while (trace.kind === "event") trace = trace.previous;
   expect(trace.kind).toBe("choice");
   expect(trace.condition.expression.kind).toBe("compare");
-  expect(result.input.source.sha256).toMatch(/^[a-f0-9]{64}$/);
 }, 40000);
 
 test("CLI preserves independent choices rather than correlating two random draws", () => {
@@ -112,16 +113,13 @@ test("CLI captures concrete output matching pinned Node without polluting result
 test("a program throw remains a modeled completion, separate from a partial analysis stop", () => {
   const thrown = run('console.log("before"); throw "application failure";');
   expect(thrown.child.status).toBe(0);
-  expect(thrown.result.execution.status).toBe("evaluated");
   expect(isThrownValue(thrown.roots.completion)).toBe(true);
   expect(thrown.roots.completion.value.value).toBe("application failure");
   expect(outputs(thrown.roots.current)).toEqual([["before\n"]]);
 
   const stopped = run('console.log("before"); console.warn("unsupported"); console.log("after");');
   expect(stopped.child.status).toBe(2);
-  expect(stopped.result.execution.status).toBe("analysis-stop");
-  expect(stopped.result.execution.retained).toBe("partial-checkpoint");
-  expect(stopped.result.execution.diagnostic).toMatch(/console/i);
+  expect(stopped.child.stderr).toMatch(/console/i);
   expect(stopped.roots).not.toHaveProperty("completion");
   expect(outputs(stopped.roots.current)).toEqual([["before\n"]]);
 }, 80000);
@@ -129,10 +127,48 @@ test("a program throw remains a modeled completion, separate from a partial anal
 test("CLI does not load an unsupported builtin natively even when source requests a write", () => {
   const marker = join(tmpdir(), `prophet-must-not-write-${process.pid}`);
   expect(existsSync(marker)).toBe(false);
-  const { child, result } = run(`require("fs").writeFileSync(${JSON.stringify(marker)}, "bad");`);
+  const { child, roots } = run(`require("fs").writeFileSync(${JSON.stringify(marker)}, "bad");`);
   expect(child.status).toBe(2);
-  expect(result.execution.status).toBe("analysis-stop");
+  expect(child.stderr).toMatch(/module loading/i);
+  expect(roots).not.toHaveProperty("completion");
   expect(existsSync(marker)).toBe(false);
+}, 40000);
+
+test("CLI budget exhaustion returns a partial graph and its reached diagnostic on stderr", () => {
+  const { child, roots } = run(`
+    console.log("before");
+    function recurse() { return recurse(); }
+    recurse();
+    console.log("after");
+  `, ["--max-steps", "100"]);
+  expect(child.status).toBe(2);
+  expect(child.stderr).toMatch(/budget/i);
+  expect(roots).not.toHaveProperty("completion");
+  expect(outputs(roots.current)).toEqual([["before\n"]]);
+}, 40000);
+
+test("program properties are retained even when their names match removed envelope fields", () => {
+  const { child, roots } = run(`module.exports = {
+    modelDomain: "user model", limitations: "user limitations", execution: "user execution",
+    input: "user input", graph: "user graph"
+  };`);
+  expect(child.status).toBe(0);
+  const properties = getProperties(roots.completion, roots.current);
+  expect(Object.keys(properties).sort()).toEqual(["execution", "graph", "input", "limitations", "modelDomain"]);
+  expect(properties).toMatchObject({
+    modelDomain: { type: "string", value: "user model" },
+    limitations: { type: "string", value: "user limitations" },
+    execution: { type: "string", value: "user execution" },
+    input: { type: "string", value: "user input" },
+    graph: { type: "string", value: "user graph" }
+  });
+}, 40000);
+
+test("an undefined CommonJS export retains a normal completion root", () => {
+  const { child, roots } = run("module.exports = undefined;");
+  expect(child.status).toBe(0);
+  expect(roots).toHaveProperty("completion");
+  expect(roots.completion).toMatchObject({ type: "undefined" });
 }, 40000);
 
 test("normal and throwing alternatives stay distinct after crossing the JSON boundary", () => {

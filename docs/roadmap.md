@@ -48,9 +48,10 @@ Success criteria:
    the same symbolic state representation as future explicit input. Capture
    cwd, arguments and required source/runtime facts with provenance; expose
    uncaptured state and resource outcomes. No environment file is required.
-3. One versioned JSON result appears on stdout. It retains modeled state,
+3. One serialized symbolic graph appears directly on stdout. It retains modeled state,
    server/callback identities and lexical scope links, ordered effects, program
-   output, pending work and assumptions. Diagnostics use stderr; target completion
+   output, pending work and modeled environment conditions. Implementation notes
+   stay in docs rather than a prose report around the graph. Diagnostics use stderr; target completion
    and Prophet's own status stay distinct. Incomplete serialization is explicit.
 4. A supported startup path reaches a modeled server ready and **waiting for
    requests**, after its listening callback and startup message. Top-level
@@ -71,9 +72,11 @@ Success criteria:
 **First implementation increment delivered:** [CLI subprocess specs](../test/cli.spec.ts)
 now run the random left/right example with a shared `done` write and preserve
 independent draws. The command captures one entry source plus package-format
-metadata, uses the shared VM and emits a versioned reference graph with initial
+metadata internally, uses the shared VM and emits a reference graph with initial
 and current state, conditional effects and program completions. Analysis failures
-retain an explicitly partial checkpoint. Output is a nonresumable projection,
+retain a checkpoint without a completion root, with a reached diagnostic on
+stderr and exit status 2. Stdout is exactly `{ roots, nodes }`, without the old
+report envelope or its implementation prose. Output is a nonresumable projection,
 not the full state contract. Only console imports are connected today.
 
 **Next:** capture the entry's CommonJS source graph and connect existing built-in

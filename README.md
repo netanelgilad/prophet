@@ -14,7 +14,7 @@ program's output and possible external effects. See the [runtime/state contract]
 
 Security scanning, debugging, correctness and performance tools consume this
 result. Sensitivity labels, policies and verdicts belong to those tools. The
-first CLI slice now emits a versioned graph for single-file CommonJS execution
+first CLI slice now emits a reference graph for single-file CommonJS execution
 and console output. It is an inspection projection, not yet the complete
 environment input/output contract. The internal TypeScript exports are not a
 commitment to the eventual implementation language. The
@@ -47,7 +47,8 @@ console.log("done");
 The result preserves both output histories (`left\ndone\n` or `right\ndone\n`),
 their condition and a shared final write. It includes initial/current state
 references and a modeled completion. Program output stays inside the graph;
-Prophet writes one JSON result to stdout. No target code runs natively.
+Prophet writes the graph directly as `{ roots, nodes }` to stdout. Runtime
+diagnostics go to stderr; implementation notes stay in docs. No target code runs natively.
 
 This slice captures one source file and relevant package-format metadata.
 Only the console builtin is connected; uncaptured imports and host APIs stop

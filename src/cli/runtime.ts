@@ -45,7 +45,6 @@ export type FileExecution = {
   completion?: Any;
   status: "evaluated" | "analysis-stop";
   diagnostic?: string;
-  modelDomain: string[];
 };
 
 function capture(filename: string): CapturedSource {
@@ -97,14 +96,6 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   Object.assign(global.properties, { global, globalThis: global });
   const initial = ExecutionContext({ global, thisValue: global,
     evaluationBudget: { remaining: options.maxSteps } });
-  const modelDomain = [
-    "Single captured CommonJS entry; only console and node:console imports are modeled.",
-    "Default console with healthy UTF-8 stdout; formatting, stream failures and replacement are unsupported.",
-    "Each Math.random call produces a fresh symbolic finite number in [0, 1).",
-    "Other Math members are guarded; language intrinsics retain the shared VM's partial support and explicit unsupported operations.",
-    "Process state and additional Node globals are uncaptured; access stops analysis.",
-    "No external events are delivered and preserved functions are not automatically explored."
-  ];
   try {
     if (!filename.endsWith(".cjs") && !filename.endsWith(".js")) {
       throw new Error("CLI entry formats other than .cjs and .js are not yet supported");
@@ -135,9 +126,9 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
     const execution = executeCommonJS(source.text, filename, started, module, require, format === "ambiguous");
     const [completion, current] = mapCompletions(execution, (value, context) =>
       [value, isThrownValue(value) ? context : writeProperty(module, "loaded", ESBoolean(true), context)]);
-    return { input, initial, current, completion, status: "evaluated", modelDomain };
+    return { input, initial, current, completion, status: "evaluated" };
   } catch (error) {
     return { input, initial, current: analysisFailureContext(error) || initial,
-      status: "analysis-stop", diagnostic: error.message || String(error), modelDomain };
+      status: "analysis-stop", diagnostic: error.message || String(error) };
   }
 }
