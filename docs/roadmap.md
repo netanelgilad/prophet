@@ -31,8 +31,7 @@ script** through Prophet, without supplying a symbolic environment file or
 building VM/model objects in caller code. The existing upstream example is the
 acceptance target; its package source and options remain unchanged.
 
-Acceptance command (the CLI follows this target's source imports; its required
-host models and waiting-state output are not yet connected):
+Acceptance command (the bounded startup proof now runs through this path):
 
 ```sh
 prophet --runtime node@24.21.0 -- test/fixtures/pico-static-server-3.0.3/package/examples/pico-http-server.js > result.json
@@ -60,8 +59,9 @@ Success criteria:
    run. A partial result stopped at bind is an intermediate step, not this goal's
    successful-startup evidence.
 5. A missing environment file is not evidence that port 8080 is available or
-   stdout healthy. Any remaining bind, output or scheduling assumptions are
-   explicit in the result and backlog; unsupported outcomes remain boundaries.
+   stdout healthy. Preserve modeled unknown bind outcomes as symbolic state;
+   document remaining output/scheduling assumptions in the backlog without
+   substituting prose for environment facts. Unsupported outcomes remain boundaries.
    No real socket, target filesystem write or native package execution occurs
    during symbolic execution. Separate pinned Node checks validate modeled
    behavior without establishing availability for the target's fixed port.
@@ -87,24 +87,38 @@ source bytes and positive/negative probes. [Capture specs](../test/cli-source-ca
 keep read-only non-atomic acquisition distinct from target filesystem execution.
 Unresolved bare packages, dependency symlinks/aliases, nonregular/invalid-UTF8
 sources and acquisition errors remain explicit boundaries. The unchanged pico
-example enters its original `index.js`, resolves HTTP and stops at `require("https")`.
+example now enters its original `index.js` and completes its bounded startup.
+HTTPS/fs/URL/path imports retain guarded object identities; none of those APIs
+is used during HTTP startup, and no filesystem or warning state is fabricated.
 
 Supported HTTP setup now retains each bind attempt in the persistent heap.
 The CLI uses symbolic success/failure without probing a real port; hostless
 `listen` correlates its returned `listening` flag with that outcome. The generic
 graph links servers/emitters to lifecycle/listener state through immutable host
-metadata, preserving pending attempts and callback lexical identities. Synchronous
-entry completion does not deliver listening/error notifications or request events.
+metadata, preserving pending attempts and callback lexical identities.
 [Binding specs](../test/node-http-binding.spec.ts) explicitly deliver these events
 and check current listeners, unhandled errors and retries against [pinned Node
 observations](../test/node-http-bind-reference.spec.ts). These are supported model
-transitions, not an automatic event loop or all-callback analysis.
+transitions, not a general event loop or all-callback analysis.
 
-**Next:** connect the remaining HTTPS/fs/url/path assembly and bounded startup
-notification scheduling through the same CLI path. Preserve success/error
-alternatives and pending work; do not treat a retained listener as executed or
-presume healthy transport/stdout. Keep new test drivers
-inside specs; the vendored upstream example is already a fixture.
+**Bounded startup proof delivered:** the CLI now drains a shared persistent FIFO
+after normal entry completion. The unchanged pico subprocess retains both a
+ready server with the original startup message and an unhandled bind-error
+alternative without that message. Request listeners remain registered without
+invented requests. [Queue specs](../test/jobs.spec.ts), [HTTP startup specs](../test/node-http-startup.spec.ts)
+and [independent Node observations](../test/node-startup-reference.spec.ts)
+check FIFO ordering, deferred explicit-host binding, retries, current captured
+state and branch-local abrupt stops. The queue and active/pending jobs survive
+graph inspection. This establishes the startup behavior in criterion 4, not
+closure of all capture, provenance and serialization requirements above.
+
+**Next:** extend actual environment state and bounded future-request exploration
+through the same CLI path. Choose the smallest required filesystem capture and
+host-model integration step, preserving the manual request proofs as regressions.
+Opaque filesystem imports are not filesystem state; retained handlers are not
+executed requests. Preserve success/error alternatives, pending work and explicit
+transport/stdout boundaries. Keep new test drivers inside specs; the unchanged
+upstream example is already a fixture.
 
 Explicit environment authoring, arbitrary request exploration and full snapshot
 resumption follow this milestone. Preserve the representation needed for them,
@@ -426,8 +440,9 @@ Omitted-host calls attempt binding immediately while notifications stay deferred
 the explicit loopback-host form waits for modeled lookup/binding completion.
 The optional bind transition supplies success or Error failure, including symbolic
 choices; the default embedding still selects the older successful-bind domain.
-The CLI supplies fresh unknown outcomes and retains pending notifications without
-delivering them. Precise OS errors, address allocation, shared resource contention,
+The CLI supplies fresh unknown outcomes and drains supported startup jobs after
+normal entry completion. It retains request handlers and any unexecuted tail on
+throwing branches. Precise OS errors, address allocation, shared resource contention,
 general scheduling and broader listen overloads remain gaps.
 Unknown or invalid lifecycle transitions stop analysis instead of picking a
 convenient path. A thrown callback remains a thrown or forked completion with

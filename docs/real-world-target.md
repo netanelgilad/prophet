@@ -44,23 +44,26 @@ implementation runs during symbolic exploration.
 
 ## Role in the symbolic runtime
 
-The next concrete milestone is to run the vendored, unchanged
+The bounded CLI startup milestone now runs the vendored, unchanged
 [`examples/pico-http-server.js`](../test/fixtures/pico-static-server-3.0.3/package/examples/pico-http-server.js)
 as Prophet's CLI entry script **without specifying an environment file**. It
 loads the original package, configures its static directory through `__dirname`,
-and requests port 8080. The CLI must construct the starting state and retain the
-modeled server waiting for requests; existing specs' hand-built model/source
-setup is not the public interface. The [roadmap acceptance criteria](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
-distinguish successful startup from unresolved bind work and defer arbitrary
-request input and full resumption. The [CLI](cli.md) now acquires reached
-CommonJS/JSON/package dependencies and preserves conditional console output.
-The unchanged example follows `../index.js` into the pinned package, resolves
-`http`, then stops at its unregistered `https` builtin. Generic HTTP setup now
-retains uncertain bind outcomes and pending listeners in the output graph without
-opening sockets. The CLI does not deliver those notifications or requests.
-Remaining HTTPS/fs/url/path assembly and startup scheduling are the next work;
-the existing explicitly scheduled successful-server proofs do not establish that
-the default CLI has reached ready-server state.
+and requests port 8080. The [CLI subprocess spec](../test/cli.spec.ts) checks its
+actual command output: a successful bind reaches a waiting server and executes
+the original startup message; a failed bind throws an unhandled Error without
+that message. The [startup queue](jobs.md) supplies notification ordering and
+uses current listeners/captured state without opening sockets. No request is
+invented; the real handler is retained but its future paths are not explored.
+
+The CLI acquires the package through the shared CommonJS loader. HTTPS, fs, URL
+and path imports are opaque object identities during this run; their APIs remain
+guarded because startup does not use them. This neither invents a filesystem nor
+connects the separately tested request-analysis models. The [roadmap acceptance
+criteria](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
+still retain full capture/provenance, environment input and resumption work.
+The next extension should connect real environment state and bounded future
+request exploration through this CLI path, preserving the existing manual
+request proofs as regressions rather than claiming they already run by default.
 
 This unchanged server is a regression target for the proposed
 [runtime CLI/state contract](symbolic-runtime.md): supply a symbolic starting

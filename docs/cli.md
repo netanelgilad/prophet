@@ -11,7 +11,9 @@ Run from a dependency-installed checkout:
 The runtime defaults to `node@24.21.0`, the only accepted profile. This names the
 semantics targeted by compatibility specs, not full Node conformance. A mandatory
 `--` separates Prophet options from the script/arguments. The default evaluation
-budget is 100000 AST steps. This is a work limit, not a constraint on program
+budget is 100000 shared evaluation steps. AST evaluation and each delivered job
+consume this budget; job draining also has that many deliveries as an upper
+bound across explored branches. This is a work limit, not a constraint on program
 inputs or a guarantee against all parser/native-model resource exhaustion.
 The repository bootstrap uses the existing Babel toolchain only for Prophet's
 own source. It never requires the target script into the analyst's Node process.
@@ -45,11 +47,17 @@ I/O, parser and serializer limits are not supplied by the AST evaluation budget.
 
 The VM receives a partial standard global object and one shared global/imported
 console model. `console`, `http` and the HTTP model's shared `events` builtin are
-registered, including their `node:` aliases. Other builtins stop analysis.
-General process state and the remaining server host assembly are future work. Launch args/cwd
+registered, including their `node:` aliases. HTTPS, filesystem, URL and path have
+opaque object exports: imports and alias identity work, but reached property
+reads/writes, inspection or coercion stop. These do not establish APIs, filesystem
+contents or warning state. Other builtins stop on import. General process state
+is future work. Launch args/cwd
 are retained internally as provenance; that alone does not implement `process.argv`/`cwd`.
 Unknown global names and missing Math members stop conservatively. Wider partial
 intrinsics still have the limitations in the implementation backlog.
+The opaque import checks establish known exports under the pinned default
+environment, not complete builtin initialization: lazy state, instrumentation,
+configuration and allocation effects remain unmodeled.
 
 Default console output assumes healthy writable UTF-8 stdout with the model's
 existing formatting/configuration boundaries. This remains a modeling gap
@@ -62,11 +70,22 @@ occur. The runtime does not yet accept explicit input environments.
 HTTP setup uses a fresh symbolic bind outcome for each supported attempt, not a
 real port probe or a successful-bind default. A hostless numeric `listen` attempts
 binding synchronously: `server.listening` is true only on success, while both
-success and failure notification remain pending. With explicit `"127.0.0.1"`,
-the attempt itself is deferred. The CLI stops after synchronous entry evaluation
-and does not deliver either notification or invoke request handlers. A completion
-root can therefore coexist with a pending bind, an undelivered error and
-unexecuted callbacks; it does not imply process exit or a ready server.
+success and failure notification are queued. With explicit `"127.0.0.1"`, a
+queued lookup step attempts binding and appends a separate notification behind
+already queued work, matching the supported Node IP-literal path.
+
+After each normal entry completion, the CLI drains the shared startup FIFO.
+Jobs read current lexical/heap state, so listeners and variables changed after
+`listen` affect delivery. A job is removed before invocation; jobs added by a
+callback join the tail. A modeled throw stops only that branch's draining and
+retains its remaining jobs. A throwing entry does not drain its queue. Normal
+draining preserves the entry's exports; a job throw becomes the completion.
+This checkpoint covers modeled startup work, not process exit or a general Node
+event loop. No request input, timer, microtask, promise, I/O arrival or public
+`process.nextTick` API is supplied.
+A throwing completion is the state at exception propagation, not after process
+shutdown. Handles can remain modeled as listening there; exit handlers, resource
+cleanup, output flushing and process liveness are not established.
 
 The failure branch retains an Error with unknown code/message/errno and, for a
 hostless attempt, unknown address. These fields overapproximate outcomes without
@@ -83,8 +102,8 @@ and `nodes`. Results include every referenced node. There is no surrounding repo
 Program output is represented by effects in this same graph. Runtime diagnostics
 go to stderr; implementation boundaries belong in documentation and the backlog.
 
-`roots.completion` exists when synchronous entry evaluation produced a
-completion, including an undefined export, a throw, or conditional normal/throw
+`roots.completion` exists when entry evaluation and its supported startup
+checkpoint produced a completion, including an undefined export, a throw, or conditional normal/throw
 alternatives. Its presence does not establish process exit, callback coverage
 or full JavaScript correctness. An analysis stop omits that root, returns exit
 status 2 and writes its reached diagnostic to stderr. `roots.current` then holds
@@ -101,7 +120,7 @@ versioning contract remain future work; explanatory prose is not a substitute.
 
 | CLI exit status | Meaning |
 | --- | --- |
-| `0` | A result containing the entry's modeled completion, even if that completion throws. Also used for `--help`. |
+| `0` | A result containing the modeled entry/startup completion, even if that completion throws. Also used for `--help`. |
 | `2` | A result containing a partial analysis stop, including reached dependency-acquisition failures. |
 | `1` | Invocation, initial entry acquisition or serialization failed; stderr explains it, no graph is emitted. |
 
@@ -139,6 +158,12 @@ schema represents a projection rather than a full machine snapshot.
 Host objects can now retain immutable `hostSlots` identity links in these same
 record nodes. A server's `node.http.server` link reaches its persistent lifecycle
 state and pending attempt; an emitter's `node.events` link reaches listener state.
+The global object's `node.nextTick` link reaches the shared queue's `pending`
+jobs and `active` job. Jobs retain callback/receiver/argument identities; the
+argument list is copied when queued. An analysis stop during a callback retains
+the active job; budget exhaustion before dequeue leaves the head pending. Normal
+and throwing language completions clear active work. These fields use the same
+persistent heap and conditional values as the rest of the VM.
 The links are VM metadata, separate from guest properties, including any guest
 property also called `hostSlots`. Consult the selected context's heap for mutable
 state. A link alone does not prove initialization on that path: private model
@@ -170,11 +195,15 @@ claimed passing; startup flags, main-module APIs, source resolution/formatting,
 environment capture and process scheduling remain broader compatibility work.
 
 The [pico startup milestone](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
-is still open. The unchanged example follows `../index.js` into the pinned
-package, resolves `http`, then stops at its unregistered `https` builtin. The
-remaining HTTPS/fs/url/path assembly and startup notification scheduling are
-still pending. General HTTP setup now retains symbolic bind outcomes and pending
-state; it does not drain callbacks or assume the bind succeeded. Full environment
-input, portable round trips/resumption and automatic reachable callback analysis
-follow. Track residual scope under REPORT-001, CJS-001, HOST-002, CONSOLE-002,
+now has a bounded subprocess proof: the unchanged example follows `../index.js`
+into the pinned package and reaches either a waiting server with its exact
+startup message or an unhandled bind Error without that message. Its request
+handler remains registered; no request was invented or analyzed. Unused opaque
+imports do not provide filesystem state or the URL/path/HTTPS APIs.
+[Queue specs](../test/jobs.spec.ts), [HTTP startup specs](../test/node-http-startup.spec.ts)
+and [pinned ordering observations](../test/node-startup-reference.spec.ts) cover
+the supported checkpoint; [opaque builtin specs](../test/node-opaque-builtins.spec.ts)
+check identities and conservative boundaries. Full environment input, portable
+round trips/resumption and automatic reachable callback analysis follow.
+Track residual scope under REPORT-001, CJS-001, HOST-002, CONSOLE-002,
 LANG/LIB/LEGACY and SECURITY-002 in the [backlog](implementation-gaps.md).

@@ -25,10 +25,10 @@ and prove useful properties across explicitly declared inputs and environments.
 Read [the runtime/state contract](docs/symbolic-runtime.md) and the relevant
 milestone in [the roadmap](docs/roadmap.md), [real-world target](docs/real-world-target.md),
 or [downstream security use case](docs/agent-security-analysis.md) when choosing
-an increment. The immediate milestone is running the unchanged pico HTTP startup
-script through Prophet's CLI **without an explicit environment file**, using an
-automatically constructed starting state and returning the modeled server's
-waiting state. Follow [the acceptance criteria](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file);
+an increment. The CLI now runs the unchanged pico HTTP startup script **without
+an explicit environment file** through a bounded startup queue: success retains
+the waiting server and startup output; bind failure retains its unhandled Error.
+Follow [the acceptance criteria and remaining work](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file);
 explicit environment authoring and full resumption follow, library exports are
 optional, and deeper host modeling follows demonstrated blockers. The first external
 target is pinned `pico-static-server` 3.0.3: evaluate its complete server setup and
@@ -43,10 +43,11 @@ visible; neither sampled runs nor partial coverage justify an all-path claim.
 Build the CLI from generic conditional state/effect graphs. The [first slice](docs/cli.md)
 passes branching-console/import subprocess specs, captures reached CommonJS
 dependencies through the shared loader and emits a nonresumable projection.
-HTTP and its shared EventEmitter now retain symbolic bind outcomes and pending
-notifications; the CLI stops after synchronous entry evaluation without draining
-callbacks. Next connect the remaining host models and startup scheduling for
-pico; the unchanged example currently reaches its unregistered `https` import.
+HTTP and its shared EventEmitter retain symbolic bind outcomes; a persistent FIFO
+drains supported startup notifications after normal entry completion. Four unused
+builtins have guarded object identities, not implemented APIs. Next extend actual
+environment capture and bounded future-request exploration; the CLI still has no
+filesystem state or request input domain. Retained handlers are not analyzed requests.
 Node public built-ins remain the modeling boundary.
 CLI stdout contains the graph (`roots`/`nodes`) directly. Do not wrap it in a
 report with hand-written model-domain or limitation prose, or relocate that

@@ -9,6 +9,7 @@ import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
+import { JobQueue } from "../jobs";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getProperties, writeProperty } from "../execution-context/Heap";
 import { ESString, TESString } from "../string/String";
@@ -24,6 +25,8 @@ export type HTTPModelOptions = {
   // A bind attempt returns null on success or the Error later emitted by Node.
   // The supplied transition must model the environment, never bind a real port.
   bind?: HostModel;
+  // Shared Node next-tick FIFO. Omission keeps explicit embedding delivery.
+  nextTick?: JobQueue;
 };
 
 function unsupported(detail: string): never {
@@ -52,8 +55,9 @@ function change(object: TESObject, properties: { [name: string]: Any }, context:
  * No native HTTP object, socket, timer, or callback queue runs during analysis.
  * In the primary process, omitted-host binding is attempted during listen;
  * success/error notification is deferred. Explicit-host binding runs on delivery.
- * The embedding chooses when those events and already-dispatched request events
- * arrive. Wire dispatch (for example CONNECT/upgrade) is not modeled. Binding
+ * A supplied next-tick queue schedules startup callbacks; otherwise the embedding
+ * delivers them explicitly. Request delivery remains explicit. Wire dispatch
+ * (for example CONNECT/upgrade) is not modeled. Binding
  * outcomes come from the supplied environment. Cluster workers, overlapping
  * pending retries and other schedules need compatible models.
  * The body schedule queues writes until synchronous end consumes all bytes;
@@ -65,6 +69,10 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
   if (options.bind !== undefined && typeof options.bind !== "function") {
     throw new Error("HTTP bind environment must be a model function");
   }
+  if (options.nextTick !== undefined && (!options.nextTick || typeof options.nextTick.enqueue !== "function")) {
+    throw new Error("HTTP next-tick environment must supply a job queue");
+  }
+  const nextTick = options.nextTick;
   // Omission preserves the explicitly successful-bind domain of older embeddings.
   // The CLI supplies a symbolic transition instead of assuming availability.
   const bind = operation("http.server.bind", options.bind === undefined
@@ -101,16 +109,23 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
     }
   };
 
-  const retainOutcome = (server: Any, pending: TESObject, outcome: Any, context: TExecutionContext): BranchResult =>
-    withValue(outcome, context, (selected, branch) => {
+  const retainOutcome = (server: Any, pending: TESObject, outcome: Any, context: TExecutionContext): BranchResult => {
+    const result = withValue(outcome, context, (selected, branch) => {
       if (!isESNull(selected) && !(selected as { errorData?: boolean }).errorData) {
         return unsupported("bind environment must return null or an Error value");
       }
       const bound = ESBoolean(isESNull(selected));
       const retained = writeProperty(pending, "outcome", selected, branch);
       const current = writeProperty(serverState(server), "bound", bound, retained);
-      return [server, writeProperty(server as TESObject, "listening", bound, current)];
+      const updated = writeProperty(server as TESObject, "listening", bound, current);
+      return [server, updated];
     });
+    // Both binding outcomes schedule the same notification job. Keep its
+    // identity shared and select the retained outcome only at delivery.
+    return nextTick ? bindNormal(result, (_value, after) =>
+      bindNormal(nextTick.enqueue(notification, [server, pending], after), (_ignored, queued) => [server, queued]))
+      : result;
+  };
 
   const listen = operation("http.server.listen", (call, context) => {
     const state = serverState(call.receiver);
@@ -150,7 +165,9 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
         const starting = change(state, { phase: ESString("starting"), bound: ESBoolean(false),
           port, host, pending }, after);
         // Hostless Node attempts binding inline; explicit-host lookup is deferred.
-        if (explicitHost) return [call.receiver, starting];
+        if (explicitHost) return nextTick
+          ? bindNormal(nextTick.enqueue(lookup, [call.receiver, pending], starting), (_value, queued) => [call.receiver, queued])
+          : [call.receiver, starting];
         return bindNormal(invoke(bind, [port, host], starting, call.receiver), (outcome, current) =>
           retainOutcome(call.receiver, pending, outcome, current));
       };
@@ -344,15 +361,34 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
     return bindNormal(events.emit(server, "error", [call.args[1]], failed), (_value, after) => [server, after]);
   }));
 
-  const completeListen = (server: Any, context: TExecutionContext): BranchResult =>
-    withValue(server, context, (target, branch) => {
+  const deliverNotification = (server: Any, pending: TESObject, context: TExecutionContext): BranchResult =>
+    withValue(getProperties(pending, context).outcome, context, (outcome, branch) => {
+      if (isUndefined(outcome)) return unsupported("listen notification before binding completes");
+      return isESNull(outcome) ? invoke(listening, [server, pending], branch)
+        : invoke(listenError, [server, outcome, pending], branch);
+    });
+
+  const notification = operation("http.server.notify", (call, context) =>
+    deliverNotification(call.args[0], call.args[1] as TESObject, context));
+
+  // The supported explicit IPv4 literal follows dns.lookup's nextTick fast
+  // path. Binding here appends a SEPARATE notification behind existing ticks.
+  const lookup = operation("http.server.lookup", (call, context) => {
+    const server = call.args[0], pending = call.args[1] as TESObject;
+    requireState(serverState(server), "starting", context);
+    const fields = getProperties(pending, context);
+    return bindNormal(invoke(bind, [fields.port, fields.host], context, server), (outcome, after) =>
+      retainOutcome(server, pending, outcome, after));
+  });
+
+  const completeListen = (server: Any, context: TExecutionContext): BranchResult => {
+    if (nextTick) return unsupported("manual listen delivery while a next-tick queue owns the attempt");
+    return withValue(server, context, (target, branch) => {
       const state = serverState(target);
       requireState(state, "starting", branch);
       return withValue(getProperties(state, branch).pending, branch, (pendingValue, current) => {
         const pending = pendingValue as TESObject;
-        const deliver = (ready: TExecutionContext): BranchResult =>
-          withValue(getProperties(pending, ready).outcome, ready, (outcome, leaf) =>
-            isESNull(outcome) ? invoke(listening, [target, pending], leaf) : invoke(listenError, [target, outcome, pending], leaf));
+        const deliver = (ready: TExecutionContext): BranchResult => deliverNotification(target, pending, ready);
         return withValue(getProperties(pending, current).outcome, current, (outcome, selected) => {
           if (!isUndefined(outcome)) return deliver(selected);
           const fields = getProperties(pending, selected);
@@ -361,6 +397,7 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
         });
       });
     });
+  };
 
   const requestEvent = operation("http.server.request", (call, context) => withValue(call.args[0], context, (server, branch) => {
     const state = serverState(server);

@@ -15,7 +15,7 @@ program's output and possible external effects. See the [runtime/state contract]
 Security scanning, debugging, correctness and performance tools consume this
 result. Sensitivity labels, policies and verdicts belong to those tools. The
 CLI now emits a reference graph for CommonJS execution, automatically acquired
-dependencies, console output and supported HTTP setup with pending binding
+dependencies, console output and bounded HTTP startup with symbolic binding
 outcomes. It is an inspection projection, not yet the complete
 environment input/output contract. The internal TypeScript exports are not a
 commitment to the eventual implementation language. The
@@ -23,10 +23,10 @@ commitment to the eventual implementation language. The
 retain the real-server and controlled Shai-Hulud goals without claiming a
 complete runtime CLI or dependency scanner already exists.
 
-The [next milestone](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
-is running the unchanged pico HTTP startup script through Prophet's CLI **without
-an environment file**, automatically constructing its starting state and returning
-the modeled server waiting for requests. Explicit environment input follows.
+The [pico startup milestone](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
+now has a bounded CLI proof **without an environment file**: the unchanged script
+either reaches a waiting server and its startup message or throws an unhandled
+bind Error. Explicit environment input and future-request exploration remain work.
 
 ## First CLI slice
 
@@ -56,15 +56,17 @@ CommonJS resolver and loader. Source bytes and positive/negative file probes are
 cached across symbolic branches; evaluated modules retain each branch's own
 cache state. Capture is read-only, POSIX-only and non-atomic. Unresolved bare
 packages stop because external search paths are not captured. The console, HTTP
-and shared EventEmitter builtins are connected; other host APIs stop analysis.
+and shared EventEmitter builtins are connected. HTTPS, filesystem, URL and path
+imports have stable object identities, but reached APIs stop analysis.
 HTTP binding can succeed or fail symbolically without probing or opening a real
-socket. The CLI retains its pending notification and registered callbacks, then
-stops after synchronous entry evaluation; it does not drain callbacks or deliver
-requests. Default stdout is modeled
+socket. After normal entry completion, the CLI drains a persistent FIFO of
+supported startup jobs, executing the actual listening/error callbacks. A thrown
+branch retains later jobs without executing them. It does not invent requests,
+filesystem contents or a general event loop. Default stdout is modeled
 as healthy; random draws stay symbolic. A stopped result retains one partial checkpoint, which may omit sibling
-histories. The graph is nonresumable, future callbacks are unexplored, and the
-unchanged pico example now resolves HTTP before stopping at `require("https")`.
-The pico startup milestone remains open. See the [CLI format and boundaries](docs/cli.md).
+histories. The graph is nonresumable and future request callbacks are unexplored.
+The unchanged pico example now produces the conditional startup result through
+the CLI. See the [CLI format and boundaries](docs/cli.md).
 
 ## Run the specs
 
@@ -92,6 +94,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolu
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts test/discount-server.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-binding.spec.ts test/node-http-bind-reference.spec.ts test/node-tcp-bind.spec.ts test/host-slots-graph.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/jobs.spec.ts test/node-http-startup.spec.ts test/node-startup-reference.spec.ts test/node-opaque-builtins.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-write.spec.ts test/pico-static-server-analysis.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts test/node-http-lifecycle.spec.ts test/node-http-lifecycle-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/pico-static-server-analysis.spec.ts
@@ -434,7 +437,10 @@ The optional bind model supplies null success or Error failure, including symbol
 choices; omitted configuration keeps the older successful-bind domain. The CLI
 instead supplies unknown outcomes. Hostless `listen` attempts binding inline and
 sets `server.listening` only on success; explicit host waits for lookup/binding.
-Both forms defer success/error notification. Invalid numeric ports produce a catchable
+Both forms defer success/error notification. The CLI drains these jobs through
+the [shared startup queue](docs/jobs.md) after normal entry completion; explicit
+loopback lookup appends a separate notification behind already queued work.
+Invalid numeric ports produce a catchable
 RangeError and retain already registered callbacks; a call on an already bound
 server produces `ERR_SERVER_ALREADY_LISTEN` before registering another callback.
 Unbounded symbolic ports, other overloads, custom callback conversion, inherited
@@ -473,8 +479,9 @@ EACCES for denied reads, EMFILE for descriptor exhaustion, or 200 with the corre
 GET/HEAD body. All sixteen method/access/capacity combinations remain represented;
 real Node server witnesses reproduce the failures. Descriptor availability is a
 baseline at filesystem calls, not a resource pool coupled to HTTP startup.
-The immediate product step is the [pico CLI startup without an environment file](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file),
-then explicit environment input and generic observable effects usable by
+The [pico CLI startup proof without an environment file](docs/roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
+now preserves ready/error outcomes. Next extend environment capture and future
+request exploration, then explicit environment input and generic observable effects usable by
 independent consumer tools. Post-open read/close failures and descriptor
 lifetime remain backlog work driven by those scenarios. Header
 arrays/duplicates, progressive header APIs, effectful value conversion, open

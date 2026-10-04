@@ -40,11 +40,23 @@ With no host, the bind attempt occurs during `listen` and its outcome is retaine
 The call returns normally for either environmental outcome; `server.listening`
 is true only on success. A failure does not synchronously throw from `listen`.
 An explicit host first defers lookup/binding, so listening stays false until
-`completeListen`. Both forms defer notification. `completeListen` consumes the
-retained outcome and emits either `listening` or `error`; for an explicit host,
-it performs the bind transition first. It never reselects an already returned
-hostless outcome. Combining explicit-host lookup/bind and notification into one
-embedding transition does not model intervening scheduler turns.
+that work runs. Both forms defer notification.
+
+An optional `nextTick` [job queue](jobs.md) schedules these transitions. A
+hostless attempt appends its notification directly. Explicit `"127.0.0.1"`
+appends a lookup job; when it binds, it appends a separate notification behind
+already queued jobs. This follows the pinned IP-literal lookup path, not general
+DNS scheduling. HTTP instances sharing the queue preserve that FIFO order.
+Delivery selects the retained outcome and emits `listening` or `error`; it never
+reselects an already returned hostless outcome. Invalid queue configuration,
+notification before an outcome exists, and manual delivery while a queue owns
+the attempt stop analysis.
+
+Without a queue, `completeListen` remains the explicit embedding transition.
+For an explicit host it combines lookup/bind and notification; that manual
+mode still does not model intervening turns. [Startup specs](../test/node-http-startup.spec.ts)
+and [pinned ordering observations](../test/node-startup-reference.spec.ts) cover
+the automatic queue mode separately from the manual binding specs.
 
 Error delivery uses the current error-listener registry and lexical state. With
 no listener, the same Error escapes that later delivery as a throw; an ordinary
@@ -124,10 +136,13 @@ or evidence that the object was initialized on every path: model-owned private
 registries and the selected context still determine validity. Other private
 host state, including the response-state association, remains nonportable.
 
-The CLI registers `http` and this same `events` model, evaluates synchronous
-startup, and retains pending attempts. It does not call `completeListen`, run
-an event loop or explore request callbacks. A retained callback is not already
-analyzed future behavior, and synchronous module completion is not process exit.
+The CLI registers `http` and this same `events` model, evaluates the entry, then
+drains supported startup jobs on normal branches. Listening/error callbacks run
+through the VM; a throwing branch retains later jobs without executing them.
+The queue is exposed through the global object's `node.nextTick` host-state link.
+It does not establish a general event loop or explore request callbacks. A
+retained request handler is not already-analyzed future behavior, and a drained
+startup queue is not process exit.
 
 ## Explicit response headers and status catalog
 
@@ -382,7 +397,8 @@ also report a gap rather than silently using the model's default bind behavior.
 
 The embedding API supplies `completeListen`, `deliverRequest`, and
 `completeResponse` transitions. Bind attempts are traced as `http.server.bind`;
-notifications use `http.server.listening` or `http.server.error`. Request/response
+notifications use `http.server.listening` or `http.server.error`. Queue mode
+additionally traces `http.server.lookup` and `http.server.notify`. Request/response
 delivery uses `http.server.request` and `http.response.finish`; the request name deliberately
 does not denote Node's outgoing-client `http.request` call. These transitions
 dispatch through the shared listener machinery rather than keeping a separate

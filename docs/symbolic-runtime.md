@@ -34,7 +34,7 @@ runtime being modeled, preserving the target program's arguments.
 
 The [first CLI slice](cli.md) now supports the second command below for a bounded
 CommonJS domain with automatic acquisition of reached source dependencies,
-console output and supported HTTP setup retaining pending bind outcomes.
+console output and bounded HTTP startup with symbolic bind outcomes.
 Explicit environment input in the first
 command remains proposed:
 
@@ -144,7 +144,8 @@ The initial CLI transport preserves graph references, maps, special primitives,
 conditional histories and available function definitions, but labels its output
 as an inspection projection in its documentation. Server/emitter `hostSlots`
 metadata now links ordinary graph references to persistent lifecycle/listener
-state, including pending bind attempts. These links are not guest properties
+state, including pending bind attempts. The global `node.nextTick` link retains
+pending/active jobs in the shared persistent queue. These links are not guest properties
 or initialization proofs; the selected heap and private receiver registries still
 matter. Native closures and remaining private resource associations are opaque,
 so the links do not establish resumability. At an analysis stop it retains one known checkpoint, not a reconstructed
@@ -152,11 +153,16 @@ frontier of every explored/unvisited branch. The graph omits the completion root
 on a stop; its reached diagnostic goes to stderr with exit status 2. Internal
 capture metadata is not yet modeled as graph state. See [the current schema](cli.md).
 
-Synchronous CLI completion can retain pending HTTP success/error notification
-and unexecuted listeners. The CLI neither drains those callbacks nor declares
-the whole process finished. The HTTP model's explicit completion transition can
-evaluate a chosen notification with current listeners and captured state; a
-general scheduler and automatic future-event exploration remain separate work.
+After normal entry completion the CLI drains its supported startup jobs, invoking
+listening/error callbacks with current state. A throwing branch retains later
+jobs without executing them; an analysis stop can retain active work. A drained
+queue does not imply the whole process finished or that future request handlers
+were explored. The [queue boundary](jobs.md) remains distinct from a general
+scheduler, process recovery and automatic future-event exploration.
+A symbolic event path is a permitted timeline plus its conditions, and can stand
+for many concrete executions. Preserve shared prefixes and conditional states;
+the first startup-queue component does not enumerate all possible timelines or
+establish coverage beyond its modeled events and budgets.
 
 General programs may not terminate, and some executions exceed supported
 semantics or budgets. The conceptual environment transformation therefore needs
@@ -248,20 +254,21 @@ the public CLI/state format should not assume the implementation language is JS.
 
 ## Next increment and acceptance
 
-The next agreed milestone is [running the unchanged pico HTTP startup script
+The bounded startup slice now [runs the unchanged pico HTTP startup script
 through the CLI without an environment file](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file).
-Automatically construct its supported starting environment and return the
-modeled server state, including startup output and waiting for future requests.
+It constructs its supported starting state and returns conditional server state:
+successful binding reaches startup output and waiting for future requests;
+failure retains an unhandled Error without that output.
 This is an execution snapshot, not evidence that a long-running server terminated
 or that every future request was explored. Keep unknown bind/host outcomes
 explicit; a partial bind boundary alone is not successful-startup evidence.
 
-The simple CommonJS branching-console subprocess spec now passes through the CLI.
-Next capture the module graph and assemble the shared host models for the original
-pico example, using the shared loader/VM rather than a special application path.
-Preserve existing symbolic input correlations, completion/effect paths and native
-reference comparisons. Caller-supplied environment files and full resumption are
-subsequent increments, not prerequisites for this initial default-state run.
+The CLI uses the shared loader/VM and a generic persistent queue. Its opaque
+unused imports provide identity only; filesystem capture, broader host assembly
+and future request domains remain work. Preserve existing symbolic input
+correlations, completion/effect paths and native reference comparisons when
+connecting them. Caller-supplied environment files and full resumption remain
+subsequent increments.
 
 Then cover explicit symbolic and concrete inputs using the same representation,
 captured/default-state boundaries, program stdout inside the result, deterministic

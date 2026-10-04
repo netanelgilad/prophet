@@ -7,10 +7,13 @@ import { analysisFailureContext } from "../execution-context/analysis-failure";
 import { ESInitialGlobal } from "../execution-context/ESInitialGlobal";
 import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
 import { ESBuiltinFunction } from "../Function/Function";
+import { bindNormal } from "../evaluate";
+import { createJobQueue } from "../jobs";
 import { Math as ESMath } from "../math/Math";
 import { createConsoleModel } from "../node/console";
 import { symbolicTCPBind } from "../node/bind";
 import { createHTTPModel } from "../node/http";
+import { createOpaqueBuiltinModule } from "../node/opaque";
 import { ESObject } from "../Object";
 import { createCommonJSLoaderFromResolver } from "../require/loader";
 import { createModuleResolverFromSource } from "../require/resolution";
@@ -52,7 +55,8 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const input = { runtime: options.runtime, filename, args: options.args.slice(),
     cwd: resolve(cwd), source, sources: captured.files, paths: captured.paths };
   const consoleModel = createConsoleModel();
-  const http = createHTTPModel(undefined, { bind: symbolicTCPBind });
+  const nextTick = createJobQueue();
+  const http = createHTTPModel(undefined, { bind: symbolicTCPBind, nextTick });
   const math = Object.assign(ESObject({
     random: Object.assign(ESBuiltinFunction(ESMath.properties.random.implementation), {
       unknownProperties: "Math.random function API", modeledInheritedProperties: ["call"]
@@ -62,6 +66,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
     ...ESInitialGlobal.properties, Math: math, console: consoleModel.module
   }, "unmodeled"), { unknownProperties: "Node globals not captured by the automatic starting environment" });
   Object.assign(global.properties, { global, globalThis: global });
+  Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state }) });
   const initial = ExecutionContext({ global, thisValue: global,
     evaluationBudget: { remaining: options.maxSteps } });
   try {
@@ -80,12 +85,17 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
         return path;
       }
     }, { main: filename, builtins: {
-      console: consoleModel.module, http: http.module, events: http.eventsModule
+      console: consoleModel.module, http: http.module, events: http.eventsModule,
+      // These known object exports can be retained without inventing their
+      // environment. Reached operations still stop at the shared guards.
+      https: createOpaqueBuiltinModule("https"), fs: createOpaqueBuiltinModule("fs"),
+      url: createOpaqueBuiltinModule("url"), path: createOpaqueBuiltinModule("path")
     } });
     // The evaluator consumes its budget in place. Keep that runner bookkeeping
     // separate so the retained initial state still records the initial budget.
     const started = ExecutionContext({ ...initial.value, evaluationBudget: { remaining: options.maxSteps } });
-    const [completion, current] = loader.load(filename, started);
+    const [completion, current] = bindNormal(loader.load(filename, started), (exports, afterEntry) =>
+      bindNormal(nextTick.drain(afterEntry, options.maxSteps), (_value, afterJobs) => [exports, afterJobs]));
     return { input, initial, current, completion, status: "evaluated" };
   } catch (error) {
     return { input, initial, current: analysisFailureContext(error) || initial,

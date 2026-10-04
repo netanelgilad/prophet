@@ -1,3 +1,4 @@
+import { isForkedCompletion } from "../src";
 import { spawnSync } from "child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from "fs";
 import { removeSync } from "fs-extra";
@@ -143,11 +144,11 @@ test("a reached unmodeled builtin in a dependency stops outside application catc
   const result = run({
     "entry.cjs": `console.log("entry"); try { require("./dependency.cjs"); }
       catch (error) { console.log("caught"); } console.log("after");`,
-    "dependency.cjs": `console.log("dependency"); require("https"); console.log("unreachable");`
+    "dependency.cjs": `console.log("dependency"); require("net"); console.log("unreachable");`
   });
   expect(result.status).toBe("analysis-stop");
   expect(result.completion).toBeUndefined();
-  expect(result.diagnostic).toMatch(/https/);
+  expect(result.diagnostic).toMatch(/net/);
   expect(outputs(result.current)).toEqual([["entry\n", "dependency\n"]]);
 });
 
@@ -190,15 +191,17 @@ test("a captured CommonJS dependency syntax error stays catchable program behavi
   expect(outputs(result.current)[0].join("")).toBe(nativeOutput());
 });
 
-test("unchanged pico startup resolves HTTP and reaches its remaining HTTPS builtin boundary", () => {
+test("unchanged pico startup follows its original imports and retains ready and unhandled-bind-failure paths", () => {
   const packagePath = resolve("test/fixtures/pico-static-server-3.0.3/package");
   const result = runFile({ script: join(packagePath, "examples/pico-http-server.js"), args: [],
     maxSteps: 100000, runtime: "node@24.21.0" }, process.cwd());
-  expect(result.status).toBe("analysis-stop");
-  expect(result.completion).toBeUndefined();
-  expect(result.diagnostic).toMatch(/no model registered for 'https'/);
-  expect(result.current.value.sourceFile).toBe(realpathSync(join(packagePath, "index.js")));
-  expect(outputs(result.current)).toEqual([[]]);
+  expect(result.status).toBe("evaluated");
+  expect(result.diagnostic).toBeUndefined();
+  expect(isForkedCompletion(result.completion)).toBe(true);
+  expect(outputs(result.current)).toEqual([["Static server is listening http requests on port 8080\n"], []]);
+  expect(result.input.sources.has(realpathSync(join(packagePath, "index.js")))).toBe(true);
+  expect(effectPaths(result.current.value.effects).every(path =>
+    !path.events.some(event => event.call.operation === "http.server.request"))).toBe(true);
 });
 
 test.each([

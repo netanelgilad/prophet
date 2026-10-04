@@ -3,11 +3,11 @@ import { mkdtempSync, writeFileSync, unlinkSync, rmdirSync, existsSync } from "f
 import { tmpdir } from "os";
 import { join, resolve } from "path";
 import { effectPaths, isForkedCompletion } from "../src";
-import { getProperties } from "../src/execution-context/Heap";
-import { isThrownValue, TESBoolean, WithProperties } from "../src/types";
+import { getArrayElements, getProperties } from "../src/execution-context/Heap";
+import { isThrownValue, TESBoolean, WithProperties, isUndefined } from "../src/types";
 import { TESString } from "../src/string/String";
 import { assertPinnedNode } from "./commonjs/oracle";
-import { assume, choiceOf, resolveBoolean } from "../src/symbolic";
+import { choiceOf, resolveBoolean } from "../src/symbolic";
 
 // Decode only the documented transport containers for inspection, never native
 // implementations. Maps, aliases and references survive the JSON boundary.
@@ -130,7 +130,7 @@ test("CLI does not load an unsupported builtin natively even when source request
   expect(existsSync(marker)).toBe(false);
   const { child, roots } = run(`require("fs").writeFileSync(${JSON.stringify(marker)}, "bad");`);
   expect(child.status).toBe(2);
-  expect(child.stderr).toMatch(/builtin loading/i);
+  expect(child.stderr).toMatch(/fs|unmodeled/i);
   expect(roots).not.toHaveProperty("completion");
   expect(existsSync(marker)).toBe(false);
 }, 40000);
@@ -195,11 +195,11 @@ test("CLI usage failure writes diagnostics only to stderr", () => {
   expect(child.stderr).toMatch(/node@24\.21\.0/);
 }, 40000);
 
-test("CLI retains uncertain HTTP binding and deferred callbacks in the graph without opening a socket", () => {
+test("CLI delivers both HTTP binding notifications after top-level code and retains correlated state", () => {
   const { child, roots } = run(`
     const http = require("node:http");
     const server = http.createServer(function(req, res) { res.end("hello"); });
-    server.on("error", function(error) { console.log(error.code); });
+    server.on("error", function(error) { console.log("failed"); });
     server.listen(8080, function() { console.log("ready"); });
     console.log("after listen");
     module.exports = server;
@@ -207,24 +207,112 @@ test("CLI retains uncertain HTTP binding and deferred callbacks in the graph wit
   expect(child.status).toBe(0);
   const server = roots.completion;
   const state = server.hostSlots["node.http.server"];
-  const pending = getProperties(state, roots.current).pending as WithProperties;
-  expect(getProperties(pending, roots.current).delivered).toMatchObject({ value: false });
-  expect(getProperties(pending, roots.current).port).toMatchObject({ value: 8080 });
-  expect(server.hostSlots["node.events"]).toBeDefined();
+  const paths = effectPaths(roots.current.value.effects);
+  expect(outputs(roots.current)).toEqual([["after listen\n", "ready\n"], ["after listen\n", "failed\n"]]);
+  expect(isUndefined(getProperties(state, roots.current).pending)).toBe(true);
   expect(resolveBoolean(getProperties(server, roots.current).listening as TESBoolean, roots.current.value.knowledge))
     .toBeUndefined();
-  expect(outputs(roots.current)).toEqual([["after listen\n"]]);
-  const paths = effectPaths(roots.current.value.effects);
-  // This is one shared call history with a conditional result/state; neither
-  // deferred event has happened, so it need not duplicate the common history.
-  expect(paths).toHaveLength(1);
-  const outcome = choiceOf(getProperties(pending, roots.current).outcome)!;
-  expect(outcome.consequent).toMatchObject({ type: "null" });
-  expect(outcome.alternate).toMatchObject({ type: "object", errorData: true });
-  expect([true, false].map(truth => resolveBoolean(getProperties(server, roots.current).listening as TESBoolean,
-    assume(roots.current.value.knowledge || [], outcome.condition, truth)))).toEqual([true, false]);
-  expect(paths.every(path => path.events.filter(event => event.kind === "call" &&
-    event.call.operation === "http.server.bind").length === 1)).toBe(true);
-  expect(paths.every(path => !path.events.some(event =>
-    event.call.operation === "http.server.listening" || event.call.operation === "http.server.error"))).toBe(true);
+  for (const path of paths) {
+    const succeeds = path.events.some(event => event.call.operation === "http.server.listening");
+    expect(resolveBoolean(getProperties(server, roots.current).listening as TESBoolean, path.knowledge)).toBe(succeeds);
+    expect(path.events.filter(event => event.kind === "call" && event.call.operation === "http.server.bind"))
+      .toHaveLength(1);
+    expect(path.events.some(event => event.call.operation === "http.server.request")).toBe(false);
+  }
+  const returned = paths[0].events.find(event => event.kind === "return" && event.call.operation === "http.server.listen")!;
+  const beforeDelivery = { ...roots.current, value: { ...roots.current.value, heap: returned.heap } };
+  const pending = getProperties(state, beforeDelivery).pending as WithProperties;
+  expect(getProperties(pending, beforeDelivery).delivered).toMatchObject({ value: false });
+  expect(getProperties(pending, roots.current).delivered).toMatchObject({ value: true });
+  expect(choiceOf(getProperties(pending, beforeDelivery).outcome)).toBeDefined();
+  const queue = roots.current.value.global.hostSlots["node.nextTick"];
+  expect(getArrayElements(getProperties(queue, roots.current).pending as any, roots.current)).toEqual([]);
+  expect(getArrayElements(getProperties(queue, roots.initial).pending as any, roots.initial)).toEqual([]);
+  expect(isUndefined(getProperties(queue, roots.current).active)).toBe(true);
+}, 40000);
+
+test("CLI unhandled startup errors stop their timeline while normal startup preserves module exports", () => {
+  const { child, roots } = run(`
+    const server = require("http").createServer();
+    server.listen(8080, function() { console.log("ready"); });
+    console.log("top"); module.exports = "exported";
+  `);
+  expect(child.status).toBe(0);
+  expect(isForkedCompletion(roots.completion)).toBe(true);
+  expect(roots.completion.consequent[0]).toMatchObject({ value: "exported" });
+  expect(isThrownValue(roots.completion.alternate[0])).toBe(true);
+  expect(outputs(roots.completion.consequent[1])).toEqual([["top\n", "ready\n"]]);
+  expect(outputs(roots.completion.alternate[1])).toEqual([["top\n"]]);
+}, 40000);
+
+test("CLI top-level throws leave queued startup work pending", () => {
+  const { child, roots } = run(`
+    const server = require("http").createServer();
+    server.listen(8080, function() { console.log("must not run"); });
+    console.log("top"); throw "entry failed";
+  `);
+  expect(child.status).toBe(0);
+  expect(isThrownValue(roots.completion)).toBe(true);
+  expect(outputs(roots.current)).toEqual([["top\n"]]);
+  const queue = roots.current.value.global.hostSlots["node.nextTick"];
+  expect(getArrayElements(getProperties(queue, roots.current).pending as any, roots.current)).toHaveLength(1);
+}, 40000);
+
+test("CLI startup budget exhaustion retains the running callback instead of claiming completion", () => {
+  const { child, roots } = run(`
+    const server = require("http").createServer();
+    server.listen(0, function() {
+      console.log("callback"); function again() { return again(); } again();
+    });
+    console.log("top");
+  `, ["--max-steps", "150"]);
+  expect(child.status).toBe(2);
+  expect(child.stderr).toMatch(/budget/);
+  expect(roots).not.toHaveProperty("completion");
+  expect(outputs(roots.current)).toEqual([["top\n", "callback\n"]]);
+  const queue = roots.current.value.global.hostSlots["node.nextTick"];
+  expect(isUndefined(getProperties(queue, roots.current).active)).toBe(false);
+}, 40000);
+
+
+test("CLI runs the unchanged pico startup file through ready and unhandled-error timelines", () => {
+  const filename = resolve("test/fixtures/pico-static-server-3.0.3/package/examples/pico-http-server.js");
+  const child = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath,
+    [resolve("bin/prophet.js"), "--", filename],
+    { encoding: "utf8", timeout: 30000, env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" } });
+  expect(child.error).toBeUndefined();
+  expect(child.status).toBe(0);
+  expect(child.stderr).toBe("");
+  const graph = JSON.parse(child.stdout);
+  expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
+  const roots = decodeGraph(graph);
+  expect(isForkedCompletion(roots.completion)).toBe(true);
+  const ready = roots.completion.consequent;
+  const failed = roots.completion.alternate;
+  expect(ready[0]).toMatchObject({ type: "object" });
+  expect(isThrownValue(failed[0])).toBe(true);
+  expect(failed[0].value).toMatchObject({ type: "object", errorData: true });
+  expect(outputs(ready[1])).toEqual([["Static server is listening http requests on port 8080\n"]]);
+  expect(outputs(failed[1])).toEqual([[]]);
+  const path = effectPaths(ready[1].value.effects, ready[1].value.knowledge)[0];
+  const created = path.events.find(event => event.kind === "return" && event.call.operation === "http.createServer")!;
+  if (created.kind !== "return") throw new Error("Expected server creation");
+  const server = created.value as WithProperties;
+  expect(getProperties(server, ready[1]).listening).toMatchObject({ value: true });
+  expect(getProperties(server, failed[1]).listening).toMatchObject({ value: false });
+  expect(server.hostSlots!["node.events"]).toBeDefined();
+  const emitter = server.hostSlots!["node.events"] as WithProperties;
+  const listeners = getArrayElements(getProperties(emitter, ready[1])["event:request"] as any, ready[1])!;
+  expect(listeners).toHaveLength(1);
+  expect(getProperties(listeners[0] as WithProperties, ready[1]).listener).toBe(created.call.args[0]);
+  const state = server.hostSlots!["node.http.server"] as WithProperties;
+  expect(getProperties(state, ready[1]).phase).toMatchObject({ value: "listening" });
+  expect(isUndefined(getProperties(state, ready[1]).pending)).toBe(true);
+  const queue = roots.current.value.global.hostSlots["node.nextTick"];
+  expect(getArrayElements(getProperties(queue, ready[1]).pending as any, ready[1])).toEqual([]);
+  expect(getArrayElements(getProperties(queue, failed[1]).pending as any, failed[1])).toEqual([]);
+  expect(path.events.some(event => event.call.operation === "http.server.request")).toBe(false);
+  // The original registered function survives the JSON projection, but has
+  // not run and has not acquired or inferred any target filesystem state.
+  expect(graph.nodes.some((node: any) => node.definition !== undefined)).toBe(true);
 }, 40000);

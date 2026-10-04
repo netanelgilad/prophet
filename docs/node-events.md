@@ -87,13 +87,15 @@ not a replacement for the current context when executing listeners.
 
 The [HTTP model](node-http.md) uses this same machinery for server `request`,
 `listening` and bind-failure `error` callbacks, response `finish` callbacks, and
-application custom events. Listen success/error notification and successful
-response completion are still explicitly delivered host transitions. Error
+application custom events. Listen success/error notification can run through the
+shared [startup queue](jobs.md); embeddings without that queue retain explicit
+delivery. Request arrival and successful response completion remain explicit. Error
 listeners added or removed after `listen` affect later delivery; an unhandled
 Error escapes that delivery unchanged. EventEmitter's synchronous dispatch does
 not implement Node's event loop, promise rejection handling, request streams or
-general network failures. The CLI shares this model with its HTTP builtin but
-does not drain the pending notifications.
+general network failures. The CLI shares this model with its HTTP builtin and
+drains its supported startup notifications after normal entry completion.
+It does not explore future request events or add a general Node scheduler.
 
 Public emission and listener counting of protected HTTP lifecycle events remain
 gaps because the partial HTTP boundary has additional internal Node listeners

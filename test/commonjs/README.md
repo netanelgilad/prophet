@@ -176,9 +176,14 @@ Entry paths are realpath-normalized; alternate Node symlink/launch modes remain
 unsupported. Verified missing local candidates can throw an interpreted
 `MODULE_NOT_FOUND`; unresolved bare package lookup stops because `NODE_PATH`
 and global search paths are uncaptured. The CLI registers `console`, `http` and
-HTTP's shared `events` model; other builtins still stop analysis. HTTP retains
-symbolic binding outcomes and pending callbacks without automatically delivering
-events or opening a real socket.
+HTTP's shared `events` model. HTTPS, filesystem, URL and path use guarded opaque
+object identities; imports succeed but reached APIs stop. [Opaque builtin specs](../node-opaque-builtins.spec.ts)
+compare type/aliases with pinned Node and preserve unsupported boundaries.
+Native initialization/lazy state, instrumentation/configuration and allocation
+effects are not reconstructed by these identity-only imports.
+HTTP retains symbolic binding outcomes and drains supported startup notifications
+after normal entry completion, without opening a real socket. Future requests
+and a general process event loop remain unmodeled.
 Reads are non-atomic and source/probe caches are not a modeled target filesystem.
 Errors after a positive probe remain acquisition failures. Source bytes/hashes
 and probe provenance are retained internally, not yet in the stdout graph.
