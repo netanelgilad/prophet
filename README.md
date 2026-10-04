@@ -15,7 +15,8 @@ program's output and possible external effects. See the [runtime/state contract]
 Security scanning, debugging, correctness and performance tools consume this
 result. Sensitivity labels, policies and verdicts belong to those tools. The
 CLI now emits a reference graph for CommonJS execution, automatically acquired
-dependencies and console output. It is an inspection projection, not yet the complete
+dependencies, console output and supported HTTP setup with pending binding
+outcomes. It is an inspection projection, not yet the complete
 environment input/output contract. The internal TypeScript exports are not a
 commitment to the eventual implementation language. The
 [roadmap](docs/roadmap.md) and [security use-case plan](docs/agent-security-analysis.md)
@@ -54,11 +55,15 @@ The CLI captures reached local, JSON and package imports through the shared
 CommonJS resolver and loader. Source bytes and positive/negative file probes are
 cached across symbolic branches; evaluated modules retain each branch's own
 cache state. Capture is read-only, POSIX-only and non-atomic. Unresolved bare
-packages stop because external search paths are not captured. Only the console
-builtin is connected; other host APIs stop analysis. Default stdout is modeled
+packages stop because external search paths are not captured. The console, HTTP
+and shared EventEmitter builtins are connected; other host APIs stop analysis.
+HTTP binding can succeed or fail symbolically without probing or opening a real
+socket. The CLI retains its pending notification and registered callbacks, then
+stops after synchronous entry evaluation; it does not drain callbacks or deliver
+requests. Default stdout is modeled
 as healthy; random draws stay symbolic. A stopped result retains one partial checkpoint, which may omit sibling
 histories. The graph is nonresumable, future callbacks are unexplored, and the
-unchanged pico example now loads its package before stopping at `require("http")`.
+unchanged pico example now resolves HTTP before stopping at `require("https")`.
 The pico startup milestone remains open. See the [CLI format and boundaries](docs/cli.md).
 
 ## Run the specs
@@ -86,6 +91,7 @@ node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-resolution-com
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-package-resolution.spec.ts test/commonjs-package-exports.spec.ts test/commonjs-package-symbolic.spec.ts test/published-invariant.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/host-effects.spec.ts test/discount-server.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-server.spec.ts
+node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-binding.spec.ts test/node-http-bind-reference.spec.ts test/node-tcp-bind.spec.ts test/host-slots-graph.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-http-write.spec.ts test/pico-static-server-analysis.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/commonjs-builtins.spec.ts test/node-http-lifecycle.spec.ts test/node-http-lifecycle-reference.spec.ts
 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-path.spec.ts test/pico-static-server-analysis.spec.ts
@@ -423,20 +429,25 @@ upstream cases that cannot yet run unmodified.
 
 [Listen compatibility specs](test/node-http-listen.spec.ts) additionally cover
 numeric `listen(port[, callback])` and `listen(port, "127.0.0.1"[, callback])`,
-including nonzero ports and finite symbolic choices. The model assumes a primary
-process and successful binding: omitted-host binding makes `server.listening`
-true before the call returns, while an explicit host waits for lookup/binding.
-Both forms defer the listening event. Invalid numeric ports produce a catchable
+including nonzero ports and finite symbolic choices in a primary process.
+The optional bind model supplies null success or Error failure, including symbolic
+choices; omitted configuration keeps the older successful-bind domain. The CLI
+instead supplies unknown outcomes. Hostless `listen` attempts binding inline and
+sets `server.listening` only on success; explicit host waits for lookup/binding.
+Both forms defer success/error notification. Invalid numeric ports produce a catchable
 RangeError and retain already registered callbacks; a call on an already bound
 server produces `ERR_SERVER_ALREADY_LISTEN` before registering another callback.
 Unbounded symbolic ports, other overloads, custom callback conversion, inherited
-listen options, and overlapping pending host lookups remain explicit gaps.
+listen options, and overlapping pending attempts remain explicit gaps.
+[Binding specs](test/node-http-binding.spec.ts) and [isolated Node observations](test/node-http-bind-reference.spec.ts)
+also cover deferred occupied-port errors, unhandled delivery and retries. Exact
+OS failure relationships and shared socket/resource contention remain unknown.
 
 Shared [event-listener specs](test/node-events.spec.ts) now cover `on`,
 `addListener`, `once`, `removeListener`/`off`, `emit`, and `listenerCount`, including
 conditional registration/removal, listener snapshots, reentrant once listeners,
 and escaping throws. `createEventEmitterModel().module` can be supplied as the
-`events` builtin. HTTP uses the same implementation for request, listening, and
+`events` builtin. HTTP uses the same implementation for request, listening, bind-error and
 finish callbacks. [Whole-server event specs](test/node-http-events.spec.ts) prove
 that a finish callback runs on explicit completion, after `end`, using current
 captured variables. Host lifecycle emission/counting, listener metadata events,

@@ -83,9 +83,9 @@ for (const [argument, port] of [
     const events = paths[0].events;
     expect(events.map(event => `${event.kind}:${event.call.operation}`)).toEqual([
       "call:http.createServer", "return:http.createServer",
-      "call:http.server.listen", "return:http.server.listen"
+      "call:http.server.listen", "call:http.server.bind", "return:http.server.bind", "return:http.server.listen"
     ]);
-    const created = events[1], listened = events[3];
+    const created = events[1], listened = events[5];
     expect(created.kind === "return" && created.value).toBe(server);
     expect(listened.kind === "return" && listened.value).toBe(server);
     expect(events[0].call.args).toHaveLength(1);
@@ -138,7 +138,7 @@ for (const method of ["OPTIONS", "POST", "DELETE"]) {
     expect(headers.allow).toBeUndefined();
     expect(headers["content-length"]).toBeUndefined();
     expect(effectPaths(finished.value.effects!)[0].events.filter(event => event.kind === "call")
-      .map(event => event.call.operation).slice(5)).toEqual([
+      .map(event => event.call.operation).slice(6)).toEqual([
         "http.server.request", "http.response.writeHead", "http.response.end", "http.response.finish"
       ]);
     expect(getProperties(delivered.response, finished).writableFinished).toMatchObject({ value: true });

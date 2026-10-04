@@ -183,9 +183,13 @@ export function createEventEmitterModel() {
     unmodeledOwnPropertyInspection: "Node EventEmitter prototype descriptors"
   });
   const initialize = (target: TESObject, context: TExecutionContext, policy: EmitterPolicy = {}) => {
-    if (states.has(target)) return unsupported("reinitializing an EventEmitter");
+    if (states.has(target) || target.hostSlots &&
+        Object.prototype.hasOwnProperty.call(target.hostSlots, "node.events")) {
+      return unsupported("reinitializing an EventEmitter");
+    }
     const state = ESObject();
     states.set(target, { state, policy });
+    target.hostSlots = Object.freeze({ ...target.hostSlots, "node.events": state });
     target.unknownProperties = target.unknownProperties || "Node EventEmitter instance API";
     target.unmodeledOwnPropertyInspection = target.unmodeledOwnPropertyInspection || "Node EventEmitter descriptors";
     target.unmodeledPropertyWrites = [...(target.unmodeledPropertyWrites || []), ...protectedFields];

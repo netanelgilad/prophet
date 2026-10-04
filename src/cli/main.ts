@@ -5,8 +5,9 @@ import { runFile } from "./runtime";
 const usage = `Usage: prophet [--runtime node@24.21.0] [--max-steps N] -- SCRIPT [args...]
 
 Interpret one CommonJS file and write its symbolic graph to stdout.
-This first slice supports console output; uncaptured imports and other host
-APIs stop analysis. No target code or external writes run natively.
+This slice follows CommonJS imports and retains console output and supported
+HTTP setup with pending bind outcomes. Other host APIs stop analysis.
+No target code or external writes run natively; pending callbacks are not drained.
 The graph is an inspection projection, not a resumable environment snapshot.
 Exit codes: 0 analyzed entry completion (including a program throw),
 2 partial analysis stop, 1 invocation/acquisition/serialization failure.

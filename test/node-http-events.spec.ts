@@ -373,7 +373,7 @@ test("request stream registration remains an explicit gap until flowing and read
   expect(() => model.deliverRequest(server, request, ready)).toThrow(/HTTP|host property/);
 });
 
-for (const event of ["connection", "error", "close"]) {
+for (const event of ["connection", "close"]) {
   test(`server ${event} registration is a gap until that host event can be delivered`, () => {
     expect(() => load(`
       const http = require("node:http");

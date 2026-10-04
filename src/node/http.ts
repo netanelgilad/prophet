@@ -20,6 +20,12 @@ import { withHTTPChunk, appendHTTPChunk, consumeHTTPBody } from "./http-body";
 import { createHTTPStatusCodes } from "./http-status-codes";
 import { headerError, invalidHeaderText, serializeResponseHeaders, withHeaderText } from "./http-headers";
 
+export type HTTPModelOptions = {
+  // A bind attempt returns null on success or the Error later emitted by Node.
+  // The supplied transition must model the environment, never bind a real port.
+  bind?: HostModel;
+};
+
 function unsupported(detail: string): never {
   throw new Error(`HTTP analysis is not yet supported: ${detail}`);
 }
@@ -44,23 +50,31 @@ function change(object: TESObject, properties: { [name: string]: Any }, context:
 /**
  * Explicit Node HTTP boundary for one declared successful transport schedule.
  * No native HTTP object, socket, timer, or callback queue runs during analysis.
- * In the primary process, omitted-host binding succeeds during listen itself;
- * its event is deferred. Explicit-host lookup/binding completes on delivery.
+ * In the primary process, omitted-host binding is attempted during listen;
+ * success/error notification is deferred. Explicit-host binding runs on delivery.
  * The embedding chooses when those events and already-dispatched request events
  * arrive. Wire dispatch (for example CONNECT/upgrade) is not modeled. Binding
- * failures, cluster workers, and other schedules need compatible models.
+ * outcomes come from the supplied environment. Cluster workers, overlapping
+ * pending retries and other schedules need compatible models.
  * The body schedule queues writes until synchronous end consumes all bytes;
  * Buffer mutations before end remain visible, and finish is delivered later.
  * Other flush times, partial transport/failure and callbacks are not modeled.
  * A normal write's Boolean result stays unknown without socket capacity facts.
  */
-export function createHTTPModel(events = createEventEmitterModel()) {
+export function createHTTPModel(events = createEventEmitterModel(), options: HTTPModelOptions = {}) {
+  if (options.bind !== undefined && typeof options.bind !== "function") {
+    throw new Error("HTTP bind environment must be a model function");
+  }
+  // Omission preserves the explicitly successful-bind domain of older embeddings.
+  // The CLI supplies a symbolic transition instead of assuming availability.
+  const bind = operation("http.server.bind", options.bind === undefined
+    ? ((_call, context) => [ESNull, context]) : options.bind);
   // Node's default-reason lookup closes over this original table. Entry writes
   // remain visible, while replacing the module export does not replace it.
   const statusCodes = createHTTPStatusCodes();
-  const unsupportedServerEvents = ["connection", "close", "error", "drop", "checkContinue",
+  const unsupportedServerEvents = ["connection", "close", "drop", "checkContinue",
     "checkExpectation", "clientError", "connect", "upgrade", "timeout"];
-  const serverEvents = { restrictedEvents: ["listening", "request", ...unsupportedServerEvents],
+  const serverEvents = { restrictedEvents: ["listening", "request", "error", ...unsupportedServerEvents],
     unsupportedRegistrations: unsupportedServerEvents, internalListenerCounts: { listening: 1 } };
   const unsupportedResponseEvents = ["prefinish", "close", "error", "drain", "pipe", "unpipe", "timeout"];
   const responseEvents = { restrictedEvents: ["finish", ...unsupportedResponseEvents],
@@ -86,6 +100,17 @@ export function createHTTPModel(events = createEventEmitterModel()) {
       unsupported(`delivery requires the known '${expected}' state`);
     }
   };
+
+  const retainOutcome = (server: Any, pending: TESObject, outcome: Any, context: TExecutionContext): BranchResult =>
+    withValue(outcome, context, (selected, branch) => {
+      if (!isESNull(selected) && !(selected as { errorData?: boolean }).errorData) {
+        return unsupported("bind environment must return null or an Error value");
+      }
+      const bound = ESBoolean(isESNull(selected));
+      const retained = writeProperty(pending, "outcome", selected, branch);
+      const current = writeProperty(serverState(server), "bound", bound, retained);
+      return [server, writeProperty(server as TESObject, "listening", bound, current)];
+    });
 
   const listen = operation("http.server.listen", (call, context) => {
     const state = serverState(call.receiver);
@@ -120,12 +145,14 @@ export function createHTTPModel(events = createEventEmitterModel()) {
           return failure("RangeError", "ERR_SOCKET_BAD_PORT",
             `options.port should be >= 0 and < 65536. Received type number (${portNumber}).`, after);
         }
-        // The declared environment assumes binding succeeds. Hostless Node
-        // binds inline; a supplied host first performs asynchronous lookup.
-        const bound = ESBoolean(!explicitHost);
-        const starting = change(state, { phase: ESString("starting"), bound,
-          port: ESNumber(portNumber | 0), host: explicitHost ? args[1] : Undefined }, after);
-        return [call.receiver, writeProperty(call.receiver as TESObject, "listening", bound, starting)];
+        const port = ESNumber(portNumber | 0), host = explicitHost ? args[1] : Undefined;
+        const pending = ESObject({ port, host, outcome: Undefined, delivered: ESBoolean(false) });
+        const starting = change(state, { phase: ESString("starting"), bound: ESBoolean(false),
+          port, host, pending }, after);
+        // Hostless Node attempts binding inline; explicit-host lookup is deferred.
+        if (explicitHost) return [call.receiver, starting];
+        return bindNormal(invoke(bind, [port, host], starting, call.receiver), (outcome, current) =>
+          retainOutcome(call.receiver, pending, outcome, current));
       };
       const afterRegistration = (after: TExecutionContext): BranchResult => {
         if (isUndefined(callback)) return validate(after);
@@ -287,7 +314,8 @@ export function createHTTPModel(events = createEventEmitterModel()) {
       });
       const state = ESObject();
       servers.set(server, state);
-      const created = change(state, { phase: ESString("created"), bound: ESBoolean(false) }, events.attach(server, branch, serverEvents));
+      server.hostSlots = Object.freeze({ "node.http.server": state });
+      const created = change(state, { phase: ESString("created"), bound: ESBoolean(false), pending: Undefined }, events.attach(server, branch, serverEvents));
       return isUndefined(listener) ? [server, created] : events.register(server, "request", listener, false, created);
     });
   });
@@ -297,10 +325,42 @@ export function createHTTPModel(events = createEventEmitterModel()) {
   const listening = operation("http.server.listening", (call, context) => withValue(call.args[0], context, (server, branch) => {
     const state = serverState(server);
     requireState(state, "starting", branch);
+    const pending = call.args[1] as TESObject;
+    const consumed = writeProperty(pending, "delivered", ESBoolean(true), branch);
     const ready = change(server as TESObject, { listening: ESBoolean(true) },
-      change(state, { phase: ESString("listening"), bound: ESBoolean(true) }, branch));
+      change(state, { phase: ESString("listening"), bound: ESBoolean(true), pending: Undefined }, consumed));
     return bindNormal(events.emit(server, "listening", [], ready), (_value, after) => [server, after]);
   }));
+
+  const listenError = operation("http.server.error", (call, context) => withValue(call.args[0], context, (server, branch) => {
+    const state = serverState(server);
+    requireState(state, "starting", branch);
+    const pending = call.args[2] as TESObject;
+    const consumed = writeProperty(pending, "delivered", ESBoolean(true), branch);
+    // A failed handle is gone before error notification. A listener may retry;
+    // earlier once-listening callbacks remain registered for that later success.
+    const failed = change(server as TESObject, { listening: ESBoolean(false) },
+      change(state, { phase: ESString("created"), bound: ESBoolean(false), pending: Undefined }, consumed));
+    return bindNormal(events.emit(server, "error", [call.args[1]], failed), (_value, after) => [server, after]);
+  }));
+
+  const completeListen = (server: Any, context: TExecutionContext): BranchResult =>
+    withValue(server, context, (target, branch) => {
+      const state = serverState(target);
+      requireState(state, "starting", branch);
+      return withValue(getProperties(state, branch).pending, branch, (pendingValue, current) => {
+        const pending = pendingValue as TESObject;
+        const deliver = (ready: TExecutionContext): BranchResult =>
+          withValue(getProperties(pending, ready).outcome, ready, (outcome, leaf) =>
+            isESNull(outcome) ? invoke(listening, [target, pending], leaf) : invoke(listenError, [target, outcome, pending], leaf));
+        return withValue(getProperties(pending, current).outcome, current, (outcome, selected) => {
+          if (!isUndefined(outcome)) return deliver(selected);
+          const fields = getProperties(pending, selected);
+          return bindNormal(invoke(bind, [fields.port, fields.host], selected, target), (value, afterBind) =>
+            bindNormal(retainOutcome(target, pending, value, afterBind), (_value, retained) => deliver(retained)));
+        });
+      });
+    });
 
   const requestEvent = operation("http.server.request", (call, context) => withValue(call.args[0], context, (server, branch) => {
     const state = serverState(server);
@@ -323,9 +383,7 @@ export function createHTTPModel(events = createEventEmitterModel()) {
   return {
     module: Object.assign(ESObject({ createServer, STATUS_CODES: statusCodes }), { unknownProperties: "Node HTTP module API" }),
     eventsModule: events.module,
-    completeListen(server: Any, context: TExecutionContext): BranchResult {
-      return invoke(listening, [server], context);
-    },
+    completeListen,
     deliverRequest(server: Any, input: { method: TESString; url: TESString }, context: TExecutionContext) {
       if (!isESString(input.method) || !isESString(input.url)) unsupported("request method and URL must be strings");
       const request = Object.assign(ESObject({ method: input.method, url: input.url }), {

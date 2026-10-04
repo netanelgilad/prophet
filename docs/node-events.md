@@ -61,6 +61,18 @@ the same persistent execution-context heap as ordinary JavaScript objects.
 Registering or removing on one symbolic path cannot mutate an earlier snapshot
 or another path. Repeated registrations of the same callback remain distinct.
 
+An emitter now has an immutable `hostSlots["node.events"]` metadata link to its
+state object, allowing the JSON graph to retain listener associations and their
+lexical definitions. This is separate from guest properties: a program property
+named `hostSlots` neither reads nor replaces the metadata. Mutable initialization
+and listener fields still come from the selected context's heap. The identity
+link can exist when an earlier context has no initialized state; it does not
+authorize a receiver or prove that a registration happened on every path.
+Private model registries still validate receivers, and another emitter model
+cannot overwrite the association. [Host-slot graph specs](../test/host-slots-graph.spec.ts)
+cover these distinctions and conditional registrations. This is inspection
+support, not host-state reconstruction or resumption.
+
 An unknown boolean can conditionally register a listener. Emitting later must
 retain that condition in callback effects and captured variable updates. Event
 names may be concrete strings or finite symbolic choices of strings. Arbitrary
@@ -73,11 +85,15 @@ not a replacement for the current context when executing listeners.
 
 ## HTTP integration and limits
 
-The [HTTP model](node-http.md) uses this same machinery for server `request` and
-`listening` callbacks, response `finish` callbacks, and application custom events.
-Successful listen/response completion are still explicitly delivered host
-transitions. EventEmitter's synchronous dispatch does not implement Node's event
-loop, promise rejection handling, request streams, or network failures.
+The [HTTP model](node-http.md) uses this same machinery for server `request`,
+`listening` and bind-failure `error` callbacks, response `finish` callbacks, and
+application custom events. Listen success/error notification and successful
+response completion are still explicitly delivered host transitions. Error
+listeners added or removed after `listen` affect later delivery; an unhandled
+Error escapes that delivery unchanged. EventEmitter's synchronous dispatch does
+not implement Node's event loop, promise rejection handling, request streams or
+general network failures. The CLI shares this model with its HTTP builtin but
+does not drain the pending notifications.
 
 Public emission and listener counting of protected HTTP lifecycle events remain
 gaps because the partial HTTP boundary has additional internal Node listeners

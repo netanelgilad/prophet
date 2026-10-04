@@ -143,11 +143,11 @@ test("a reached unmodeled builtin in a dependency stops outside application catc
   const result = run({
     "entry.cjs": `console.log("entry"); try { require("./dependency.cjs"); }
       catch (error) { console.log("caught"); } console.log("after");`,
-    "dependency.cjs": `console.log("dependency"); require("http"); console.log("unreachable");`
+    "dependency.cjs": `console.log("dependency"); require("https"); console.log("unreachable");`
   });
   expect(result.status).toBe("analysis-stop");
   expect(result.completion).toBeUndefined();
-  expect(result.diagnostic).toMatch(/http/);
+  expect(result.diagnostic).toMatch(/https/);
   expect(outputs(result.current)).toEqual([["entry\n", "dependency\n"]]);
 });
 
@@ -190,13 +190,13 @@ test("a captured CommonJS dependency syntax error stays catchable program behavi
   expect(outputs(result.current)[0].join("")).toBe(nativeOutput());
 });
 
-test("unchanged pico startup reaches its imported implementation and stops at the unregistered HTTP builtin", () => {
+test("unchanged pico startup resolves HTTP and reaches its remaining HTTPS builtin boundary", () => {
   const packagePath = resolve("test/fixtures/pico-static-server-3.0.3/package");
   const result = runFile({ script: join(packagePath, "examples/pico-http-server.js"), args: [],
     maxSteps: 100000, runtime: "node@24.21.0" }, process.cwd());
   expect(result.status).toBe("analysis-stop");
   expect(result.completion).toBeUndefined();
-  expect(result.diagnostic).toMatch(/no model registered for 'http'/);
+  expect(result.diagnostic).toMatch(/no model registered for 'https'/);
   expect(result.current.value.sourceFile).toBe(realpathSync(join(packagePath, "index.js")));
   expect(outputs(result.current)).toEqual([[]]);
 });

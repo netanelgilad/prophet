@@ -4,9 +4,10 @@ import { tmpdir } from "os";
 import { join, resolve } from "path";
 import { effectPaths, isForkedCompletion } from "../src";
 import { getProperties } from "../src/execution-context/Heap";
-import { isThrownValue } from "../src/types";
+import { isThrownValue, TESBoolean, WithProperties } from "../src/types";
 import { TESString } from "../src/string/String";
 import { assertPinnedNode } from "./commonjs/oracle";
+import { assume, choiceOf, resolveBoolean } from "../src/symbolic";
 
 // Decode only the documented transport containers for inspection, never native
 // implementations. Maps, aliases and references survive the JSON boundary.
@@ -192,4 +193,38 @@ test("CLI usage failure writes diagnostics only to stderr", () => {
   expect(child.status).toBe(1);
   expect(child.stdout).toBe("");
   expect(child.stderr).toMatch(/node@24\.21\.0/);
+}, 40000);
+
+test("CLI retains uncertain HTTP binding and deferred callbacks in the graph without opening a socket", () => {
+  const { child, roots } = run(`
+    const http = require("node:http");
+    const server = http.createServer(function(req, res) { res.end("hello"); });
+    server.on("error", function(error) { console.log(error.code); });
+    server.listen(8080, function() { console.log("ready"); });
+    console.log("after listen");
+    module.exports = server;
+  `);
+  expect(child.status).toBe(0);
+  const server = roots.completion;
+  const state = server.hostSlots["node.http.server"];
+  const pending = getProperties(state, roots.current).pending as WithProperties;
+  expect(getProperties(pending, roots.current).delivered).toMatchObject({ value: false });
+  expect(getProperties(pending, roots.current).port).toMatchObject({ value: 8080 });
+  expect(server.hostSlots["node.events"]).toBeDefined();
+  expect(resolveBoolean(getProperties(server, roots.current).listening as TESBoolean, roots.current.value.knowledge))
+    .toBeUndefined();
+  expect(outputs(roots.current)).toEqual([["after listen\n"]]);
+  const paths = effectPaths(roots.current.value.effects);
+  // This is one shared call history with a conditional result/state; neither
+  // deferred event has happened, so it need not duplicate the common history.
+  expect(paths).toHaveLength(1);
+  const outcome = choiceOf(getProperties(pending, roots.current).outcome)!;
+  expect(outcome.consequent).toMatchObject({ type: "null" });
+  expect(outcome.alternate).toMatchObject({ type: "object", errorData: true });
+  expect([true, false].map(truth => resolveBoolean(getProperties(server, roots.current).listening as TESBoolean,
+    assume(roots.current.value.knowledge || [], outcome.condition, truth)))).toEqual([true, false]);
+  expect(paths.every(path => path.events.filter(event => event.kind === "call" &&
+    event.call.operation === "http.server.bind").length === 1)).toBe(true);
+  expect(paths.every(path => !path.events.some(event =>
+    event.call.operation === "http.server.listening" || event.call.operation === "http.server.error"))).toBe(true);
 }, 40000);

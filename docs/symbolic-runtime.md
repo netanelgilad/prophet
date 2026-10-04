@@ -33,7 +33,8 @@ redirect. A caller conceptually replaces `node` with Prophet and chooses the
 runtime being modeled, preserving the target program's arguments.
 
 The [first CLI slice](cli.md) now supports the second command below for a bounded
-CommonJS/console domain with automatic acquisition of reached source dependencies.
+CommonJS domain with automatic acquisition of reached source dependencies,
+console output and supported HTTP setup retaining pending bind outcomes.
 Explicit environment input in the first
 command remains proposed:
 
@@ -141,11 +142,21 @@ Complete serialization/resumption is future work; today's private WeakMaps and
 internal execution contexts are not already a portable snapshot format.
 The initial CLI transport preserves graph references, maps, special primitives,
 conditional histories and available function definitions, but labels its output
-as an inspection projection in its documentation. Native closures and private resource metadata are
-opaque. At an analysis stop it retains one known checkpoint, not a reconstructed
+as an inspection projection in its documentation. Server/emitter `hostSlots`
+metadata now links ordinary graph references to persistent lifecycle/listener
+state, including pending bind attempts. These links are not guest properties
+or initialization proofs; the selected heap and private receiver registries still
+matter. Native closures and remaining private resource associations are opaque,
+so the links do not establish resumability. At an analysis stop it retains one known checkpoint, not a reconstructed
 frontier of every explored/unvisited branch. The graph omits the completion root
 on a stop; its reached diagnostic goes to stderr with exit status 2. Internal
 capture metadata is not yet modeled as graph state. See [the current schema](cli.md).
+
+Synchronous CLI completion can retain pending HTTP success/error notification
+and unexecuted listeners. The CLI neither drains those callbacks nor declares
+the whole process finished. The HTTP model's explicit completion transition can
+evaluate a chosen notification with current listeners and captured state; a
+general scheduler and automatic future-event exploration remain separate work.
 
 General programs may not terminate, and some executions exceed supported
 semantics or budgets. The conceptual environment transformation therefore needs

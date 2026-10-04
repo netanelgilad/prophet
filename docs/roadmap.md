@@ -78,7 +78,8 @@ program completions. Analysis failures
 retain a checkpoint without a completion root, with a reached diagnostic on
 stderr and exit status 2. Stdout is exactly `{ roots, nodes }`, without the old
 report envelope or its implementation prose. Output is a nonresumable projection,
-not the full state contract. Only the console builtin is connected today.
+not the full state contract. Console, HTTP and its shared EventEmitter builtin
+are connected today.
 
 [Import specs](../test/cli-imports.spec.ts) preserve module identities, main id
 `"."`, cycles and branch-specific initialization while acquisition shares cached
@@ -86,12 +87,23 @@ source bytes and positive/negative probes. [Capture specs](../test/cli-source-ca
 keep read-only non-atomic acquisition distinct from target filesystem execution.
 Unresolved bare packages, dependency symlinks/aliases, nonregular/invalid-UTF8
 sources and acquisition errors remain explicit boundaries. The unchanged pico
-example now enters its original `index.js` and stops at `require("http")`.
+example enters its original `index.js`, resolves HTTP and stops at `require("https")`.
 
-**Next:** connect the required built-in models through the shared loader and
-advance the original pico script through that same CLI path. Extend output for
-host resources/pending work as those paths expose
-the need; binding and stdout success must stay explicit. Keep new test drivers
+Supported HTTP setup now retains each bind attempt in the persistent heap.
+The CLI uses symbolic success/failure without probing a real port; hostless
+`listen` correlates its returned `listening` flag with that outcome. The generic
+graph links servers/emitters to lifecycle/listener state through immutable host
+metadata, preserving pending attempts and callback lexical identities. Synchronous
+entry completion does not deliver listening/error notifications or request events.
+[Binding specs](../test/node-http-binding.spec.ts) explicitly deliver these events
+and check current listeners, unhandled errors and retries against [pinned Node
+observations](../test/node-http-bind-reference.spec.ts). These are supported model
+transitions, not an automatic event loop or all-callback analysis.
+
+**Next:** connect the remaining HTTPS/fs/url/path assembly and bounded startup
+notification scheduling through the same CLI path. Preserve success/error
+alternatives and pending work; do not treat a retained listener as executed or
+presume healthy transport/stdout. Keep new test drivers
 inside specs; the vendored upstream example is already a fixture.
 
 Explicit environment authoring, arbitrary request exploration and full snapshot
@@ -406,14 +418,17 @@ pinned runtime and corresponding source/tests as the behavioral reference.
 
 The model supports optional/multiple request listeners, numeric
 `listen(port[, callback])` and `listen(port, "127.0.0.1"[, callback])`,
-explicit successful listening/request/finish delivery, selected response fields,
+explicit success/error listen notification and successful request/finish delivery, selected response fields,
 direct writeHead, the pinned status catalog, string/Buffer writes and end payloads,
 and falsy no-payload end. Resource state uses the persistent
 heap, and callbacks use the current context and their captured environment.
-Under the declared successful-binding environment, omitted-host calls bind
-immediately while listening callbacks stay deferred. The explicit loopback-host
-form waits for modeled lookup/binding completion. Address allocation, binding
-failures, and broader listen overloads remain separate coverage gaps.
+Omitted-host calls attempt binding immediately while notifications stay deferred;
+the explicit loopback-host form waits for modeled lookup/binding completion.
+The optional bind transition supplies success or Error failure, including symbolic
+choices; the default embedding still selects the older successful-bind domain.
+The CLI supplies fresh unknown outcomes and retains pending notifications without
+delivering them. Precise OS errors, address allocation, shared resource contention,
+general scheduling and broader listen overloads remain gaps.
 Unknown or invalid lifecycle transitions stop analysis instead of picking a
 convenient path. A thrown callback remains a thrown or forked completion with
 prior effects. The embedding may constrain a path and continue from that state.

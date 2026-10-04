@@ -9,6 +9,8 @@ import { ExecutionContext, TExecutionContext } from "../execution-context/Execut
 import { ESBuiltinFunction } from "../Function/Function";
 import { Math as ESMath } from "../math/Math";
 import { createConsoleModel } from "../node/console";
+import { symbolicTCPBind } from "../node/bind";
+import { createHTTPModel } from "../node/http";
 import { ESObject } from "../Object";
 import { createCommonJSLoaderFromResolver } from "../require/loader";
 import { createModuleResolverFromSource } from "../require/resolution";
@@ -50,6 +52,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const input = { runtime: options.runtime, filename, args: options.args.slice(),
     cwd: resolve(cwd), source, sources: captured.files, paths: captured.paths };
   const consoleModel = createConsoleModel();
+  const http = createHTTPModel(undefined, { bind: symbolicTCPBind });
   const math = Object.assign(ESObject({
     random: Object.assign(ESBuiltinFunction(ESMath.properties.random.implementation), {
       unknownProperties: "Math.random function API", modeledInheritedProperties: ["call"]
@@ -76,7 +79,9 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
         }
         return path;
       }
-    }, { main: filename, builtins: { console: consoleModel.module } });
+    }, { main: filename, builtins: {
+      console: consoleModel.module, http: http.module, events: http.eventsModule
+    } });
     // The evaluator consumes its budget in place. Keep that runner bookkeeping
     // separate so the retained initial state still records the initial budget.
     const started = ExecutionContext({ ...initial.value, evaluationBudget: { remaining: options.maxSteps } });

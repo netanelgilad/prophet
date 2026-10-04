@@ -119,6 +119,10 @@ export type WithProperties<
   // Immutable intrinsic/embedding symbol slots. Public Symbol-key property
   // creation, mutation and descriptors remain separate implementation work.
   wellKnownSymbols?: ReadonlyMap<object, Any>;
+  // Immutable identity links for host-state inspection, separate from guest
+  // properties. Mutable state and initialization still belong to the heap;
+  // these links neither authorize a host receiver nor make graphs resumable.
+  hostSlots?: { readonly [name: string]: Any };
   unmodeledPropertyReads?: ReadonlyArray<string>;
   // A partial host object has modeled fields, but other fields are unknown,
   // not absent. Access must report the missing model instead of inventing

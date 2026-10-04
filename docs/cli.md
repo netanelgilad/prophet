@@ -44,9 +44,9 @@ catchable `MODULE_NOT_FOUND`; an unresolved bare package stops because
 I/O, parser and serializer limits are not supplied by the AST evaluation budget.
 
 The VM receives a partial standard global object and one shared global/imported
-console model. `require("console")` and `require("node:console")` are connected.
-Other builtins stop analysis. General process state and HTTP/filesystem host
-assembly are the next CLI work. Launch args/cwd
+console model. `console`, `http` and the HTTP model's shared `events` builtin are
+registered, including their `node:` aliases. Other builtins stop analysis.
+General process state and the remaining server host assembly are future work. Launch args/cwd
 are retained internally as provenance; that alone does not implement `process.argv`/`cwd`.
 Unknown global names and missing Math members stop conservatively. Wider partial
 intrinsics still have the limitations in the implementation backlog.
@@ -58,6 +58,22 @@ An omitted environment file does not establish stdout health.
 `Math.random()` introduces a fresh unknown in `[0, 1)`, not a sampled host value
 or a captured PRNG seed. No target external writes or native module execution
 occur. The runtime does not yet accept explicit input environments.
+
+HTTP setup uses a fresh symbolic bind outcome for each supported attempt, not a
+real port probe or a successful-bind default. A hostless numeric `listen` attempts
+binding synchronously: `server.listening` is true only on success, while both
+success and failure notification remain pending. With explicit `"127.0.0.1"`,
+the attempt itself is deferred. The CLI stops after synchronous entry evaluation
+and does not deliver either notification or invoke request handlers. A completion
+root can therefore coexist with a pending bind, an undelivered error and
+unexecuted callbacks; it does not imply process exit or a ready server.
+
+The failure branch retains an Error with unknown code/message/errno and, for a
+hostless attempt, unknown address. These fields overapproximate outcomes without
+OS-specific correlations or a shared socket/resource pool. A nonzero port is
+retained; port zero omits the Error's own port field. The model does not establish
+real port availability or explore every future callback. See the [binding and
+delivery boundary](node-http.md#callback-delivery-and-persistent-state).
 
 ## Output graph
 
@@ -120,6 +136,15 @@ portable yet. Execution contexts exclude debug hooks, the mutable analysis
 budget and legacy flattened scope/stderr inspection fields. This is why the
 schema represents a projection rather than a full machine snapshot.
 
+Host objects can now retain immutable `hostSlots` identity links in these same
+record nodes. A server's `node.http.server` link reaches its persistent lifecycle
+state and pending attempt; an emitter's `node.events` link reaches listener state.
+The links are VM metadata, separate from guest properties, including any guest
+property also called `hostSlots`. Consult the selected context's heap for mutable
+state. A link alone does not prove initialization on that path: private model
+registries still validate receivers. These links preserve inspectable associations
+and callback scope references, not portable host reconstruction or resumption.
+
 The graph preserves the current VM value/fact and effect schemas inside these
 containers; these remain experimental. It keeps event predecessors, choices,
 call identities, event-time heap snapshots and path knowledge. A consumer can
@@ -145,10 +170,11 @@ claimed passing; startup flags, main-module APIs, source resolution/formatting,
 environment capture and process scheduling remain broader compatibility work.
 
 The [pico startup milestone](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
-is still open. The unchanged example now follows `../index.js` into the pinned
-package, then stops at its unregistered `http` builtin. Next connect the required
-host models and retain resource/pending-state boundaries in the result; this
-increment makes no new successful-bind or transport assumption. Full environment
+is still open. The unchanged example follows `../index.js` into the pinned
+package, resolves `http`, then stops at its unregistered `https` builtin. The
+remaining HTTPS/fs/url/path assembly and startup notification scheduling are
+still pending. General HTTP setup now retains symbolic bind outcomes and pending
+state; it does not drain callbacks or assume the bind succeeded. Full environment
 input, portable round trips/resumption and automatic reachable callback analysis
 follow. Track residual scope under REPORT-001, CJS-001, HOST-002, CONSOLE-002,
 LANG/LIB/LEGACY and SECURITY-002 in the [backlog](implementation-gaps.md).

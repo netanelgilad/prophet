@@ -27,12 +27,34 @@ symbolic path must not change another path's server.
 
 Calling `listen` and receiving a request are distinct operations. Numeric
 `listen(port[, callback])` and `listen(port, "127.0.0.1"[, callback])` are modeled
-for a primary process in an explicitly successful-bind environment. With no
-host, binding occurs during the call and `server.listening` is already true on
-return. An explicit host first performs asynchronous lookup, so it stays false
-until `completeListen`. Both forms defer the listening event: `completeListen`
-delivers that event and, for an explicit host, completes lookup/binding first.
-It does not choose whether an already returned omitted-host bind succeeded.
+for a primary process. `createHTTPModel(events, { bind })` accepts a host
+transition returning null for success or the Error to emit for failure, including
+a symbolic choice. Omitting this option preserves the explicitly successful-bind
+domain of earlier embeddings; the CLI supplies a symbolic transition instead.
+No real socket or availability probe runs inside either model.
+An explicitly supplied non-undefined bind option must be callable, and its
+normal result must be null or an Error value. Invalid configuration/results
+stop analysis rather than silently selecting success.
+
+With no host, the bind attempt occurs during `listen` and its outcome is retained.
+The call returns normally for either environmental outcome; `server.listening`
+is true only on success. A failure does not synchronously throw from `listen`.
+An explicit host first defers lookup/binding, so listening stays false until
+`completeListen`. Both forms defer notification. `completeListen` consumes the
+retained outcome and emits either `listening` or `error`; for an explicit host,
+it performs the bind transition first. It never reselects an already returned
+hostless outcome. Combining explicit-host lookup/bind and notification into one
+embedding transition does not model intervening scheduler turns.
+
+Error delivery uses the current error-listener registry and lexical state. With
+no listener, the same Error escapes that later delivery as a throw; an ordinary
+try/catch around the original `listen` call cannot catch a future event. Failure
+clears the pending handle before invoking listeners, so a listener can retry.
+The consumed attempt remains delivered, and a retry's new pending attempt is
+preserved. A success callback from the failed attempt stays registered for a
+later successful listen. Retrying before the failure notification is consumed
+still stops as an unsupported overlapping schedule.
+
 The optional listening callback is registered as a once-listener in the
 same ordered registry as `server.on/once("listening", callback)`. Listening and
 request callbacks execute through the shared VM invocation operation with the
@@ -54,9 +76,20 @@ returns the server and registers its optional callback for a later `listening`
 event. The [listen specs](../test/node-http-listen.spec.ts) compare both forms
 against pinned Node, including callback timing, order, receiver, and return
 identity. Concrete native checks use ephemeral ports or a freshly selected
-available port; symbolic exploration opens no sockets. Address allocation and
-startup failures remain unmodeled, so these proofs cannot establish availability
-of a configured port or safety for every operating-system outcome.
+available port; symbolic exploration opens no sockets. The [bind reference
+specs](../test/node-http-bind-reference.spec.ts) also occupy a port in an isolated
+Node process and check handled/unhandled asynchronous failure, listening flags,
+callback non-delivery and later retry. [Symbolic binding specs](../test/node-http-binding.spec.ts)
+check conditional success/error, current listener state, independent attempts
+and retry state without performing the real operation.
+
+The CLI's [symbolic TCP transition](../src/node/bind.ts) creates one fresh outcome
+per attempt, with an Error on the failure branch. Code, message, errno and
+hostless address remain unknown; explicit host and nonzero port are retained,
+and port zero omits the Error's own port field. [Transition specs](../test/node-tcp-bind.spec.ts)
+protect that representation and freshness. This is an overapproximation, not
+an OS error model: field relationships, address-family selection, descriptor
+availability and contention between servers/attempts are not inferred.
 
 Numeric ports must be integers from 0 to 65535, including negative zero. A bad
 numeric port produces the interpreted `RangeError` / `ERR_SOCKET_BAD_PORT`.
@@ -81,6 +114,20 @@ passed to `createHTTPModel(events)`. This preserves public method identities and
 borrowed `EventEmitter.prototype.on.call(server, ...)` behavior. Separately
 created emitter models represent separate environments, not two modules within
 one modeled Node process.
+
+Servers expose an immutable VM metadata link `hostSlots["node.http.server"]` to
+their lifecycle state; the shared emitter adds `hostSlots["node.events"]` for
+listener state. A pending attempt retains port, host, outcome and delivery state
+in the persistent heap. These associations survive the generic JSON graph along
+with callback definitions and lexical environments. They are not guest properties
+or evidence that the object was initialized on every path: model-owned private
+registries and the selected context still determine validity. Other private
+host state, including the response-state association, remains nonportable.
+
+The CLI registers `http` and this same `events` model, evaluates synchronous
+startup, and retains pending attempts. It does not call `completeListen`, run
+an event loop or explore request callbacks. A retained callback is not already
+analyzed future behavior, and synchronous module completion is not process exit.
 
 ## Explicit response headers and status catalog
 
@@ -265,7 +312,8 @@ optional request callback, the documented numeric listen forms, the shared liste
 operations above, request method/URL inspection, scoped direct `writeHead`, the
 status catalog, string/Buffer writes and the documented end forms. Broader
 overloads, the remaining EventEmitter APIs, request bodies/streams,
-progressive header APIs, capacity/drain behavior, socket aborts and errors, startup failures, timers,
+progressive header APIs, capacity/drain behavior, socket aborts and errors,
+precise operating-system binding/resource outcomes, timers,
 promises, and arbitrary concurrent schedules remain explicit gaps until their
 semantics and independent tests are added. Distinguish a language-visible Node
 error from an unsupported-analysis error. Unsupported public property access or
@@ -280,8 +328,9 @@ transitions deliver the modeled lifecycle events. Custom events use the shared
 emitter normally. Registering other reserved host events also reports a gap:
 for example, `connection` on the server and `prefinish` on the response would
 otherwise be accepted without the events that Node emits on the successful
-schedule. Error, close, and timeout registrations likewise await their host
-semantics. Listener warning thresholds include known internal registrations:
+schedule. Server `error` listeners now handle modeled bind failures; response
+errors, close and timeout registrations still await their host semantics.
+Listener warning thresholds include known internal registrations:
 the tenth application listener for `listening` or `finish` reaches the currently
 unmodeled warning boundary. `req.on` remains unsupported because registering a `data`
 listener also changes the readable stream's flowing state; adding a generic
@@ -292,7 +341,8 @@ normalizes them with Node's integer conversion, and supports final codes
 200–999. Invalid codes produce the modeled RangeError; informational completion
 and nonnumeric/open symbolic status conversion remain unsupported. A repeated
 listen on an already bound server is a modeled error; overlapping listen calls
-while explicit-host lookup is still pending remain unsupported. Truthy repeated
+while explicit-host lookup or a failed bind notification is still pending remain
+unsupported. Truthy repeated
 end calls, end callbacks, valid post-end writes and delivery into unresolved
 lifecycle states also remain explicit gaps. Unknown output strings lose their
 identity, length relationships and byte precision through UTF-8 encoding until
@@ -331,8 +381,9 @@ conversion effects. Inherited normalized listen options on `Object.prototype`
 also report a gap rather than silently using the model's default bind behavior.
 
 The embedding API supplies `completeListen`, `deliverRequest`, and
-`completeResponse` transitions. Their traces use `http.server.listening`,
-`http.server.request`, and `http.response.finish`; the middle name deliberately
+`completeResponse` transitions. Bind attempts are traced as `http.server.bind`;
+notifications use `http.server.listening` or `http.server.error`. Request/response
+delivery uses `http.server.request` and `http.response.finish`; the request name deliberately
 does not denote Node's outgoing-client `http.request` call. These transitions
 dispatch through the shared listener machinery rather than keeping a separate
 single-callback path.
@@ -352,9 +403,23 @@ additional capabilities:
   options objects, address inspection, closing, further language support, and
   the upstream common/assert harness.
 - [`test-net-server-call-listen-multiple-times.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-net-server-call-listen-multiple-times.js)
-  additionally needs asynchronous error delivery and close/relisten behavior.
+  still needs a `net` model, general asynchronous scheduling and close/relisten
+  behavior. HTTP's explicitly delivered bind-error transition and retry specs
+  do not implement this complete network/scheduler surface.
   The separate `test-net-listen-twice.js` uses cluster workers, a different
   environment from this primary-process model.
+- [`test-net-eaddrinuse.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-net-eaddrinuse.js)
+  requires two servers sharing actual port occupancy, `net`, address inspection,
+  close, error-message `includes`, asynchronous delivery and common/assert.
+  Independent symbolic bind choices do not establish its EADDRINUSE correlation.
+- [`test-net-listen-error.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-net-listen-error.js)
+  exercises port 1 on `1.1.1.1`, with an error listener added after `listen`.
+  It still needs `net`, the common harness, broader hosts and a declared
+  platform/permission/address domain yielding EACCES or EADDRNOTAVAIL.
+- [`test-net-better-error-messages-listen.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-net-better-error-messages-listen.js)
+  checks that failure's address, port and syscall. Its `net`, common/assert,
+  non-loopback host and platform-dependent binding prerequisites remain open;
+  the local HTTP differential fixtures do not activate this complete file.
 - [`test-http-head-response-has-no-body-end-implicit-headers.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-http-head-response-has-no-body-end-implicit-headers.js)
   still needs server address inspection, the HTTP client,
   response stream events/resume, server closing, and the common harness.

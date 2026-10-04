@@ -43,8 +43,10 @@ visible; neither sampled runs nor partial coverage justify an all-path claim.
 Build the CLI from generic conditional state/effect graphs. The [first slice](docs/cli.md)
 passes branching-console/import subprocess specs, captures reached CommonJS
 dependencies through the shared loader and emits a nonresumable projection.
-Next connect the required host models and pending state for pico startup;
-the unchanged example currently reaches its unregistered `http` import.
+HTTP and its shared EventEmitter now retain symbolic bind outcomes and pending
+notifications; the CLI stops after synchronous entry evaluation without draining
+callbacks. Next connect the remaining host models and startup scheduling for
+pico; the unchanged example currently reaches its unregistered `https` import.
 Node public built-ins remain the modeling boundary.
 CLI stdout contains the graph (`roots`/`nodes`) directly. Do not wrap it in a
 report with hand-written model-domain or limitation prose, or relocate that

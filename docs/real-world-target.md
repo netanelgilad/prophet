@@ -54,10 +54,13 @@ setup is not the public interface. The [roadmap acceptance criteria](roadmap.md#
 distinguish successful startup from unresolved bind work and defer arbitrary
 request input and full resumption. The [CLI](cli.md) now acquires reached
 CommonJS/JSON/package dependencies and preserves conditional console output.
-The unchanged example follows `../index.js` into the pinned package, then stops
-at its unregistered `http` builtin. Host assembly and waiting-state output remain
-the next work; following source imports does not establish successful binding
-or execute a request.
+The unchanged example follows `../index.js` into the pinned package, resolves
+`http`, then stops at its unregistered `https` builtin. Generic HTTP setup now
+retains uncertain bind outcomes and pending listeners in the output graph without
+opening sockets. The CLI does not deliver those notifications or requests.
+Remaining HTTPS/fs/url/path assembly and startup scheduling are the next work;
+the existing explicitly scheduled successful-server proofs do not establish that
+the default CLI has reached ready-server state.
 
 This unchanged server is a regression target for the proposed
 [runtime CLI/state contract](symbolic-runtime.md): supply a symbolic starting
