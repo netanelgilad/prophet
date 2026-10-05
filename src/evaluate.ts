@@ -7,7 +7,6 @@ import {
   Any
 } from "./types";
 import { ASTResolvers } from "./ASTResolvers";
-import assert from "assert";
 import {
   TExecutionContext,
   ExecutionContext
@@ -15,10 +14,10 @@ import {
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { parseECMACompliant } from "./parseECMACompliant";
 import { ESTree } from "cherow";
-import { isForkedCompletion } from "./execution-context/Completion";
+import { hasExecutionBoundary, isExecutionBoundary, isForkedCompletion, retainPendingStatements } from "./execution-context/Completion";
 import { mergeBranchResults, BranchResult } from "./execution-context/branches";
 import { analysisFailureContext, retainAnalysisFailureContext,
-  withAnalysisFailureContext } from "./execution-context/analysis-failure";
+  captureExecutionBoundary, ExecutionBudgetError, UnsupportedAnalysisError, withAnalysisFailureContext } from "./execution-context/analysis-failure";
 
 export class ASTEvaluationError extends Error {
   constructor(err: Error, public ast: ESTree.Node) {
@@ -46,15 +45,24 @@ export function evaluate<T extends ESTree.Node>(
   execContext: TExecutionContext
 ): NodeEvaluationResult<T> {
   try {
-    const budget = execContext && execContext.value.evaluationBudget;
-    if (budget && --budget.remaining < 0) {
-      throw new Error("Execution exceeded its evaluation budget");
-    }
-    const resolver = ASTResolvers.get(ast.type);
-    assert(resolver, `Can't resolve type of ast type ${ast.type}`);
-    return unsafeCast<NodeEvaluationResult<T>>(
-      resolver!(ast, execContext || ExecutionContext({}))
-    );
+    const result = captureExecutionBoundary(execContext, () => {
+      const budget = execContext && execContext.value.evaluationBudget;
+      if (budget && --budget.remaining < 0) {
+        throw new ExecutionBudgetError("Execution exceeded its evaluation budget");
+      }
+      const resolver = ASTResolvers.get(ast.type);
+      if (!resolver) throw new UnsupportedAnalysisError(`Can't resolve type of ast type ${ast.type}`);
+      return resolver(ast, execContext || ExecutionContext({}));
+    });
+    const annotate = (branch: BranchResult): BranchResult => {
+      const value = branch[0];
+      if (isExecutionBoundary(value)) return [{ ...value, frames: value.frames.concat([
+        { node: ast, sourceFile: execContext && execContext.value.sourceFile }
+      ]) }, branch[1]];
+      if (isForkedCompletion(value)) return [{ ...value, consequent: annotate(value.consequent), alternate: annotate(value.alternate) }, branch[1]];
+      return branch;
+    };
+    return unsafeCast<NodeEvaluationResult<T>>(hasExecutionBoundary(result[0]) ? annotate(result) : result);
   } catch (err) {
     retainAnalysisFailureContext(err, execContext);
     if (
@@ -106,6 +114,7 @@ export function evaluateThrowableIterator<
   };
   assertResumable();
   while (
+    !isExecutionBoundary(currentEvaluationResult.value[0]) &&
     !isThrownValue(currentEvaluationResult.value[0]) &&
     !isReturnValue(currentEvaluationResult.value[0]) &&
     !isForkedCompletion(currentEvaluationResult.value[0]) &&
@@ -127,6 +136,9 @@ export function evaluateStatements(
       return mergeBranchResults(value.condition, value.base,
         resume(value.consequent, next), resume(value.alternate, next));
     }
+    if (isExecutionBoundary(value)) {
+      return retainPendingStatements(result, statements.slice(next), context.value.sourceFile);
+    }
     if (isReturnValue(value) || isThrownValue(value)) return result;
     if (next === statements.length) return [Undefined, result[1]];
     return resume(evaluate(statements[next], result[1]), next + 1);
@@ -144,13 +156,14 @@ export function mapCompletions(
       mapCompletions(value.consequent, transform),
       mapCompletions(value.alternate, transform));
   }
-  return withAnalysisFailureContext(result[1], () => transform(value, result[1]));
+  if (isExecutionBoundary(value)) return result;
+  return captureExecutionBoundary(result[1], () => withAnalysisFailureContext(result[1], () => transform(value, result[1])));
 }
 
 // Compose the next evaluation step only onto normal leaves. Its captured
 // inputs must be immutable: the same continuation can run on several paths.
 // Cleanup (scope/this restoration, finally) uses mapCompletions instead, since
-// it must also visit returns and throws.
+// it must also visit returns and throws. Stopped execution never runs cleanup.
 export function bindNormal(
   result: BranchResult,
   continuation: (value: Any, context: TExecutionContext) => BranchResult
