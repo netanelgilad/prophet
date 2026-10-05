@@ -148,9 +148,14 @@ state, including pending bind attempts. The global `node.nextTick` link retains
 pending/active jobs in the shared persistent queue. These links are not guest properties
 or initialization proofs; the selected heap and private receiver registries still
 matter. Native closures and remaining private resource associations are opaque,
-so the links do not establish resumability. At an analysis stop it retains one known checkpoint, not a reconstructed
-frontier of every explored/unvisited branch. The graph omits the completion root
-on a stop; its reached diagnostic goes to stderr with exit status 2. Internal
+so the links do not establish resumability. Classified unsupported operations and
+exhausted budgets now retain [execution boundary leaves](execution-boundaries.md)
+alongside completed siblings. Exact leaf contexts retain source frames and
+remaining statement sequences, not resumable native continuations. A completion
+tree with `state: "partial"` pairs with its common base checkpoint; consumers must
+inspect leaf states rather than treat that aggregate as final. Untagged legacy
+failures still retain one checkpoint and omit the completion root. Both kinds of
+analysis stop report diagnostics on stderr with exit status 2. Internal
 capture metadata is not yet modeled as graph state. See [the current schema](cli.md).
 
 After normal entry completion the CLI drains its supported startup jobs, invoking

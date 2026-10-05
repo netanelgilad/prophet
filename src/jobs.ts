@@ -2,9 +2,9 @@ import { invoke } from "./ASTResolvers";
 import { Array as ESArray, TArray } from "./array/Array";
 import { withValue } from "./conversion/toString";
 import { mapCompletions } from "./evaluate";
-import { withAnalysisFailureContext } from "./execution-context/analysis-failure";
+import { captureExecutionBoundary, ExecutionBudgetError, withAnalysisFailureContext } from "./execution-context/analysis-failure";
 import { assumeInContext, BranchResult, mergeBranchResults } from "./execution-context/branches";
-import { isForkedCompletion } from "./execution-context/Completion";
+import { isExecutionBoundary, isForkedCompletion } from "./execution-context/Completion";
 import { TExecutionContext } from "./execution-context/ExecutionContext";
 import { getArrayElements, getProperties, writeProperty } from "./execution-context/Heap";
 import { ESObject, TESObject } from "./Object";
@@ -72,12 +72,13 @@ export function createJobQueue(): JobQueue {
             fork(value.condition, value.base, value.consequent, value.alternate);
             break;
           }
-          if (isThrownValue(value) || isReturnValue(value)) {
+          if (isExecutionBoundary(value) || isThrownValue(value) || isReturnValue(value)) {
             results.push(result);
             break;
           }
           let current = result[1];
-          const step = withAnalysisFailureContext(current, () => {
+          let scheduled = false;
+          const step = captureExecutionBoundary(current, () => withAnalysisFailureContext(current, () => {
             let pending = getProperties(state, current).pending;
             for (;;) {
               const choice = choiceOf(pending);
@@ -87,7 +88,8 @@ export function createJobQueue(): JobQueue {
                 fork(choice.condition, current,
                   [Undefined, assumeInContext(current, choice.condition, true)],
                   [Undefined, assumeInContext(current, choice.condition, false)]);
-                return undefined;
+                scheduled = true;
+                return [Undefined, current] as BranchResult;
               }
               current = assumeInContext(current, choice.condition, known);
               pending = known ? choice.consequent : choice.alternate;
@@ -95,12 +97,13 @@ export function createJobQueue(): JobQueue {
             const jobs = entries(pending, current);
             if (!jobs.length) {
               results.push([Undefined, current]);
-              return undefined;
+              scheduled = true;
+              return [Undefined, current] as BranchResult;
             }
             // Charge before dequeue so an exhausted budget retains the head.
-            if (delivered >= maxJobs) throw new Error("Execution exceeded its job budget");
+            if (delivered >= maxJobs) throw new ExecutionBudgetError("Execution exceeded its job budget");
             const budget = current.value.evaluationBudget;
-            if (budget && --budget.remaining < 0) throw new Error("Execution exceeded its evaluation budget");
+            if (budget && --budget.remaining < 0) throw new ExecutionBudgetError("Execution exceeded its evaluation budget");
             delivered++;
             const job = jobs[0] as TESObject;
             const fields = getProperties(job, current);
@@ -110,8 +113,8 @@ export function createJobQueue(): JobQueue {
             return withAnalysisFailureContext(active, () => mapCompletions(
               invoke(fields.callback, entries(fields.args, active), active, fields.receiver),
               (completion, after) => [completion, writeProperty(state, "active", Undefined, after)]));
-          });
-          if (!step) break;
+          }));
+          if (scheduled) break;
           result = step;
         }
       }

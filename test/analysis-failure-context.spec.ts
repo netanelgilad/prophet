@@ -1,4 +1,5 @@
-import { ASTEvaluationError, CodeEvaluationError, evaluate, evaluateCode } from "../src/evaluate";
+import { CodeEvaluationError, evaluate, evaluateCode } from "../src/evaluate";
+import { isExecutionBoundary } from "../src/execution-context/Completion";
 import { effectPaths } from "../src/effects";
 import { analysisFailureContext } from "../src/execution-context/analysis-failure";
 import { ExecutionContext, setVariablesInScope } from "../src/execution-context/ExecutionContext";
@@ -15,18 +16,17 @@ function failureOf(run: () => unknown): Error {
   return failure!;
 }
 
-test("an unsupported statement retains earlier console effects through code-error wrapping", () => {
+test("an unsupported statement retains earlier console effects in its boundary", () => {
   const console = createConsoleModel();
   const initial = setVariablesInScope(nodeInitialExecutionContext, { console: console.module });
-  const failure = failureOf(() => evaluateCode(`
+  const [boundary, checkpoint] = evaluateCode(`
     console.log("before");
     debugger;
     console.log("after");
-  `, initial));
+  `, initial);
 
-  expect(failure).toBeInstanceOf(CodeEvaluationError);
-  expect(failure.message).toContain("DebuggerStatement");
-  const checkpoint = analysisFailureContext(failure)!;
+  expect(boundary).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
+  expect(isExecutionBoundary(boundary) && boundary.message).toContain("DebuggerStatement");
   expect(checkpoint).toBeDefined();
   expect(console.inspectOutput(checkpoint)[0].chunks.map(chunk => chunk.value)).toEqual(["before\n"]);
   expect(console.inspectOutput(initial)[0].chunks).toEqual([]);
@@ -53,6 +53,7 @@ test("an unsupported operator retains effects from operands before its continuat
   const initial = setVariablesInScope(nodeInitialExecutionContext, { console: console.module });
   const failure = failureOf(() => evaluateCode('console.log("operand") ** 2;', initial));
 
+  expect(failure).toBeInstanceOf(CodeEvaluationError);
   expect(failure.message).toContain("Binary operator resolver for **");
   const checkpoint = analysisFailureContext(failure)!;
   expect(checkpoint).toBeDefined();
@@ -83,21 +84,16 @@ test("an entered unsupported host call remains an attempt without a fabricated o
   expect(events.filter(event => event.call === attempt.call)).toEqual([attempt]);
 });
 
-test("an exhausted evaluation budget retains the entering state through AST and source wrappers", () => {
+test("an exhausted evaluation budget retains the entering state as a boundary", () => {
   const console = createConsoleModel();
   const initial = setVariablesInScope(nodeInitialExecutionContext, { console: console.module });
   const [, before] = evaluateCode('console.log("before budget");', initial);
   const exhausted = ExecutionContext({ ...before.value, evaluationBudget: { remaining: 0 } });
   const source = 'console.log("after budget");';
-  const failure = failureOf(() => evaluate(parseECMACompliant(source), exhausted));
-
-  expect(failure).toBeInstanceOf(ASTEvaluationError);
-  expect(failure.message).toContain("evaluation budget");
-  expect(analysisFailureContext(failure)).toBe(exhausted);
-  const wrapped = new CodeEvaluationError(failure as ASTEvaluationError, source);
-  expect(analysisFailureContext(wrapped)).toBe(exhausted);
-  expect(wrapped.message).toBe(failure.message);
-  expect(wrapped.stack).toBe(failure.stack);
+  const [boundary, checkpoint] = evaluate(parseECMACompliant(source), exhausted);
+  expect(boundary).toMatchObject({ type: "ExecutionBoundary", kind: "budget" });
+  expect(isExecutionBoundary(boundary) && boundary.message).toContain("evaluation budget");
+  expect(checkpoint).toBe(exhausted);
   expect(console.inspectOutput(exhausted)[0].chunks.map(chunk => chunk.value)).toEqual(["before budget\n"]);
 });
 
@@ -109,7 +105,7 @@ test("a nested failure retains its branch condition and inner scope, not a joine
     function nested() {
       const retained = "inner";
       console.log(retained);
-      debugger;
+      1 ** 2;
     }
     if (selected) nested();
     else console.log("other path");

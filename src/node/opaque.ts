@@ -1,3 +1,4 @@
+import { markUnsupportedBoundaryObject } from "../execution-context/analysis-failure";
 import { ESObject, TESObject } from "../Object";
 
 /**
@@ -8,8 +9,8 @@ import { ESObject, TESObject } from "../Object";
  * Do not apply this to callable builtin exports or auto-register a catalog.
  */
 export function createOpaqueBuiltinModule(name: string): TESObject {
-  return Object.assign(ESObject(undefined, "unmodeled"), {
+  return markUnsupportedBoundaryObject(Object.assign(ESObject(undefined, "unmodeled"), {
     unknownProperties: `Unimplemented Node ${name} API`,
     unmodeledOwnPropertyInspection: `Unimplemented Node ${name} descriptors`
-  });
+  }));
 }

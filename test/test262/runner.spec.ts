@@ -61,6 +61,12 @@ describe("Test262 runner cannot silently pass failures", () => {
     expect(() => run("throw undefined;")).toThrow();
   });
 
+  test("unfinished analysis is neither a passing test nor a guest exception", () => {
+    expect(() => run("debugger;")).toThrow("Unfinished execution");
+    expect(() => run("if (Math.random() < 0.5) debugger;")).toThrow("Unfinished execution");
+    expect(() => run("assert.throws(Error, function () { debugger; });")).toThrow("expected an exception");
+  });
+
   test("a top-level throw on only some symbolic paths cannot count as a pass", () => {
     expect(() => run(`
       if (Math.random() < 0.5) throw "one path failed";

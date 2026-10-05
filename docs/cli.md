@@ -102,20 +102,26 @@ and `nodes`. Results include every referenced node. There is no surrounding repo
 Program output is represented by effects in this same graph. Runtime diagnostics
 go to stderr; implementation boundaries belong in documentation and the backlog.
 
-`roots.completion` exists when entry evaluation and its supported startup
-checkpoint produced a completion, including an undefined export, a throw, or conditional normal/throw
-alternatives. Its presence does not establish process exit, callback coverage
-or full JavaScript correctness. An analysis stop omits that root, returns exit
-status 2 and writes its reached diagnostic to stderr. `roots.current` then holds
-one deepest known checkpoint: already visited sibling histories and unvisited
-continuations may be absent. Some internal failures retain only an earlier
-checkpoint. Missing effects cannot be interpreted as impossible effects.
+`roots.completion` contains completed or explicitly unfinished execution, including
+exports, throws and conditional alternatives. Classified unsupported operations
+and exhausted budgets become `ExecutionBoundary` leaves with their exact branch
+contexts. A tree containing any such leaf has `state: "partial"`; `roots.current`
+is then its common `base` checkpoint, not the resulting state of every branch.
+Consumers follow the leaf pairs for each resulting state. Supported siblings
+continue, while stopped leaves preserve their entered AST frames, remaining
+statements, effects and active/pending work. See [execution boundaries](execution-boundaries.md).
+
+Classified stops return status 2 and repeat their diagnostic on stderr. Untagged
+legacy analysis failures still omit the completion root and retain one deepest
+known checkpoint; siblings and unvisited continuations may be absent. Missing
+effects never establish that later effects are impossible. Unexpected engine
+failures also remain failures rather than guest exceptions or normal completion.
 
 This is still an experimental, nonresumable projection. The former envelope's
 schema version, captured source bytes/hashes, launch metadata and budget are not
-published. Source locations already in VM state remain in the graph. Saving JSON
-alone preserves completion versus partial state, but not stderr's stop reason or
-all run provenance. Proper environment/source representation and a portable
+published. Source locations already in VM state remain in the graph. Classified
+boundary reasons survive JSON, but legacy failure diagnostics and complete run
+provenance do not. Proper environment/source representation and a portable
 versioning contract remain future work; explanatory prose is not a substitute.
 
 | CLI exit status | Meaning |

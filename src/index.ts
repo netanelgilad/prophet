@@ -6,7 +6,7 @@ export {
   CodeEvaluationError
 } from "./evaluate";
 export { NotANumber, isThrownValue } from "./types";
-export { isForkedCompletion } from "./execution-context/Completion";
+export { isExecutionBoundary, hasExecutionBoundary, isForkedCompletion } from "./execution-context/Completion";
 export { evaluateCommonJS } from "./require/commonjs";
 export { createCommonJSLoader } from "./require/loader";
 export { createHostFunction, effectContext, effectPaths } from "./effects";

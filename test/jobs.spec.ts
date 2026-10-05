@@ -1,4 +1,4 @@
-import { evaluateCode, isForkedCompletion, nodeInitialExecutionContext } from "../src";
+import { evaluateCode, isExecutionBoundary, isForkedCompletion, nodeInitialExecutionContext } from "../src";
 import { ESBoolean } from "../src/boolean/ESBoolean";
 import { createHostFunction } from "../src/effects";
 import { analysisFailureContext } from "../src/execution-context/analysis-failure";
@@ -153,8 +153,8 @@ test("an analysis stop inside a callback retains its active job and the unstarte
     defer(second);
   `, context);
   const jobs = queued(queue.state, before);
-  const failure = failureOf(() => queue.drain(before, 10));
-  const checkpoint = analysisFailureContext(failure)!;
+  const [boundary, checkpoint] = queue.drain(before, 10);
+  expect(isExecutionBoundary(boundary)).toBe(true);
   expect(checkpoint).toBeDefined();
   expect(checkpoint.value.scope.trace).toMatchObject({ value: "entered" });
   expect(getProperties(queue.state, checkpoint).active).toBe(jobs[0]);
@@ -191,10 +191,9 @@ test("a long native callback enqueue chain reaches the explicit job budget witho
     return queue.enqueue(cycle, [], writeProperty(counter, "value", ESNumber(value + 1), context));
   });
   const [, before] = queue.enqueue(cycle, [], nodeInitialExecutionContext);
-  const failure = failureOf(() => queue.drain(before, 3000));
-  expect(failure).not.toBeInstanceOf(RangeError);
-  expect(failure.message).toMatch(/job.*(budget|limit)|(budget|limit).*job/i);
-  const checkpoint = analysisFailureContext(failure)!;
+  const [boundary, checkpoint] = queue.drain(before, 3000);
+  expect(boundary).toMatchObject({ type: "ExecutionBoundary", kind: "budget" });
+  expect(isExecutionBoundary(boundary) && boundary.message).toMatch(/job.*budget/i);
   expect(checkpoint).toBeDefined();
   expect(getProperties(counter, checkpoint).value).toMatchObject({ value: 3000 });
   expect(queued(queue.state, checkpoint)).toHaveLength(1);
@@ -215,9 +214,8 @@ test("native jobs charge the shared AST evaluation budget and preserve the undel
   let before: TExecutionContext = ExecutionContext({ ...nodeInitialExecutionContext.value, evaluationBudget: budget });
   for (let index = 0; index < 3; index++) before = queue.enqueue(callback, [], before)[1];
   const lastJob = queued(queue.state, before)[2];
-  const failure = failureOf(() => queue.drain(before, 10));
-  expect(failure.message).toMatch(/evaluation budget/i);
-  const checkpoint = analysisFailureContext(failure)!;
+  const [boundary, checkpoint] = queue.drain(before, 10);
+  expect(isExecutionBoundary(boundary) && boundary.message).toMatch(/evaluation budget/i);
   expect(checkpoint).toBeDefined();
   expect(checkpoint.value.evaluationBudget).toBe(budget);
   expect(budget.remaining).toBeLessThan(1);
@@ -242,9 +240,9 @@ test("zero job budget leaves a nonempty queue untouched", () => {
   const callback = createHostFunction("test.mustNotRun", () => { throw new Error("zero-budget callback ran"); });
   const [, before] = queue.enqueue(callback, [], initial);
   const jobs = queued(queue.state, before);
-  const failure = failureOf(() => queue.drain(before, 0));
-  expect(failure.message).toMatch(/job.*budget/i);
-  expect(analysisFailureContext(failure)).toBe(before);
+  const [boundary, checkpoint] = queue.drain(before, 0);
+  expect(isExecutionBoundary(boundary) && boundary.message).toMatch(/job.*budget/i);
+  expect(checkpoint).toBe(before);
   expect(queued(queue.state, before)).toEqual(jobs);
   expect(budget.remaining).toBe(5);
 });
