@@ -141,13 +141,21 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
   };
   const metadata = (directory: TESObject) => directory.hostSlots!["node.fs.entry"] as TESObject;
   const sorted = (names: string[]) => names.sort((left, right) => Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8")));
+  // Observation lists describe actual names. A hole or inherited index is not
+  // acquired data, even though Array.some/map can skip or visit those slots.
+  const hasOwnElements = (values: ReadonlyArray<unknown>): boolean => {
+    for (let index = 0; index < values.length; index++) {
+      if (!Object.prototype.hasOwnProperty.call(values, index)) return false;
+    }
+    return true;
+  };
   const nameValues = (names: ReadonlyArray<string>) => ESArray(names.map(name => ESString(name)));
   const withNames = (directory: TESObject, context: TExecutionContext,
     next: (names: string[] | undefined, after: TExecutionContext) => BranchResult): BranchResult =>
     withValue(getProperties(metadata(directory), context).names, context, (names, after) => {
       if (isUndefined(names)) return next(undefined, after);
       const elements = getArrayElements(names as TArray<Any>, after);
-      if (!elements || elements.some(name => !isESString(name) || typeof name.value !== "string")) {
+      if (!elements || !hasOwnElements(elements) || elements.some(name => !isESString(name) || typeof name.value !== "string")) {
         throw new Error("Invalid filesystem directory name state");
       }
       return next(elements.map(name => (name as ReturnType<typeof ESString>).value as string), after);
@@ -298,7 +306,7 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
       if (openDirectories.has(directory)) {
         if (!observeDirectoryNames) return enumerationUnsupported("unobserved complete directory names");
         const supplied = observeDirectoryNames(directory);
-        if (!Array.isArray(supplied) || supplied.some(name => typeof name !== "string" || utf8(name) !== name ||
+        if (!Array.isArray(supplied) || !hasOwnElements(supplied) || supplied.some(name => typeof name !== "string" || utf8(name) !== name ||
           !name || name === "." || name === ".." || name.includes("/") || name.includes("\0") || Buffer.byteLength(name, "utf8") > 255) ||
           new Set(supplied).size !== supplied.length) throw new Error("Invalid acquired filesystem directory names");
         observed = sorted(supplied.slice());
