@@ -61,7 +61,7 @@ test.each(["process.env", "Math.sin(0)", "typeof fetch"])(
   "unsupported startup cannot become an application exception or fabricated absence: %s", operation => {
     const result = run(`console.log("before"); try { ${operation}; } catch (error) { console.log("caught"); } console.log("after");`);
     expect(result.status).toBe("analysis-stop");
-    if (operation.startsWith("require")) expect(result.completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
+    if (operation === "process.env") expect(result.completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
     else expect(result.completion).toBeUndefined();
     expect(result.diagnostic).toBeTruthy();
     const writes = effectPaths(result.current.value.effects)[0].events.filter(event =>
