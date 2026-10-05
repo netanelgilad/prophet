@@ -16,7 +16,7 @@ export { createConsoleModel } from "./node/console";
 export { createPosixPathModel } from "./node/path";
 export { createLegacyURLModel } from "./node/url";
 export { createWarningModel } from "./node/warnings";
-export { createFileSystemModel, fileSystemDirectory, fileSystemFile } from "./node/filesystem";
+export { createFileSystemModel, fileSystemDirectory, fileSystemFile, fileSystemUnobservedFile } from "./node/filesystem";
 export { createBufferValue } from "./node/buffer";
 import { CommonJSLoader as Loader, CommonJSLoaderOptions as LoaderOptions } from "./require/loader";
 export type CommonJSLoader = Loader;

@@ -112,6 +112,12 @@ state and branch-local abrupt stops. The queue and active/pending jobs survive
 graph inspection. This establishes the startup behavior in criterion 4, not
 closure of all capture, provenance and serialization requirements above.
 
+The [read-only filesystem adapter](node-filesystem.md#read-only-environment-acquisition)
+now supplies bounded demand-driven observations in an open namespace, with
+canonical cwd/platform, effective access and symbolic descriptor availability.
+It has independent Node fixture evidence and persistent observation specs;
+CLI registration, source provenance and automatic request integration remain.
+
 **Next:** extend actual environment state and bounded future-request exploration
 through the same CLI path. Choose the smallest required filesystem capture and
 host-model integration step, preserving the manual request proofs as regressions.

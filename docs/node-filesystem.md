@@ -5,8 +5,8 @@ The reference is **Node v24.21.0**, commit
 [`lib/fs.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/fs.js)
 and [Stats/path utilities](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/internal/fs/utils.js).
 Filesystem compatibility is host coverage, separate from Test262 language
-coverage. An explicit filesystem environment is not a snapshot of the machine
-running Prophet unless an embedding actually supplies and validates that snapshot.
+coverage. Explicit trees remain supplied environments. The read-only acquisition
+adapter below can supply observed host facts without closing the unseen namespace.
 
 ## One shared symbolic filesystem state
 
@@ -17,6 +17,9 @@ unlisted names and `ESNull` mean missing. `fileSystemFile(text, { readable? })` 
 UTF-8 text. Directory helpers also accept `{ readable?, searchable? }`. These are
 VM Booleans, including unknown Booleans and ordinary symbolic choices; omitted
 access flags and descriptor availability explicitly select the healthy assumption.
+`state` exposes the persistent root, cwd, platform and descriptor availability.
+Entry host slots retain kind, effective access and directory completeness as
+modeled facts, separate from guest-accessible properties.
 `platform` selects `"linux"` (the default) or `"darwin"`; it is not inferred from
 the machine running Prophet. The default cwd is `/`; a supplied
 cwd must be a canonical absolute directory that exists on every setup path.
@@ -93,9 +96,76 @@ an unknown diagnostic message; existsSync instead returns false. Error stack,
 constructor and complete descriptors remain guarded.
 
 Calls, returns and throws are ordered effects with their path knowledge.
-No real filesystem operation occurs during symbolic exploration. Concrete
-reference specs create their own isolated fixtures; they do not supply return
-values to the symbolic calls.
+Closed-tree embeddings perform no real filesystem operations. The optional
+acquisition adapter makes read-only observations when unknown state is first
+needed; guest operations still execute through this shared model. Concrete
+reference specs create their own isolated fixtures.
+
+## Read-only environment acquisition
+
+[`captureFileSystem({ cwd, ... })`](../src/cli/filesystem-capture.ts) is a trusted
+host adapter, separate from the VM filesystem model and CommonJS source capture.
+It returns the model's module, state and inspectors for runtime assembly. This
+increment provides the adapter; CLI registration and automatic future HTTP
+requests are separate integration steps.
+
+The adapter records the canonical identity of the already-held cwd and the
+actual Linux/Darwin platform, then acquires only the cwd ancestor chain and
+reached path components. `fileSystemDirectory(children, { complete: false })`
+represents an open directory: omitted names are unobserved, while an explicit
+`ESNull` is observed absence. Generic `observeEntry` and `observeContents` hooks
+can acquire new facts. Without a hook, an unobserved operation stops analysis.
+The cwd chain must already be observed when constructing the model.
+`fileSystemUnobservedFile` retains file identity with unknown text; metadata
+operations do not read or decode file bytes. Directory entry metadata includes
+`complete: false`, so serialized state cannot mistake an unvisited sibling for
+an absent file. Unknown file text is distinct from the concrete empty string.
+
+First entry, access, content and negative observations are memoized by component
+identity across branches. Reached child entries and contents enter the persistent
+VM heap, leaving earlier contexts unchanged. A branch join preserves conditional
+observation presence; subsequent operations acquire the same cached fact on paths
+where it was previously unobserved. Relative/absolute and dot-component spellings
+reach the same entries without erasing prefix ENOENT/ENOTDIR failures. A cached
+negative remains negative after an external file is created. A sibling not yet
+observed can be discovered later. This is a stable observational domain assembled
+on demand, **not an atomic point-in-time snapshot** or a claim about future host
+changes. Native acquisition caches and hooks are not resumable serialized state.
+
+Acquisition uses lstat and rejects symlink components, detected filename aliases,
+nonregular entries and unsupported platforms. It performs no writes or native
+execution of the target. File reads use a bounded buffer, O_NOFOLLOW on the final
+component, and metadata comparisons before and after reading. Detected changes,
+unexpected stat/access/open/read/close errors, and malformed UTF-8 stop analysis;
+they are never converted to absent paths, guest ENOENT, empty contents or decoded
+replacement bytes. Binary files can exist/stat, but both Buffer and text reads
+retain the UTF-8 capture boundary. These checks do not make ancestor traversal
+race resistant, establish symlink containment, or exclude undetected changes.
+
+Default budgets are 4,096 entry probes (including cwd ancestors), 1 MiB per file
+and 8 MiB total content bytes. Positive-safe-integer overrides are embedding
+configuration. Reads may inspect one extra sentinel byte to detect growth;
+failed attempts retain their error and do not silently retry against changed
+state. No directory enumeration or recursive subtree scan occurs. AST budgets
+do not replace these bounds, and neither bounds filesystem-call latency.
+
+Effective read/search flags come from native access checks. An observed EACCES
+becomes denied access; unexpected errors remain acquisition failures. Different
+real/effective uid or gid is rejected because access checks and later opens need
+not otherwise consult the same credentials. This does not model ACL policy,
+capabilities, namespace races or future credential/access changes. A successful
+access check does not guarantee every future open/read/close will succeed.
+Descriptor availability defaults to an unknown VM Boolean; a successful adapter
+read does not establish the target's later capacity. An embedding can explicitly
+supply a Boolean for a declared resource domain. The existing post-open success
+assumptions and uncoupled HTTP/filesystem resource pools remain.
+
+The [capture specs](../test/filesystem-capture.spec.ts) compare interpreted file,
+missing path, directory/default-file, prefix traversal and effective permission
+behavior against independent pinned Node fixture runs. They also cover persistent
+and repeated observations, unknown capacity, binary/symlink/nonregular boundaries,
+injected acquisition errors, budgets and post-join symbolic reads. These are local
+host compatibility checks; no complete upstream Node file is newly activated.
 
 ## Effective access and descriptor availability
 
@@ -148,8 +218,10 @@ existing index, and the application's 404 for an inaccessible child.
 
 ## Declared environment and residual gaps
 
-The tree still describes a stable, closed namespace of regular files and
-directories, now with symbolic effective access and descriptor availability.
+Explicit closed trees describe a stable namespace of regular files and
+directories, with symbolic effective access and descriptor availability. Open
+observational trees retain unacquired names/contents and the capture boundaries
+above.
 It excludes symlinks, namespace races, credential/access changes and concurrent
 resource allocation. Linux/macOS read/error behavior is selected explicitly;
 directory reads on AIX/FreeBSD and other platform rules differ. Case folding,
