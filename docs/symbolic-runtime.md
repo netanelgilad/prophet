@@ -304,4 +304,10 @@ Its first observations are stable across branches, but their acquisition is
 on demand and non-atomic. See [the precise capture boundary](node-filesystem.md#read-only-environment-acquisition).
 The adapter's native observation cache is not a resumable environment, and its
 native closure cache is not serialized. CLI registration and graph state are
-covered by specs; executing pico requests remains separate integration work.
+covered by specs; full request/file coverage and resumption remain work.
+
+Directory enumeration retains its own knowledge: a complete name list does not
+imply that every child type/content has been acquired. Open directories without
+complete names stop explicitly; conditional listings, prior observations and
+later child acquisition use persistent branch state. See the
+[filesystem enumeration boundary](node-filesystem-enumeration.md).
