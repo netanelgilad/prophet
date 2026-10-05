@@ -73,10 +73,12 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
-  expect(result.diagnostic).toMatch(/Regular expression literal evaluation/);
-  expect(result.completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
-  expect((result.completion as any).frames.some((frame: any) =>
-    frame.sourceFile.endsWith('/sirv/build.js') && frame.node.type === 'Literal' && frame.node.regex)).toBe(true);
+  // The literal argument now evaluates. Missing Array.push is still a legacy
+  // call failure on this base, with a checkpoint rather than a boundary tree.
+  expect(result.diagnostic).toBe("Value is not callable");
+  expect(result.completion).toBeUndefined();
+  expect(result.current.value.sourceFile).toMatch(/sirv\/build\.js$/);
+  expect(result.current.value.scope.ignores).toMatchObject({ type: "array", value: [] });
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -117,4 +119,24 @@ test("pinned Node serves GET, HEAD and missing-file requests through unchanged s
     { method: "HEAD", path: "/hello.txt", status: 200, body: "" },
     { method: "GET", path: "/missing", status: 404, body: "" }
   ]);
+});
+
+test("the real CLI serializes the unchanged sirv import and nested literal definitions", () => {
+  assertPinnedNode();
+  const child = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath,
+    [join(__dirname, "../bin/prophet.js"), "--", "entry.cjs"], {
+      cwd: directory, encoding: "utf8", timeout: 60000, maxBuffer: 40 * 1024 * 1024,
+      env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" }
+    });
+  expect(child.error).toBeUndefined();
+  expect(child.status).toBe(0);
+  expect(child.stderr).toBe("");
+  const graph = JSON.parse(child.stdout);
+  expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
+  expect(graph.roots.completion).toBeDefined();
+  const literals = graph.nodes.filter((node: any) => node.kind === "record" &&
+    node.entries.some(([name]: [string]) => name === "regex"));
+  expect(literals.length).toBeGreaterThan(0);
+  for (const literal of literals) expect(literal.entries).toContainEqual(["value", null]);
+  expect(graph.nodes.some((node: any) => node.definition)).toBe(true);
 });

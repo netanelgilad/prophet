@@ -59,9 +59,9 @@ in the combined validation; an independent enumeration-contract review follows.
    intervening/final jobs and incomplete callback state. No bounded run claims
    every future timeline; repair lost correlations before broadening the horizon.
 3. Unchanged sirv 3.0.2 and its three pinned dependencies now import in the assembled
-   CLI evaluator. Raw regex AST values still block final graph serialization;
-   its default factory reaches regular-expression literals first. Extend
-   shared language semantics there, then follow actual blockers through ordinary
+   CLI. RegExp literal state now survives evaluation and CLI graph serialization. Its
+   default factory next reaches the absent Array.push call. Extend shared
+   language semantics there, then follow actual blockers through ordinary
    arrays, directory enumeration, loops, file metadata and streams. Native
    references retain GET, HEAD and 404; symbolic request coverage is still work.
 4. Grow explicit environment input, graph portability and resumability alongside
