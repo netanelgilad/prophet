@@ -6,7 +6,7 @@ import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult } from "../execution-context/branches";
-import { ESObject } from "../Object";
+import { ESObject, TESObject } from "../Object";
 import { ESString } from "../string/String";
 import { Any, ESNumber, isESString, ThrownValue, Undefined } from "../types";
 import { withStringArgument } from "./arguments";
@@ -79,13 +79,16 @@ function operation(name: string, length: number, model: HostModel) {
 }
 
 /**
- * Node v24.21.0 POSIX join/normalize/parse. An embedding can register the same module
+ * Node v24.21.0 POSIX join/normalize/parse/resolve. An embedding can register the same module
  * as path/posix and, in an explicitly POSIX environment, path. Open string
  * reasoning, other APIs, Win32 and complete descriptors remain separate gaps.
  * Assumes the intrinsic Array.prototype.push is unchanged: pinned join uses it
  * on its temporary array, and that intrinsic's mutation is not modeled yet.
  */
-export function createPosixPathModel() {
+export function createPosixPathModel(options: { process?: TESObject } = {}) {
+  // Node's path module captures the process object, but reads its current cwd
+  // property whenever needed. Do not cache the method or its result.
+  const process = options.process;
   const module = Object.assign(ESObject({ sep: ESString("/"), delimiter: ESString(":") }), {
     unknownProperties: "Node POSIX path API",
     unmodeledOwnPropertyInspection: "Node POSIX path descriptors"
@@ -95,6 +98,52 @@ export function createPosixPathModel() {
     withPath(call.args[0] || Undefined, context, (path, branch) => [ESString(normalizePath(path)), branch]));
   module.properties.parse = operation("parse", 1, (call, context) =>
     withPath(call.args[0] || Undefined, context, (path, branch) => [parsePath(path), branch]));
+  module.properties.resolve = operation("resolve", 0, (call, context) => {
+    const cwd = (current: TExecutionContext,
+      next: (path: string, after: TExecutionContext) => BranchResult): BranchResult => {
+      if (!process) return unsupported("resolve requires a declared process.cwd environment");
+      return bindNormal(readMember(process, "cwd", current), (method, afterRead) =>
+        withValue(method, afterRead, (callee, branch) => {
+          if (!isESFunction(callee)) return [ThrownValue(createError("TypeError", ESString("process.cwd is not a function"))), branch];
+          return bindNormal(invoke(callee, [], branch, process), (returned, afterCall) =>
+            withValue(returned, afterCall, (value, afterValue) => {
+              // Node's internal string primitives can coerce non-string cwd
+              // replacements with observable effects. Keep that separate gap.
+              if (!isESString(value)) return unsupported("non-string cwd results and their coercion/error behavior");
+              if (typeof value.value !== "string") return unsupported("open symbolic cwd result");
+              return next(value.value, afterValue);
+            }));
+        }));
+    };
+    const finish = (path: string, absolute: boolean, current: TExecutionContext): BranchResult => {
+      // An empty replacement cwd contributes a separator but does not make the
+      // result absolute. The source of absoluteness is the selected argument/cwd.
+      const normalized = normalizePath(absolute ? "/" + path : path.replace(/^\/+/, ""));
+      return [ESString(normalized.length > 1 && normalized.endsWith("/") ? normalized.slice(0, -1) : normalized), current];
+    };
+    const collect = (index: number, tail: string, current: TExecutionContext): BranchResult => {
+      let accumulated = tail;
+      for (let position = index; position >= 0; position--) {
+        const value = call.args[position];
+        if (!isESString(value) || typeof value.value !== "string") {
+          return withStringArgument(`paths[${position}]`, value, current, (path, branch) => {
+            if (typeof path.value !== "string") return unsupported("open symbolic path string");
+            const next = path.value.length ? path.value + "/" + accumulated : accumulated;
+            return path.value[0] === "/" ? finish(next, true, branch) : collect(position - 1, next, branch);
+          });
+        }
+        if (value.value.length) accumulated = value.value + "/" + accumulated;
+        if (value.value[0] === "/") return finish(accumulated, true, current);
+      }
+      return cwd(current, (path, after) => finish(path + "/" + accumulated, path[0] === "/", after));
+    };
+    const fast = (current: TExecutionContext): BranchResult => cwd(current, (path, after) =>
+      path[0] === "/" ? [ESString(path), after] : collect(call.args.length - 1, "", after));
+    if (!call.args.length) return fast(context);
+    if (call.args.length === 1) return withValue(call.args[0], context, (value, branch) =>
+      isESString(value) && (value.value === "" || value.value === ".") ? fast(branch) : collect(0, "", branch));
+    return collect(call.args.length - 1, "", context);
+  });
   module.properties.join = operation("join", 0, (call, context) => {
     // All arguments are validated before reading normalize. Persistent branch
     // state and independent segment lists prevent symbolic choices leaking.
