@@ -1,3 +1,4 @@
+import { unsupportedPropertyError } from "../execution-context/analysis-failure";
 import { Any, FunctionBinding, Type, ThrownValue, isThrownValue, isArray } from "../types";
 import { TExecutionContext, setCurrentThisValue } from "../execution-context/ExecutionContext";
 import { tuple } from "@deaven/tuple";
@@ -26,7 +27,7 @@ export function createNewObjectFromConstructor(
     return [ThrownValue(createError("TypeError", ESString("Value is not a constructor"))), execContext];
   }
   const unsupported = (callee as { unmodeledConstruct?: string }).unmodeledConstruct;
-  if (unsupported) throw new Error(unsupported);
+  if (unsupported) throw unsupportedPropertyError(callee, unsupported);
   return bindNormal(readMember(callee, "prototype", execContext), (selected, afterRead) =>
     withValue(selected, afterRead, (prototype, branch) => {
       const thisValue = ESObject();
