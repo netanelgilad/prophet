@@ -5,7 +5,7 @@ import { parseECMACompliant } from "../../src/parseECMACompliant";
 import { ESFunction } from "../../src/Function/Function";
 import { ESBoolean } from "../../src/boolean/ESBoolean";
 import { Any, Undefined, isThrownValue } from "../../src/types";
-import { isForkedCompletion } from "../../src/execution-context/Completion";
+import { hasExecutionBoundary, isForkedCompletion } from "../../src/execution-context/Completion";
 import { invoke, readMember } from "../../src/ASTResolvers";
 import { isObjectValue } from "../../src/conversion/toString";
 import { tuple } from "@deaven/tuple";
@@ -165,6 +165,7 @@ export function runTest262Variant(file: Test262File, variant: Variant): void {
     ast,
     variant === "raw" ? nodeInitialExecutionContext : assertionContext()
   );
+  if (hasExecutionBoundary(completion)) throw new Error("Unfinished execution in Test262 test");
   if (isForkedCompletion(completion)) {
     throw new Error("Unresolved symbolic completion in Test262 test");
   }

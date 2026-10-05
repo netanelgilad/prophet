@@ -2,7 +2,7 @@ import { spawnSync } from "child_process";
 import { mkdtempSync, writeFileSync, unlinkSync, rmdirSync, existsSync } from "fs";
 import { tmpdir } from "os";
 import { join, resolve } from "path";
-import { effectPaths, isForkedCompletion } from "../src";
+import { effectPaths, isExecutionBoundary, isForkedCompletion } from "../src";
 import { getArrayElements, getProperties } from "../src/execution-context/Heap";
 import { isThrownValue, TESBoolean, WithProperties, isUndefined } from "../src/types";
 import { TESString } from "../src/string/String";
@@ -57,7 +57,7 @@ function run(source: string, flags: string[] = [], args: string[] = []) {
   const result = JSON.parse(child.stdout);
   expect(Object.keys(result).sort()).toEqual(["nodes", "roots"]);
   expect([0, 2]).toContain(child.status);
-  expect(Object.keys(result.roots).sort()).toEqual(child.status === 0
+  expect(Object.keys(result.roots).sort()).toEqual(result.roots.completion !== undefined
     ? ["completion", "current", "initial"] : ["current", "initial"]);
   if (child.status === 0) expect(child.stderr).toBe("");
   else expect(child.stderr).toMatch(/^prophet: /);
@@ -131,7 +131,7 @@ test("CLI does not load an unsupported builtin natively even when source request
   const { child, roots } = run(`require("fs").writeFileSync(${JSON.stringify(marker)}, "bad");`);
   expect(child.status).toBe(2);
   expect(child.stderr).toMatch(/fs|unmodeled/i);
-  expect(roots).not.toHaveProperty("completion");
+  expect(isExecutionBoundary(roots.completion)).toBe(true);
   expect(existsSync(marker)).toBe(false);
 }, 40000);
 
@@ -144,7 +144,7 @@ test("CLI budget exhaustion returns a partial graph and its reached diagnostic o
   `, ["--max-steps", "100"]);
   expect(child.status).toBe(2);
   expect(child.stderr).toMatch(/budget/i);
-  expect(roots).not.toHaveProperty("completion");
+  expect(isExecutionBoundary(roots.completion)).toBe(true);
   expect(outputs(roots.current)).toEqual([["before\n"]]);
 }, 40000);
 
@@ -268,10 +268,13 @@ test("CLI startup budget exhaustion retains the running callback instead of clai
   `, ["--max-steps", "150"]);
   expect(child.status).toBe(2);
   expect(child.stderr).toMatch(/budget/);
-  expect(roots).not.toHaveProperty("completion");
-  expect(outputs(roots.current)).toEqual([["top\n", "callback\n"]]);
-  const queue = roots.current.value.global.hostSlots["node.nextTick"];
-  expect(isUndefined(getProperties(queue, roots.current).active)).toBe(false);
+  expect(roots.completion.state).toBe("partial");
+  const stopped = roots.completion.consequent;
+  expect(isExecutionBoundary(stopped[0])).toBe(true);
+  expect(outputs(stopped[1])).toEqual([["top\n", "callback\n"]]);
+  const queue = stopped[1].value.global.hostSlots["node.nextTick"];
+  expect(isUndefined(getProperties(queue, stopped[1]).active)).toBe(false);
+  expect(isThrownValue(roots.completion.alternate[0])).toBe(true);
 }, 40000);
 
 
@@ -315,4 +318,23 @@ test("CLI runs the unchanged pico startup file through ready and unhandled-error
   // The original registered function survives the JSON projection, but has
   // not run and has not acquired or inferred any target filesystem state.
   expect(graph.nodes.some((node: any) => node.definition !== undefined)).toBe(true);
+}, 40000);
+
+for (const stoppedFirst of [true, false]) test(`CLI graph preserves stopped and completed leaf state (${stoppedFirst})`, () => {
+  const { child, roots } = run(`
+    console.log("prefix");
+    if (Math.random() < 0.5) { ${stoppedFirst ? 'require("fs").readFileSync("x");' : 'console.log("supported");'} }
+    else { ${stoppedFirst ? 'console.log("supported");' : 'require("fs").readFileSync("x");'} }
+    console.log("tail");
+  `);
+  expect(child.status).toBe(2);
+  expect(roots.completion.state).toBe("partial");
+  expect(roots.current).toBe(roots.completion.base);
+  const stopped = stoppedFirst ? roots.completion.consequent : roots.completion.alternate;
+  const completed = stoppedFirst ? roots.completion.alternate : roots.completion.consequent;
+  expect(isExecutionBoundary(stopped[0])).toBe(true);
+  expect(stopped[0].frames.some((frame: any) => frame.sourceFile.endsWith("entry.cjs") && frame.node.loc)).toBe(true);
+  expect(outputs(stopped[1])).toEqual([["prefix\n"]]);
+  expect(outputs(completed[1])).toEqual([["prefix\n", "supported\n", "tail\n"]]);
+  expect(stopped[1].value.knowledge).not.toEqual(completed[1].value.knowledge);
 }, 40000);

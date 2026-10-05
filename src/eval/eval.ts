@@ -1,3 +1,4 @@
+import { retainPendingStatements } from "../execution-context/Completion";
 import { ESFunction } from "../Function/Function";
 import {
   TExecutionContext, Environment, ExecutionContext, enterEnvironment, setEnvironment
@@ -70,7 +71,8 @@ export function evaluateEval(args: Any[], caller: TExecutionContext, direct: boo
     const statement = statements[index];
     const node = index === statements.length - 1 && statement.type === "ExpressionStatement"
       ? statement.expression : statement;
-    return mapCompletions(evaluate(node, context), (value, after) => {
+    const result = retainPendingStatements(evaluate(node, context), statements.slice(index + 1), context.value.sourceFile);
+    return mapCompletions(result, (value, after) => {
       if (index === statements.length - 1 || isThrownValue(value)) return [value, after];
       return resume(index + 1, after);
     });

@@ -1,5 +1,7 @@
 /// <reference types="node" />
 
+import { unsupportedPropertyError } from "./execution-context/analysis-failure";
+
 import { ESString, TESString } from "./string/String";
 import {
   WithProperties, isFunction, Any, Undefined, FunctionBinding, isThrownValue,
@@ -32,7 +34,7 @@ import { summarizeCall } from "./Function/summaries";
 import { assignBinding, bindingReference, readBinding, hasBinding, initializeBinding } from "./execution-context/bindings";
 import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
 import { evalFn, evaluateEval } from "./eval/eval";
-import { isForkedCompletion } from "./execution-context/Completion";
+import { isExecutionBoundary, isForkedCompletion } from "./execution-context/Completion";
 import { prototypeOf, withoutPrototypeSetter } from "./Object/prototype";
 import { copyDataProperties } from "./Object/enumeration";
 import { toString, withValue } from "./conversion/toString";
@@ -197,7 +199,7 @@ function withArguments(
 }
 
 function needsContinuation(value: Any): boolean {
-  return isForkedCompletion(value) || isThrownValue(value) || isReturnValue(value);
+  return isExecutionBoundary(value) || isForkedCompletion(value) || isThrownValue(value) || isReturnValue(value);
 }
 
 export const CallExpressionResolver: ASTResolver<ESTree.CallExpression> = (ast, context) => {
@@ -322,7 +324,7 @@ function assertModeledProperty(object: Any, name: string, properties: { [name: s
   const reason = (object as WithProperties).unknownProperties;
   const inherited = (object as WithProperties).modeledInheritedProperties || [];
   if (reason && !inherited.includes(name) && !Object.prototype.hasOwnProperty.call(properties, name)) {
-    throw new Error(`Unmodeled host property '${name}': ${reason}`);
+    throw unsupportedPropertyError(object, `Unmodeled host property '${name}': ${reason}`);
   }
 }
 
