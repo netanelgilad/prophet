@@ -154,6 +154,14 @@ inspection views in consumers.
    install/import/use executions, a controlled original Shai-Hulud first-effect
    benchmark with a clean control, and later an npm admission adapter. The
    adapter supplies initial state, invokes the runtime and applies its own policy.
+5. Cover authorization gating as a downstream history query on the same result:
+   prove that every represented sensitive operation was preceded by its
+   required check on the same values, with violating and unknown controls kept
+   distinct. This is the runtime-agnostic counterpart to the compile-time
+   [`gdp-ts`](https://github.com/rauchg/gdp-ts) proof-passing pattern, asked
+   after the fact on unmodified code. No proof, sensitivity or verdict fields
+   enter the core representation; see the
+   [security consumer note](agent-security-analysis.md#authorization-gating-as-a-history-query).
 
 These priorities precede optional JS library packaging and deeper descriptor
 internals without a scenario needing them. Filesystem/transport/language gaps

@@ -115,6 +115,41 @@ own provenance and coverage. Where prevention is promised, install/runtime
 containment must enforce approved capabilities; a static result cannot stop
 execution that bypasses the gate.
 
+## Authorization gating as a history query
+
+A separate downstream consumer can answer "did every sensitive operation go
+through its required check, on the same values?" from the same execution
+result. Prior art for the pattern is
+[gdp-ts](https://github.com/rauchg/gdp-ts) (Ghosts of Departed Proofs for
+TypeScript): name values, mint a proof only in the trusted module that
+performed the check, and demand that proof in the sensitive function's
+signature. `gdp-ts` enforces this at compile time through types plus lint;
+Prophet never sees those phantom types and must not add proof, sensitivity or
+policy fields to its values to imitate them.
+
+What the consumer asks of a Prophet graph instead, for unmodified code:
+
+- On every represented path where the sensitive operation occurs, did the
+  required check operation occur earlier, with the same argument/receiver
+  identities and with path knowledge implying success?
+- Are ordering, conditions, argument values and resource state at each event
+  preserved, so a check on a different user, project or token cannot satisfy
+  the query?
+
+The runtime prerequisites are the same generic ones: ordered conditional
+effects with call/return/throw distinction, stable operation and value
+identities, heap snapshots at each event, path conditions and value
+correlations across calls. The current effect trace and host-effect specs
+are the foundation for this, not a verdict API. Stale-check (time-of-check
+to time-of-use) questions additionally need invocation-state dependencies
+across events, not registration-time values; automatic multi-request
+exploration remains the bounded-scheduling work tracked under HOST-002.
+
+Acceptance is a benign fixture with one checking function and one sensitive
+function, plus safe, violating and unknown controls interpreted by a separate
+consumer spec against the same VM result. One passing fixture is not
+closure of authorization analysis.
+
 ## Installation, import and later use are different entry points
 
 Analyze them separately or through an explicit sequence with persistent state:
