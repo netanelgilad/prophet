@@ -110,7 +110,8 @@ argument error with an imprecise message.
 The remaining path APIs (`resolve`, `relative`, `basename`, `dirname`,
 `extname`, `isAbsolute`, `format`, and others), Win32/device/UNC behavior, full
 module/function descriptors and reflection, and metadata mutation remain gaps.
-In particular, this increment neither supplies process.cwd nor changes the
+The separate [process environment model](node-process.md) now supplies declared
+process.cwd state. This path increment does not change the
 CommonJS source graph into a disk/symlink-aware loader. These residuals are
 tracked by PATH-001/PATH-002 and CJS-001 in the
 [implementation-gap backlog](implementation-gaps.md).
