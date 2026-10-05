@@ -54,7 +54,8 @@ the original startup message; a failed bind throws an unhandled Error without
 that message. The [startup queue](jobs.md) supplies notification ordering and
 uses current listeners/captured state without opening sockets. No request is
 invented with the default zero-event bound; the real handler is retained.
-Optional `--max-events 1` now starts generic parsed-event exploration, but pico
+Optional `--max-events 1` or `2` now starts generic parsed-event exploration,
+with current state and supported jobs between arrivals, but pico
 request paths still encounter the separately documented host integration gaps.
 
 The CLI acquires the package through the shared CommonJS loader. HTTPS, URL

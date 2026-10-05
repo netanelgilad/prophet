@@ -3,7 +3,7 @@ import { Array as ESArray, TArray } from "./array/Array";
 import { ESBoolean } from "./boolean/ESBoolean";
 import { withValue } from "./conversion/toString";
 import { bindNormal, mapCompletions } from "./evaluate";
-import { withAnalysisFailureContext } from "./execution-context/analysis-failure";
+import { captureExecutionBoundary, ExecutionBudgetError, UnsupportedAnalysisError, withAnalysisFailureContext } from "./execution-context/analysis-failure";
 import { BranchResult, evaluateBranches } from "./execution-context/branches";
 import { TExecutionContext } from "./execution-context/ExecutionContext";
 import { getArrayElements, getProperties, writeProperty } from "./execution-context/Heap";
@@ -13,7 +13,10 @@ import { Any, isESBoolean, Undefined } from "./types";
 export type ExternalEvents = {
   state: TESObject;
   register(source: TESObject, context: TExecutionContext): BranchResult;
-  explore(context: TExecutionContext, maxEvents: number): BranchResult;
+  /** Normal result is true after one arrival, false for the waiting alternative. */
+  step(context: TExecutionContext): BranchResult;
+  explore(context: TExecutionContext, maxEvents: number,
+    afterEvent?: (context: TExecutionContext) => BranchResult): BranchResult;
 };
 
 /** Runtime-owned sources, not arbitrary retained closures. Each source has an
@@ -21,7 +24,8 @@ export type ExternalEvents = {
  * are runtime-owned, side-effect-free predicates; this is not a user callback
  * scheduler. Registration is ordinary
  * persistent state, so absent/conditional resources never become global sources.
- * The first bounded checkpoint explores no arrival or one eligible source. */
+ * Each checkpoint explores no arrival or one eligible source. A waiting
+ * alternative ends that bounded history; it is not a fake event or clock tick. */
 export function createExternalEvents(): ExternalEvents {
   const state = ESObject({ sources: ESArray<Any>([]), active: Undefined });
   const entries = (value: Any, context: TExecutionContext) => {
@@ -31,46 +35,64 @@ export function createExternalEvents(): ExternalEvents {
     }
     return elements;
   };
-  return {
+  const requireIdle = (context: TExecutionContext) => {
+    if (getProperties(state, context).active !== Undefined) {
+      throw new UnsupportedAnalysisError("Resuming active external event delivery is not yet supported");
+    }
+  };
+  const registry: ExternalEvents = {
     state,
     register(source, context) {
       return withValue(getProperties(state, context).sources, context, (sources, branch) =>
         [Undefined, writeProperty(state, "sources", ESArray(entries(sources, branch).concat(source)), branch)]);
     },
-    explore(context, maxEvents) {
-      return withAnalysisFailureContext(context, () => {
-        if (maxEvents !== 0 && maxEvents !== 1) {
-          throw new Error("External event exploration currently supports only bounds 0 and 1");
-        }
-        if (getProperties(state, context).active !== Undefined) {
-          throw new Error("Resuming active external event delivery is not yet supported");
-        }
-        if (maxEvents === 0) return [Undefined, context];
+    step(context) {
+      return captureExecutionBoundary(context, () => withAnalysisFailureContext(context, () => {
+        requireIdle(context);
         return withValue(getProperties(state, context).sources, context, (value, branch) => {
           const sources = entries(value, branch);
           const choose = (index: number, current: TExecutionContext): BranchResult => {
-            if (index === sources.length) return [Undefined, current];
+            if (index === sources.length) return [ESBoolean(false), current];
             const source = sources[index] as TESObject;
             const fields = getProperties(source, current);
             const later = (after: TExecutionContext) => choose(index + 1, after);
             return bindNormal(invoke(fields.eligible, [], current, fields.receiver), (eligible, checked) => {
               if (!isESBoolean(eligible)) throw new Error("External event eligibility must be Boolean");
               return evaluateBranches(eligible, checked, ready =>
-                // Independent choice variables represent all first-arrival
-                // identities and the no-arrival-yet alternative, not a priority.
+                // Each step has fresh arrival choices and reads current sources.
+                // Array order does not impose priority among eligible providers.
                 evaluateBranches(ESBoolean(), ready, selected => {
                   const budget = selected.value.evaluationBudget;
-                  if (budget && --budget.remaining < 0) throw new Error("Execution exceeded its evaluation budget");
+                  if (budget && --budget.remaining < 0) throw new ExecutionBudgetError("Execution exceeded its evaluation budget");
                   const active = writeProperty(state, "active", source, selected);
-                  return withAnalysisFailureContext(active, () => mapCompletions(
+                  return withAnalysisFailureContext(active, () => bindNormal(mapCompletions(
                     invoke(fields.deliver, [], active, fields.receiver),
-                    (completion, after) => [completion, writeProperty(state, "active", Undefined, after)]));
+                    (completion, after) => [completion, writeProperty(state, "active", Undefined, after)]),
+                    (_completion, after) => [ESBoolean(true), after]));
                 }, later), later);
             });
           };
           return choose(0, branch);
         });
-      });
+      }));
+    },
+    explore(context, maxEvents, afterEvent) {
+      if (maxEvents !== 0 && maxEvents !== 1 && maxEvents !== 2) {
+        throw new Error("External event exploration currently supports only bounds 0, 1 and 2");
+      }
+      const advance = (remaining: number, current: TExecutionContext): BranchResult => {
+        if (!remaining) return [Undefined, current];
+        return bindNormal(registry.step(current), (arrived, after) =>
+          evaluateBranches(arrived as ReturnType<typeof ESBoolean>, after,
+            delivered => bindNormal(afterEvent ? afterEvent(delivered) : [Undefined, delivered],
+              (_value, drained) => advance(remaining - 1, drained)),
+            waiting => [Undefined, waiting]));
+      };
+      return captureExecutionBoundary(context, () => withAnalysisFailureContext(context, () => {
+        requireIdle(context);
+        return advance(maxEvents, context);
+      }));
     }
   };
+  return registry;
 }

@@ -56,8 +56,11 @@ queues lookup/bind, which later appends its notification. No general DNS,
 microtask, timer, immediate, I/O, cancellation or process exception-recovery
 semantics follow from this FIFO. Public `process.nextTick`, warning-queue
 integration remain unsupported. The separate [external-event registry](external-events.md)
-now supplies an optional first parsed request after this startup checkpoint;
-it does not add general event-loop ordering or automatic response finish.
+now supplies optional parsed requests through horizon two after this startup
+checkpoint. It drains this queue after each normally completed arrival, including
+the final one; job throws/stops prevent another arrival on that leaf. New listening
+notifications therefore precede requests to that server. This does not add
+general event-loop ordering, public nextTick or automatic response finish.
 
 [Queue specs](../test/jobs.spec.ts), [HTTP startup specs](../test/node-http-startup.spec.ts)
 and [independent pinned Node observations](../test/node-startup-reference.spec.ts)
