@@ -129,3 +129,95 @@ test('event evaluation budget exhaustion is a classified frontier with waiting s
   expect(leaves(result).some(([value]) => value === Undefined)).toBe(true);
   expect(histories(result, ['event.deliver']).every(path => path.length === 0)).toBe(true);
 });
+
+for (const horizon of [1, 2]) {
+  test(`after-event state cannot observe a phantom arrival across multiple providers at horizon ${horizon}`, () => {
+    const events = createExternalEvents(), state = ESObject({ arrivals: ESNumber(0) });
+    let ready: BranchResult[1] = nodeInitialExecutionContext;
+    for (const name of ['first', 'second']) {
+      const source = provider(name);
+      source.properties.deliver = createHostFunction(name + '.deliver', (_call, current) =>
+        [Undefined, writeProperty(state, 'arrivals', ESNumber(1), current)]);
+      ready = events.register(source, ready)[1];
+    }
+    const hook = createHostFunction('after.hook', (_call, current) =>
+      withValue(getProperties(state, current).arrivals, current, (count, selected) =>
+        (count as ReturnType<typeof ESNumber>).value === 0
+          ? [ThrownValue(ESString('phantom arrival')), selected] : [Undefined, selected]));
+    const result = events.explore(ready, horizon, current => invoke(hook, [], current));
+    expect(leaves(result).some(([value]) => isThrownValue(value))).toBe(false);
+    const paths = histories(result, ['first.deliver', 'second.deliver', 'after.hook']);
+    const expected = [[], ['first.deliver', 'after.hook'], ['second.deliver', 'after.hook']];
+    if (horizon === 2) for (const first of ['first', 'second']) for (const second of ['first', 'second']) {
+      expected.push([first + '.deliver', 'after.hook', second + '.deliver', 'after.hook']);
+    }
+    expect(paths.map(path => path.join(',')).sort()).toEqual(expected.map(path => path.join(',')).sort());
+  });
+
+  test.each(['throw', 'unsupported'])(`a %s hook retains exactly ${horizon} arrivals with leaf knowledge`, kind => {
+    const events = createExternalEvents(), state = ESObject({ arrivals: ESNumber(0) });
+    let ready: BranchResult[1] = nodeInitialExecutionContext;
+    for (const name of ['first', 'second']) {
+      const source = provider(name);
+      source.properties.deliver = createHostFunction(name + '.deliver', (_call, current) =>
+        withValue(getProperties(state, current).arrivals, current, (count, selected) =>
+          [Undefined, writeProperty(state, 'arrivals', ESNumber((count as ReturnType<typeof ESNumber>).value! + 1), selected)]));
+      ready = events.register(source, ready)[1];
+    }
+    const hook = createHostFunction('after.hook', (_call, current) =>
+      withValue(getProperties(state, current).arrivals, current, (count, selected) => {
+        if ((count as ReturnType<typeof ESNumber>).value !== horizon) return [Undefined, selected];
+        if (kind === 'unsupported') throw new UnsupportedAnalysisError('final hook boundary');
+        return [ThrownValue(ESString('final hook error')), selected];
+      }));
+    const result = events.explore(ready, horizon, current => invoke(hook, [], current));
+    const stopped = leaves(result).filter(([value]) => isExecutionBoundary(value) || isThrownValue(value));
+    expect(stopped.length).toBeGreaterThan(0);
+    for (const leaf of stopped) {
+      expect(getProperties(events.state, leaf[1]).active).toBe(Undefined);
+      for (const path of histories(leaf, ['first.deliver', 'second.deliver', 'after.hook'])) {
+        expect(path.filter(name => name.endsWith('.deliver'))).toHaveLength(horizon);
+        expect(path.filter(name => name === 'after.hook')).toHaveLength(horizon);
+        expect(path[path.length - 1]).toBe('after.hook');
+      }
+    }
+    expect(histories(result, ['first.deliver', 'second.deliver', 'after.hook'])).toContainEqual([]);
+  });
+}
+
+test('actual delivery errors remain visible and never run an after-event hook', () => {
+  const events = createExternalEvents(), failure = provider('failure'), normal = provider('normal');
+  failure.properties.deliver = createHostFunction('failure.deliver', (_call, current) =>
+    [ThrownValue(ESString('actual event failure')), current]);
+  const [, first] = events.register(failure, nodeInitialExecutionContext);
+  const [, ready] = events.register(normal, first);
+  const hook = createHostFunction('after.hook', (_call, current) => [Undefined, current]);
+  const result = events.explore(ready, 2, current => invoke(hook, [], current));
+  const thrown = leaves(result).filter(([value]) => isThrownValue(value));
+  expect(thrown.length).toBeGreaterThan(0);
+  for (const leaf of thrown) {
+    for (const path of histories(leaf, ['failure.deliver', 'normal.deliver', 'after.hook'])) {
+      expect(path[path.length - 1]).toBe('failure.deliver');
+      expect(path.filter(name => name === 'after.hook').length)
+        .toBe(path.filter(name => name === 'normal.deliver').length);
+    }
+  }
+  expect(histories(result, ['failure.deliver', 'normal.deliver', 'after.hook']))
+    .toContainEqual(['normal.deliver', 'after.hook', 'normal.deliver', 'after.hook']);
+});
+
+test.each([1, 2])('an immediately stopped hook has one real arrival at horizon %s', horizon => {
+  const events = createExternalEvents();
+  const [, first] = events.register(provider('first'), nodeInitialExecutionContext);
+  const [, ready] = events.register(provider('second'), first);
+  const hook = createHostFunction('after.hook', () => { throw new UnsupportedAnalysisError('hook boundary'); });
+  const result = events.explore(ready, horizon, current => invoke(hook, [], current));
+  const stopped = leaves(result).filter(([value]) => isExecutionBoundary(value));
+  expect(stopped.length).toBeGreaterThan(0);
+  for (const leaf of stopped) for (const path of histories(leaf, ['first.deliver', 'second.deliver', 'after.hook'])) {
+    expect(path).toHaveLength(2);
+    expect(path[0]).toMatch(/^(first|second)\.deliver$/);
+    expect(path[1]).toBe('after.hook');
+  }
+  expect(histories(result, ['first.deliver', 'second.deliver', 'after.hook'])).toContainEqual([]);
+});
