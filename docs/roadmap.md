@@ -24,6 +24,17 @@ effects. Generic origin/dependency information or operation observations can
 support many consumers; application-specific meaning stays outside the VM.
 Automatic witness generation is another consumer of execution results.
 
+## Autonomous development sequence
+
+As requested on **2026-10-05**, continue through focused, reviewed PRs in parallel
+worktrees rather than stopping at each increment. The [active development plan](autonomous-development.md)
+tracks independent workstreams and integration gates. First combine bounded
+incoming-event exploration, preserved unfinished branches and faithful filesystem
+observations with the existing pico CLI startup. Then grow the event horizon and
+exercise a larger pinned npm dependency graph. Every step must add reusable VM
+semantics and retain explicit boundaries; application-specific scanning policies
+remain consumers of the same result.
+
 ## Next milestone: pico startup through the CLI, with no environment file
 
 Agreed on **2026-10-02**: run the pinned package's **unchanged Node HTTP startup

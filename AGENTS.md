@@ -9,11 +9,16 @@ policies, classifications and verdicts ([roadmap](docs/roadmap.md)).
 
 # Repository workflow
 
-Work directly on `master` and push validated changes to `origin/master`, as
-requested by the user. PRs #23–#50 have been merged; [docs/stack.md](docs/stack.md)
-is the historical record, not the development base. The separate symbolic-string
-PR #51 is also merged. Keep increments focused and
-reviewable, and preserve unrelated work in the shared checkout.
+The user requested continuous autonomous development on **2026-10-05**. Use
+isolated worktrees and focused branches, prepare PRs against `master`, and have
+the orchestrating agent review and merge validated changes. This supersedes the
+previous direct-master workflow. Parallelize independent VM areas with Astra
+agents at high reasoning effort; give each area clear ownership and integrate
+shared contracts deliberately. Keep working across increments without requiring
+a handoff after each step. Preserve unrelated work in the shared checkout.
+[The autonomous development plan](docs/autonomous-development.md) records the
+current workstreams, review gates and next targets. PRs #23–#51 are historical
+work; [docs/stack.md](docs/stack.md) is not the development base.
 
 Develop toward full Test262 coverage and advanced symbolic evaluation by adding
 specs and extending the shared VM to satisfy them. Concrete execution remains a
