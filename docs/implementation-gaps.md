@@ -407,6 +407,18 @@ readdir/readdir-types candidates as inactive; local Node 24 permission, ordering
 and descriptor-exhaustion fixtures are not upstream activation. Existing 46-file
 historical skips and Test262 selection remain unchanged. No gap group is closed.
 
+Reconciled in the **dense directory observations** fix on **2026-10-05**:
+FS-002/HOST-001 now reject holes and inherited array slots in both supplied
+complete-name observations and retained directory-name state. The previous
+Array.some validation skipped holes and accepted prototype entries, allowing
+invalid observation data to become guest filenames. Four
+[regressions](../test/node-filesystem-readdir.spec.ts) fail before the fix; empty
+and dense own-name arrays remain valid and returned arrays remain independent.
+Native acquisition is unchanged. All enumeration/capture/platform/resource and
+complete upstream gaps remain open; no Test262 selections or historical skips
+change. This enforces the existing observation contract rather than narrowing
+the native directory-name domain.
+
 At reconciliation there were **87 source files**, **103 spec files**, and
 **461 source lines in 62 files** matching the broad guard/placeholder search
 below. These are search hits, including internal validation and comments, **not
