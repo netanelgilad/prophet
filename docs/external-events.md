@@ -37,6 +37,17 @@ incoming request is considered. A stopped job retains its active/pending state;
 a job throw retains its pending tail. Neither permits another arrival. Waiting
 itself invokes no hook. Startup still drains before the first checkpoint.
 
+Exploration runs this continuation inside each selected provider branch, before
+joining that branch with other providers or waiting. Joining arrival statuses
+into a composite Boolean and then splitting it again previously allowed the
+incomplete reasoner to retain contradictory paths: a hook could observe the
+initial no-arrival state and return an impossible guest throw. The regression
+specs check both VM completions and exact leaf-knowledge histories for two
+providers at horizons one and two. Public `step` still returns its Boolean;
+embeddings that split composite joined results can encounter the general
+reasoner's disjunction limits (SYM-001). This change preserves event-continuation
+correlations, not general satisfiability or automatic witness extraction.
+
 Selected deliveries consume the shared evaluation budget before becoming active.
 Exhaustion is a classified budget frontier, preserving waiting/other completed
 siblings rather than an application throw. Budget charges remain shared across
