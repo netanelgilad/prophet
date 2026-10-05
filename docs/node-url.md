@@ -12,7 +12,8 @@ from complete upstream Node cases.
 
 ## Supported parsing
 
-`createLegacyURLModel(warnings?)` supplies `.module`, `.process` and `.warnings`.
+`createLegacyURLModel(warnings?)` supplies `.module`, `.process`, `.warnings` and
+its persistent once-warning `.state`.
 Register `.module` as `url`; the CommonJS loader handles its `node:` alias. The
 optional argument shares a `createWarningModel()` environment. If the program
 also imports or uses process, supply that same process identity rather than a
@@ -84,7 +85,9 @@ observable even when later supported input validation throws.
 
 ## Scheduling and presenting warnings
 
-`createWarningModel({ pid? })` exposes a scoped process with `emitWarning`.
+`createWarningModel({ pid?, nextTick? })` exposes a scoped process with
+`emitWarning` and persistent `.state`. The optional shared [job queue](jobs.md)
+is snapshotted at creation and must provide an enqueue operation.
 String messages, including unknown strings, and optional concrete/finite-choice
 string type and code are supported. Empty type means `Warning`. The model
 validates optional type/code before the message, following Node's order. Error
@@ -94,9 +97,33 @@ type/code strings remain unsupported.
 Calls add warnings to persistent per-path state; they do not print synchronously.
 `inspectPending(context)` exposes name/message/code with each path's knowledge.
 `deliverNext(context)` takes at most one pending item on each path through the
-declared default warning presentation. `inspectOutput(context)` exposes ordered
+declared default warning presentation when no shared queue is supplied. `inspectOutput(context)` exposes ordered
 decoded UTF-8 stderr chunks. Earlier contexts retain their original queues and
 output. No real stderr write takes place during symbolic execution.
+
+With `nextTick`, each warning schedules one job into that same FIFO. The job
+retains its warning object and removes the matching warning from pending state
+before formatting. It uses current fields, inherited formatting and captures;
+a nested `emitWarning` appends behind all jobs already pending, including HTTP
+startup notifications. There is no separate warning drain or special tail flush.
+Manual `deliverNext` rejects in this mode, even when currently empty, so a caller
+cannot duplicate or reorder delivery. Queue controls are embedding APIs, not
+public `process.nextTick` support.
+
+A language throw during formatting consumes that warning and clears the completed
+active job, preserving the unexecuted tail and thrown completion. A classified
+unsupported operation retains its unfinished active job and pending tail; the
+active job's arguments preserve the already-dequeued warning identity. Normal
+symbolic siblings continue. Default-configuration guards remain explicit analysis
+failures and never count as successful warning delivery.
+
+The process value's immutable `hostSlots["node.process.warnings"]` links its
+warning queue/helper-line state; queued mode also links `hostSlots["node.nextTick"]`.
+The URL module links its once flag through `hostSlots["node.url.deprecation"]`.
+These are ordinary graph references separate from guest properties, not full
+process state or resumable native callbacks. The once flag still consumes before
+the current `process.emitWarning` call; source-based dependency suppression and
+replacement/throw semantics are unchanged.
 
 Supplying a positive concrete pid permits exact default text comparison. Without
 it the diagnostic output stays unknown rather than inventing a process number.
@@ -111,11 +138,21 @@ The declared environment has default warning handlers and console.error,
 default Node release/argv0, no warning flags, custom listeners, redirection or
 subscribers, and healthy stderr. Flag writes and inherited enabled flags reject
 analysis. This is not full process EventEmitter or process.nextTick support.
-Warning suppression/throw/trace flags, listener ordering and failures, arbitrary
-queue interleavings, console/stdio replacement, redirects, output failures,
+Warning suppression/throw/trace flags, listener ordering and failures, broader
+event-loop interleavings, console/stdio replacement, redirects, output failures,
 backpressure, flushes and exit loss remain open. In particular, Node's
 `--no-warnings` suppresses stderr but still emits the warning event; it cannot be
 modeled as simply dropping the warning. WARN-001 and HOST-002 preserve that work.
+
+[Shared warning-job specs](../test/node-warning-jobs.spec.ts) compare hostless and
+explicit-loopback HTTP startup ordering, nested warning enqueue and uncaught
+formatter/listening-callback failures with pinned Node children. Native warning observers only
+record delivery time; a fatal monitor does not recover exceptions. Symbolic
+specs retain unsupported/throwing siblings, late formatting state, once/source
+eligibility, queue-option snapshots and graph links. Existing explicit-delivery
+specs remain active. The CLI must choose this shared queue during runtime
+assembly; this model option alone does not enable more CLI builtins.
+
 
 ## Composing the models
 
@@ -188,7 +225,9 @@ easier fragment:
   [`test-process-emitwarning.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-process-emitwarning.js)
   and [`test-process-no-deprecation.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-process-no-deprecation.js)
   require process events, nextTick/setImmediate, flags, stderr replacement,
-  warning overloads/classes and the common/assert harness.
+  warning overloads/classes and the common/assert harness. The shared FIFO now
+  covers local default-warning/startup interleavings, but these complete files
+  still require their public process APIs and full flag/listener semantics.
 - [`test-deprecation-flags.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/sequential/test-deprecation-flags.js)
   needs its complete deprecated-function/class fixtures, child processes,
   flag variants and output/stack assertions.
