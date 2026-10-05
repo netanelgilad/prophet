@@ -117,7 +117,11 @@ The [read-only filesystem adapter](node-filesystem.md#read-only-environment-acqu
 now supplies bounded demand-driven observations in an open namespace, with
 canonical cwd/platform, effective access and symbolic descriptor availability.
 It has independent Node fixture evidence and persistent observation specs;
-CLI registration, source provenance and automatic request integration remain.
+CLI registration, source provenance and automatic request integration remain. It now supports
+[bounded directory-name acquisition](node-filesystem-enumeration.md) through
+shared default readdirSync semantics, with complete names separate from child
+metadata. This advances generic directory consumers; loops, richer Stats/options
+and complete application execution remain separate work.
 
 **Next:** extend actual environment state and bounded future-request exploration
 through the same CLI path. Choose the smallest required filesystem capture and

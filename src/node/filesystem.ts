@@ -1,10 +1,12 @@
 import { ESBoolean } from "../boolean/ESBoolean";
+import { Array as ESArray, TArray } from "../array/Array";
 import { withValue } from "../conversion/toString";
 import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
-import { getProperties, ownPropertyPresence, writeProperty } from "../execution-context/Heap";
+import { UnsupportedAnalysisError } from "../execution-context/analysis-failure";
+import { getArrayElements, getProperties, ownPropertyPresence, writeProperty } from "../execution-context/Heap";
 import { ESObject, TESObject } from "../Object";
 import { getObjectPrototype, hasProperty } from "../Object/prototype";
 import { ESString } from "../string/String";
@@ -51,7 +53,7 @@ function entry(kind: "directory" | "file", properties: { [key: string]: Any },
   Object.assign(node, { hostSlots: Object.freeze({ "node.fs.entry": ESObject({
     kind: ESString(kind), readable: access.get(node)!.readable,
     ...(kind === "directory" ? { searchable: access.get(node)!.searchable,
-      complete: ESBoolean(options.complete !== false) } : {})
+      complete: ESBoolean(options.complete !== false), names: Undefined } : {})
   }) }) });
   return Object.freeze(node);
 }
@@ -96,7 +98,7 @@ function operation(name: string, length: number, model: HostModel, publicName = 
   return method;
 }
 
-function systemError(code: LookupFailure | "EISDIR" | "EMFILE", syscall: "stat" | "open" | "read", path?: string): Any {
+function systemError(code: LookupFailure | "EISDIR" | "EMFILE", syscall: "stat" | "open" | "read" | "scandir", path?: string): Any {
   const description = { ENOENT: "no such file or directory", ENOTDIR: "not a directory", EISDIR: "illegal operation on a directory",
     EACCES: "permission denied", EMFILE: "too many open files" }[code];
   const error = createError("Error", ESString(`${code}: ${description}, ${syscall}${path === undefined ? "" : ` '${path}'`}`));
@@ -129,9 +131,27 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
   platform?: "linux" | "darwin";
   observeEntry?: (directory: TESObject, name: string) => Any;
   observeContents?: (file: TESObject) => string;
+  observeDirectoryNames?: (directory: TESObject) => ReadonlyArray<string>;
 }) {
   const observeEntry = options.observeEntry;
   const observeContents = options.observeContents;
+  const observeDirectoryNames = options.observeDirectoryNames;
+  const enumerationUnsupported = (detail: string): never => {
+    throw new UnsupportedAnalysisError(`Filesystem enumeration is not yet supported: ${detail}`);
+  };
+  const metadata = (directory: TESObject) => directory.hostSlots!["node.fs.entry"] as TESObject;
+  const sorted = (names: string[]) => names.sort((left, right) => Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8")));
+  const nameValues = (names: ReadonlyArray<string>) => ESArray(names.map(name => ESString(name)));
+  const withNames = (directory: TESObject, context: TExecutionContext,
+    next: (names: string[] | undefined, after: TExecutionContext) => BranchResult): BranchResult =>
+    withValue(getProperties(metadata(directory), context).names, context, (names, after) => {
+      if (isUndefined(names)) return next(undefined, after);
+      const elements = getArrayElements(names as TArray<Any>, after);
+      if (!elements || elements.some(name => !isESString(name) || typeof name.value !== "string")) {
+        throw new Error("Invalid filesystem directory name state");
+      }
+      return next(elements.map(name => (name as ReturnType<typeof ESString>).value as string), after);
+    });
   const platform = options.platform === undefined ? "linux" : options.platform;
   if (platform !== "linux" && platform !== "darwin") return unsupported("filesystem platform");
   const validate = (node: Any, ancestors: Any[], root = false): void => {
@@ -157,12 +177,12 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
 
   const state = ESObject({ root: options.root, cwd: ESString(cwd), platform: ESString(platform),
     fileDescriptorsAvailable: accessFact(options.fileDescriptorsAvailable) });
-  const validatePathDomain = (path: string): void => {
+  const validatePathDomain = (path: string, reject: (detail: string) => never = unsupported): void => {
     const absolute = path[0] === "/" ? path : (cwd === "/" ? "/" : cwd + "/") + path;
     // Kernel/filesystem limits vary. Reject outside the common small-path
     // domain rather than falsely concluding that an overlong name is absent.
     if (Buffer.byteLength(absolute, "utf8") >= 1024 || absolute.split("/").some(part => Buffer.byteLength(part, "utf8") > 255)) {
-      return unsupported("overlong paths or components");
+      return reject("overlong paths or components");
     }
   };
   let initializingCwd = true;
@@ -194,10 +214,17 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
             unobserved => {
               if (!openDirectories.has(directory)) return descend(ESNull, unobserved);
               if (initializingCwd) return unsupported("cwd must already be observed in the initial tree");
-              if (!observeEntry) return unsupported("unobserved directory entry");
-              const child = observeEntry(directory, component);
-              validate(child, []);
-              return descend(child, writeProperty(directory, component, child, unobserved));
+              return withNames(directory, unobserved, (names, afterNames) => {
+                if (names && !names.includes(component)) return descend(ESNull, afterNames);
+                if (!observeEntry) return unsupported("unobserved directory entry");
+                const child = observeEntry(directory, component);
+                validate(child, []);
+                const observed = writeProperty(directory, component, child, afterNames);
+                return names ? withValue(child, observed, (selected, branch) => {
+                  if (isESNull(selected)) throw new Error("Filesystem child observation contradicts complete directory names");
+                  return descend(selected, branch);
+                }) : descend(child, observed);
+              });
             });
         };
         return permissions ? evaluateBranches(access.get(selected)!.searchable, branch, traverse,
@@ -244,10 +271,11 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
     return result;
   };
   const withPath = (value: Any, context: TExecutionContext,
-    next: (path: string, branch: TExecutionContext) => BranchResult): BranchResult =>
+    next: (path: string, branch: TExecutionContext) => BranchResult,
+    reject: (detail: string) => never = unsupported): BranchResult =>
     withValue(value, context, (selected, branch) => {
-      if (!isESString(selected)) return unsupported("non-string paths, file descriptors and argument diagnostics (including DEP0187)");
-      if (typeof selected.value !== "string") return unsupported("open symbolic path strings");
+      if (!isESString(selected)) return reject("non-string paths, file descriptors and argument diagnostics (including DEP0187)");
+      if (typeof selected.value !== "string") return reject("open symbolic path strings");
       return next(utf8(selected.value), branch);
     });
   const module = Object.assign(ESObject(), {
@@ -256,6 +284,67 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
     // their replacement effects require a descriptor/FD model; never ignore it.
     unmodeledPropertyWrites: ["openSync", "fstatSync", "readSync", "closeSync"]
   });
+  // A complete list of names is a separate fact from the acquired child table.
+  // In particular, listing an open directory neither stats children nor reads files.
+  const enumerate = (directory: TESObject, context: TExecutionContext): BranchResult =>
+    withNames(directory, context, (previous, branch) => {
+      if (previous) return [nameValues(previous), branch];
+      let observed: string[] | undefined;
+      if (openDirectories.has(directory)) {
+        if (!observeDirectoryNames) return enumerationUnsupported("unobserved complete directory names");
+        const supplied = observeDirectoryNames(directory);
+        if (!Array.isArray(supplied) || supplied.some(name => typeof name !== "string" || utf8(name) !== name ||
+          !name || name === "." || name === ".." || name.includes("/") || name.includes("\0") || Buffer.byteLength(name, "utf8") > 255) ||
+          new Set(supplied).size !== supplied.length) throw new Error("Invalid acquired filesystem directory names");
+        observed = sorted(supplied.slice());
+      }
+      const keys = sorted(Object.keys(getProperties(directory, branch)));
+      const finish = (names: string[], current: TExecutionContext): BranchResult => {
+        const result = observed || names;
+        return [nameValues(result), writeProperty(metadata(directory), "names", nameValues(result), current)];
+      };
+      const collect = (index: number, names: string[], current: TExecutionContext): BranchResult => {
+        const collected = names.slice();
+        for (let position = index; position < keys.length; position++) {
+          const key = keys[position], presence = ownPropertyPresence(directory, key, current);
+          const child = getProperties(directory, current)[key];
+          const accept = (value: Any, after: TExecutionContext): BranchResult => {
+            if (observed && observed.includes(key) === isESNull(value)) {
+              throw new Error("Filesystem name observation contradicts an observed child");
+            }
+            return collect(position + 1, isESNull(value) ? collected : collected.concat(key), after);
+          };
+          const exists = resolveBoolean(presence, current.value.knowledge);
+          if (exists === false) continue;
+          if (exists === undefined || choiceOf(child)) return evaluateBranches(presence, current,
+            after => withValue(child, after, accept), after => collect(position + 1, collected, after));
+          if (observed && observed.includes(key) === isESNull(child)) {
+            throw new Error("Filesystem name observation contradicts an observed child");
+          }
+          if (!isESNull(child)) collected.push(key);
+        }
+        return finish(collected, current);
+      };
+      return collect(0, [], branch);
+    });
+  module.properties.readdirSync = operation("readdirSync", 2, (call, context) =>
+    withValue(call.args[1] || Undefined, context, (option, afterOption) => {
+      // Node's omitted/null options use its private empty object. General option
+      // objects/strings have additional reads and coercions; do not ignore them.
+      if (!isUndefined(option) && !isESNull(option)) return enumerationUnsupported("options, encodings, recursive and withFileTypes");
+      return withPath(call.args[0] || Undefined, afterOption, (path, afterPath) => {
+        if (path.includes("\0")) return [nullByteError(), afterPath];
+        validatePathDomain(path, enumerationUnsupported);
+        if (!path && platform === "linux") return [systemError("ENOENT", "scandir", path), afterPath];
+        return evaluateBranches(getProperties(state, afterPath).fileDescriptorsAvailable as TESBoolean, afterPath,
+          available => lookup(path, available, (result, after) => {
+            if ("error" in result) return [systemError(result.error, "scandir", path), after];
+            if (entries.get(result.node) !== "directory") return [systemError("ENOTDIR", "scandir", path), after];
+            return evaluateBranches(access.get(result.node)!.readable, after,
+              readable => enumerate(result.node, readable), denied => [systemError("EACCES", "scandir", path), denied]);
+          }), exhausted => [systemError("EMFILE", "scandir", path), exhausted]);
+      }, enumerationUnsupported);
+    }));
   module.properties.existsSync = operation("existsSync", 1, (call, context) =>
     withPath(call.args[0] || Undefined, context, (path, branch) => path.includes("\0")
       ? [ESBoolean(false), branch] : lookup(path, branch, (result, after) => [ESBoolean("node" in result), after])));

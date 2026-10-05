@@ -296,3 +296,9 @@ Its first observations are stable across branches, but their acquisition is
 on demand and non-atomic. See [the precise capture boundary](node-filesystem.md#read-only-environment-acquisition).
 The adapter's native observation cache is not a resumable environment, and its
 existence alone does not establish CLI filesystem/request integration.
+
+Directory enumeration retains its own knowledge: a complete name list does not
+imply that every child type/content has been acquired. Open directories without
+complete names stop explicitly; conditional listings, prior observations and
+later child acquisition use persistent branch state. See the
+[filesystem enumeration boundary](node-filesystem-enumeration.md).
