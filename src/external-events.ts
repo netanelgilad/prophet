@@ -40,6 +40,40 @@ export function createExternalEvents(): ExternalEvents {
       throw new UnsupportedAnalysisError("Resuming active external event delivery is not yet supported");
     }
   };
+  // Run continuations inside the selected delivery branch. Joining true/false
+  // arrival results first and then branching on that composite Boolean can lose
+  // provider/state correlations with the current incomplete reasoner.
+  const stepWithContinuation = (context: TExecutionContext,
+    onArrival: (context: TExecutionContext) => BranchResult,
+    onWaiting: (context: TExecutionContext) => BranchResult): BranchResult =>
+    captureExecutionBoundary(context, () => withAnalysisFailureContext(context, () => {
+      requireIdle(context);
+      return withValue(getProperties(state, context).sources, context, (value, branch) => {
+        const sources = entries(value, branch);
+        const choose = (index: number, current: TExecutionContext): BranchResult => {
+          if (index === sources.length) return onWaiting(current);
+          const source = sources[index] as TESObject;
+          const fields = getProperties(source, current);
+          const later = (after: TExecutionContext) => choose(index + 1, after);
+          return bindNormal(invoke(fields.eligible, [], current, fields.receiver), (eligible, checked) => {
+            if (!isESBoolean(eligible)) throw new Error("External event eligibility must be Boolean");
+            return evaluateBranches(eligible, checked, ready =>
+              // Each step has fresh arrival choices and reads current sources.
+              // Array order does not impose priority among eligible providers.
+              evaluateBranches(ESBoolean(), ready, selected => {
+                const budget = selected.value.evaluationBudget;
+                if (budget && --budget.remaining < 0) throw new ExecutionBudgetError("Execution exceeded its evaluation budget");
+                const active = writeProperty(state, "active", source, selected);
+                return withAnalysisFailureContext(active, () => bindNormal(mapCompletions(
+                  invoke(fields.deliver, [], active, fields.receiver),
+                  (completion, after) => [completion, writeProperty(state, "active", Undefined, after)]),
+                  (_completion, after) => onArrival(after)));
+              }, later), later);
+          });
+        };
+        return choose(0, branch);
+      });
+    }));
   const registry: ExternalEvents = {
     state,
     register(source, context) {
@@ -47,34 +81,7 @@ export function createExternalEvents(): ExternalEvents {
         [Undefined, writeProperty(state, "sources", ESArray(entries(sources, branch).concat(source)), branch)]);
     },
     step(context) {
-      return captureExecutionBoundary(context, () => withAnalysisFailureContext(context, () => {
-        requireIdle(context);
-        return withValue(getProperties(state, context).sources, context, (value, branch) => {
-          const sources = entries(value, branch);
-          const choose = (index: number, current: TExecutionContext): BranchResult => {
-            if (index === sources.length) return [ESBoolean(false), current];
-            const source = sources[index] as TESObject;
-            const fields = getProperties(source, current);
-            const later = (after: TExecutionContext) => choose(index + 1, after);
-            return bindNormal(invoke(fields.eligible, [], current, fields.receiver), (eligible, checked) => {
-              if (!isESBoolean(eligible)) throw new Error("External event eligibility must be Boolean");
-              return evaluateBranches(eligible, checked, ready =>
-                // Each step has fresh arrival choices and reads current sources.
-                // Array order does not impose priority among eligible providers.
-                evaluateBranches(ESBoolean(), ready, selected => {
-                  const budget = selected.value.evaluationBudget;
-                  if (budget && --budget.remaining < 0) throw new ExecutionBudgetError("Execution exceeded its evaluation budget");
-                  const active = writeProperty(state, "active", source, selected);
-                  return withAnalysisFailureContext(active, () => bindNormal(mapCompletions(
-                    invoke(fields.deliver, [], active, fields.receiver),
-                    (completion, after) => [completion, writeProperty(state, "active", Undefined, after)]),
-                    (_completion, after) => [ESBoolean(true), after]));
-                }, later), later);
-            });
-          };
-          return choose(0, branch);
-        });
-      }));
+      return stepWithContinuation(context, after => [ESBoolean(true), after], waiting => [ESBoolean(false), waiting]);
     },
     explore(context, maxEvents, afterEvent) {
       if (maxEvents !== 0 && maxEvents !== 1 && maxEvents !== 2) {
@@ -82,11 +89,10 @@ export function createExternalEvents(): ExternalEvents {
       }
       const advance = (remaining: number, current: TExecutionContext): BranchResult => {
         if (!remaining) return [Undefined, current];
-        return bindNormal(registry.step(current), (arrived, after) =>
-          evaluateBranches(arrived as ReturnType<typeof ESBoolean>, after,
-            delivered => bindNormal(afterEvent ? afterEvent(delivered) : [Undefined, delivered],
-              (_value, drained) => advance(remaining - 1, drained)),
-            waiting => [Undefined, waiting]));
+        return stepWithContinuation(current,
+          delivered => bindNormal(afterEvent ? afterEvent(delivered) : [Undefined, delivered],
+            (_value, drained) => advance(remaining - 1, drained)),
+          waiting => [Undefined, waiting]);
       };
       return captureExecutionBoundary(context, () => withAnalysisFailureContext(context, () => {
         requireIdle(context);
