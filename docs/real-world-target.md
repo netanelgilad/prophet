@@ -421,3 +421,11 @@ revision, Node/OS reference, assumptions, schedules/bounds, coverage gaps, and
 path conditions. Only claim all relevant exception paths within a domain once
 every path is accounted for, including analysis gaps and exhaustion. General
 JavaScript does not guarantee that arbitrary programs can be fully analyzed.
+
+## Growing beyond the first target
+
+The next larger pinned target is [sirv 3.0.2 with its actual dependencies](sirv-target.md).
+Its complete fixtures and pinned Node references are retained. Prophet currently
+reaches an object binding destructuring boundary during import; this is not a
+completed startup/request analysis. Advance shared VM semantics from that actual
+blocker while preserving pico's existing proofs.

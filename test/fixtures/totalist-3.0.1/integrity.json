@@ -1,0 +1,19 @@
+{
+  "name": "totalist",
+  "version": "3.0.1",
+  "metadataUrl": "https://registry.npmjs.org/totalist/3.0.1",
+  "tarballUrl": "https://registry.npmjs.org/totalist/-/totalist-3.0.1.tgz",
+  "archiveIntegrity": "sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==",
+  "gitHead": "4b071d3e54d466a4059de89006c752da782c8b02",
+  "files": {
+    "package/license": "306fa513e39b23a6e8747520de761809d206b99800ef41907b530226574c59ae",
+    "package/dist/index.js": "87895e609ed7419f7ecdff800a76ca3ffb167f129dfd45f689875397f2348214",
+    "package/sync/index.js": "77b41c919524457aadd72b423b166e66c36c484d249c09124c22269ef8b3d6cb",
+    "package/package.json": "0623891e622ac83bd53ef5a81987338da75697112e2386ffbd77676c1ef7e9df",
+    "package/readme.md": "fb37c2d537fe6d81bb653a447a192348f373577be88f2a1aa66696e751c6bf7d",
+    "package/dist/index.mjs": "70a998ce6b3da13e242332e704d9b64ee88c23520ee260663d178206a57ae14d",
+    "package/sync/index.mjs": "0d911e865ba4c7e860a1ebb8e6fd7b25e5113967bea3e799bca690c48fdd41c0",
+    "package/index.d.ts": "9f78bd6e43202253f0af72af9978cda3399b5a1ae9cd28593976f42cf6a1f4ee",
+    "package/sync/index.d.ts": "4cdaa2f28b917cc3fb61454657fed974968a66557ef23c2858997565d3b9559c"
+  }
+}

@@ -135,6 +135,12 @@ sequences. Keep Node public built-ins as the modeling boundary and generic
 conditional state/effect graphs as the representation; derive HTTP-focused
 inspection views in consumers.
 
+The next larger immutable application is [sirv 3.0.2](sirv-target.md), including
+three pinned runtime dependencies and independent Node request references. Its
+first reached VM blocker is object binding destructuring during import. Remove
+that shared blocker, then follow actual reached language/host boundaries without
+rewriting the package or claiming unexecuted handlers were analyzed.
+
 ## Following product milestones
 
 1. Extend the first CLI/state contract with explicit symbolic and concrete
