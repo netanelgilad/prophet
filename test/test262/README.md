@@ -88,8 +88,7 @@ the left reference error; its success does not establish comma-expression suppor
 All 43 complete language `instanceof` candidates and 11 complete
 `built-ins/Function/prototype/Symbol.hasInstance` candidates were reviewed.
 The remaining language cases need actual comma evaluation (`A2.4_T1/T4`),
-Boolean/Number/String wrappers (`A4_T1/T2/T3`), the Array constructor/prototype
-(`A7_T2`), zero-argument Function construction (`A7_T3`,
+Boolean/Number/String wrappers (`A4_T1/T2/T3`), zero-argument Function construction (`A7_T3`,
 `S15.3.5.3_A2_T2/T6`, `S15.3.5.3_A3_T2`), getter/descriptor operations (the three
 `prototype-getter-*` files), or the public Symbol API (four `symbol-hasinstance-*`
 files). The Function hasInstance directory additionally needs descriptors and
@@ -306,3 +305,9 @@ parse-negative cases (14 variants). [RegExp boundaries](../../docs/regexp-litera
 retain the descriptor, constructor, matching, loop and host-dependent parser
 gaps and unselected whole upstream candidates. Parser-only passes do not
 establish a regex matching implementation.
+
+The shared array layer adds two complete push cases (A1_T1 and A6.7) and the
+complete instanceof A7_T2 case, six variants total. See [array boundaries](../../docs/array-push.md)
+for independently pinned native evidence, mutation/symbolic coverage and the
+remaining 15 complete push candidates. Missing Number constants are guarded, not
+replaced by harness values or silently treated as undefined.

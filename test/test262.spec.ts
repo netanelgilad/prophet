@@ -23,6 +23,11 @@ const activeCorpus = [
   "language/literals/regexp/u-invalid-oob-decimal-escape.js",
   "language/literals/regexp/u-invalid-identity-escape.js",
 
+
+  // Complete shared push calls and the builtin's non-construction rule.
+  "built-ins/Array/prototype/push/S15.4.4.7_A1_T1.js",
+  "built-ins/Array/prototype/push/S15.4.4.7_A6.7.js",
+  "language/expressions/instanceof/S11.8.6_A7_T2.js",
   // Complete object declaration bindings: names, defaults, nested objects and errors.
   "language/statements/variable/dstr/obj-ptrn-prop-id.js",
   "language/statements/variable/dstr/obj-ptrn-prop-id-init.js",

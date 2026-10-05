@@ -79,7 +79,8 @@ this traversal without claiming their other APIs or descriptors are modeled.
 
 Public Symbols and symbol-key mutation, hasInstance getters, descriptors,
 bound-function delegation, Proxy traps, full prototype reflection and dynamic
-prototype mutation remain unsupported. Array prototype relationships also remain
+prototype mutation remain unsupported. Array prototype relationships now use the shared empty-array intrinsic (see
+[array boundaries](array-push.md)); broader Array APIs remain
 an explicit gap. Unknown or invalid embedding links and cyclic prototype graphs
 stop analysis; they are not evidence for a false instance result.
 

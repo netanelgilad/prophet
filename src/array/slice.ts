@@ -18,7 +18,7 @@ export function* slice(
   self: TArray<any>,
   args: Any[],
   execContext: TExecutionContext
-): Generator<never, [SliceResult, TExecutionContext], never> {
+): Generator<never, [SliceResult, TExecutionContext], unknown> {
   if (getSymbolicArrayShape(self, execContext)) {
     const start = concreteBound(args[0]);
     const end = concreteBound(args[1]);

@@ -71,7 +71,8 @@ but ordinary argument expressions still execute before the call.
 
 The model assumes the intrinsic `Array.prototype.push` used internally by Node's
 join remains unchanged. The pinned implementation calls that method dynamically
-on a temporary array. Array constructor/prototype mutation is currently outside
+on a temporary array. The partial Array constructor and shared push are now modeled, but Array.prototype
+mutation is explicitly guarded and remains outside
 the VM's supported surface; modeling it later must preserve its effects on join.
 This assumption does not extend to mutable String methods: Node's normalization
 uses captured String operations, and the compatibility specs cover their

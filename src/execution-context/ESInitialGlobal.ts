@@ -10,6 +10,7 @@ import { getErrorConstructor } from "../error/Error";
 import { getObjectPrototype } from "../Object/prototype";
 import { getFunctionPrototype } from "../Function/prototype";
 import { ESObject } from "../Object";
+import { getArrayConstructor } from "../array/prototype";
 
 ObjectConstructor.properties.prototype = getObjectPrototype();
 Object.assign(ObjectConstructor.properties.prototype.properties, { constructor: ObjectConstructor });
@@ -38,6 +39,7 @@ export const ESInitialGlobal = ESObject({
   Number: NumberConstructor,
   Boolean: ESBooleanConstructor,
   Object: ObjectConstructor,
+  Array: getArrayConstructor(),
   Symbol: unavailableSymbol,
   Error: getErrorConstructor("Error"),
   EvalError: getErrorConstructor("EvalError"),

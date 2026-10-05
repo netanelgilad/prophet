@@ -311,3 +311,10 @@ imply that every child type/content has been acquired. Open directories without
 complete names stop explicitly; conditional listings, prior observations and
 later child acquisition use persistent branch state. See the
 [filesystem enumeration boundary](node-filesystem-enumeration.md).
+
+The [shared array layer](array-push.md) uses one empty array intrinsic with the
+ordinary Object prototype parent. Bounded push updates the current persistent
+heap, preserving holes, aliases, value identity and branch conditions. Unknown
+current layouts and unsupported descriptors/receivers stop explicitly; no
+unknown suffix is silently replaced. Array.prototype mutation remains guarded
+until host models also preserve observable intrinsic dependencies.

@@ -260,11 +260,11 @@ test("an ordinary object cannot skip an unknown host ancestor while walking prot
     .toThrow(/prototype|partial|unmodeled|unknown/i);
 });
 
-test("array prototype links remain an explicit gap rather than a false instanceof answer", () => {
+test("arrays use their declared shared intrinsic prototype chain", () => {
   const source = 'module.exports = [] instanceof Object;';
   expect(withModuleFixture(source, filename => nodeModuleObservation(filename)))
     .toEqual({ kind: "return", value: { type: "boolean", value: true } });
-  expect(() => run('const result = [] instanceof Object;')).toThrow(/array|prototype|unmodeled/i);
+  compare('module.exports = [] instanceof Object && [] instanceof Array && !(Array.prototype instanceof Array);');
 });
 
 for (const constructor of ["Object", "Function", "Number", "Boolean"]) {

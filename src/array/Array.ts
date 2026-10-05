@@ -1,8 +1,6 @@
-import { reverse } from "./reverse";
-import { join } from "./join";
-import { slice } from "./slice";
-import { ESNumber, TESNumber } from "../types";
+import { Any, ESNumber, TESNumber, Type, WithProperties } from "../types";
 import { SymbolicArrayShape } from "./symbolic";
+import { getArrayPrototype } from "./prototype";
 
 // Shape describes the sequence, not whether its elements are known values.
 export type ArrayShape =
@@ -16,10 +14,13 @@ export type TArray<T> = {
   shape: ArrayShape;
 };
 
+export type ArrayValue<T = Any> = Type<"array"> & TArray<T> & WithProperties<{ length: TESNumber }>;
+
 export function Array<T>(
   value?: Array<T> | Array<TArray<T>>,
-  shapeKind?: "elements" | "segments"
-) {
+  shapeKind?: "elements" | "segments",
+  prototype: Any = getArrayPrototype()
+): ArrayValue<T> {
   const shape: ArrayShape = {
     kind: value === undefined ? "unknown" : shapeKind || "elements"
   };
@@ -32,18 +33,9 @@ export function Array<T>(
 
   return {
     type: "array",
-    properties: Object.assign(elements, {
-      reverse: {
-        implementation: reverse
-      },
-      join: {
-        implementation: join
-      },
-      slice: {
-        implementation: slice
-      },
-      length: calculateLength(value, shape)
-    }),
+    properties: Object.assign(elements, { length: calculateLength(value, shape) }),
+    prototype, modeledPrototype: true,
+    ownPropertyModel: "unmodeled",
     value,
     shape
   };
