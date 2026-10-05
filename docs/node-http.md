@@ -16,10 +16,13 @@ module. No complete upstream HTTP case is currently claimed as passing in
 Prophet. Real sockets belong only to isolated concrete reference execution;
 symbolic exploration must not open a listening socket or send network traffic.
 
-## Automatic first request
+## Automatic bounded requests
 
-The CLI's optional `--max-events 1` uses the generic [external-event registry](external-events.md)
-to explore a first parsed request on any eligible server, or no arrival yet.
+The CLI's optional `--max-events 1` or `2` uses the generic [external-event registry](external-events.md)
+to explore parsed requests on current eligible servers, or no arrival yet.
+Bound two includes shorter histories and drains supported Node jobs between
+normal arrivals and after the final arrival. Listener changes and newly created
+servers become visible at later steps; a throw or classified stop ends its path.
 Default zero retains startup behavior. The provider uses the same request
 transition as embedding delivery, with fresh independent unknown string method
 and URL fields; it does not claim HTTP parser or wire-dispatch coverage.
@@ -27,7 +30,8 @@ Response state now has a `node.http.response` host slot in the ordinary graph.
 The [pinned API](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/doc/api/http.md#event-request)
 defines request-event arguments; the [native witnesses](../test/node-incoming-events-reference.spec.ts)
 exercise real GET requests, late captured state, listener removal, server receiver,
-successful response and an unhandled handler throw. Existing complete upstream
+successful response, an unhandled handler throw, and both orders of two requests
+that arm/fire captured state. Existing complete upstream
 candidates below remain inactive: generic arrival exploration does not implement
 HTTP clients, streams, address/close, finish scheduling or the common/assert harness.
 

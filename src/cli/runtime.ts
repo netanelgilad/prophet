@@ -50,7 +50,7 @@ export type FileExecution = {
 /** Capture reached imports and execute them entirely inside Prophet's shared VM. */
 export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const maxEvents = options.maxEvents === undefined ? 0 : options.maxEvents;
-  if (maxEvents !== 0 && maxEvents !== 1) throw new Error("Incoming event bounds other than 0 or 1 are not yet supported");
+  if (maxEvents !== 0 && maxEvents !== 1 && maxEvents !== 2) throw new Error("Incoming event bounds other than 0, 1 or 2 are not yet supported");
   const filename = realpathSync(resolve(cwd, options.script));
   const captured = captureModuleSources();
   if (captured.source.readFile(filename) === undefined) {
@@ -102,8 +102,8 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
     const started = ExecutionContext({ ...initial.value, evaluationBudget: { remaining: options.maxSteps } });
     const [completion, current] = bindNormal(loader.load(filename, started), (exports, afterEntry) =>
       bindNormal(nextTick.drain(afterEntry, options.maxSteps), (_value, afterJobs) =>
-        bindNormal(externalEvents.explore(afterJobs, maxEvents), (_event, afterEvents) =>
-          bindNormal(nextTick.drain(afterEvents, options.maxSteps), (_job, current) => [exports, current]))));
+        bindNormal(externalEvents.explore(afterJobs, maxEvents,
+          afterEvent => nextTick.drain(afterEvent, options.maxSteps)), (_event, current) => [exports, current])));
     const stopped = executionBoundaries(completion);
     return { input, initial, current, completion, status: stopped.length ? "analysis-stop" : "evaluated",
       diagnostic: stopped.length ? Array.from(new Set(stopped.map(boundary => boundary.message))).join("; ") : undefined };

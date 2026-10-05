@@ -37,8 +37,8 @@ export function parseArguments(args: ReadonlyArray<string>): CLIArguments {
       if (maxEventsSeen) throw new Error("--max-events may only be specified once.");
       maxEventsSeen = true;
       index += 1;
-      if (args[index] !== "0" && args[index] !== "1") {
-        throw new Error("--max-events currently supports only 0 or 1 incoming events.");
+      if (args[index] !== "0" && args[index] !== "1" && args[index] !== "2") {
+        throw new Error("--max-events currently supports only 0, 1 or 2 incoming events.");
       }
       maxEvents = Number(args[index]);
       continue;

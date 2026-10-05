@@ -163,8 +163,9 @@ listening/error callbacks with current state. A throwing branch retains later
 jobs without executing them; an analysis stop can retain active work. A drained
 queue does not imply the whole process finished or that future request handlers
 were explored. The [queue boundary](jobs.md) remains distinct from a general
-scheduler or process recovery. Optional [first-event exploration](external-events.md)
-follows this checkpoint with `--max-events 1`; zero remains the default.
+scheduler or process recovery. Optional [bounded event exploration](external-events.md)
+follows this checkpoint with `--max-events 1` or `2`; zero remains the default.
+Supported jobs drain between normal arrivals and after the final one.
 A symbolic event path is a permitted timeline plus its conditions, and can stand
 for many concrete executions. Preserve shared prefixes and conditional states;
 the first startup-queue component does not enumerate all possible timelines or
@@ -224,8 +225,11 @@ One CLI invocation should eventually discover and analyze such reachable event
 behavior automatically. This does not promise exhaustive enumeration of arbitrary
 programs or indefinitely many events. Reusable summaries/invariants may cover
 unbounded cases; explored domains, unsupported transitions and unfinished work
-must remain visible. HTTP delivery can now be embedding-driven or one automatically supplied parsed
-event through `--max-events 1`; broader event sequences remain unsupported. The existing
+must remain visible. HTTP delivery can now be embedding-driven or automatically
+supplied through `--max-events 1` or `2`. The two-event `/arm` then `/fire` case
+retains invocation-time state, shorter histories, and stopped siblings. Each
+normal arrival drains supported Node jobs before the next. Histories beyond two
+and general event sequences remain unsupported. The existing
 recursive summaries cover a restricted pure subset, not eventful callbacks.
 
 ## Consumer tools own interpretation

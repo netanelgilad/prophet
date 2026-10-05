@@ -63,10 +63,10 @@ test("CLI accepts the smallest positive budget and the largest exactly represent
 });
 
 test("CLI accepts bounded incoming event exploration", () => {
-  for (const maxEvents of [0, 1]) expect(parseArguments(["--max-events", String(maxEvents), "--", "server.js"]))
+  for (const maxEvents of [0, 1, 2]) expect(parseArguments(["--max-events", String(maxEvents), "--", "server.js"]))
     .toMatchObject({ maxEvents });
 });
-test.each(["-1", "2", "1.5", "", "Infinity", "NaN"])("CLI rejects unsupported incoming event bounds: %s", bound => {
+test.each(["-1", "3", "1.5", "", "Infinity", "NaN"])("CLI rejects unsupported incoming event bounds: %s", bound => {
   expect(() => parseArguments(["--max-events", bound, "--", "server.js"])).toThrow(/event/i);
 });
 test("CLI rejects duplicate incoming event bounds", () => {
