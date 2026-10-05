@@ -123,6 +123,9 @@ output. Source capture and target filesystem capture remain separate non-atomic
 observations. No target write runs natively and binary read/symlink/other capture
 boundaries remain explicit.
 
+Complete directory names are now acquired separately from child metadata; see
+[enumeration](node-filesystem-enumeration.md).
+
 The assembled CLI now composes this environment with bounded future requests,
 POSIX path, process cwd and legacy URL models. Warning presentation and HTTP
 notifications use the same FIFO. Unchanged pico automatically retains completed

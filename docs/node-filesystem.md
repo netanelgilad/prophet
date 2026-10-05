@@ -111,6 +111,10 @@ Supported operations are:
   exposing shared `isDirectory` and `isFile` methods. Methods may be borrowed
   between modeled Stats receivers; arbitrary receivers, mode/_checkModeProperty
   changes, other fields, constructors and descriptor reflection remain guarded.
+- `readdirSync(path)` with omitted/undefined/null options: returns a fresh array
+  of complete UTF-8 names in pinned Linux/Darwin byte order. Closed declarations
+  and acquired complete names retain symbolic conditions; see
+  [enumeration semantics and acquisition](node-filesystem-enumeration.md).
 - `readFileSync(path, "utf8")` or `"utf-8"`: reads the supplied UTF-8 text or
   returns a supported throwing completion. Omitted, undefined or null options
   return a fresh [partial Buffer value](node-buffer.md) on success, preserving
@@ -148,13 +152,16 @@ The adapter records the canonical identity of the already-held cwd and the
 actual Linux/Darwin platform, then acquires only the cwd ancestor chain and
 reached path components. `fileSystemDirectory(children, { complete: false })`
 represents an open directory: omitted names are unobserved, while an explicit
-`ESNull` is observed absence. Generic `observeEntry` and `observeContents` hooks
+`ESNull` is observed absence. Generic `observeEntry`, `observeContents` and
+`observeDirectoryNames` hooks
 can acquire new facts. Without a hook, an unobserved operation stops analysis.
 The cwd chain must already be observed when constructing the model.
 `fileSystemUnobservedFile` retains file identity with unknown text; metadata
 operations do not read or decode file bytes. Directory entry metadata includes
 `complete: false`, so serialized state cannot mistake an unvisited sibling for
-an absent file. Unknown file text is distinct from the concrete empty string.
+an absent file. The separate `names` host-slot field is undefined until a complete
+name list is observed; it does not imply that child metadata or contents were
+acquired. Unknown file text is distinct from the concrete empty string.
 
 First entry, access, content and negative observations are memoized by component
 identity across branches. Reached child entries and contents enter the persistent
@@ -177,11 +184,13 @@ replacement bytes. Binary files can exist/stat, but both Buffer and text reads
 retain the UTF-8 capture boundary. These checks do not make ancestor traversal
 race resistant, establish symlink containment, or exclude undetected changes.
 
-Default budgets are 4,096 entry probes (including cwd ancestors), 1 MiB per file
+Default budgets are 4,096 entry/name observations (including cwd ancestors), 1 MiB per file
 and 8 MiB total content bytes. Positive-safe-integer overrides are embedding
 configuration. Reads may inspect one extra sentinel byte to detect growth;
 failed attempts retain their error and do not silently retry against changed
-state. No directory enumeration or recursive subtree scan occurs. AST budgets
+state. Only a requested directory is enumerated, through a bounded iterator;
+there is no recursive subtree scan. Names require lossless UTF-8 and no more
+than 255 bytes per component. AST budgets
 do not replace these bounds, and neither bounds filesystem-call latency.
 
 Effective read/search flags come from native access checks. An observed EACCES
