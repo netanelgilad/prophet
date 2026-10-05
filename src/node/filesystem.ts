@@ -215,13 +215,18 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
               if (!openDirectories.has(directory)) return descend(ESNull, unobserved);
               if (initializingCwd) return unsupported("cwd must already be observed in the initial tree");
               return withNames(directory, unobserved, (names, afterNames) => {
-                if (names && !names.includes(component)) return descend(ESNull, afterNames);
+                // A captured directory's names do not exclude case-folding or
+                // normalization aliases. The adapter must still probe unlisted
+                // spellings; only an exact namespace without a hook infers absence.
+                if (names && !names.includes(component) && !observeEntry) return descend(ESNull, afterNames);
                 if (!observeEntry) return unsupported("unobserved directory entry");
                 const child = observeEntry(directory, component);
                 validate(child, []);
                 const observed = writeProperty(directory, component, child, afterNames);
                 return names ? withValue(child, observed, (selected, branch) => {
-                  if (isESNull(selected)) throw new Error("Filesystem child observation contradicts complete directory names");
+                  if (names.includes(component) === isESNull(selected)) {
+                    throw new Error("Filesystem child observation contradicts complete directory names");
+                  }
                   return descend(selected, branch);
                 }) : descend(child, observed);
               });

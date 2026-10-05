@@ -72,13 +72,15 @@ test('open enumeration is an explicit branch-local boundary, never a partial or 
 test('complete name observations remain separate from acquired child metadata and survive joins', () => {
   const root = fileSystemDirectory({}, { complete: false }), selected = ESBoolean();
   let acquired = 0;
-  const options = { root, observeDirectoryNames: () => ['file'], observeEntry: () => { acquired++; return fileSystemFile('content'); } };
+  const options = { root, observeDirectoryNames: () => ['file'], observeEntry: (_directory: ReturnType<typeof ESObject>, name: string) => {
+    acquired++; return name === 'file' ? fileSystemFile('content') : ESNull;
+  } };
   const model = createFileSystemModel(options);
   options.observeDirectoryNames = () => { throw new Error('mutated options'); };
   const [value, after] = run(model, `if (selected) fs.readdirSync(".");
     module.exports = fs.readdirSync("/")[0] === "file" && !fs.existsSync("unlisted");`, { selected });
   expect(resolveBoolean(value as ReturnType<typeof ESBoolean>, after.value.knowledge)).toBe(true);
-  expect(acquired).toBe(0);
+  expect(acquired).toBeGreaterThan(0);
   expect(getProperties(root, after).file).toBeUndefined();
   expect(getProperties(root.hostSlots!['node.fs.entry'] as ReturnType<typeof ESObject>, after).names).not.toBe(Undefined);
   expect(run(model, 'module.exports = fs.readdirSync(".")[0] === "file" && fs.readFileSync("file", "utf8") === "content";')[0])
@@ -125,4 +127,20 @@ test('large concrete declared listings do not recurse per entry or expose the ca
   const model = createFileSystemModel({ root: fileSystemDirectory(children) });
   expect(run(model, `const names = fs.readdirSync("."); names[0] = "changed";
     module.exports = names.length === 3000 && fs.readdirSync(".")[0] === "file-0";`)[0]).toMatchObject({ value: true });
+});
+
+test('complete names cannot hide positive acquisition observations for unlisted spellings', () => {
+  const root = fileSystemDirectory({}, { complete: false });
+  let observed: string | undefined;
+  const model = createFileSystemModel({ root, observeDirectoryNames: () => ['File'], observeEntry: (_directory, name) => {
+    observed = name;
+    return fileSystemFile('alias or changed namespace');
+  } });
+  expect(() => run(model, 'fs.readdirSync("."); fs.existsSync("file");')).toThrow(/contradict/);
+  expect(observed).toBe('file');
+});
+
+test('complete exact names can establish absence without a native acquisition hook', () => {
+  const model = createFileSystemModel({ root: fileSystemDirectory({}, { complete: false }), observeDirectoryNames: () => ['File'] });
+  expect(run(model, 'fs.readdirSync("."); module.exports = !fs.existsSync("file");')[0]).toMatchObject({ value: true });
 });
