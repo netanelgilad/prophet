@@ -113,10 +113,11 @@ export function captureFileSystem(options: FileSystemCaptureOptions) {
     const path = join(parent, name);
     if (nodes.has(path)) return nodes.get(path)!;
     const knownNames = directoryNames.get(parent);
-    if (knownNames && !knownNames.includes(name)) { nodes.set(path, ESNull); return ESNull; }
     return attempt(`stat ${path}`, () => {
       const stat = inspect(path);
-      if (!stat && knownNames) throw new Error("Filesystem child changed after complete directory enumeration");
+      if (knownNames && knownNames.includes(name) !== !!stat) {
+        throw new Error("Filesystem child observation contradicts complete directory enumeration");
+      }
       const node = stat ? makeNode(path, stat) : ESNull;
       nodes.set(path, node);
       return node;

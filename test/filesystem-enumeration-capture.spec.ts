@@ -49,8 +49,30 @@ test('first complete name observation is memoized without rereading later host c
   const model = captured();
   expect(run(model, 'module.exports = fs.readdirSync(".")[0] === "first";')[0]).toMatchObject({ value: true });
   writeFileSync(join(directory, 'later'), '');
-  expect(run(model, 'module.exports = fs.readdirSync(".").join("|") === "first" && !fs.existsSync("later");')[0])
-    .toMatchObject({ value: true });
+  expect(run(model, 'module.exports = fs.readdirSync(".").join("|") === "first";')[0]).toMatchObject({ value: true });
+  expect(() => run(model, 'fs.existsSync("later");')).toThrow(/changed|contradict/);
+});
+
+test('unlisted case and normalization spellings are probed instead of fabricated absent', () => {
+  writeFileSync(join(directory, 'File'), 'case');
+  writeFileSync(join(directory, 'é'), 'unicode');
+  const names = fs.readdirSync(directory);
+  const unicode = names.find(name => name !== 'File')!;
+  const otherUnicode = unicode === unicode.normalize('NFC') ? unicode.normalize('NFD') : unicode.normalize('NFC');
+  const model = captured();
+  run(model, 'fs.readdirSync(".");');
+  for (const name of ['file', otherUnicode]) {
+    expect(names.includes(name)).toBe(false);
+    // The fixture's filesystem decides whether this spelling is an alias; both
+    // outcomes have assertions, without skipping case-sensitive hosts.
+    const exists = native(`module.exports = fs.existsSync(${JSON.stringify(name)});`);
+    const inspect = jest.spyOn(fs, 'lstatSync');
+    try {
+      if (exists) expect(() => run(model, `fs.existsSync(${JSON.stringify(name)});`)).toThrow(/alias|contradict/);
+      else expect(run(model, `module.exports = !fs.existsSync(${JSON.stringify(name)});`)[0]).toMatchObject({ value: true });
+      expect(inspect).toHaveBeenCalledWith(join(directory, name));
+    } finally { inspect.mockRestore(); }
+  }
 });
 
 test('conditional name observations reuse one native acquisition after branch joins and preserve child identity', () => {

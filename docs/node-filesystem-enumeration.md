@@ -34,8 +34,12 @@ observation `names` is undefined. The existing `complete` flag continues to
 describe the declared child table: acquiring names does not turn it into a
 complete table of child metadata. Known names may have no acquired child node.
 
-An unlisted name is absent after complete enumeration. A listed child is acquired
-only when a subsequent stat/existence/read needs it. Contradictions with prior
+In an explicitly exact namespace with no child-acquisition hook, an unlisted
+name is absent after complete enumeration. When a hook exists, unlisted spellings
+must still be probed: case folding or Unicode normalization may resolve them to
+a listed entry. A positive result for an unlisted spelling, or a missing result
+for a listed spelling, is a contradiction or unsupported alias rather than a
+false absence. Listed child metadata is acquired only when a later operation needs it. Contradictions with prior
 positive or negative child observations are acquisition/configuration failures,
 not newly fabricated guest errors. Branch joins retain conditional name-list
 observations, and earlier contexts stay unchanged. Without a complete declaration
@@ -62,8 +66,10 @@ metadata is not silently installed as a modeled stat result.
 Before/after directory identity, mode and modification/change-time comparisons
 reject detected changes. Previously observed child facts must agree with the
 first listing. A listed child disappearing before its first metadata observation
-is a diagnostic failure. After a successful listing the memoized namespace stays
-fixed even if the host later changes. These checks establish neither an atomic
+is a diagnostic failure. After a successful listing its memoized names stay
+fixed even if the host later changes; later component probes must agree with
+those observations. A newly created unlisted file is therefore a contradiction,
+not inferred absence. Previously verified negative probes retain their cached facts. These checks establish neither an atomic
 snapshot nor a race-resistant component walk; undetected changes, aliases,
 ACL/effective-user effects and future syscall outcomes retain the existing capture
 limits. Unexpected open/read/close errors are memoized diagnostics. Filename-byte
@@ -80,7 +86,9 @@ compare real names, permission denial, absent paths and descriptor exhaustion
 with independent pinned Node runs. Raw invalid filename bytes are injected at the
 adapter boundary because the reference Darwin filesystem refuses their creation.
 The tests also retain host-error, namespace-change, nonregular-name and budget
-boundaries. No target source runs natively during analysis.
+boundaries. Independent Node probes decide whether the fixture filesystem
+supports case/normalization aliases; both alias and non-alias outcomes are asserted
+without skipping either platform. Aliases remain unsupported, never false negatives. No target source runs natively during analysis.
 
 Options objects, even `{}`, explicit encoding strings, `withFileTypes`, recursive
 enumeration, Buffer/URL paths, arbitrary filename bytes and open symbolic names
