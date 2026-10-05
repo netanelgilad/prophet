@@ -1,9 +1,12 @@
 import { evaluateCode, nodeInitialExecutionContext } from "../src";
 import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
 import { symbolicNumberArray } from "../src/array/symbolic";
-import { Array as ESArray } from "../src/array/Array";
+import { Array as ESArray, getArrayPrototype } from "../src/array/Array";
 import { ESNumber, TESBoolean, TESNumber } from "../src/types";
 import { randomNumber } from "../src/symbolic";
+import { ESBuiltinFunction } from "../src/Function/Function";
+import { FunctionBinding, Undefined } from "../src/types";
+import { ESObject } from "../src/Object";
 import { getInferredSummaries } from "../src/Function/summaries";
 
 const minimum = `
@@ -192,4 +195,21 @@ test("symbolic snapshots reject writes and concrete arrays retain ordinary execu
   `, nodeInitialExecutionContext);
   expect(context.value.scope.result).toMatchObject({ value: true });
   expect(getInferredSummaries(context.value.scope.reduce)).toEqual([]);
+});
+
+test("summary trust follows the exact inherited slice intrinsic and rejects shadowing or custom lookup", () => {
+  const fresh = () => symbolicNumberArray({ minimumLength: 1, element: randomNumber() });
+  const intrinsic = getArrayPrototype().properties.slice as FunctionBinding;
+  const shadowed = fresh();
+  // Even a different embedding function carrying the same native implementation
+  // is not the shared guarded intrinsic identity used during verification.
+  Object.assign(shadowed.properties, { slice: ESBuiltinFunction(intrinsic.function.implementation) });
+  const missing = fresh(); Object.assign(missing.properties, { slice: Undefined });
+  const custom = Object.assign(fresh(), { prototype: ESObject() });
+  const hooked = Object.assign(fresh(), { propertyAccess: {
+    read() { throw new Error("unverified lookup must not execute"); }, write() { return undefined; }
+  } });
+  for (const input of [shadowed, missing, custom, hooked]) {
+    expect(() => run(minimum + "const value = reduce(input);", input)).toThrow(/trusted slice implementation/);
+  }
 });

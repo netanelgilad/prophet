@@ -1,11 +1,11 @@
-import { Any, ESNumber, TESNumber, FunctionBinding, isESNumber, isFunction } from "../types";
+import { Any, ESNumber, TESNumber, FunctionBinding, WithProperties, isESNumber } from "../types";
 import { ExecutionContext, TExecutionContext, Environment, resolveBinding } from "../execution-context/ExecutionContext";
 import { evaluateThrowableIterator } from "../evaluate";
 import { getProperties } from "../execution-context/Heap";
 import { functionDefinition, FunctionDefinition } from "./definition";
 import { getSymbolicArrayShape, symbolicNumberArray, symbolicArrayRegion,
   readSymbolicIndex, sliceSymbolicArray } from "../array/symbolic";
-import { slice } from "../array/slice";
+import { getArrayPrototype } from "../array/Array";
 import { compareNumbers, isFiniteNumber, notNaN, Fact } from "../symbolic";
 
 type Candidate = "finite" | "notNaN" | "lower" | "upper";
@@ -202,7 +202,9 @@ function infer(fn: Any, template: TESNumber, caller: TExecutionContext): Inferre
         if (access === "read" && binding && binding.initialized === true && binding.value === fn) return;
         unsupported(`captured binding ${name} is not a verified ${access} dependency`);
       },
-      validateRead: (object: Any, _name: string, current: TExecutionContext) => {
+      validateRead: (object: Any, name: string, current: TExecutionContext) => {
+        // The sole inherited dependency is the guarded intrinsic slice field.
+        if (object === getArrayPrototype() && name === "slice") return;
         if (!getSymbolicArrayShape(object, current)) {
           unsupported("property reads require a verified symbolic array receiver");
         }
@@ -224,8 +226,7 @@ function infer(fn: Any, template: TESNumber, caller: TExecutionContext): Inferre
           proof.recursiveCalls++;
           return [summaryValue(args[0], candidates), current] as [Any, TExecutionContext];
         }
-        const binding = callee as FunctionBinding;
-        if (binding.function && binding.function.implementation === slice && receiver &&
+        if (callee === getArrayPrototype().properties.slice && receiver &&
             getSymbolicArrayShape(receiver, current)) return undefined;
         unsupported("a call has no verified pure semantics");
       }
@@ -294,8 +295,13 @@ export function summarizeCall(fn: Any, args: Any[], context: TExecutionContext):
   const shape = getSymbolicArrayShape(args[0], context);
   if (!shape || shape.minimumLength < 1) unsupported("the input must be known nonempty");
   if (!isFiniteNumber(shape.sequence.element)) unsupported("the input element contract must exclude NaN and infinity");
-  const method = getProperties(args[0] as any, context).slice;
-  if (!isFunction(method) || method.implementation !== slice) {
+  const input = args[0] as WithProperties;
+  const properties = getProperties(input, context);
+  const prototype = getArrayPrototype();
+  const method = Object.prototype.hasOwnProperty.call(properties, "slice") ? properties.slice :
+    input.prototype === prototype ? getProperties(prototype, context).slice : undefined;
+  if (input.propertyAccess || input.unknownProperties || input.unmodeledPrototype ||
+      (input.unmodeledPropertyReads || []).includes("slice") || method !== prototype.properties.slice) {
     unsupported("the input does not have the trusted slice implementation");
   }
   const entries = cache.get(fn) || [];

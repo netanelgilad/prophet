@@ -1,3 +1,6 @@
+// Intrinsic constructors can be initialized while evaluate imports this module
+// recursively. Load the leaf object factory before the evaluator dependency.
+import { ESObject } from "../Object";
 import {
   Any, Undefined, ESNumber, FunctionImplementation, FunctionBinding, WithProperties, isReturnValue, isThrownValue, isUndefined, isESNull, isESString
 } from "../types";
@@ -6,7 +9,6 @@ import {
   setCurrentThisValue
 } from "../execution-context/ExecutionContext";
 import { bindNormal, evaluateStatements, mapCompletions } from "../evaluate";
-import { ESObject } from "../Object";
 import { tuple } from "@deaven/tuple";
 import { parseECMACompliant } from "../parseECMACompliant";
 import { ESTree } from "cherow";

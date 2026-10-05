@@ -1,6 +1,7 @@
 import { Any, ESNumber, TESNumber, Type, WithProperties } from "../types";
 import { SymbolicArrayShape } from "./symbolic";
 import { getArrayPrototype } from "./prototype";
+export { getArrayPrototype } from "./prototype";
 
 // Shape describes the sequence, not whether its elements are known values.
 export type ArrayShape =

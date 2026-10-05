@@ -4,7 +4,9 @@ Array literals, modeled array results and zero-argument `Array()` / `new Array()
 share one actual empty array intrinsic, `Array.prototype`. Its parent is
 `Object.prototype`; its `constructor` is the shared partial Array constructor.
 Arrays inherit `push`, `reverse`, `join` and `slice` instead of carrying fake own
-method fields. The legacy three algorithms retain their existing limits.
+method fields. The legacy three algorithms retain their existing limits. Recursive array summaries
+now verify the exact guarded inherited slice identity, including current own
+shadowing, before reuse; custom lookup and replacement functions remain untrusted.
 Unimplemented standard Array method names stop explicitly. This is not complete
 Array conformance or an implementation of all constructor overloads.
 
