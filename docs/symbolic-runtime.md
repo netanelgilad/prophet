@@ -283,3 +283,11 @@ examples require. Keep debugging/performance uses visible alongside security;
 the Shai-Hulud objective remains a downstream benchmark. Deeper filesystem or
 transport work follows demonstrated semantic blockers, with every remaining
 gap retained in the [implementation backlog](implementation-gaps.md).
+
+
+The filesystem acquisition adapter now represents unobserved directory children
+and file contents explicitly, and records reached facts in persistent VM state.
+Its first observations are stable across branches, but their acquisition is
+on demand and non-atomic. See [the precise capture boundary](node-filesystem.md#read-only-environment-acquisition).
+The adapter's native observation cache is not a resumable environment, and its
+existence alone does not establish CLI filesystem/request integration.

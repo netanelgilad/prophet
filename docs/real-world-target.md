@@ -421,3 +421,13 @@ revision, Node/OS reference, assumptions, schedules/bounds, coverage gaps, and
 path conditions. Only claim all relevant exception paths within a domain once
 every path is accounted for, including analysis gaps and exhaustion. General
 JavaScript does not guarantee that arbitrary programs can be fully analyzed.
+
+
+The [filesystem acquisition adapter](node-filesystem.md#read-only-environment-acquisition)
+now supplies a generic open observational environment for ordinary static-file
+reads: observed files/directories and verified missing names are correlated,
+while unvisited names remain unobserved. Independent temporary-fixture specs
+cover readable content, directory reads and missing default files. This adapter
+alone does not execute a pico request or close the CLI integration milestone;
+binary/symlink/nonregular files, acquisition races, broader failures and future
+request domains remain explicit gaps.
