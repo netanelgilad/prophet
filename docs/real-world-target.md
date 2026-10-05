@@ -53,7 +53,9 @@ actual command output: a successful bind reaches a waiting server and executes
 the original startup message; a failed bind throws an unhandled Error without
 that message. The [startup queue](jobs.md) supplies notification ordering and
 uses current listeners/captured state without opening sockets. No request is
-invented; the real handler is retained but its future paths are not explored.
+invented with the default zero-event bound; the real handler is retained.
+Optional `--max-events 1` now starts generic parsed-event exploration, but pico
+request paths still encounter the separately documented host integration gaps.
 
 The CLI acquires the package through the shared CommonJS loader. HTTPS, fs, URL
 and path imports are opaque object identities during this run; their APIs remain

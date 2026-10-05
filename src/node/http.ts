@@ -10,6 +10,7 @@ import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { JobQueue } from "../jobs";
+import { ExternalEvents } from "../external-events";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getProperties, writeProperty } from "../execution-context/Heap";
 import { ESString, TESString } from "../string/String";
@@ -27,6 +28,7 @@ export type HTTPModelOptions = {
   bind?: HostModel;
   // Shared Node next-tick FIFO. Omission keeps explicit embedding delivery.
   nextTick?: JobQueue;
+  externalEvents?: ExternalEvents;
 };
 
 function unsupported(detail: string): never {
@@ -56,7 +58,8 @@ function change(object: TESObject, properties: { [name: string]: Any }, context:
  * In the primary process, omitted-host binding is attempted during listen;
  * success/error notification is deferred. Explicit-host binding runs on delivery.
  * A supplied next-tick queue schedules startup callbacks; otherwise the embedding
- * delivers them explicitly. Request delivery remains explicit. Wire dispatch
+ * delivers them explicitly. An optional external-event registry supplies automatic
+ * first-request delivery after startup; embeddings can also deliver explicitly. Wire dispatch
  * (for example CONNECT/upgrade) is not modeled. Binding
  * outcomes come from the supplied environment. Cluster workers, overlapping
  * pending retries and other schedules need compatible models.
@@ -72,7 +75,12 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
   if (options.nextTick !== undefined && (!options.nextTick || typeof options.nextTick.enqueue !== "function")) {
     throw new Error("HTTP next-tick environment must supply a job queue");
   }
+  if (options.externalEvents !== undefined && (!options.externalEvents ||
+      typeof options.externalEvents.register !== "function")) {
+    throw new Error("HTTP external-event environment must supply a registry");
+  }
   const nextTick = options.nextTick;
+  const externalEvents = options.externalEvents;
   // Omission preserves the explicitly successful-bind domain of older embeddings.
   // The CLI supplies a symbolic transition instead of assuming availability.
   const bind = operation("http.server.bind", options.bind === undefined
@@ -333,7 +341,11 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
       servers.set(server, state);
       server.hostSlots = Object.freeze({ "node.http.server": state });
       const created = change(state, { phase: ESString("created"), bound: ESBoolean(false), pending: Undefined }, events.attach(server, branch, serverEvents));
-      return isUndefined(listener) ? [server, created] : events.register(server, "request", listener, false, created);
+      const registered: BranchResult = isUndefined(listener) ? [server, created]
+        : events.register(server, "request", listener, false, created);
+      return externalEvents ? bindNormal(registered, (_value, after) =>
+        bindNormal(externalEvents.register(ESObject({ eligible: requestEligible,
+          deliver: incomingRequest, receiver: server }), after), (_ignored, retained) => [server, retained])) : registered;
     });
   });
 
@@ -417,11 +429,15 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
     return bindNormal(events.emit(response, "finish", [], completed), (_ignored, after) => [response, after]);
   }));
 
-  return {
-    module: Object.assign(ESObject({ createServer, STATUS_CODES: statusCodes }), { unknownProperties: "Node HTTP module API" }),
-    eventsModule: events.module,
-    completeListen,
-    deliverRequest(server: Any, input: { method: TESString; url: TESString }, context: TExecutionContext) {
+  const requestEligible = operation("http.server.requestEligible", (call, context) =>
+    [strictEquality(getProperties(serverState(call.receiver), context).phase || Undefined,
+      ESString("listening"), context.value.knowledge), context]);
+  const incomingRequest = operation("http.server.incomingRequest", (call, context) =>
+    // This is a parsed-event overapproximation, not a wire parser. Allocate
+    // inputs only on the arrival branch; method/url are independent strings.
+    deliverRequest(call.receiver, { method: ESString(), url: ESString() }, context).result);
+
+  function deliverRequest(server: Any, input: { method: TESString; url: TESString }, context: TExecutionContext) {
       if (!isESString(input.method) || !isESString(input.url)) unsupported("request method and URL must be strings");
       const request = Object.assign(ESObject({ method: input.method, url: input.url }), {
         unknownProperties: "Node HTTP incoming request API"
@@ -438,9 +454,16 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
         body: Undefined, bodyBytes: Undefined, chunks: ESNull, statusCode: Undefined, statusMessage: Undefined, headers: Undefined,
         headerStored: ESBoolean(false), bodySuppressed: ESBoolean(false) });
       responses.set(response, state);
+      response.hostSlots = Object.freeze({ "node.http.response": state });
       const initialized = events.attach(response, context, responseEvents);
       return { request, response, result: invoke(requestEvent, [server, request, response], initialized) };
-    },
+  }
+
+  return {
+    module: Object.assign(ESObject({ createServer, STATUS_CODES: statusCodes }), { unknownProperties: "Node HTTP module API" }),
+    eventsModule: events.module,
+    completeListen,
+    deliverRequest,
     completeResponse(response: Any, context: TExecutionContext): BranchResult {
       return invoke(finish, [response], context);
     },

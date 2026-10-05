@@ -126,9 +126,13 @@ but do not make a complete input schema or general resumable VM a prerequisite
 for this first no-environment-file run. See [the runtime contract](symbolic-runtime.md)
 and gaps REPORT-001, CJS-001, HOST-002, HTTP-001 and CONSOLE-002.
 
-Automatic exploration of registered callbacks is a later execution capability:
-the Node model can supply symbolic events without requiring a hand-authored
-concrete request. Preserve [callback summaries and invocation-state dependencies](symbolic-runtime.md#conditional-history-and-callback-knowledge);
+The first bounded [automatic incoming-event checkpoint](external-events.md) is
+available with `--max-events 1`: the Node provider supplies a symbolic parsed
+request without a hand-authored concrete request, retaining waiting and failed
+bind paths. Multiple/conditional servers share the generic persistent registry.
+Bounds above one explicitly reject; default zero preserves startup. Parsed
+method/URL strings overapproximate wire-valid inputs; parser dispatch and
+multi-event stateful behavior remain work. Preserve [callback summaries and invocation-state dependencies](symbolic-runtime.md#conditional-history-and-callback-knowledge);
 retaining a function is not evidence that all its paths were analyzed. The
 current startup milestone does not claim coverage of arbitrary future event
 sequences. Keep Node public built-ins as the modeling boundary and generic

@@ -316,3 +316,21 @@ test("CLI runs the unchanged pico startup file through ready and unhandled-error
   // not run and has not acquired or inferred any target filesystem state.
   expect(graph.nodes.some((node: any) => node.definition !== undefined)).toBe(true);
 }, 40000);
+
+test("CLI serializes automatic first-request alternatives and resource identity without a report envelope", () => {
+  const { child, roots } = run(`const server = require('http').createServer(function(req, res) {
+    if (req.url === '/crash') throw 'crashed'; res.end('ok');
+  }); server.listen(8080); module.exports = server;`, ['--max-events', '1']);
+  expect(child.status).toBe(0);
+  const paths = effectPaths(roots.current.value.effects);
+  const requests = paths.map(path => path.events.filter(event => event.kind === 'call' && event.call.operation === 'http.server.request'));
+  expect(requests.some(events => events.length === 1)).toBe(true);
+  expect(requests.some(events => events.length === 0)).toBe(true);
+  expect(requests.every(events => events.length <= 1)).toBe(true);
+  for (const events of requests) for (const event of events) {
+    const response = event.call.args[2] as WithProperties;
+    expect((response as any).hostSlots['node.http.response']).toBeDefined();
+  }
+  expect(roots.current.value.global.hostSlots.externalEvents).toBeDefined();
+  expect(isForkedCompletion(roots.completion)).toBe(true);
+}, 40000);

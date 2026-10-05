@@ -16,6 +16,21 @@ module. No complete upstream HTTP case is currently claimed as passing in
 Prophet. Real sockets belong only to isolated concrete reference execution;
 symbolic exploration must not open a listening socket or send network traffic.
 
+## Automatic first request
+
+The CLI's optional `--max-events 1` uses the generic [external-event registry](external-events.md)
+to explore a first parsed request on any eligible server, or no arrival yet.
+Default zero retains startup behavior. The provider uses the same request
+transition as embedding delivery, with fresh independent unknown string method
+and URL fields; it does not claim HTTP parser or wire-dispatch coverage.
+Response state now has a `node.http.response` host slot in the ordinary graph.
+The [pinned API](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/doc/api/http.md#event-request)
+defines request-event arguments; the [native witnesses](../test/node-incoming-events-reference.spec.ts)
+exercise real GET requests, late captured state, listener removal, server receiver,
+successful response and an unhandled handler throw. Existing complete upstream
+candidates below remain inactive: generic arrival exploration does not implement
+HTTP clients, streams, address/close, finish scheduling or the common/assert harness.
+
 ## Callback delivery and persistent state
 
 `createServer` optionally registers an actual interpreted function for `request`.
