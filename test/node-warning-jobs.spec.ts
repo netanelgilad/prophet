@@ -3,7 +3,6 @@ import { createCommonJSLoader, createLegacyURLModel, createWarningModel, isExecu
 import { ESBoolean } from "../src/boolean/ESBoolean";
 import { encodeGraph } from "../src/cli/graph";
 import { effectPaths } from "../src/effects";
-import { analysisFailureContext } from "../src/execution-context/analysis-failure";
 import { BranchResult } from "../src/execution-context/branches";
 import { ExecutionContext, TExecutionContext } from "../src/execution-context/ExecutionContext";
 import { getArrayElements, getProperties } from "../src/execution-context/Heap";
@@ -211,12 +210,9 @@ test("a reached default-configuration guard retains dequeued active work without
     process.emitWarning("pending", "Notice", "A");
     Object.prototype.traceProcessWarnings = true;
   `);
-  let failure: Error | undefined;
-  try { queue.drain(context, 10); } catch (error) { failure = error; }
-  expect(failure).toBeDefined();
-  expect(failure!.message).toContain("warning process configuration");
-  const checkpoint = analysisFailureContext(failure)!;
-  expect(checkpoint).toBeDefined();
+  const [boundary, checkpoint] = queue.drain(context, 10);
+  expect(boundary).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+    message: expect.stringContaining("warning process configuration") });
   expect(warnings.inspectPending(checkpoint)[0].warnings).toEqual([]);
   expect(warnings.inspectOutput(checkpoint)[0].chunks).toEqual([]);
   expect(getProperties(queue.state, checkpoint).active).not.toBe(Undefined);

@@ -69,7 +69,7 @@ for (const [name, member] of modules) {
         catch (error) { console.log("caught"); }
         console.log("after");
       ` }, { builtins: { [name]: createOpaqueBuiltinModule(name) } });
-      if (["read", "call", "write", "coercion"].includes(label)) {
+      if (label !== "presence operator") {
         const [boundary, checkpoint] = loader.load(filename, initial);
         expect(isExecutionBoundary(boundary)).toBe(true);
         expect(isExecutionBoundary(boundary) && boundary.message).toMatch(expected);
@@ -86,8 +86,7 @@ for (const [name, member] of modules) {
       expect(checkpoint).toBeDefined();
       const paths = consoleModel.inspectOutput(checkpoint!);
       expect(paths).toHaveLength(1);
-      expect(paths[0].chunks.map(chunk => chunk.value)).toEqual(
-        label === "write" ? ["before\n", "operand\n"] : ["before\n"]);
+      expect(paths[0].chunks.map(chunk => chunk.value)).toEqual(["before\n"]);
     });
   }
 }

@@ -95,9 +95,9 @@ test("unsupported warning configuration cannot silently change default delivery"
   for (const body of ['process.noDeprecation = true;', 'process.on("warning", function() {});',
     'process.emitWarning("text", {type:"Warning"});']) {
     const model = createWarningModel();
-    expect(() => createCommonJSLoader({ "/app/warnings.cjs": `const process = require("process"); ${body}` },
-      { builtins: { process: model.process } }).load("/app/warnings.cjs", nodeInitialExecutionContext))
-      .toThrow(/Unmodeled|not yet supported/);
+    expect(createCommonJSLoader({ "/app/warnings.cjs": `const process = require("process"); ${body}` },
+      { builtins: { process: model.process } }).load("/app/warnings.cjs", nodeInitialExecutionContext)[0])
+      .toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
   }
 });
 
@@ -247,7 +247,7 @@ for (const body of [
   'process.stderr.write("output");'
 ]) {
   test(`unsupported warning overload or environment remains explicit: ${body}`, () => {
-    expect(() => loadWarning(body, { type: ESString(), code: ESString() }))
-      .toThrow(/Unmodeled|not yet supported/);
+    expect(loadWarning(body, { type: ESString(), code: ESString() }).value)
+      .toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
   });
 }

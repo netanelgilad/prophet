@@ -133,8 +133,10 @@ test("canonical cwd declaration and process composition boundaries reject withou
   createProcessModel({ cwd: "/one", warnings });
   expect(() => createProcessModel({ cwd: "/two", warnings })).toThrow(/already|configured/);
   const { load } = setup();
-  for (const expression of ['process.chdir("/")', 'process.env', 'process.argv', 'process.execPath',
-    'process.cwd.prototype', 'Object.prototype.hasOwnProperty.call(process.cwd, "name")']) {
+  for (const expression of ['process.chdir("/")', 'process.env', 'process.argv', 'process.execPath']) {
+    expect(load(expression)[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
+  }
+  for (const expression of ['process.cwd.prototype', 'Object.prototype.hasOwnProperty.call(process.cwd, "name")']) {
     expect(() => load(expression)).toThrow(/Unmodeled|not yet supported/);
   }
 });

@@ -140,13 +140,13 @@ test("a symbolic cwd return may throw on one branch without losing the successfu
 });
 
 test("undeclared cwd, open strings, nonstring cwd results and Win32 stay explicit boundaries", () => {
-  expect(() => load('path.resolve("relative");', {}, false)).toThrow(/cwd environment/);
-  expect(() => load('path.resolve();', {}, false)).toThrow(/cwd environment/);
-  expect(() => load('path.resolve(unknown);', { unknown: ESString() })).toThrow(/open symbolic path/);
-  expect(() => load('process.cwd = function() { return unknown; }; path.resolve("file");', { unknown: ESString() })).toThrow(/symbolic cwd/);
-  expect(() => load('process.cwd = function() { return {}; }; path.resolve("file");')).toThrow(/non-string cwd/);
+  expect(load('path.resolve("relative");', {}, false).value).toMatchObject({ type: 'ExecutionBoundary', message: expect.stringMatching(/cwd environment/) });
+  expect(load('path.resolve();', {}, false).value).toMatchObject({ type: 'ExecutionBoundary', message: expect.stringMatching(/cwd environment/) });
+  expect(load('path.resolve(unknown);', { unknown: ESString() }).value).toMatchObject({ type: 'ExecutionBoundary', message: expect.stringMatching(/open symbolic path/) });
+  expect(load('process.cwd = function() { return unknown; }; path.resolve("file");', { unknown: ESString() }).value).toMatchObject({ type: 'ExecutionBoundary', message: expect.stringMatching(/symbolic cwd/) });
+  expect(load('process.cwd = function() { return {}; }; path.resolve("file");').value).toMatchObject({ type: 'ExecutionBoundary', message: expect.stringMatching(/non-string cwd/) });
   expect(() => load('path.resolve({});')).toThrow(/object\/function argument diagnostics/);
-  expect(() => load('path.win32.resolve("C:\\\\file");')).toThrow(/Node POSIX path API/);
+  expect(load('path.win32.resolve("C:\\\\file");').value).toMatchObject({ type: 'ExecutionBoundary', message: expect.stringMatching(/Node POSIX path API/) });
 });
 
 test("resolve handles long concrete argument lists iteratively", () => {

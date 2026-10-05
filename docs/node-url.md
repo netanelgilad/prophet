@@ -201,6 +201,26 @@ discards the intended MIME/length fields.
 Broader filesystem failures, HTTPS and wider URL forms remain gaps; existing bind,
 stdout, delivered-request-event and transport assumptions remain in force.
 
+## Unfinished model operations
+
+Explicit URL/parser and warning overload/configuration/presentation guards now
+produce [execution boundaries](execution-boundaries.md). The partial URL module,
+Url prototype, parse function, warning process and emitWarning function opt into
+shared guarded metadata access. Unknown members, descriptor/prototype/symbol
+inspection and the explicitly unfinished constructors stop only their reached
+leaf. Normal and throwing siblings retain their own state; guest catch/finally
+cannot recover analysis stops. Stopped parsing retains any consumed deprecation
+flag and scheduled warning, and stopped queued presentation retains its active
+warning identity and remaining jobs without claiming stderr success.
+
+The existing parser, default-process, source-eligibility and healthy-output
+domains remain unchanged. A guard on unknown joined intrinsic state can stop the
+joined state conservatively. Shared argument-diagnostic guards, unmarked Error
+metadata and unexpected internal failures still escape as engine errors; this
+is a scoped migration, not complete preservation for every legacy guard.
+The complete upstream candidates below remain unactivated: boundary leaves do
+not count as successful Node behavior or discharge any candidate's blockers.
+
 ## Complete upstream cases reviewed
 
 The following complete files were reviewed at the pinned revision. None is

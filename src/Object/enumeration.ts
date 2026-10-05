@@ -1,3 +1,4 @@
+import { unsupportedPropertyError } from "../execution-context/analysis-failure";
 import { Any, WithProperties, Undefined, isUndefined, isESNull, isESNumber, isESBoolean, isESString } from "../types";
 import { ESObject } from "../Object";
 import { ESString } from "../string/String";
@@ -36,10 +37,10 @@ export function withEnumerableOwnProperties(source: Any, context: TExecutionCont
     }
     const object = value as WithProperties;
     if (object.unknownProperties || object.unmodeledOwnPropertyInspection || object.ownPropertyModel !== "enumerable-data") {
-      throw new Error("Own property enumeration is not yet supported for unmodeled descriptors or keys");
+      throw unsupportedPropertyError(object, "Own property enumeration is not yet supported for unmodeled descriptors or keys");
     }
     if (object.unmodeledPropertyReads && object.unmodeledPropertyReads.length) {
-      throw new Error("Own property enumeration cannot assume unmodeled properties are absent");
+      throw unsupportedPropertyError(object, "Own property enumeration cannot assume unmodeled properties are absent");
     }
     return withKeyOrder(getPropertyKeys(object, branch), branch, (keys, after) => continuation(object, keys, after));
   });
