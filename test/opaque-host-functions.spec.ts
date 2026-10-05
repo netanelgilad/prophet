@@ -5,7 +5,6 @@ import { createCommonJSLoader, createFileSystemModel, fileSystemDirectory, evalu
 import { invoke } from '../src/ASTResolvers';
 import { ESBoolean } from '../src/boolean/ESBoolean';
 import { effectPaths } from '../src/effects';
-import { analysisFailureContext } from '../src/execution-context/analysis-failure';
 import { BranchResult } from '../src/execution-context/branches';
 import { setVariablesInScope } from '../src/execution-context/ExecutionContext';
 import { createConsoleModel } from '../src/node/console';
@@ -88,11 +87,9 @@ for (const expression of ['Object.keys(opaque)', 'Object.prototype.hasOwnPropert
   'opaque instanceof Function']) {
   test(`remaining shared reflection guards cannot fabricate metadata: ${expression}`, () => {
     const { context, console } = setup();
-    let failure: any;
-    try { evaluateCode(`console.log('before'); try { ${expression}; } catch(error) { console.log('caught'); }`, context); }
-    catch (error) { failure = error; }
-    expect(failure).toBeDefined();
-    expect(console.inspectOutput(analysisFailureContext(failure)!)[0].chunks.map(chunk => chunk.value)).toEqual(['before\n']);
+    const [boundary, stopped] = evaluateCode(`console.log('before'); try { ${expression}; } catch(error) { console.log('caught'); }`, context);
+    expect(isExecutionBoundary(boundary)).toBe(true);
+    expect(console.inspectOutput(stopped)[0].chunks.map(chunk => chunk.value)).toEqual(['before\n']);
   });
 }
 
@@ -108,10 +105,10 @@ test('filesystem readdirSync export identity agrees with pinned Node without dir
     const [value, after] = createCommonJSLoader(files, { builtins: { fs: fs.module } }).load(entry, nodeInitialExecutionContext);
     expect(value).toMatchObject({ value: true });
     expect(after.value.effects).toBeUndefined();
-    const [boundary, called] = invoke(fs.module.properties.readdirSync, [ESString('/')], after);
-    expect(isExecutionBoundary(boundary)).toBe(true);
+    const [listing, called] = invoke(fs.module.properties.readdirSync, [ESString('/')], after);
+    expect(listing).toMatchObject({ type: 'array', properties: { length: { value: 0 } } });
     expect(effectPaths(called.value.effects)[0].events.map(event => [event.kind, event.call.operation]))
-      .toEqual([['call', 'fs.readdirSync']]);
+      .toEqual([['call', 'fs.readdirSync'], ['return', 'fs.readdirSync']]);
     expect(fs.inspectRoot(called)).toBe(fs.inspectRoot(after));
   });
 });

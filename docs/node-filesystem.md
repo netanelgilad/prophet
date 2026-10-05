@@ -10,34 +10,29 @@ adapter below can supply observed host facts without closing the unseen namespac
 
 ## Known callable exports without an implementation
 
-The model exposes a stable `readdirSync` function identity. Saving the export,
-comparing aliases and reading its ordinary inherited `.call` do not enumerate
-anything. Invoking it records the reached `fs.readdirSync` call and returns a
-[typed unfinished leaf](execution-boundaries.md), preserving prefix state and
-noncalling siblings without a return, guest error or filesystem mutation.
-Directory enumeration remains unsupported (FS-002).
+The generic [`createOpaqueHostFunction`](../src/node/opaque.ts) retains a known
+ordinary callable export before its implementation exists. It preserves identity
+and inherited `.call`; invocation records a call and an unfinished leaf, with no
+invented return, guest error or external transition. It does not discover native
+functions or register a builtin catalog. Name, length, own prototype, descriptors
+and construction remain guarded. The shared `.call` value has known length 1;
+its remaining metadata also stops explicitly (LANG-006).
 
-The generic [`createOpaqueHostFunction`](../src/node/opaque.ts) is only for
-runtime-known ordinary callable exports with the modeled Function prototype.
-It does not discover native functions or register a builtin catalog. Name,
-length, own prototype, descriptors, other property reads/writes and construction
-remain guarded. In particular, the pinned `fs.readdirSync` is constructible;
-the model stops before claiming either successful construction or a TypeError.
-The shared `.call` value keeps its known length of 1 and inherited `.call`,
-while its missing metadata is guarded too (LANG-006). Legacy reflection guards
-still reject instead of producing typed leaves in some cases (REPORT-001).
+The initial readdirSync placeholder has now been replaced by the shared
+[enumeration model](node-filesystem-enumeration.md). Saving its export and
+comparing aliases still do not enumerate anything; supported calls now return
+names or modeled filesystem errors. Construction/complete descriptors remain
+unimplemented. [Identity and boundary specs](../test/opaque-host-functions.spec.ts)
+retain generic opaque-call tests and independently compare the real readdirSync
+identity/metadata with pinned Node. Their construction control uses an empty
+target and readdirSync only as newTarget, without directory I/O.
 
-[Identity and boundary specs](../test/opaque-host-functions.spec.ts) compare
-aliases, callable type and metadata with pinned Node. The construction control
-uses `Reflect.construct` with an empty target and `readdirSync` only as
-`newTarget`; no directory operation is run. Node's
-[function declaration and exports](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/fs.js)
-and [querystring object export](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/querystring.js)
-are the primary references. The CLI adds only an opaque querystring object;
-this increment does not connect the filesystem model to CLI capture or establish
-successful import/evaluation of a complete application. No complete upstream
-Node case is newly activated, and existing filesystem candidates below retain
-their dependencies and unsupported scenarios.
+The CLI registers the filesystem model and read-only capture adapter. Querystring
+and HTTPS still have opaque object exports; preserving an import identity does
+not establish those APIs or complete builtin initialization. The default sirv
+factory and broader filesystem options, metadata and streams retain explicit
+gaps. Existing whole Node upstream candidates below remain inactive where their
+required harness or APIs are unsupported.
 
 ## One shared symbolic filesystem state
 
@@ -146,7 +141,8 @@ and verify subprocess graph output. Source acquisition stays separate.
 [`captureFileSystem({ cwd, ... })`](../src/cli/filesystem-capture.ts) is a trusted
 host adapter, separate from the VM filesystem model and CommonJS source capture.
 It returns the model's module, state and inspectors for runtime assembly.
-Automatic future HTTP requests and URL/path integration remain separate work.
+The CLI composes it with bounded incoming requests and shared URL/path models;
+open request strings and complete file-serving coverage remain work.
 
 The adapter records the canonical identity of the already-held cwd and the
 actual Linux/Darwin platform, then acquires only the cwd ancestor chain and

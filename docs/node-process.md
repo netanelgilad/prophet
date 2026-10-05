@@ -6,7 +6,8 @@ and `.warnings`. Supply an already configured warning model to reuse its process
 identity and optional shared next-tick queue. Without one, the factory creates
 the existing explicit-delivery warning model. Runtime assembly should register
 that same `.process` as the global process and CommonJS `process`/`node:process`
-value. This factory does not change CLI assembly or auto-register builtins.
+value. The CLI now performs that assembly from its captured filesystem cwd;
+other embeddings still register their own environment explicitly.
 
 The required `cwd` is a concrete canonical absolute POSIX directory string:
 root `/` is accepted; relative paths, empty/dot/dot-dot components, trailing
