@@ -12,9 +12,10 @@ The complete immutable [fixture and provenance](../test/fixtures/sirv-3.0.2/PROV
 pin sirv plus mrmime 2.0.1, totalist 3.0.1 and @polka/url 1.0.0-next.29.
 [Specs](../test/sirv-target.spec.ts) verify all published bytes and obtain native
 GET, HEAD and missing-file reference behavior from pinned Node. The current
-Prophet run resolves the package's conditional exports and stops at object
-binding destructuring during module initialization. The next engine increment
-should remove that shared blocker and expose the next reached boundary. This
+Prophet run resolves the package's conditional exports, executes its initial
+[object bindings](object-bindings.md), and stops at the next reached boundary:
+reading `join` from the CLI's opaque `path` module. Connecting the actual shared
+path API is the next demonstrated host integration blocker. This
 is a selected target with concrete evidence, not completed symbolic analysis.
 
 ## Incremental acceptance

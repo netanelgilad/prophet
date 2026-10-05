@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **195 complete files / 381 strictness variants**,
+The active corpus contains **240 complete files / 471 strictness variants**,
 including 13 parse-negative files / 25 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -210,7 +210,7 @@ also cover omitted/undefined arguments versus other falsy values, initializer
 order and throws, closure separation, `this`, explicit `arguments` parameters,
 eval declaration boundaries, and symbolic default branches/completions.
 
-Implicit arguments objects, rest/destructuring initialization, and inferred
+Implicit arguments objects, rest/destructuring parameter initialization, and inferred
 initializer function names remain explicit implementation gaps. The older
 `scope-param-elem-var-open/close.js` cases were reviewed but are not activated:
 their expected per-initializer eval scope differs from the pinned Node runtime,
@@ -218,9 +218,10 @@ where a fresh sloppy eval variable is visible to later defaults and the body.
 The current [FunctionDeclarationInstantiation algorithm](https://tc39.es/ecma262/multipage/ordinary-and-exotic-objects-behaviours.html#sec-functiondeclarationinstantiation)
 also places these eval variables outside the shared parameter environment.
 This difference needs resolution when updating the old Test262 revision, not
-silent edits to the upstream tests. Complete abrupt-default cases additionally
-need the `Test262Error` harness constructor, and other candidates need currently
-unsupported operators; local tests do not substitute for those complete cases.
+silent edits to the upstream tests. The Test262Error harness constructor is now
+available through complete `sta.js` execution. Previously reviewed abrupt-default
+parameter cases remain inactive pending reassessment; other candidates need
+currently unsupported operators. Local tests do not substitute for whole cases.
 Conditionally creating a new binding through eval inside a symbolic default is
 also an explicit gap: the current environment merge rejects conditional binding
 presence. Symbolic default selection, updates to existing bindings, and
@@ -289,3 +290,13 @@ remains the path toward full conformance.
 `test/concrete-semantics.spec.ts` separately uses the host JavaScript runtime as
 an independent oracle for locally written differential tests. That oracle is
 never a fallback for Prophet execution or for the Test262 corpus.
+
+
+Forty-five complete object declaration binding files (90 variants) now cover
+`var`, `let` and `const` renaming, undefined defaults/skipped defaults, nested
+objects, trailing commas and computed-key/default/nullish abrupt completions.
+The runner evaluates the full pinned `harness/sta.js` in a fresh interpreted
+context, preserving Test262Error constructor identity before installing the
+existing assertion adapters. It never executes that harness or tests natively.
+See [binding boundaries](../../docs/object-bindings.md) for remaining array/rest,
+parameter, getter-construction, function-name and primitive-boxing candidates.

@@ -2,6 +2,7 @@ import { ESTree } from "cherow";
 import assert from "assert";
 import { TExecutionContext, declareBinding, putBinding, setEnvironment } from "../execution-context/ExecutionContext";
 import { bindingError, declareVar } from "../execution-context/bindings";
+import { boundNames } from "./binding-patterns";
 import { createFunction } from "./Function";
 
 export function hasUseStrict(statements: ESTree.Statement[]): boolean {
@@ -28,7 +29,7 @@ function collectVars(node: any, names: Set<string>): void {
       node.type === "ArrowFunctionExpression") return;
   if (node.type === "VariableDeclaration" && node.kind === "var") {
     node.declarations.forEach((declaration: ESTree.VariableDeclarator) =>
-      names.add(identifierName(declaration.id)));
+      boundNames(declaration.id).forEach(name => names.add(name)));
   }
   Object.keys(node).forEach(key => {
     const child = node[key];
@@ -56,10 +57,11 @@ export function globalDeclarationError(statements: ESTree.Statement[], context: 
     if (statement.type === "FunctionDeclaration") variables.add(identifierName(statement.id!));
     if (statement.type === "VariableDeclaration" && statement.kind !== "var") {
       for (const declaration of statement.declarations) {
-        const name = identifierName(declaration.id);
-        const previous = record.get(name);
-        if (previous && previous.kind !== "host") {
-          return bindingError("SyntaxError", `Identifier '${name}' has already been declared`);
+        for (const name of boundNames(declaration.id)) {
+          const previous = record.get(name);
+          if (previous && previous.kind !== "host") {
+            return bindingError("SyntaxError", `Identifier '${name}' has already been declared`);
+          }
         }
       }
     }
@@ -87,7 +89,9 @@ export function instantiateDeclarations(
   for (const statement of statements) {
     if (statement.type === "VariableDeclaration" && statement.kind !== "var") {
       for (const declaration of statement.declarations) {
-        context = declareBinding(context, identifierName(declaration.id), statement.kind);
+        for (const name of boundNames(declaration.id)) {
+          context = declareBinding(context, name, statement.kind);
+        }
       }
     } else if (statement.type === "FunctionDeclaration") {
       const name = identifierName(statement.id!);
