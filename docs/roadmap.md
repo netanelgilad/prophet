@@ -150,8 +150,9 @@ inspection views in consumers.
 
 The next larger immutable application is [sirv 3.0.2](sirv-target.md), including
 three pinned runtime dependencies and independent Node request references. Its
-first reached VM blocker is object binding destructuring during import. Remove
-that shared blocker, then follow actual reached language/host boundaries without
+initial object-binding blocker is now supported through shared declaration
+semantics. Its next reached boundary is reading `join` from the opaque CLI path
+module. Follow actual reached language/host boundaries without
 rewriting the package or claiming unexecuted handlers were analyzed.
 
 ## Following product milestones
