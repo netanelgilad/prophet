@@ -163,7 +163,8 @@ packages and returns the actual interpreted factory. Calling it with a directory
 reaches its first regular-expression literal. Extend shared language semantics
 at that demonstrated boundary, then follow array, enumeration, loop, metadata
 and stream blockers. Do not rewrite package code or equate retained handlers
-with analyzed requests.
+with analyzed requests. The current evaluator import is intermediate: raw regex
+AST objects still block sirv CLI graph serialization until the parser follow-up.
 
 ## Following product milestones
 

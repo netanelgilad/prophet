@@ -570,6 +570,9 @@ JSON projection; no report prose is inserted. Readdir enumeration supersedes the
 earlier opaque callable placeholder, while HTTPS/querystring stay opaque. The
 unchanged sirv dependency import returns its actual factory; the factory reaches
 an explicit RegExp-literal boundary (LANG-001), not completed HTTP setup.
+Raw Cherow RegExp objects in retained definitions still block sirv CLI graph
+serialization; a separate parser/literal increment must sanitize them before
+claiming end-to-end import output (REPORT-001/LANG-001).
 REPORT-001 retains nonresumable graphs, missing explicit environment inputs and
 source provenance; URL/PATH/FS/HTTP gaps retain full request/file/transport work.
 PROCESS-001 retains chdir/getcwd failures and broader process state. HOST-002 and
@@ -578,10 +581,22 @@ regressions preserve source identity, shared aliases, job order, typed versus
 legacy failures and the provider-correlation/filename-alias review corrections.
 No whole upstream Node test or selected Test262 file is added by this assembly.
 
-At reconciliation there were **87 source files**, **103 spec files**, and
-**461 source lines in 62 files** matching the broad guard/placeholder search
+Reconciled in the **dense directory observations** fix on **2026-10-05**:
+FS-002/HOST-001 now reject holes and inherited array slots in both supplied
+complete-name observations and retained directory-name state. The previous
+Array.some validation skipped holes and accepted prototype entries, allowing
+invalid observation data to become guest filenames. Four
+[regressions](../test/node-filesystem-readdir.spec.ts) fail before the fix; empty
+and dense own-name arrays remain valid and returned arrays remain independent.
+Native acquisition is unchanged. All enumeration/capture/platform/resource and
+complete upstream gaps remain open; no Test262 selections or historical skips
+change. This enforces the existing observation contract rather than narrowing
+the native directory-name domain.
+
+At reconciliation there were **90 source files**, **117 spec files**, and
+**503 source lines in 66 files** matching the broad guard/placeholder search
 below. These are search hits, including internal validation and comments, **not
-461 independent missing features**. Concurrent implementation can change these
+503 independent missing features**. Concurrent implementation can change these
 counts; rerun them before publishing a reconciliation. The active Test262 corpus
 now has **240 complete files / 471 variants**, including the 19 untagged-template
 files from the console/template layer and five quoted-string files from the

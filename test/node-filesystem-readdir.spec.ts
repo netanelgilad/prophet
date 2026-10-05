@@ -1,8 +1,10 @@
 import { createCommonJSLoader, createFileSystemModel, fileSystemDirectory, fileSystemFile, nodeInitialExecutionContext } from '../src';
+import { invoke } from '../src/ASTResolvers';
+import { Array as ESArray } from '../src/array/Array';
 import { ESBoolean } from '../src/boolean/ESBoolean';
 import { ExecutionContext } from '../src/execution-context/ExecutionContext';
 import { isExecutionBoundary, isForkedCompletion } from '../src/execution-context/Completion';
-import { getProperties } from '../src/execution-context/Heap';
+import { getArrayElements, getProperties, writeProperty } from '../src/execution-context/Heap';
 import { BranchResult } from '../src/execution-context/branches';
 import { ESObject } from '../src/Object';
 import { resolveBoolean, selectValue } from '../src/symbolic';
@@ -143,4 +145,41 @@ test('complete names cannot hide positive acquisition observations for unlisted 
 test('complete exact names can establish absence without a native acquisition hook', () => {
   const model = createFileSystemModel({ root: fileSystemDirectory({}, { complete: false }), observeDirectoryNames: () => ['File'] });
   expect(run(model, 'fs.readdirSync("."); module.exports = !fs.existsSync("file");')[0]).toMatchObject({ value: true });
+});
+
+
+function missingOwnSlot<T>(inherited?: T): T[] {
+  const names = new Array<T>(1);
+  if (inherited !== undefined) Object.setPrototypeOf(names, Object.assign(Object.create(Array.prototype), { 0: inherited }));
+  return names;
+}
+
+test.each(['hole', 'inherited'])('supplied directory names reject a %s instead of inventing a name', kind => {
+  const names = missingOwnSlot(kind === 'inherited' ? 'file' : undefined);
+  const model = createFileSystemModel({ root: fileSystemDirectory({}, { complete: false }),
+    observeDirectoryNames: () => names });
+  expect(() => run(model, 'fs.readdirSync(".");')).toThrow('Invalid acquired filesystem directory names');
+});
+
+test.each(['hole', 'inherited'])('retained directory names reject a %s instead of reusing invalid state', kind => {
+  const names = missingOwnSlot(kind === 'inherited' ? ESString('file') : undefined);
+  const root = fileSystemDirectory({}, { complete: false });
+  const model = createFileSystemModel({ root });
+  const metadata = root.hostSlots!['node.fs.entry'] as ReturnType<typeof ESObject>;
+  const current = writeProperty(metadata, 'names', ESArray(names), nodeInitialExecutionContext);
+  expect(() => invoke(model.module.properties.readdirSync, [ESString('/')], current))
+    .toThrow('Invalid filesystem directory name state');
+});
+
+test('empty and dense own name lists remain valid supplied and retained observations', () => {
+  for (const names of [[], ['a', 'b']]) {
+    const root = fileSystemDirectory({}, { complete: false });
+    const model = createFileSystemModel({ root, observeDirectoryNames: () => names });
+    const [first, observed] = invoke(model.module.properties.readdirSync, [ESString('/')], nodeInitialExecutionContext);
+    const [second, repeated] = invoke(model.module.properties.readdirSync, [ESString('/')], observed);
+    expect(first).not.toBe(second);
+    for (const [value, current] of [[first, observed], [second, repeated]] as BranchResult[]) {
+      expect(getArrayElements(value as ReturnType<typeof ESArray>, current)).toEqual(names.map(name => expect.objectContaining({ type: 'string', value: name })));
+    }
+  }
 });

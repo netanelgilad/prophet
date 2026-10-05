@@ -21,6 +21,10 @@ the next demonstrated language blocker; import success is not server startup
 or request coverage. Runtime models preserve querystring identity and provide shared bounded directory
 enumeration, without pretending the factory has reached those later operations.
 
+The evaluator import is an intermediate milestone: raw Cherow RegExp objects
+in retained ASTs still block final sirv CLI graph serialization. The parser/literal
+follow-up must sanitize those before claiming end-to-end CLI import output.
+
 ## Incremental acceptance
 
 1. Import the complete unchanged dependency graph through normal CommonJS

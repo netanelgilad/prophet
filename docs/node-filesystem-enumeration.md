@@ -33,6 +33,10 @@ list in the persistent directory `node.fs.entry.names` host slot. Before this
 observation `names` is undefined. The existing `complete` flag continues to
 describe the declared child table: acquiring names does not turn it into a
 complete table of child metadata. Known names may have no acquired child node.
+Supplied and retained lists must be dense arrays with an own value at every index;
+holes and inherited slots are invalid observations, not filenames or missing
+entries. Empty lists remain valid. This validation prevents sparse callbacks from
+silently producing an array containing `undefined` or borrowing a prototype name.
 
 In an explicitly exact namespace with no child-acquisition hook, an unlisted
 name is absent after complete enumeration. When a hook exists, unlisted spellings
