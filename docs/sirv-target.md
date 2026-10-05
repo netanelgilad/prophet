@@ -12,11 +12,14 @@ The complete immutable [fixture and provenance](../test/fixtures/sirv-3.0.2/PROV
 pin sirv plus mrmime 2.0.1, totalist 3.0.1 and @polka/url 1.0.0-next.29.
 [Specs](../test/sirv-target.spec.ts) verify all published bytes and obtain native
 GET, HEAD and missing-file reference behavior from pinned Node. The current
-Prophet run resolves the package's conditional exports, executes its initial
-[object bindings](object-bindings.md), and stops at the next reached boundary:
-reading `join` from the CLI's opaque `path` module. Connecting the actual shared
-path API is the next demonstrated host integration blocker. This
-is a selected target with concrete evidence, not completed symbolic analysis.
+Prophet run resolves conditional exports and imports all four unchanged packages
+through the assembled CLI environment. The export is the actual interpreted
+factory, with no filesystem or HTTP operations during import. Calling its
+public factory with a directory reaches a typed unfinished boundary at the
+first regular-expression literal in its default ignores setup. That literal is
+the next demonstrated language blocker; import success is not server startup
+or request coverage. Runtime models preserve querystring identity and the known
+readdirSync callable without pretending unimplemented work completed.
 
 ## Incremental acceptance
 

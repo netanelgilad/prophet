@@ -5,6 +5,8 @@ import { copySync, removeSync } from "fs-extra";
 import { tmpdir } from "os";
 import { join } from "path";
 import { runFile } from "../src/cli/runtime";
+import { effectPaths } from "../src/effects";
+import { isESFunction } from "../src/Function/Function";
 import { assertPinnedNode } from "./commonjs/oracle";
 
 const packages = [
@@ -52,15 +54,29 @@ for (const item of packages) {
   });
 }
 
-test("the unchanged sirv dependency graph advances past object bindings to the reached path API boundary through CLI acquisition", () => {
+test("the unchanged sirv dependency graph imports through the assembled CLI environment", () => {
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
-  expect(result.status).toBe("analysis-stop");
-  expect(result.diagnostic).toMatch(/Unmodeled host property 'join'.*path API/);
-  expect(result.completion).toBeUndefined();
+  expect(result.status).toBe("evaluated");
+  expect(isESFunction(result.completion!)).toBe(true);
+  expect(effectPaths(result.current.value.effects).every(path => !path.events.some(event =>
+    /^(fs\.|http\.)/.test(event.call.operation)))).toBe(true);
   // Actual conditional exports selected build.js; no source rewrite or loader bypass.
   expect(result.input.sources.has(join(directory, "node_modules/sirv/package.json"))).toBe(true);
   expect(result.input.sources.get(join(directory, "node_modules/sirv/build.js"))!.text)
     .toBe(readFileSync(join(directory, "node_modules/sirv/build.js"), "utf8"));
+  for (const dependency of ['totalist/sync/index.js', '@polka/url/build.js', 'mrmime/index.js']) {
+    expect(result.input.sources.has(join(directory, 'node_modules', dependency))).toBe(true);
+  }
+});
+
+test("the unchanged sirv factory exposes the next reached VM boundary", () => {
+  writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
+  const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
+  expect(result.status).toBe("analysis-stop");
+  expect(result.diagnostic).toMatch(/Regular expression literal evaluation/);
+  expect(result.completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
+  expect((result.completion as any).frames.some((frame: any) =>
+    frame.sourceFile.endsWith('/sirv/build.js') && frame.node.type === 'Literal' && frame.node.regex)).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {

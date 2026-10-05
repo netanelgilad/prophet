@@ -9,11 +9,13 @@ policies, classifications and verdicts ([roadmap](docs/roadmap.md)).
 
 # Repository workflow
 
-Work directly on `master` and push validated changes to `origin/master`, as
-requested by the user. PRs #23–#50 have been merged; [docs/stack.md](docs/stack.md)
-is the historical record, not the development base. The separate symbolic-string
-PR #51 is also merged. Keep increments focused and
-reviewable, and preserve unrelated work in the shared checkout.
+Use isolated worktrees and focused PRs for the autonomous workflow requested on
+2026-10-05. Run parallel Astra agents at high reasoning effort, review their
+changes and integrate validated increments without stopping after each feature.
+Preserve unrelated work in the shared checkout. See
+[the execution plan](docs/autonomous-development.md) for ownership and review
+gates; [the old stack](docs/stack.md) is historical. GitHub merge protections
+remain in force; any explicit approval request stays pending until answered.
 
 Develop toward full Test262 coverage and advanced symbolic evaluation by adding
 specs and extending the shared VM to satisfy them. Concrete execution remains a
@@ -40,17 +42,14 @@ milestones. Then grow to larger applications and dependency graphs. Keep source
 and dependency provenance, proof domains, unknown results, and unsupported paths
 visible; neither sampled runs nor partial coverage justify an all-path claim.
 
-Build the CLI from generic conditional state/effect graphs. The [first slice](docs/cli.md)
-passes branching-console/import subprocess specs, captures reached CommonJS
-dependencies through the shared loader and emits a nonresumable projection.
-HTTP and its shared EventEmitter retain symbolic bind outcomes; a persistent FIFO
-drains supported startup notifications after normal entry completion.
-The `fs` builtin now uses read-only, non-atomic environment acquisition with
-open/unobserved entries and symbolic descriptor availability. HTTPS/URL/path
-retain guarded object identities. Next compose bounded incoming requests and
-unfinished branches with filesystem state, then connect URL/path and shared
-warning scheduling; opaque imports do not establish those APIs.
-Retained handlers are not analyzed requests.
+Build the CLI from generic conditional state/effect graphs. The CLI composes
+CommonJS loading, read-only filesystem observations, POSIX path and declared
+process cwd, legacy URL warnings, and HTTP setup on a shared persistent queue.
+Bounded incoming exploration retains zero, one or two request histories and
+classified unfinished branches beside completed outcomes. Keep the parsed-event
+input domain and explicit horizon visible in docs. The next larger target is
+[pinned sirv and its three dependencies](docs/sirv-target.md): unchanged imports
+now complete; factory execution exposes further shared language/host gaps.
 Node public built-ins remain the modeling boundary.
 CLI stdout contains the graph (`roots`/`nodes`) directly. Do not wrap it in a
 report with hand-written model-domain or limitation prose, or relocate that

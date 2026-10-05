@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import { unsupportedPropertyError } from "./execution-context/analysis-failure";
+import { unsupportedPropertyError, UnsupportedAnalysisError } from "./execution-context/analysis-failure";
 
 import { ESString, TESString } from "./string/String";
 import {
@@ -49,6 +49,9 @@ export const IdentifierResolver: ASTResolver<ESTree.Identifier> = (ast, context)
   readBinding(context, ast.name);
 
 export const LiteralResolver: ASTResolver<ESTree.Literal> = (ast, context) => {
+  if ((ast as ESTree.RegExpLiteral).regex) {
+    throw new UnsupportedAnalysisError("Regular expression literal evaluation is not yet supported");
+  }
   if (typeof ast.value === "string") return tuple(ESString(ast.value), context);
   if (typeof ast.value === "number") return tuple(ESNumber(ast.value), context);
   if (typeof ast.value === "boolean") return tuple(ESBoolean(ast.value), context);
