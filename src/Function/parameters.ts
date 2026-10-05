@@ -5,6 +5,7 @@ import { initializeBinding } from "../execution-context/bindings";
 import { BranchResult } from "../execution-context/branches";
 import { bindNormal, evaluate } from "../evaluate";
 import { withValue } from "../conversion/toString";
+import { boundNames } from "./binding-patterns";
 import { identifierName, instantiateDeclarations, variableNames } from "./instantiate";
 
 // Invocation validates all patterns before executing any initializer. Function
@@ -26,7 +27,7 @@ export function initializeParameters(
   const bodyShadowsArguments = !arrow && !hasDefaults && statements.some(statement =>
     (statement.type === "FunctionDeclaration" && identifierName(statement.id!) === "arguments") ||
     (statement.type === "VariableDeclaration" && statement.kind !== "var" &&
-      statement.declarations.some(declaration => identifierName(declaration.id) === "arguments")));
+      statement.declarations.some(declaration => boundNames(declaration.id).includes("arguments"))));
   if (!arrow && !names.includes("arguments") && (hasDefaults || !bodyShadowsArguments)) {
     context = putBinding(context, context.value.environment, "arguments", {
       kind: "var", mutable: true, initialized: true, value: Undefined,

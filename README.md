@@ -884,7 +884,7 @@ symbolic results. See [the string boundary](docs/symbolic-strings.md) for remain
 precision, API and allocation assumptions. Run the spec with
 `node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-strings.spec.ts`.
 
-The active Test262 baseline runs **381 strict/sloppy variants of 195 complete,
+The active Test262 baseline runs **471 strict/sloppy variants of 240 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
@@ -898,6 +898,8 @@ evaluation order. Symbol-key syntax, getters, bound functions and Proxy behavior
 remain gaps; internal symbol-slot specs do not claim public Symbol support.
 Two complete object-spread cases exercise source-expression exceptions; positive
 upstream spread files still need further operators, built-ins, or harness support.
+Forty-five complete object declaration binding files add var/let/const defaults,
+nesting, renaming, trailing commas and abrupt completion coverage.
 Strictness follows actual directive
 source text; escaped or parenthesized strings do not become `use strict`.
 Parse-negative cases do not imply runtime support for their syntax.
@@ -906,8 +908,8 @@ the missing `Number` constants and global `isNaN`; the harness does not supply
 host substitutes for those runtime gaps.
 Historical selections remain explicitly skipped and are tracked as unassessed
 activation debt in the [gap backlog](docs/implementation-gaps.md). The pinned
-snapshot has **35,960 test files** after excluding `_FIXTURE.js` files; 195 selected files are about **0.54%** of that file inventory. The other
-35,765 files have not been comprehensively assessed, including the 46 historical
+snapshot has **35,960 test files** after excluding `_FIXTURE.js` files; 240 selected files are about **0.67%** of that file inventory. The other
+35,720 files have not been comprehensively assessed, including the 46 historical
 skips. This is an activation share, not a whole-suite pass rate or a percentage
 of JavaScript behavior implemented. The corpus is an old pinned revision, not
 current upstream Test262. This is limited coverage, not a conformance claim. The
@@ -961,6 +963,12 @@ of arrays, functions, intrinsic objects, or incomplete host models remain
 explicit gaps. Legacy property tables must not be mistaken for enumerable own
 fields. `Object` supports fresh nullish objects and existing object identity;
 primitive wrapper construction remains unsupported.
+
+Object declaration bindings now support `var`, `let` and `const` shorthand,
+renaming, defaults, nesting and finite computed keys through shared property
+reads and binding initialization. Nullish inputs throw; defaults retain TDZ,
+ordering and symbolic conditions. [Coverage and residuals](docs/object-bindings.md)
+include primitive boxing, array/rest patterns, parameters, accessors and names.
 
 Eval also instantiates declarations, isolates lexical names and strict
 vars, and distinguishes direct caller lookup from indirect global lookup.

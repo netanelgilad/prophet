@@ -52,10 +52,10 @@ for (const item of packages) {
   });
 }
 
-test("the unchanged sirv dependency graph reaches the shared destructuring boundary through CLI acquisition", () => {
+test("the unchanged sirv dependency graph advances past object bindings to the reached path API boundary through CLI acquisition", () => {
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
-  expect(result.diagnostic).toMatch(/Only identifier binding patterns/);
+  expect(result.diagnostic).toMatch(/Unmodeled host property 'join'.*path API/);
   expect(result.completion).toBeUndefined();
   // Actual conditional exports selected build.js; no source rewrite or loader bypass.
   expect(result.input.sources.has(join(directory, "node_modules/sirv/package.json"))).toBe(true);

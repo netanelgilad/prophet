@@ -106,3 +106,11 @@ describe("Test262 runner cannot silently pass failures", () => {
     }
   });
 });
+
+
+test("the complete standard harness provides an independent Test262Error constructor", () => {
+  const file = parseTest262('assert.throws(Test262Error, function() { throw new Test262Error("expected"); });');
+  runTest262Variant(file, "sloppy");
+  const mismatch = parseTest262('assert.throws(Test262Error, function() { throw new Error("wrong"); });');
+  expect(() => runTest262Variant(mismatch, "sloppy")).toThrow(/constructor/);
+});

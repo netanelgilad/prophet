@@ -30,6 +30,7 @@ import { getProperties, getArrayElements, ownPropertyPresence, writeArrayElement
 import { getSymbolicArrayShape, readSymbolicIndex } from "./array/symbolic";
 import { summarizeCall } from "./Function/summaries";
 import { assignBinding, bindingReference, readBinding, hasBinding, initializeBinding } from "./execution-context/bindings";
+import { initializeBindingPattern } from "./Function/binding-patterns";
 import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
 import { evalFn, evaluateEval } from "./eval/eval";
 import { isForkedCompletion } from "./execution-context/Completion";
@@ -113,7 +114,7 @@ function templateText(raw: string, cooked: string): string {
   });
 }
 
-function propertyName(key: Any): string {
+export function propertyName(key: Any): string {
   assert(
     (isESNumber(key) && typeof key.value === "number") ||
       (isESString(key) && typeof key.value === "string"),
@@ -425,6 +426,13 @@ export const VariableDeclarationResolver: ASTResolver<ESTree.VariableDeclaration
     let after = current;
     for (let position = index; position < ast.declarations.length; position++) {
       const declaration = ast.declarations[position];
+      if (declaration.id.type !== "Identifier") {
+        if (!declaration.init) throw new Error("Binding patterns require an initializer");
+        const next = position + 1;
+        return bindNormal(evaluate(declaration.init, after), (value, afterValue) =>
+          bindNormal(initializeBindingPattern(declaration.id, value, ast.kind, afterValue),
+            (_ignored, afterBinding) => declare(next, afterBinding)));
+      }
       const name = identifierName(declaration.id);
       if (!declaration.init) {
         if (ast.kind !== "var") after = initializeBinding(after, name, Undefined);

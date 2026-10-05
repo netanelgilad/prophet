@@ -134,7 +134,14 @@ function assertionContext(): TExecutionContext {
     }),
     _isSameValue: callback(args => ESBoolean(sameValue(args[0], args[1])))
   });
-  return setVariablesInScope(nodeInitialExecutionContext, {
+  // Execute the complete pinned standard harness in each fresh VM context.
+  // Test262Error must have its own interpreted identity, not alias native Error.
+  const [harnessCompletion, harness] = evaluate(parseECMACompliant(
+    readFileSync(join(test262Root, "harness", "sta.js"), "utf8")), nodeInitialExecutionContext);
+  if (isThrownValue(harnessCompletion) || isForkedCompletion(harnessCompletion)) {
+    throw new Error("Standard Test262 harness initialization did not complete");
+  }
+  return setVariablesInScope(harness, {
     assert,
     $ERROR: failure,
     $DONOTEVALUATE: callback(() => {
