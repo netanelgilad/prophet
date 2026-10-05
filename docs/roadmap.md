@@ -74,9 +74,10 @@ now run the random left/right example with a shared `done` write and preserve
 independent draws. The command now captures reached CommonJS/JSON/package sources
 and package-format metadata through the shared loader, uses the shared VM and
 emits a reference graph with initial and current state, conditional effects and
-program completions. Analysis failures
-retain a checkpoint without a completion root, with a reached diagnostic on
-stderr and exit status 2. Stdout is exactly `{ roots, nodes }`, without the old
+program completions. [Classified execution boundaries](execution-boundaries.md)
+retain unfinished leaf state alongside completed siblings; legacy analysis
+failures retain one checkpoint without a completion root. Both report reached
+diagnostics on stderr with exit status 2. Stdout is exactly `{ roots, nodes }`, without the old
 report envelope or its implementation prose. Output is a nonresumable projection,
 not the full state contract. Console, HTTP and its shared EventEmitter builtin
 are connected today.

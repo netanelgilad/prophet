@@ -7,7 +7,7 @@ import { bindNormal } from "../evaluate";
 import { choiceOf } from "../symbolic";
 import { arithmeticNumber } from "../symbolic/arithmetic";
 import { toString } from "../conversion/toString";
-import { isForkedCompletion } from "../execution-context/Completion";
+import { isExecutionBoundary, isForkedCompletion } from "../execution-context/Completion";
 
 // Inputs have already been converted. This is also the shared string operation
 // used when constructing messages; it never invokes user code itself.
@@ -55,7 +55,7 @@ function concatenate(self: Any, args: Any[], context: TExecutionContext): Branch
     let current = after;
     for (let position = index; position < args.length; position++) {
       const converted = toString(args[position], current);
-      if (isForkedCompletion(converted[0]) || isThrownValue(converted[0]) || isReturnValue(converted[0])) {
+      if (isExecutionBoundary(converted[0]) || isForkedCompletion(converted[0]) || isThrownValue(converted[0]) || isReturnValue(converted[0])) {
         // Capture an immutable prefix for each normal continuation. Only a
         // branching/abrupt conversion needs continuation frames; long ordinary
         // argument lists should not consume the host JavaScript call stack.

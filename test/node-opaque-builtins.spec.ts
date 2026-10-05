@@ -1,5 +1,5 @@
 import { join } from "path";
-import { createCommonJSLoader, createConsoleModel, nodeInitialExecutionContext } from "../src";
+import { createCommonJSLoader, createConsoleModel, isExecutionBoundary, nodeInitialExecutionContext } from "../src";
 import { analysisFailureContext } from "../src/execution-context/analysis-failure";
 import { ExecutionContext } from "../src/execution-context/ExecutionContext";
 import { ESObject } from "../src/Object";
@@ -69,6 +69,14 @@ for (const [name, member] of modules) {
         catch (error) { console.log("caught"); }
         console.log("after");
       ` }, { builtins: { [name]: createOpaqueBuiltinModule(name) } });
+      if (["read", "call", "write", "coercion"].includes(label)) {
+        const [boundary, checkpoint] = loader.load(filename, initial);
+        expect(isExecutionBoundary(boundary)).toBe(true);
+        expect(isExecutionBoundary(boundary) && boundary.message).toMatch(expected);
+        expect(consoleModel.inspectOutput(checkpoint)[0].chunks.map(chunk => chunk.value)).toEqual(
+          label === "write" ? ["before\n", "operand\n"] : ["before\n"]);
+        return;
+      }
       let failure: Error | undefined;
       try { loader.load(filename, initial); }
       catch (error) { failure = error; }

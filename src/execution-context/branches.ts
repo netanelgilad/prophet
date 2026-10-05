@@ -5,7 +5,8 @@ import { assume, resolveBoolean, selectValue } from "../symbolic";
 import { Binding, ExecutionContext, TExecutionContext } from "./ExecutionContext";
 import { getArrayElements, getProperties, getPropertyKeys, ownPropertyPresence, HeapEntry } from "./Heap";
 import { mergePropertyKeys } from "./PropertyKeys";
-import { isForkedCompletion } from "./Completion";
+import { captureExecutionBoundary } from "./analysis-failure";
+import { hasExecutionBoundary, isForkedCompletion } from "./Completion";
 import { ESBoolean } from "../boolean/ESBoolean";
 import { mergeEffectTraces } from "../effects/trace";
 
@@ -142,10 +143,12 @@ export function evaluateBranches(
 ): BranchResult {
   const known = resolveBoolean(condition, base.value.knowledge || []);
   if (known !== undefined) {
-    return (known ? consequent : alternate)(assumeInContext(base, condition, known));
+    const branch = assumeInContext(base, condition, known);
+    return captureExecutionBoundary(branch, () => (known ? consequent : alternate)(branch));
   }
-  const yes = consequent(assumeInContext(base, condition, true));
-  const no = alternate(assumeInContext(base, condition, false));
+  const yesContext = assumeInContext(base, condition, true), noContext = assumeInContext(base, condition, false);
+  const yes = captureExecutionBoundary(yesContext, () => consequent(yesContext));
+  const no = captureExecutionBoundary(noContext, () => alternate(noContext));
   return mergeBranchResults(condition, base, yes, no);
 }
 
@@ -153,6 +156,10 @@ export function mergeBranchResults(
   condition: TESBoolean, base: TExecutionContext,
   yes: BranchResult, no: BranchResult
 ): BranchResult {
+  if (hasExecutionBoundary(yes[0]) || hasExecutionBoundary(no[0])) {
+    return [{ type: "ForkedCompletion", state: "partial", condition, base,
+      consequent: yes, alternate: no }, base];
+  }
   const context = mergeContexts(condition, base, yes[1], no[1]);
   const select = (a: Any, b: Any) => selectValue(condition, a, b, base.value.knowledge || []);
   if (isReturnValue(yes[0]) && isReturnValue(no[0])) {

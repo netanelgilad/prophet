@@ -1,6 +1,6 @@
 import { evaluateCode, nodeInitialExecutionContext } from "../src";
 import { ESBoolean } from "../src/boolean/ESBoolean";
-import { isForkedCompletion } from "../src/execution-context/Completion";
+import { isExecutionBoundary, isForkedCompletion } from "../src/execution-context/Completion";
 import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
 import { ESString, TESString } from "../src/string/String";
 import { Any, ESNumber, TESBoolean, isThrownValue } from "../src/types";
@@ -155,8 +155,8 @@ describe("untagged template literals", () => {
   });
 
   test("tagged templates and default array/function conversion remain explicit gaps", () => {
-    expect(() => run("function tag() { return 1; } const value = tag`text`;"))
-      .toThrow(/TaggedTemplateExpression/);
+    const [boundary] = evaluateCode("function tag() { return 1; } const value = tag`text`;", nodeInitialExecutionContext);
+    expect(isExecutionBoundary(boundary) && boundary.message).toMatch(/TaggedTemplateExpression/);
     expect(() => run("const value = `${[1, 2]}`;"))
       .toThrow("Default array string conversion is not yet supported");
     expect(() => run("const value = `${function() {}}`;"))
