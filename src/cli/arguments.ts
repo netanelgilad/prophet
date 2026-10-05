@@ -4,6 +4,7 @@ export type CLIArguments = {
   readonly script: string;
   readonly args: string[];
   readonly maxSteps: number;
+  readonly maxEvents: number;
 } | { readonly kind: "help" };
 
 /** Parse Prophet's options without ever interpreting the target's arguments. */
@@ -13,13 +14,15 @@ export function parseArguments(args: ReadonlyArray<string>): CLIArguments {
   let runtimeSeen = false;
   let maxStepsSeen = false;
   let maxSteps = 100000;
+  let maxEvents = 0;
+  let maxEventsSeen = false;
 
   for (let index = 0; index < args.length; index += 1) {
     const option = args[index];
     if (option === "--") {
       const script = args[index + 1];
       if (!script) throw new Error("Expected a script path after --.");
-      return { kind: "run", runtime: "node@24.21.0", script, args: args.slice(index + 2), maxSteps };
+      return { kind: "run", runtime: "node@24.21.0", script, args: args.slice(index + 2), maxSteps, maxEvents };
     }
     if (option === "--runtime") {
       if (runtimeSeen) throw new Error("--runtime may only be specified once.");
@@ -28,6 +31,16 @@ export function parseArguments(args: ReadonlyArray<string>): CLIArguments {
       if (args[index] !== "node@24.21.0") {
         throw new Error("The only supported runtime is node@24.21.0.");
       }
+      continue;
+    }
+    if (option === "--max-events") {
+      if (maxEventsSeen) throw new Error("--max-events may only be specified once.");
+      maxEventsSeen = true;
+      index += 1;
+      if (args[index] !== "0" && args[index] !== "1") {
+        throw new Error("--max-events currently supports only 0 or 1 incoming events.");
+      }
+      maxEvents = Number(args[index]);
       continue;
     }
     if (option === "--max-steps") {

@@ -6,7 +6,7 @@ test("CLI defaults to the pinned runtime and a finite execution budget", () => {
     runtime: "node@24.21.0",
     script: "server.js",
     args: [],
-    maxSteps: 100000
+    maxSteps: 100000, maxEvents: 0
   });
 });
 
@@ -16,7 +16,7 @@ test("CLI accepts explicit runtime and budget in either order", () => {
     ["--max-steps", "25", "--runtime", "node@24.21.0"]
   ]) {
     expect(parseArguments([...options, "--", "./server.js", "first"])).toEqual({
-      kind: "run", runtime: "node@24.21.0", script: "./server.js", args: ["first"], maxSteps: 25
+      kind: "run", runtime: "node@24.21.0", script: "./server.js", args: ["first"], maxSteps: 25, maxEvents: 0
     });
   }
 });
@@ -60,4 +60,15 @@ test("CLI accepts the smallest positive budget and the largest exactly represent
   for (const budget of [1, Number.MAX_SAFE_INTEGER]) {
     expect(parseArguments(["--max-steps", String(budget), "--", "server.js"])).toMatchObject({ maxSteps: budget });
   }
+});
+
+test("CLI accepts bounded incoming event exploration", () => {
+  for (const maxEvents of [0, 1]) expect(parseArguments(["--max-events", String(maxEvents), "--", "server.js"]))
+    .toMatchObject({ maxEvents });
+});
+test.each(["-1", "2", "1.5", "", "Infinity", "NaN"])("CLI rejects unsupported incoming event bounds: %s", bound => {
+  expect(() => parseArguments(["--max-events", bound, "--", "server.js"])).toThrow(/event/i);
+});
+test("CLI rejects duplicate incoming event bounds", () => {
+  expect(() => parseArguments(["--max-events", "0", "--max-events", "1", "--", "server.js"])).toThrow(/once/);
 });
