@@ -5,9 +5,11 @@ import { isObjectValue, toString, withValue } from "../conversion/toString";
 import { createHostFunction, effectPaths } from "../effects";
 import { createError, getErrorConstructor } from "../error/Error";
 import { bindNormal } from "../evaluate";
+import { withAnalysisFailureContext } from "../execution-context/analysis-failure";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getArrayElements, getProperties, writeProperty } from "../execution-context/Heap";
+import { JobQueue } from "../jobs";
 import { isESFunction } from "../Function/Function";
 import { ESObject, TESObject } from "../Object";
 import { concatenateStrings } from "../string/concat";
@@ -15,6 +17,8 @@ import { ESString, TESString } from "../string/String";
 import { Knowledge, resolveBoolean } from "../symbolic";
 import { Any, ESNumber, isESString, isUndefined, TESBoolean, Undefined } from "../types";
 import { withStringArgument } from "./arguments";
+
+export type WarningModelOptions = { pid?: number; nextTick?: JobQueue };
 
 export type PendingWarning = { name: Any; code: Any; message: Any };
 export type PendingWarningPath = { knowledge: Knowledge; warnings: ReadonlyArray<PendingWarning> };
@@ -52,8 +56,12 @@ function withDiagnosticText(value: Any, context: TExecutionContext,
  * node release/argv0 and no warning flags, listeners, redirects or subscribers.
  * Scheduling and delivery are separate; neither performs a real process write.
  */
-export function createWarningModel(options: { pid?: number } = {}) {
+export function createWarningModel(options: WarningModelOptions = {}) {
   const pid = options.pid;
+  const nextTick = options.nextTick;
+  if (nextTick !== undefined && (!nextTick || typeof nextTick.enqueue !== "function")) {
+    throw new Error("Warning model next-tick queue requires an enqueue operation");
+  }
   if (pid !== undefined && (!Number.isSafeInteger(pid) || pid < 1)) {
     throw new Error("Warning model pid must be a positive safe integer");
   }
@@ -82,7 +90,10 @@ export function createWarningModel(options: { pid?: number } = {}) {
             const warning = createError("Error", message);
             warning.properties.name = ESString(type || "Warning");
             if (code !== undefined) warning.properties.code = ESString(code);
-            return withQueue(branch, (warnings, after) => [Undefined, saveQueue(warnings.concat([warning]), after)]);
+            return withQueue(branch, (warnings, after) => {
+              const pending = saveQueue(warnings.concat([warning]), after);
+              return nextTick ? nextTick.enqueue(deliverQueued, [warning], pending) : [Undefined, pending];
+            });
           });
         })));
   }), {
@@ -100,7 +111,10 @@ export function createWarningModel(options: { pid?: number } = {}) {
     unknownProperties: "Node process warning API",
     modeledInheritedProperties: flags,
     unmodeledOwnPropertyInspection: "Node process descriptors",
-    unmodeledPropertyWrites: flags.concat(["pid"])
+    unmodeledPropertyWrites: flags.concat(["pid"]),
+    hostSlots: Object.freeze(nextTick
+      ? { "node.process.warnings": state, "node.nextTick": nextTick.state }
+      : { "node.process.warnings": state })
   });
   // Flags are absent by default, so inherited writes must not be shadowed by
   // invented own undefined values. Changing their effective configuration is
@@ -154,9 +168,24 @@ export function createWarningModel(options: { pid?: number } = {}) {
         });
       }));
 
+  // The queue owns ordering. Each job retains its warning identity; formatting
+  // reads the invocation-time heap and can append warnings behind existing jobs.
+  const deliverQueued = createHostFunction("process.warning.deliver", (call, context) =>
+    withQueue(context, (warnings, branch) => {
+      if (!warnings.length || warnings[0] !== call.args[0]) {
+        throw new Error("Shared warning job does not match its pending warning");
+      }
+      const delivering = saveQueue(warnings.slice(1), branch);
+      return withAnalysisFailureContext(delivering, () => {
+        assertDefaultConfiguration(delivering);
+        return present(warnings[0], delivering);
+      });
+    }));
+
   return {
-    process,
+    process, state,
     deliverNext(context: TExecutionContext): BranchResult {
+      if (nextTick) return unsupported("manual warning delivery while a next-tick queue owns delivery");
       return withQueue(context, (warnings, branch) => {
         if (!warnings.length) return [Undefined, branch];
         assertDefaultConfiguration(branch);
