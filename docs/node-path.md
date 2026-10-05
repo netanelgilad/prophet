@@ -1,8 +1,8 @@
 # Node POSIX path compatibility and proof boundary
 
 The reference runtime is **Node v24.21.0**, upstream commit
-`955266bfdd854cd280dffd47548673914484e4c0`. The [local path specs](../test/node-path.spec.ts)
-and [parse specs](../test/node-path-parse.spec.ts)
+`955266bfdd854cd280dffd47548673914484e4c0`. The [local path specs](../test/node-path.spec.ts),
+[parse specs](../test/node-path-parse.spec.ts) and [resolve specs](../test/node-path-resolve.spec.ts)
 execute the same complete fixture modules through Prophet and an independent
 pinned Node child. These are local compatibility tests, separate from Test262
 and from complete upstream Node cases.
@@ -16,7 +16,8 @@ paths merely because the machine running Prophet can run Windows software.
 
 ## Supported operations
 
-The model implements `normalize(path)`, `join(...paths)` and `parse(path)` for
+The model implements `normalize(path)`, `join(...paths)`, `parse(path)` and
+`resolve(...paths)` for
 concrete strings
 and symbolic choices whose leaves contain concrete strings. String values known
 only through equality constraints are not yet materialized into those choices.
@@ -45,8 +46,9 @@ retain that runtime behavior rather than replacing it with a basename shortcut.
 `parse` calls no exported normalize, basename or extname method, and its captured
 String operations are unaffected by replacements of public String methods.
 
-These operations are lexical string operations. They do not read files, obtain
-the current directory, decode URLs, follow symlinks or check permissions. Only
+These operations are lexical string operations. `resolve` may obtain cwd through
+the declared process object, as described below; the other operations do not.
+They do not read files, decode URLs, follow symlinks or check permissions. Only
 `/` separates POSIX segments; backslashes, NUL and UTF-16 code units are ordinary
 text. A successfully normalized string is not a claim that an operating system
 will accept that filename or that it stays inside an application directory.
@@ -77,9 +79,52 @@ independence from public String method replacements.
 
 The original methods ignore supplied call receivers and are not constructors.
 Their names and lengths are modeled (`normalize.length === 1`, `join.length === 0`,
-`parse.length === 1`).
+`parse.length === 1`, `resolve.length === 0`).
 Host-operation traces may record their calls and returns, including the nested
 normalize call; those records do not represent filesystem I/O.
+
+## Resolving against a declared cwd environment
+
+`createPosixPathModel({ process })` optionally receives the modeled process object.
+The factory retains that identity; it does not supply a process model or use the
+machine running Prophet's cwd. Every required cwd access reads that object's
+**current** `cwd` member and invokes it through shared VM semantics with the
+process receiver and no arguments. Replacement methods retain their state
+changes, return choices and throwing completions. The caller's later options
+mutation or replacement of a global process binding cannot redirect the captured
+object. A noncallable cwd throws the pinned TypeError; cwd getters and other
+property behavior follow the shared VM's supported property domain.
+
+Resolve validates arguments from right to left, using indexed `paths[n]` error
+names, and stops when it finds an absolute path. Values to the left are not
+validated, including otherwise unsupported object/unknown-string arguments.
+Ordinary argument expressions still run before the host call. If no absolute
+argument is found, resolve consults cwd and normalizes the combined spelling,
+removing trailing separators. Empty/relative cwd replacement results remain
+supported and can produce a relative result. Backslashes, drive-looking text,
+NUL and UTF-16 code units remain ordinary POSIX text.
+
+The pinned Node release has an observable shortcut: no arguments, one empty
+string or one dot first invokes cwd and returns an absolute result verbatim,
+without normalization. A relative or empty result instead falls through and
+invokes the **current** cwd method a second time. Specs independently check the
+verbatim spelling, replacement effects/throws between calls, and one-versus-two
+call counts under symbolic cwd choices. Other relative calls invoke cwd once;
+an absolute argument bypasses it. Resolve ignores replacements of exported
+normalize/posix, its call receiver, and public String methods.
+
+Without the process option, an absolute-only resolution still works; a reached
+cwd requirement explicitly stops analysis. Open symbolic cwd strings and
+non-string cwd returns remain guards. Node's internal coercion and diagnostic
+behavior for replacement cwd methods returning nonstrings is not modeled by
+those guards. Finite concrete-string choices preserve result/call/throw
+correlations; tests assert both valid proofs and facts that must remain unknown.
+
+This environment is explicitly POSIX. Selecting the module does not model
+Node's Windows-only conversion of a Windows cwd for `path.posix.resolve`, nor
+does it implement `path.win32`. There is no implicit process.cwd/chdir or native
+filesystem fallback. The trusted embedding owns the supplied cwd method and
+its environment facts. See PATH-001/PATH-002 and HOST-001/HOST-002.
 
 ## Type errors and explicit gaps
 
@@ -107,10 +152,10 @@ Broader symbolic normalization, concatenation and path relationships remain
 future reasoning work. This is distinct from the supported unknown-number
 argument error with an imprecise message.
 
-The remaining path APIs (`resolve`, `relative`, `basename`, `dirname`,
+The remaining path APIs (`relative`, `basename`, `dirname`,
 `extname`, `isAbsolute`, `format`, and others), Win32/device/UNC behavior, full
 module/function descriptors and reflection, and metadata mutation remain gaps.
-In particular, this increment neither supplies process.cwd nor changes the
+In particular, the factory option does not supply process.cwd or change the
 CommonJS source graph into a disk/symlink-aware loader. These residuals are
 tracked by PATH-001/PATH-002 and CJS-001 in the
 [implementation-gap backlog](implementation-gaps.md).
@@ -157,6 +202,12 @@ fragment:
 - [`test-path-posix-exists.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-path-posix-exists.js)
   is a small alias-identity case for `path/posix` and `path.posix`, but still
   needs the actual common/assert harness.
+- [`test-path-resolve.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-path-resolve.js)
+  includes both platforms, drive-relative and UNC cases, cwd replacements, and a
+  Windows child-process fixture. Complete activation still needs Win32/device/cwd
+  behavior, common/assert/fixtures, child_process, loops/destructuring,
+  Array forEach/apply/map/join and JSON diagnostics. The complete file is retained
+  as a candidate; local POSIX/cwd checks do not count it passing.
 - [`test-path-join.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-path-join.js)
   includes POSIX and Windows/UNC/device paths. Besides Win32 support it needs
   common/assert, Array apply/concat/map/forEach/isArray operations and RegExp/JSON
