@@ -191,7 +191,7 @@ test("a server created in the first arrival receives only after its queued liste
 
 test("an unsupported request retains its active source and siblings without a subsequent arrival", () => {
   const result = run(`require('http').createServer(function(req, res) {
-    if (req.url === '/stop') require('fs').readFileSync('x'); res.end();
+    if (req.url === '/stop') require('https').request('x'); res.end();
   }).listen(8080);`, 2);
   expect(result.status).toBe('analysis-stop');
   const outcomes = leaves([result.completion!, result.current]);

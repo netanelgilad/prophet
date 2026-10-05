@@ -4,7 +4,7 @@ import "../index";
 import { realpathSync } from "fs";
 import { isAbsolute, resolve } from "path";
 import { executionBoundaries } from "../execution-context/Completion";
-import { analysisFailureContext } from "../execution-context/analysis-failure";
+import { analysisFailureContext, markUnsupportedBoundaryObject } from "../execution-context/analysis-failure";
 import { ESInitialGlobal } from "../execution-context/ESInitialGlobal";
 import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
 import { ESBuiltinFunction } from "../Function/Function";
@@ -16,10 +16,14 @@ import { createConsoleModel } from "../node/console";
 import { symbolicTCPBind } from "../node/bind";
 import { createHTTPModel } from "../node/http";
 import { createOpaqueBuiltinModule } from "../node/opaque";
+import { createPosixPathModel } from "../node/path";
+import { createProcessModel } from "../node/process";
+import { createLegacyURLModel } from "../node/url";
+import { createWarningModel } from "../node/warnings";
 import { ESObject } from "../Object";
 import { createCommonJSLoaderFromResolver } from "../require/loader";
 import { createModuleResolverFromSource } from "../require/resolution";
-import { Any } from "../types";
+import { Any, isESString } from "../types";
 import { CapturedSource, captureModuleSources } from "./source-capture";
 import { captureFileSystem } from "./filesystem-capture";
 
@@ -63,6 +67,15 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const filesystem = captureFileSystem({ cwd });
   const consoleModel = createConsoleModel();
   const nextTick = createJobQueue();
+  const warnings = createWarningModel({ nextTick });
+  const cwdValue = filesystem.state.properties.cwd;
+  if (!isESString(cwdValue) || typeof cwdValue.value !== "string") {
+    throw new Error("Automatic filesystem acquisition did not capture a concrete cwd");
+  }
+  const processModel = createProcessModel({ cwd: cwdValue.value, warnings });
+  const path = createPosixPathModel({ process: processModel.process });
+  const url = createLegacyURLModel(warnings);
+  markUnsupportedBoundaryObject(filesystem.module);
   const externalEvents = createExternalEvents();
   const http = createHTTPModel(undefined, { bind: symbolicTCPBind, nextTick, externalEvents });
   const math = Object.assign(ESObject({
@@ -71,7 +84,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
     })
   }, "unmodeled"), { unknownProperties: "Math API" });
   const global = Object.assign(ESObject({
-    ...ESInitialGlobal.properties, Math: math, console: consoleModel.module
+    ...ESInitialGlobal.properties, Math: math, console: consoleModel.module, process: processModel.process
   }, "unmodeled"), { unknownProperties: "Node globals not captured by the automatic starting environment" });
   Object.assign(global.properties, { global, globalThis: global });
   Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state, "node.fs": filesystem.state, externalEvents: externalEvents.state }) });
@@ -94,10 +107,10 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
       }
     }, { main: filename, builtins: {
       console: consoleModel.module, http: http.module, events: http.eventsModule,
-      // Filesystem operations use separately acquired environment facts. The
-      // remaining opaque object exports still stop when their APIs are reached.
+      // Public Node models share identities and one persistent job queue.
+      // Filesystem facts are acquired separately from program source.
       https: createOpaqueBuiltinModule("https"), fs: filesystem.module,
-      url: createOpaqueBuiltinModule("url"), path: createOpaqueBuiltinModule("path")
+      url: url.module, path: path.module, "path/posix": path.module, process: processModel.process
     } });
     // The evaluator consumes its budget in place. Keep that runner bookkeeping
     // separate so the retained initial state still records the initial budget.
