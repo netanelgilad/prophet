@@ -1,3 +1,4 @@
+import { markUnsupportedBoundaryObject } from "../execution-context/analysis-failure";
 import { invoke } from "../ASTResolvers";
 import { Any, ESNumber, FunctionBinding, ThrownValue, Undefined } from "../types";
 import { ESString } from "../string/String";
@@ -19,13 +20,17 @@ function call(self: Any, args: Any[], context: TExecutionContext): BranchResult 
 
 // After selecting and checking its callable receiver, this built-in forwards
 // through ordinary invocation to preserve receiver handling and completions.
-export const functionCall: FunctionBinding & { type: "function"; nonConstructible: boolean } = {
+export const functionCall: FunctionBinding & { type: "function"; nonConstructible: boolean } = markUnsupportedBoundaryObject({
   type: "function",
   nonConstructible: true,
   properties: { length: ESNumber(1) },
+  unknownProperties: "Function.prototype.call metadata",
+  modeledInheritedProperties: ["call"],
+  unmodeledPropertyWrites: ["length", "call"],
+  unmodeledOwnPropertyInspection: "Function.prototype.call descriptors",
   function: {
     implementation: function*(self: Any, args, context) {
       return call(self, args, context);
     }
   }
-};
+});

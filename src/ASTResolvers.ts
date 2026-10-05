@@ -294,7 +294,7 @@ function assignMember(object: Any, name: string, assigned: Any, context: TExecut
     branch => assignMember(choice.alternate, name, assigned, branch));
   const unmodeledWrites = (object as WithProperties).unmodeledPropertyWrites;
   if (unmodeledWrites && unmodeledWrites.includes(name)) {
-    throw new Error(`Unmodeled host property write '${name}'`);
+    throw unsupportedPropertyError(object, `Unmodeled host property write '${name}'`);
   }
   const access = (object as WithProperties).propertyAccess;
   const exotic = access && access.write(name, assigned, context);

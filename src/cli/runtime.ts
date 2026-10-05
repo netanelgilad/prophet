@@ -110,7 +110,8 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
       // Public Node models share identities and one persistent job queue.
       // Filesystem facts are acquired separately from program source.
       https: createOpaqueBuiltinModule("https"), fs: filesystem.module,
-      url: url.module, path: path.module, "path/posix": path.module, process: processModel.process
+      url: url.module, path: path.module, "path/posix": path.module, process: processModel.process,
+      querystring: createOpaqueBuiltinModule("querystring")
     } });
     // The evaluator consumes its budget in place. Keep that runner bookkeeping
     // separate so the retained initial state still records the initial budget.
