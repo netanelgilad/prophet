@@ -549,7 +549,8 @@ Continue in these increments, each with specs and a focused commit to `master`:
    path-dependent state now pass. HTTP listening/request/finish callbacks reuse
    that implementation, preserving current captured bindings and explicit event
    delivery. Metadata events, EventEmitter warning generation, streams, and
-   broader APIs remain gaps; the scoped process-warning queue is separate.
+   broader APIs remain gaps. Scoped process warnings can now use the same
+   next-tick FIFO as HTTP startup, with independent Node ordering checks.
 5. **First real application:** follow [the pinned target contract](real-world-target.md).
    Whole-source provenance and Node reference specs are established. Arrow
    functions allow the actual module to load, and identifier defaults now run
@@ -565,7 +566,8 @@ Continue in these increments, each with specs and a focused commit to `master`:
    A shared symbolic tree classifies missing-directory 404 versus empty-directory
    escaping ENOENT before any response commit. Matching native GET/HEAD/tree
    witnesses replay both conditions. Source-based DEP0169 eligibility and a
-   separate default-warning queue preserve the diagnostic boundary. Successful
+   default-warning state preserve the diagnostic boundary; an optional shared
+   next-tick queue preserves warning/startup ordering. Successful
    default reads now return Buffer values and the shared `instanceof` check is false;
    path.parse now selects MIME and the original write/end/finish path serves files
    under the declared healthy consume-at-end schedule. Per-method symbolic index

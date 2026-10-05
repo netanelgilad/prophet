@@ -54,13 +54,14 @@ The [HTTP model](node-http.md) uses the queue for listening/error delivery.
 Hostless bind runs inline and queues a notification. Explicit `"127.0.0.1"`
 queues lookup/bind, which later appends its notification. No general DNS,
 microtask, timer, immediate, I/O, cancellation or process exception-recovery
-semantics follow from this FIFO. Public `process.nextTick`, warning-queue
-integration remain unsupported. The separate [external-event registry](external-events.md)
-now supplies optional parsed requests through horizon two after this startup
-checkpoint. It drains this queue after each normally completed arrival, including
-the final one; job throws/stops prevent another arrival on that leaf. New listening
-notifications therefore precede requests to that server. This does not add
-general event-loop ordering, public nextTick or automatic response finish.
+semantics follow from this FIFO. The [warning model](node-url.md) can share this
+same queue: each warning schedules one presentation job; formatter-enqueued
+warnings join behind the existing tail. Its explicit manual-delivery mode remains
+available without a queue, and queued mode rejects manual delivery. Public
+`process.nextTick` remains unsupported.
+The separate [external-event registry](external-events.md) explores up to two
+arrivals, draining this queue between events and after the final arrival. It
+retains waiting histories and uses current sources and listeners.
 
 [Queue specs](../test/jobs.spec.ts), [HTTP startup specs](../test/node-http-startup.spec.ts)
 and [independent pinned Node observations](../test/node-startup-reference.spec.ts)

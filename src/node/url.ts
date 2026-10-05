@@ -138,7 +138,8 @@ export function createLegacyURLModel(warnings = createWarningModel()) {
   });
   Object.assign(parse.properties, { name: ESString("urlParse"), length: ESNumber(3) });
   const module = Object.assign(ESObject({ parse }), {
-    unknownProperties: "Node URL module API", unmodeledOwnPropertyInspection: "Node URL module descriptors"
+    unknownProperties: "Node URL module API", unmodeledOwnPropertyInspection: "Node URL module descriptors",
+    hostSlots: Object.freeze({ "node.url.deprecation": state })
   });
-  return { module, process: warnings.process, warnings };
+  return { module, state, process: warnings.process, warnings };
 }
