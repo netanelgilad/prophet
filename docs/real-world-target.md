@@ -55,19 +55,21 @@ that message. The [startup queue](jobs.md) supplies notification ordering and
 uses current listeners/captured state without opening sockets. No request is
 invented with the default zero-event bound; the real handler is retained.
 Optional `--max-events 1` or `2` now starts generic parsed-event exploration,
-with current state and supported jobs between arrivals, but pico
-request paths still encounter the separately documented host integration gaps.
+with current state and supported jobs between arrivals. The assembled CLI now
+completes the original OPTIONS/405 response paths while retaining GET/HEAD as
+unfinished leaves at open symbolic URL parsing. Waiting and bind-failure
+alternatives remain in the same result; this is not full request coverage.
 
-The CLI acquires the package through the shared CommonJS loader. HTTPS, URL
-and path imports remain opaque object identities. The fs module uses actual
-read-only environment observations and symbolic descriptor availability, with
-uncaptured entries retained as open state. This does not yet connect the
-separately tested request-analysis models. The [roadmap acceptance
-criteria](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
-still retain full capture/provenance, environment input and resumption work.
-The next extension should compose this environment with bounded future
-request exploration through this CLI path, preserving the existing manual
-request proofs as regressions rather than claiming they already run by default.
+The CLI acquires the package through the shared CommonJS loader. It composes
+actual shared fs, POSIX path, process cwd and legacy URL models, with warning
+presentation and HTTP startup using one persistent queue. Filesystem observations
+are read-only and non-atomic, descriptor availability is symbolic, and unseen
+entries remain open. HTTPS stays opaque. The [CLI environment specs](../test/cli-node-environment.spec.ts)
+and [subprocess graph specs](../test/cli.spec.ts) validate the original entry
+without an explicit environment file. Explicit starting-environment authoring,
+open URL/path reasoning, full source/environment provenance and resumption
+remain work. Existing manually supplied request/file proofs remain regressions;
+they do not establish default CLI GET/HEAD coverage.
 
 This unchanged server is a regression target for the proposed
 [runtime CLI/state contract](symbolic-runtime.md): supply a symbolic starting
@@ -440,7 +442,7 @@ request domains remain explicit gaps.
 ## Growing beyond the first target
 
 The next larger pinned target is [sirv 3.0.2 with its actual dependencies](sirv-target.md).
-Its complete fixtures and pinned Node references are retained. Prophet currently
-reaches an object binding destructuring boundary during import; this is not a
-completed startup/request analysis. Advance shared VM semantics from that actual
+Its complete fixtures and pinned Node references are retained. The assembled CLI imports its complete dependency graph and returns the actual
+factory; default factory execution stops at a regular-expression literal. This
+is not completed startup/request analysis. Advance shared VM semantics from that actual
 blocker while preserving pico's existing proofs.

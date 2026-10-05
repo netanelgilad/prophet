@@ -320,6 +320,43 @@ test("CLI runs the unchanged pico startup file through ready and unhandled-error
   expect(graph.nodes.some((node: any) => node.definition !== undefined)).toBe(true);
 }, 40000);
 
+test("CLI JSON retains pico response histories and unfinished URL calls in the same graph", () => {
+  const filename = resolve("test/fixtures/pico-static-server-3.0.3/package/examples/pico-http-server.js");
+  const child = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath,
+    [resolve("bin/prophet.js"), "--max-events", "1", "--", filename],
+    { encoding: "utf8", timeout: 30000, env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" } });
+  expect(child.error).toBeUndefined();
+  expect(child.status).toBe(2);
+  expect(child.stderr).toMatch(/^prophet: .*open symbolic URL/);
+  const graph = JSON.parse(child.stdout);
+  expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
+  const roots = decodeGraph(graph), outcomes: any[] = [];
+  function visit(result: any[]) {
+    if (isForkedCompletion(result[0])) { visit(result[0].consequent); visit(result[0].alternate); }
+    else outcomes.push(result);
+  }
+  visit([roots.completion, roots.current]);
+  expect(roots.completion.state).toBe("partial");
+  expect(outcomes.some(([value]) => isThrownValue(value))).toBe(true);
+  const statuses: number[] = [];
+  for (const [value, context] of outcomes) {
+    const paths = effectPaths(context.value.effects, context.value.knowledge);
+    if (isExecutionBoundary(value)) {
+      expect(value.message).toMatch(/open symbolic URL/);
+      expect(value.frames.some((frame: any) => frame.sourceFile.endsWith("/package/index.js"))).toBe(true);
+      const registry = context.value.global.hostSlots.externalEvents;
+      expect(isUndefined(getProperties(registry, context).active)).toBe(false);
+      for (const path of paths) {
+        expect(path.events.some(event => event.kind === "call" && event.call.operation === "url.parse")).toBe(true);
+        expect(path.events.some(event => event.kind === "return" && event.call.operation === "url.parse")).toBe(false);
+      }
+    } else for (const path of paths) for (const event of path.events) {
+      if (event.kind === "call" && event.call.operation === "http.response.writeHead") statuses.push((event.call.args[0] as any).value);
+    }
+  }
+  expect(statuses).toEqual(expect.arrayContaining([200, 405]));
+}, 40000);
+
 for (const stoppedFirst of [true, false]) test(`CLI graph preserves stopped and completed leaf state (${stoppedFirst})`, () => {
   const { child, roots } = run(`
     console.log("prefix");

@@ -276,9 +276,9 @@ explicit; a partial bind boundary alone is not successful-startup evidence.
 
 The CLI uses the shared loader/VM and a generic persistent queue. Its filesystem
 module uses read-only observations with open unobserved entries and symbolic
-descriptor availability. Opaque HTTPS/URL/path imports provide identity only;
-optional parsed-event exploration is available while broader host assembly,
-wire-valid domains and longer sequences remain work. Preserve existing symbolic input
+descriptor availability. Shared process cwd, POSIX path and legacy URL models compose with one warning/HTTP
+queue; HTTPS/querystring exports remain opaque. Parsed-event exploration through
+two arrivals is available; wire-valid domains and longer sequences remain work. Preserve existing symbolic input
 correlations, completion/effect paths and native reference comparisons when
 connecting them. Caller-supplied environment files and full resumption remain
 subsequent increments.

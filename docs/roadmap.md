@@ -123,12 +123,18 @@ output. Source capture and target filesystem capture remain separate non-atomic
 observations. No target write runs natively and binary read/symlink/other capture
 boundaries remain explicit.
 
-**Next:** compose this environment with bounded future-request exploration and
-preserved unfinished branches, then connect the existing URL/path host models
-with correct shared warning scheduling. Opaque URL/path imports and retained
-request handlers do not prove GET/HEAD request evaluation. Preserve success/error
-alternatives, pending work and explicit transport/stdout boundaries.
+The assembled CLI now composes this environment with bounded future requests,
+POSIX path, process cwd and legacy URL models. Warning presentation and HTTP
+notifications use the same FIFO. Unchanged pico automatically retains completed
+OPTIONS/405 responses, waiting and bind-error alternatives beside unfinished
+GET/HEAD leaves at open symbolic URL parsing. These leaves retain their source
+frames and exact state; they do not prove future file-serving behavior.
 
+**Next:** preserve the provider-selection and directory-alias review regressions,
+then supply explicit symbolic starting environments through a runtime-oriented
+input surface. Reproduce concrete/finite URL file reads and missing-index errors
+without bespoke handler glue, and extend generic string/path knowledge toward
+open request inputs. Keep transport/stdout assumptions visible.
 Explicit environment authoring, arbitrary request exploration and full snapshot
 resumption follow this milestone. Preserve the representation needed for them,
 but do not make a complete input schema or general resumable VM a prerequisite
@@ -149,11 +155,12 @@ conditional state/effect graphs as the representation; derive HTTP-focused
 inspection views in consumers.
 
 The next larger immutable application is [sirv 3.0.2](sirv-target.md), including
-three pinned runtime dependencies and independent Node request references. Its
-initial object-binding blocker is now supported through shared declaration
-semantics. Its next reached boundary is reading `join` from the opaque CLI path
-module. Follow actual reached language/host boundaries without
-rewriting the package or claiming unexecuted handlers were analyzed.
+three pinned runtime dependencies and independent Node request references. The assembled CLI imports all four unchanged
+packages and returns the actual interpreted factory. Calling it with a directory
+reaches its first regular-expression literal. Extend shared language semantics
+at that demonstrated boundary, then follow array, enumeration, loop, metadata
+and stream blockers. Do not rewrite package code or equate retained handlers
+with analyzed requests.
 
 ## Following product milestones
 

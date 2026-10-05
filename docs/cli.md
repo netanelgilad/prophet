@@ -59,11 +59,19 @@ unsupported binary contents or unexpected host failures. It is non-atomic and
 independent of source acquisition; this is not a single time-zero disk snapshot.
 The graph links this state through the global object's `node.fs` host slot.
 
-HTTPS, URL and path retain opaque object exports: imports and alias identity
-work, but reached property reads/writes, inspection or coercion stop. They do not
-establish implemented APIs or warning state. Other builtins stop on import. General process state
-is future work. Launch args/cwd
-are retained internally as provenance; that alone does not implement `process.argv`/`cwd`.
+The shared [process model](node-process.md) supplies the captured canonical cwd
+through mutable `process.cwd`; global process and process/node:process imports
+share one identity. The [POSIX path model](node-path.md) shares path, node:path
+and path/posix identities and reads the current cwd method when needed. The
+[legacy URL model](node-url.md) uses this same process warning environment;
+warnings schedule presentation through the same next-tick FIFO as HTTP startup.
+Their persistent states remain linked through host slots. This does not supply
+process.argv, process.env, chdir, full URL parsing, warning configuration or
+complete host metadata. These reached gaps remain explicit.
+
+HTTPS and querystring retain opaque object exports: imports and aliases work,
+but reached APIs, inspection or coercion stop. Other builtins stop on import.
+Launch arguments remain internal provenance rather than a modeled argv.
 Unknown global names and missing Math members stop conservatively. Wider partial
 intrinsics still have the limitations in the implementation backlog.
 The opaque import checks establish known exports under the pinned default
