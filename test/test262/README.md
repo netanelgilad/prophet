@@ -7,8 +7,8 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **240 complete files / 471 strictness variants**,
-including 13 parse-negative files / 25 variants. The 46 historical skipped files
+The active corpus contains **247 complete files / 485 strictness variants**,
+including 19 parse-negative files / 37 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
 14,850 built-ins, 1,062 annexB, 640 intl402 and 80 harness tests. These are file
@@ -300,3 +300,9 @@ context, preserving Test262Error constructor identity before installing the
 existing assertion adapters. It never executes that harness or tests natively.
 See [binding boundaries](../../docs/object-bindings.md) for remaining array/rest,
 parameter, getter-construction, function-name and primitive-boxing candidates.
+
+The RegExp literal increment adds one complete identity case and six complete
+parse-negative cases (14 variants). [RegExp boundaries](../../docs/regexp-literals.md)
+retain the descriptor, constructor, matching, loop and host-dependent parser
+gaps and unselected whole upstream candidates. Parser-only passes do not
+establish a regex matching implementation.

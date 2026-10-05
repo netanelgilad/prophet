@@ -14,16 +14,16 @@ pin sirv plus mrmime 2.0.1, totalist 3.0.1 and @polka/url 1.0.0-next.29.
 GET, HEAD and missing-file reference behavior from pinned Node. The current
 Prophet run resolves conditional exports and imports all four unchanged packages
 through the assembled CLI environment. The export is the actual interpreted
-factory, with no filesystem or HTTP operations during import. Calling its
-public factory with a directory reaches a typed unfinished boundary at the
-first regular-expression literal in its default ignores setup. That literal is
-the next demonstrated language blocker; import success is not server startup
-or request coverage. Runtime models preserve querystring identity and provide shared bounded directory
-enumeration, without pretending the factory has reached those later operations.
-
-The evaluator import is an intermediate milestone: raw Cherow RegExp objects
-in retained ASTs still block final sirv CLI graph serialization. The parser/literal
-follow-up must sanitize those before claiming end-to-end CLI import output.
+factory, with no filesystem or HTTP operations during import. The real CLI
+subprocess now serializes this import and its nested function definitions into
+the ordinary graph. [RegExp literal values](regexp-literals.md) allocate fresh
+VM state without native objects leaking from retained ASTs. Calling the public
+factory with a directory proceeds past its first literal and reaches the
+unimplemented Array.push call in default ignores setup. This legacy call failure
+retains a checkpoint rather than a completed branch tree; import success is not
+server startup or request coverage. Runtime models preserve querystring identity
+and provide shared bounded directory enumeration, without pretending the factory
+has reached those later operations.
 
 ## Incremental acceptance
 

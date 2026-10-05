@@ -13,6 +13,16 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // Complete literal identity and parser-negative files; no matching engine or
+  // descriptor-helper fragment is substituted for an upstream case.
+  "language/literals/regexp/S7.8.5_A4.2.js",
+  "language/literals/regexp/early-err-pattern.js",
+  "language/literals/regexp/early-err-dup-flag.js",
+  "language/literals/regexp/early-err-bad-flag.js",
+  "language/literals/regexp/early-err-flags-unicode-escape.js",
+  "language/literals/regexp/u-invalid-oob-decimal-escape.js",
+  "language/literals/regexp/u-invalid-identity-escape.js",
+
   // Complete object declaration bindings: names, defaults, nested objects and errors.
   "language/statements/variable/dstr/obj-ptrn-prop-id.js",
   "language/statements/variable/dstr/obj-ptrn-prop-id-init.js",

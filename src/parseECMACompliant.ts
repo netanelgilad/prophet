@@ -1,4 +1,5 @@
 import { parseScript, ESTree } from "cherow";
+import { UnsupportedAnalysisError } from "./execution-context/analysis-failure";
 
 export function parseECMACompliant(code: string): ESTree.Program {
   let program: ESTree.Program;
@@ -15,6 +16,12 @@ export function parseECMACompliant(code: string): ESTree.Program {
     // quoted strings. Its pinned diagnostic points at that exact code unit;
     // do not intercept other errors merely because they mention this character.
     const lexerError = error as SyntaxError & { description?: string; index?: number };
+    // Cherow predates these valid modern flags. This is a parser admission
+    // boundary, not proof that the entire source has valid RegExp syntax.
+    if (error instanceof SyntaxError &&
+        /^Unexpected regular expression flag '[dv]'$/.test(lexerError.description || "")) {
+      throw new UnsupportedAnalysisError("RegExp parser analysis is not yet supported: d/v flags");
+    }
     if (error instanceof SyntaxError && lexerError.description === "Unterminated string literal" &&
         typeof lexerError.index === "number" &&
         (code[lexerError.index] === "\u2028" || code[lexerError.index] === "\u2029")) {
@@ -22,9 +29,32 @@ export function parseECMACompliant(code: string): ESTree.Program {
     }
     throw error;
   }
+  sanitizeRegExpLiterals(program);
   correctStringLiteralValues(program);
   validateFunctionDeclarations(program);
   return program;
+}
+
+// Cherow uses host RegExp compilation for grammar validation and returns null
+// when flag-sensitive compilation fails. Validate that result before ANY guest
+// execution, including literals inside uncalled functions, then discard the
+// native object from all retained ASTs. .regex/raw/loc remain the source record.
+// This preserves Cherow's admission profile; it is not a new matching backend or
+// full modern RegExp grammar validation independent of the running host version.
+function sanitizeRegExpLiterals(node: any): void {
+  if (!node || typeof node !== "object") return;
+  if (node.type === "Literal" && node.regex) {
+    if (node.value === null) throw new SyntaxError("Invalid regular expression literal");
+    if (!(node.value instanceof RegExp)) throw new Error("Parser returned an invalid RegExp literal value");
+    node.value = null;
+    return;
+  }
+  Object.keys(node).forEach(key => {
+    if (key === "loc") return;
+    const child = node[key];
+    if (Array.isArray(child)) child.forEach(sanitizeRegExpLiterals);
+    else sanitizeRegExpLiterals(child);
+  });
 }
 
 // Cherow 1.5.4 can consume a raw astral character twice while cooking a quoted
