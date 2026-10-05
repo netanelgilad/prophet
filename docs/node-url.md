@@ -17,7 +17,8 @@ its persistent once-warning `.state`.
 Register `.module` as `url`; the CommonJS loader handles its `node:` alias. The
 optional argument shares a `createWarningModel()` environment. If the program
 also imports or uses process, supply that same process identity rather than a
-second warning environment.
+second warning environment. The [process environment factory](node-process.md)
+can add declared cwd state to this same identity before execution.
 
 `parse` accepts path-only concrete strings and symbolic choices with concrete
 string leaves. It preserves the pinned parser's leading/trailing whitespace
