@@ -61,7 +61,8 @@ test.each(["require('fs').readFileSync('unknown')", "process.env", "Math.sin(0)"
   "unsupported startup cannot become an application exception or fabricated absence: %s", operation => {
     const result = run(`console.log("before"); try { ${operation}; } catch (error) { console.log("caught"); } console.log("after");`);
     expect(result.status).toBe("analysis-stop");
-    expect(result.completion).toBeUndefined();
+    if (operation.startsWith("require")) expect(result.completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
+    else expect(result.completion).toBeUndefined();
     expect(result.diagnostic).toBeTruthy();
     const writes = effectPaths(result.current.value.effects)[0].events.filter(event =>
       event.kind === "return" && event.call.operation === "console.stdout.write");

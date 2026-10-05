@@ -22,8 +22,10 @@ by that callback joins the tail. Normal completion continues draining. A languag
 throw stops that branch and leaves its later jobs pending; other feasible
 branches can continue. The queue's active field clears after either normal or
 throwing language completion. Unsupported analysis inside a callback retains the
-active job and its available checkpoint. This is still one partial checkpoint,
-not a serialization of every explored or unvisited branch.
+active job and its exact branch checkpoint. Classified stops become
+[execution boundaries](execution-boundaries.md), so supported siblings continue
+draining. Untagged legacy failures still retain only one checkpoint. Neither
+representation supplies resumable callback continuations.
 Reentrant draining and attempting to resume a retained active job reject; a
 callback cannot bypass its own unfinished invocation to run the queue's tail.
 

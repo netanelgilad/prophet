@@ -1,5 +1,6 @@
 import { isObject, keys } from "lodash";
 import { TESString } from "./string/String";
+import { ExecutionBoundary, ForkedCompletion } from "./execution-context/Completion";
 import { TExecutionContext } from "./execution-context/ExecutionContext";
 import { unsafeCast } from "@deaven/unsafe-cast.macro";
 import { Expression, Knowledge } from "./symbolic/model";
@@ -210,6 +211,6 @@ export function isESBoolean(arg: Any): arg is TESBoolean {
 // Individual operations narrow this opaque boundary using their type guards.
 export type Any = object;
 
-export type ExpressionEvaluationResult = TThrownValue | Any;
-export type ControlFlowResult = TThrownValue | TReturnValue;
+export type ExpressionEvaluationResult = TThrownValue | ExecutionBoundary | ForkedCompletion | Any;
+export type ControlFlowResult = TThrownValue | TReturnValue | ExecutionBoundary | ForkedCompletion;
 export type EvaluationResult = Any | ControlFlowResult;

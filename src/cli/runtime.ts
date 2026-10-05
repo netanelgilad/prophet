@@ -3,6 +3,7 @@
 import "../index";
 import { realpathSync } from "fs";
 import { isAbsolute, resolve } from "path";
+import { executionBoundaries } from "../execution-context/Completion";
 import { analysisFailureContext } from "../execution-context/analysis-failure";
 import { ESInitialGlobal } from "../execution-context/ESInitialGlobal";
 import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
@@ -103,7 +104,9 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
       bindNormal(nextTick.drain(afterEntry, options.maxSteps), (_value, afterJobs) =>
         bindNormal(externalEvents.explore(afterJobs, maxEvents), (_event, afterEvents) =>
           bindNormal(nextTick.drain(afterEvents, options.maxSteps), (_job, current) => [exports, current]))));
-    return { input, initial, current, completion, status: "evaluated" };
+    const stopped = executionBoundaries(completion);
+    return { input, initial, current, completion, status: stopped.length ? "analysis-stop" : "evaluated",
+      diagnostic: stopped.length ? Array.from(new Set(stopped.map(boundary => boundary.message))).join("; ") : undefined };
   } catch (error) {
     return { input, initial, current: analysisFailureContext(error) || initial,
       status: "analysis-stop", diagnostic: error.message || String(error) };
