@@ -135,7 +135,10 @@ observation presence; subsequent operations acquire the same cached fact on path
 where it was previously unobserved. Relative/absolute and dot-component spellings
 reach the same entries without erasing prefix ENOENT/ENOTDIR failures. A cached
 negative remains negative after an external file is created. A sibling not yet
-observed can be discovered later. This is a stable observational domain assembled
+observed can be discovered later while the directory names remain unobserved.
+After enumeration, later component probes must agree with the complete list;
+unlisted spellings are still probed to exclude case/normalization aliases, and
+aliases or contradictory positives stop instead of becoming false absence. This is a stable observational domain assembled
 on demand, **not an atomic point-in-time snapshot** or a claim about future host
 changes. Native acquisition caches and hooks are not resumable serialized state.
 
