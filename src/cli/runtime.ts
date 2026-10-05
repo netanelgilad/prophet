@@ -9,6 +9,7 @@ import { ESInitialGlobal } from "../execution-context/ESInitialGlobal";
 import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
 import { ESBuiltinFunction } from "../Function/Function";
 import { bindNormal } from "../evaluate";
+import { createExternalEvents } from "../external-events";
 import { createJobQueue } from "../jobs";
 import { Math as ESMath } from "../math/Math";
 import { createConsoleModel } from "../node/console";
@@ -26,6 +27,7 @@ export type RuntimeOptions = {
   script: string;
   args: string[];
   maxSteps: number;
+  maxEvents?: number;
   runtime: "node@24.21.0";
 };
 
@@ -48,6 +50,8 @@ export type FileExecution = {
 
 /** Capture reached imports and execute them entirely inside Prophet's shared VM. */
 export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
+  const maxEvents = options.maxEvents === undefined ? 0 : options.maxEvents;
+  if (maxEvents !== 0 && maxEvents !== 1) throw new Error("Incoming event bounds other than 0 or 1 are not yet supported");
   const filename = realpathSync(resolve(cwd, options.script));
   const captured = captureModuleSources();
   if (captured.source.readFile(filename) === undefined) {
@@ -59,7 +63,8 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const filesystem = captureFileSystem({ cwd });
   const consoleModel = createConsoleModel();
   const nextTick = createJobQueue();
-  const http = createHTTPModel(undefined, { bind: symbolicTCPBind, nextTick });
+  const externalEvents = createExternalEvents();
+  const http = createHTTPModel(undefined, { bind: symbolicTCPBind, nextTick, externalEvents });
   const math = Object.assign(ESObject({
     random: Object.assign(ESBuiltinFunction(ESMath.properties.random.implementation), {
       unknownProperties: "Math.random function API", modeledInheritedProperties: ["call"]
@@ -69,7 +74,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
     ...ESInitialGlobal.properties, Math: math, console: consoleModel.module
   }, "unmodeled"), { unknownProperties: "Node globals not captured by the automatic starting environment" });
   Object.assign(global.properties, { global, globalThis: global });
-  Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state, "node.fs": filesystem.state }) });
+  Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state, "node.fs": filesystem.state, externalEvents: externalEvents.state }) });
   const initial = ExecutionContext({ global, thisValue: global,
     evaluationBudget: { remaining: options.maxSteps } });
   try {
@@ -98,7 +103,9 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
     // separate so the retained initial state still records the initial budget.
     const started = ExecutionContext({ ...initial.value, evaluationBudget: { remaining: options.maxSteps } });
     const [completion, current] = bindNormal(loader.load(filename, started), (exports, afterEntry) =>
-      bindNormal(nextTick.drain(afterEntry, options.maxSteps), (_value, afterJobs) => [exports, afterJobs]));
+      bindNormal(nextTick.drain(afterEntry, options.maxSteps), (_value, afterJobs) =>
+        bindNormal(externalEvents.explore(afterJobs, maxEvents), (_event, afterEvents) =>
+          bindNormal(nextTick.drain(afterEvents, options.maxSteps), (_job, current) => [exports, current]))));
     const stopped = executionBoundaries(completion);
     return { input, initial, current, completion, status: stopped.length ? "analysis-stop" : "evaluated",
       diagnostic: stopped.length ? Array.from(new Set(stopped.map(boundary => boundary.message))).join("; ") : undefined };

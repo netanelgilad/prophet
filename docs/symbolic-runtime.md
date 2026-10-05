@@ -163,7 +163,8 @@ listening/error callbacks with current state. A throwing branch retains later
 jobs without executing them; an analysis stop can retain active work. A drained
 queue does not imply the whole process finished or that future request handlers
 were explored. The [queue boundary](jobs.md) remains distinct from a general
-scheduler, process recovery and automatic future-event exploration.
+scheduler or process recovery. Optional [first-event exploration](external-events.md)
+follows this checkpoint with `--max-events 1`; zero remains the default.
 A symbolic event path is a permitted timeline plus its conditions, and can stand
 for many concrete executions. Preserve shared prefixes and conditional states;
 the first startup-queue component does not enumerate all possible timelines or
@@ -223,7 +224,8 @@ One CLI invocation should eventually discover and analyze such reachable event
 behavior automatically. This does not promise exhaustive enumeration of arbitrary
 programs or indefinitely many events. Reusable summaries/invariants may cover
 unbounded cases; explored domains, unsupported transitions and unfinished work
-must remain visible. Today HTTP delivery is embedding-driven, and the existing
+must remain visible. HTTP delivery can now be embedding-driven or one automatically supplied parsed
+event through `--max-events 1`; broader event sequences remain unsupported. The existing
 recursive summaries cover a restricted pure subset, not eventful callbacks.
 
 ## Consumer tools own interpretation
@@ -271,7 +273,8 @@ explicit; a partial bind boundary alone is not successful-startup evidence.
 The CLI uses the shared loader/VM and a generic persistent queue. Its filesystem
 module uses read-only observations with open unobserved entries and symbolic
 descriptor availability. Opaque HTTPS/URL/path imports provide identity only;
-broader host assembly and future request domains remain work. Preserve existing symbolic input
+optional parsed-event exploration is available while broader host assembly,
+wire-valid domains and longer sequences remain work. Preserve existing symbolic input
 correlations, completion/effect paths and native reference comparisons when
 connecting them. Caller-supplied environment files and full resumption remain
 subsequent increments.
