@@ -57,7 +57,7 @@ test("fresh symbolic randomness retains exclusive output alternatives and shared
   expect(paths.every(path => path.knowledge.length > 0)).toBe(true);
 });
 
-test.each(["require('fs').readFileSync('unknown')", "process.env", "Math.sin(0)", "typeof fetch"])(
+test.each(["process.env", "Math.sin(0)", "typeof fetch"])(
   "unsupported startup cannot become an application exception or fabricated absence: %s", operation => {
     const result = run(`console.log("before"); try { ${operation}; } catch (error) { console.log("caught"); } console.log("after");`);
     expect(result.status).toBe("analysis-stop");

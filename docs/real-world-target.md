@@ -55,13 +55,14 @@ that message. The [startup queue](jobs.md) supplies notification ordering and
 uses current listeners/captured state without opening sockets. No request is
 invented; the real handler is retained but its future paths are not explored.
 
-The CLI acquires the package through the shared CommonJS loader. HTTPS, fs, URL
-and path imports are opaque object identities during this run; their APIs remain
-guarded because startup does not use them. This neither invents a filesystem nor
-connects the separately tested request-analysis models. The [roadmap acceptance
+The CLI acquires the package through the shared CommonJS loader. HTTPS, URL
+and path imports remain opaque object identities. The fs module uses actual
+read-only environment observations and symbolic descriptor availability, with
+uncaptured entries retained as open state. This does not yet connect the
+separately tested request-analysis models. The [roadmap acceptance
 criteria](roadmap.md#next-milestone-pico-startup-through-the-cli-with-no-environment-file)
 still retain full capture/provenance, environment input and resumption work.
-The next extension should connect real environment state and bounded future
+The next extension should compose this environment with bounded future
 request exploration through this CLI path, preserving the existing manual
 request proofs as regressions rather than claiming they already run by default.
 
@@ -427,7 +428,8 @@ The [filesystem acquisition adapter](node-filesystem.md#read-only-environment-ac
 now supplies a generic open observational environment for ordinary static-file
 reads: observed files/directories and verified missing names are correlated,
 while unvisited names remain unobserved. Independent temporary-fixture specs
-cover readable content, directory reads and missing default files. This adapter
-alone does not execute a pico request or close the CLI integration milestone;
+cover readable content, directory reads and missing default files. CLI specs
+now cover module registration, observed/resource outcomes and graph state. This
+does not yet execute a pico request or close the broader runtime milestone;
 binary/symlink/nonregular files, acquisition races, broader failures and future
 request domains remain explicit gaps.

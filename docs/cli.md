@@ -47,10 +47,20 @@ I/O, parser and serializer limits are not supplied by the AST evaluation budget.
 
 The VM receives a partial standard global object and one shared global/imported
 console model. `console`, `http` and the HTTP model's shared `events` builtin are
-registered, including their `node:` aliases. HTTPS, filesystem, URL and path have
-opaque object exports: imports and alias identity work, but reached property
-reads/writes, inspection or coercion stop. These do not establish APIs, filesystem
-contents or warning state. Other builtins stop on import. General process state
+registered, including their `node:` aliases. The `fs` builtin uses a read-only
+[filesystem environment adapter](node-filesystem.md#read-only-environment-acquisition):
+its persistent state retains canonical cwd/platform, open directories, reached
+file/missing observations and lazy contents. Supported exists/stat/read calls use
+those facts. Descriptor availability remains symbolic; a successful analyst read
+does not prove target descriptor availability. Uncaptured paths remain unobserved.
+Acquisition has bounded entries/bytes and stops on symlinks, nonregular entries,
+unsupported binary contents or unexpected host failures. It is non-atomic and
+independent of source acquisition; this is not a single time-zero disk snapshot.
+The graph links this state through the global object's `node.fs` host slot.
+
+HTTPS, URL and path retain opaque object exports: imports and alias identity
+work, but reached property reads/writes, inspection or coercion stop. They do not
+establish implemented APIs or warning state. Other builtins stop on import. General process state
 is future work. Launch args/cwd
 are retained internally as provenance; that alone does not implement `process.argv`/`cwd`.
 Unknown global names and missing Math members stop conservatively. Wider partial

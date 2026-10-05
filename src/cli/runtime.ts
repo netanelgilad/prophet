@@ -19,6 +19,7 @@ import { createCommonJSLoaderFromResolver } from "../require/loader";
 import { createModuleResolverFromSource } from "../require/resolution";
 import { Any } from "../types";
 import { CapturedSource, captureModuleSources } from "./source-capture";
+import { captureFileSystem } from "./filesystem-capture";
 
 export type RuntimeOptions = {
   script: string;
@@ -54,6 +55,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const source = captured.files.get(filename)!;
   const input = { runtime: options.runtime, filename, args: options.args.slice(),
     cwd: resolve(cwd), source, sources: captured.files, paths: captured.paths };
+  const filesystem = captureFileSystem({ cwd });
   const consoleModel = createConsoleModel();
   const nextTick = createJobQueue();
   const http = createHTTPModel(undefined, { bind: symbolicTCPBind, nextTick });
@@ -66,7 +68,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
     ...ESInitialGlobal.properties, Math: math, console: consoleModel.module
   }, "unmodeled"), { unknownProperties: "Node globals not captured by the automatic starting environment" });
   Object.assign(global.properties, { global, globalThis: global });
-  Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state }) });
+  Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state, "node.fs": filesystem.state }) });
   const initial = ExecutionContext({ global, thisValue: global,
     evaluationBudget: { remaining: options.maxSteps } });
   try {
@@ -86,9 +88,9 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
       }
     }, { main: filename, builtins: {
       console: consoleModel.module, http: http.module, events: http.eventsModule,
-      // These known object exports can be retained without inventing their
-      // environment. Reached operations still stop at the shared guards.
-      https: createOpaqueBuiltinModule("https"), fs: createOpaqueBuiltinModule("fs"),
+      // Filesystem operations use separately acquired environment facts. The
+      // remaining opaque object exports still stop when their APIs are reached.
+      https: createOpaqueBuiltinModule("https"), fs: filesystem.module,
       url: createOpaqueBuiltinModule("url"), path: createOpaqueBuiltinModule("path")
     } });
     // The evaluator consumes its budget in place. Keep that runner bookkeeping
