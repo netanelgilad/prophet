@@ -44,10 +44,13 @@ Build the CLI from generic conditional state/effect graphs. The [first slice](do
 passes branching-console/import subprocess specs, captures reached CommonJS
 dependencies through the shared loader and emits a nonresumable projection.
 HTTP and its shared EventEmitter retain symbolic bind outcomes; a persistent FIFO
-drains supported startup notifications after normal entry completion. Four unused
-builtins have guarded object identities, not implemented APIs. Next extend actual
-environment capture and bounded future-request exploration; the CLI still has no
-filesystem state or request input domain. Retained handlers are not analyzed requests.
+drains supported startup notifications after normal entry completion.
+The `fs` builtin now uses read-only, non-atomic environment acquisition with
+open/unobserved entries and symbolic descriptor availability. HTTPS/URL/path
+retain guarded object identities. Next compose bounded incoming requests and
+unfinished branches with filesystem state, then connect URL/path and shared
+warning scheduling; opaque imports do not establish those APIs.
+Retained handlers are not analyzed requests.
 Node public built-ins remain the modeling boundary.
 CLI stdout contains the graph (`roots`/`nodes`) directly. Do not wrap it in a
 report with hand-written model-domain or limitation prose, or relocate that

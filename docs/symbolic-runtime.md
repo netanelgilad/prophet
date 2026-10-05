@@ -263,9 +263,10 @@ This is an execution snapshot, not evidence that a long-running server terminate
 or that every future request was explored. Keep unknown bind/host outcomes
 explicit; a partial bind boundary alone is not successful-startup evidence.
 
-The CLI uses the shared loader/VM and a generic persistent queue. Its opaque
-unused imports provide identity only; filesystem capture, broader host assembly
-and future request domains remain work. Preserve existing symbolic input
+The CLI uses the shared loader/VM and a generic persistent queue. Its filesystem
+module uses read-only observations with open unobserved entries and symbolic
+descriptor availability. Opaque HTTPS/URL/path imports provide identity only;
+broader host assembly and future request domains remain work. Preserve existing symbolic input
 correlations, completion/effect paths and native reference comparisons when
 connecting them. Caller-supplied environment files and full resumption remain
 subsequent increments.
@@ -290,4 +291,5 @@ and file contents explicitly, and records reached facts in persistent VM state.
 Its first observations are stable across branches, but their acquisition is
 on demand and non-atomic. See [the precise capture boundary](node-filesystem.md#read-only-environment-acquisition).
 The adapter's native observation cache is not a resumable environment, and its
-existence alone does not establish CLI filesystem/request integration.
+native closure cache is not serialized. CLI registration and graph state are
+covered by specs; executing pico requests remains separate integration work.

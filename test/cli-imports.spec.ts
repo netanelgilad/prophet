@@ -252,7 +252,7 @@ test("acquired dependency code is never executed by native require", () => {
     "dependency.cjs": `require("fs").writeFileSync(${JSON.stringify(marker)}, "changed");`
   });
   expect(result.status).toBe("analysis-stop");
-  expect(result.diagnostic).toMatch(/fs/);
+  expect(result.diagnostic).toMatch(/writeFileSync/);
   expect(readFileSync(marker, "utf8")).toBe("unchanged");
 });
 

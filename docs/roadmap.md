@@ -88,8 +88,10 @@ keep read-only non-atomic acquisition distinct from target filesystem execution.
 Unresolved bare packages, dependency symlinks/aliases, nonregular/invalid-UTF8
 sources and acquisition errors remain explicit boundaries. The unchanged pico
 example now enters its original `index.js` and completes its bounded startup.
-HTTPS/fs/URL/path imports retain guarded object identities; none of those APIs
-is used during HTTP startup, and no filesystem or warning state is fabricated.
+HTTPS/URL/path imports retain guarded object identities; those APIs are not used
+during HTTP startup. The CLI's `fs` module now uses actual separately acquired
+filesystem observations, preserving open/unobserved entries and symbolic resource
+availability. No warning state is fabricated.
 
 Supported HTTP setup now retains each bind attempt in the persistent heap.
 The CLI uses symbolic success/failure without probing a real port; hostless
@@ -113,18 +115,18 @@ graph inspection. This establishes the startup behavior in criterion 4, not
 closure of all capture, provenance and serialization requirements above.
 
 The [read-only filesystem adapter](node-filesystem.md#read-only-environment-acquisition)
-now supplies bounded demand-driven observations in an open namespace, with
-canonical cwd/platform, effective access and symbolic descriptor availability.
-It has independent Node fixture evidence and persistent observation specs;
-CLI registration, source provenance and automatic request integration remain.
+now supplies the CLI's `fs` builtin and graph-linked state. [CLI specs](../test/cli-filesystem.spec.ts)
+prove observed text reads versus descriptor exhaustion and observed missing-index
+errors, preserve unobserved contents/children, and exercise actual subprocess JSON
+output. Source capture and target filesystem capture remain separate non-atomic
+observations. No target write runs natively and binary read/symlink/other capture
+boundaries remain explicit.
 
-**Next:** extend actual environment state and bounded future-request exploration
-through the same CLI path. Choose the smallest required filesystem capture and
-host-model integration step, preserving the manual request proofs as regressions.
-Opaque filesystem imports are not filesystem state; retained handlers are not
-executed requests. Preserve success/error alternatives, pending work and explicit
-transport/stdout boundaries. Keep new test drivers inside specs; the unchanged
-upstream example is already a fixture.
+**Next:** compose this environment with bounded future-request exploration and
+preserved unfinished branches, then connect the existing URL/path host models
+with correct shared warning scheduling. Opaque URL/path imports and retained
+request handlers do not prove GET/HEAD request evaluation. Preserve success/error
+alternatives, pending work and explicit transport/stdout boundaries.
 
 Explicit environment authoring, arbitrary request exploration and full snapshot
 resumption follow this milestone. Preserve the representation needed for them,

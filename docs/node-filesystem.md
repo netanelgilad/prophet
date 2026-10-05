@@ -103,11 +103,15 @@ reference specs create their own isolated fixtures.
 
 ## Read-only environment acquisition
 
+The CLI now constructs this adapter automatically, registers its module as
+`fs`/`node:fs`, and links its persistent state through `global.hostSlots["node.fs"]`.
+[CLI specs](../test/cli-filesystem.spec.ts) preserve text/missing/resource outcomes
+and verify subprocess graph output. Source acquisition stays separate.
+
 [`captureFileSystem({ cwd, ... })`](../src/cli/filesystem-capture.ts) is a trusted
 host adapter, separate from the VM filesystem model and CommonJS source capture.
-It returns the model's module, state and inspectors for runtime assembly. This
-increment provides the adapter; CLI registration and automatic future HTTP
-requests are separate integration steps.
+It returns the model's module, state and inspectors for runtime assembly.
+Automatic future HTTP requests and URL/path integration remain separate work.
 
 The adapter records the canonical identity of the already-held cwd and the
 actual Linux/Darwin platform, then acquires only the cwd ancestor chain and
