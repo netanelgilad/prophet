@@ -1,3 +1,4 @@
+import { unsupportedPropertyError } from "../execution-context/analysis-failure";
 import { ESObject, TESObject } from "../Object";
 import { ESBuiltinFunction } from "../Function/Function";
 import { Any, ESNull, Undefined, Type, ThrownValue, WithProperties, TESBoolean, isESNull, isUndefined } from "../types";
@@ -23,7 +24,7 @@ function withModeledStringTag(
     // Symbol.toStringTag is inherited. A partial host model anywhere in the
     // prototype chain cannot establish that the property is absent.
     const unknown = (object as WithProperties).unknownProperties;
-    if (unknown) throw new Error(`Unmodeled host Symbol.toStringTag read: ${unknown}`);
+    if (unknown) throw unsupportedPropertyError(object, `Unmodeled host Symbol.toStringTag read: ${unknown}`);
     if (seen.includes(object)) throw new Error("Cyclic prototype graphs are not yet supported");
     const prototype = prototypeOf(object);
     return isESNull(prototype) ? continuation(branch) :
@@ -61,13 +62,13 @@ export function getObjectPrototype(): TESObject {
         if (!isObjectValue(self)) throw new Error("Primitive receiver boxing is not yet supported for hasOwnProperty");
         if (typeof (name as TESString).value !== "string") throw new Error("Property keys require a concrete string");
         const ownership = (self as WithProperties).unmodeledOwnPropertyInspection;
-        if (ownership) throw new Error(`Unmodeled host own-property inspection: ${ownership}`);
+        if (ownership) throw unsupportedPropertyError(self, `Unmodeled host own-property inspection: ${ownership}`);
         const unsupported = (self as WithProperties).unmodeledPropertyReads;
-        if (unsupported && unsupported.includes((name as TESString).value as string)) throw new Error(`Unmodeled property presence '${(name as TESString).value}'`);
+        if (unsupported && unsupported.includes((name as TESString).value as string)) throw unsupportedPropertyError(self, `Unmodeled property presence '${(name as TESString).value}'`);
         const own = ownPropertyPresence(self as WithProperties, (name as TESString).value as string, branch);
         if (own.value !== true && (self as WithProperties).unknownProperties &&
             !((self as WithProperties).modeledInheritedProperties || []).includes((name as TESString).value as string)) {
-          throw new Error("Unmodeled host property presence");
+          throw unsupportedPropertyError(self, "Unmodeled host property presence");
         }
         return [own, branch];
       }));
@@ -90,9 +91,9 @@ export function withInternalPrototype(
 ): BranchResult {
   return withValue(value, context, (object, branch) => {
     const model = object as WithProperties;
-    if (model.unmodeledPrototype) throw new Error(`Unmodeled internal prototype: ${model.unmodeledPrototype}`);
+    if (model.unmodeledPrototype) throw unsupportedPropertyError(object, `Unmodeled internal prototype: ${model.unmodeledPrototype}`);
     if (model.unknownProperties && !model.modeledPrototype) {
-      throw new Error(`Unmodeled host prototype: ${model.unknownProperties}`);
+      throw unsupportedPropertyError(object, `Unmodeled host prototype: ${model.unknownProperties}`);
     }
     if ((object as Type<string>).type === "array" && !model.modeledPrototype) {
       throw new Error("Array prototype relationships are not yet supported");
@@ -135,13 +136,13 @@ export function hasProperty(value: Any, name: string, context: TExecutionContext
   }
   const object = value as WithProperties;
   if (object.unmodeledPropertyReads && object.unmodeledPropertyReads.includes(name)) {
-    throw new Error(`Unmodeled property presence '${name}'`);
+    throw unsupportedPropertyError(object, `Unmodeled property presence '${name}'`);
   }
   const own = ownPropertyPresence(object, name, context);
   const known = resolveBoolean(own, context.value.knowledge);
   if (known === true) return ESBoolean(true);
   if (object.unknownProperties && !(object.modeledInheritedProperties || []).includes(name)) {
-    throw new Error(`Unmodeled host property presence '${name}'`);
+    throw unsupportedPropertyError(object, `Unmodeled host property presence '${name}'`);
   }
   const prototype = prototypeOf(value);
   const inherited = isESNull(prototype) ? ESBoolean(false) :

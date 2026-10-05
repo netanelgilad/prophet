@@ -1,3 +1,4 @@
+import { markUnsupportedBoundaryObject, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { invoke, readMember } from "../ASTResolvers";
 import { coerceToBoolean, ESBoolean } from "../boolean/ESBoolean";
 import { withValue } from "../conversion/toString";
@@ -21,7 +22,7 @@ const deprecation = '`url.parse()` behavior is not standardized and prone to ' +
   'instead. CVEs are not issued for `url.parse()` vulnerabilities.';
 
 function unsupported(detail: string): never {
-  throw new Error(`Legacy URL analysis is not yet supported: ${detail}`);
+  throw new UnsupportedAnalysisError(`Legacy URL analysis is not yet supported: ${detail}`);
 }
 
 const fieldNames = ["protocol", "slashes", "auth", "host", "port", "hostname",
@@ -84,6 +85,7 @@ export function createLegacyURLModel(warnings = createWarningModel()) {
     unknownProperties: "Node Url prototype API",
     unmodeledOwnPropertyInspection: "Node Url prototype descriptors"
   });
+  markUnsupportedBoundaryObject(prototype);
   const parseInput = (args: ReadonlyArray<Any>, context: TExecutionContext): BranchResult =>
     withValue(args[0] || Undefined, context, (value, branch) => {
       // Pinned url.parse returns an existing Url before consulting either flag.
@@ -136,10 +138,12 @@ export function createLegacyURLModel(warnings = createWarningModel()) {
     unmodeledPropertyReads: ["caller", "arguments"],
     unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
   });
+  markUnsupportedBoundaryObject(parse);
   Object.assign(parse.properties, { name: ESString("urlParse"), length: ESNumber(3) });
   const module = Object.assign(ESObject({ parse }), {
     unknownProperties: "Node URL module API", unmodeledOwnPropertyInspection: "Node URL module descriptors",
     hostSlots: Object.freeze({ "node.url.deprecation": state })
   });
+  markUnsupportedBoundaryObject(module);
   return { module, state, process: warnings.process, warnings };
 }

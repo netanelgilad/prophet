@@ -30,11 +30,14 @@ joined-context behavior. The same rule applies to nested trees and startup jobs.
 
 Classification is explicit through `UnsupportedAnalysisError` and
 `ExecutionBudgetError`; there is no message matching or blanket conversion of
-native errors. The initial classified domain includes missing AST resolvers,
-AST/job budget exhaustion and guarded member reads/writes/coercions of the four
-opaque CLI builtin objects. Other guards, including opaque reflection/enumeration,
-invalid queue controls, unsupported joins and legacy language/host rejections,
-still throw analysis errors with one retained checkpoint. Unexpected native
+native errors. The classified domain includes missing AST resolvers, AST/job
+budget exhaustion, explicit URL/path/warning model guards, and partial-object
+metadata guards on individually marked host values (including opaque builtin
+objects). Member reads/writes, own inspection/enumeration, symbol/prototype
+inspection and explicitly guarded construction stop only the reached leaf.
+Unmarked partial values keep their legacy failure behavior. Invalid model/queue
+controls, unsupported joins and other legacy language/host rejections still throw
+analysis errors with one retained checkpoint. Unexpected native
 Error, TypeError and assertion/invariant failures also escape. Their failure is
 not a completed symbolic result and may discard siblings. Native models must retain
 their latest persistent context with `withAnalysisFailureContext` before throwing
@@ -63,3 +66,14 @@ short-circuiting, retained effects/scopes/source, active jobs and budgets.
 [Test262 harness specs](../test/test262/runner.spec.ts) ensure an unfinished test
 cannot pass or satisfy a language throw assertion. This engine boundary changes
 no ECMAScript semantics and adds no new Test262 selections or Node API claims.
+
+[Node boundary specs](../test/node-host-boundaries.spec.ts) retain normal and
+stopped siblings for open URL/path strings, warning overloads/presentation, and
+partial API metadata. A stopped URL call retains its consumed once flag and
+already-enqueued warning; a stopped warning presentation retains the dequeued
+warning as the active shared job, its current fields and the pending tail. No
+unsupported input becomes a guest TypeError or a fabricated successful result.
+A guard reached after completed branch state has joined may conservatively stop
+the joined state (for example unknown String intrinsic mutation); this increment
+does not add refinement for every such guard or recover alternatives it never
+explored. Source/stack and parser domains remain unchanged.

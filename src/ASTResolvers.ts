@@ -153,7 +153,7 @@ export function readMember(object: Any, name: string, context: TExecutionContext
   assert(properties, "Cannot read a property of null or undefined");
   if ((object as WithProperties).unmodeledPropertyReads &&
       (object as WithProperties).unmodeledPropertyReads!.includes(name)) {
-    throw new Error(`Unmodeled property read '${name}'`);
+    throw unsupportedPropertyError(object, `Unmodeled property read '${name}'`);
   }
   const access = (object as WithProperties).propertyAccess;
   const exotic = access && access.read(name, context);
@@ -293,7 +293,7 @@ function assignMember(object: Any, name: string, assigned: Any, context: TExecut
     branch => assignMember(choice.alternate, name, assigned, branch));
   const unmodeledWrites = (object as WithProperties).unmodeledPropertyWrites;
   if (unmodeledWrites && unmodeledWrites.includes(name)) {
-    throw new Error(`Unmodeled host property write '${name}'`);
+    throw unsupportedPropertyError(object, `Unmodeled host property write '${name}'`);
   }
   const access = (object as WithProperties).propertyAccess;
   const exotic = access && access.write(name, assigned, context);

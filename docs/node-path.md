@@ -149,6 +149,19 @@ Broader filesystem inputs, metadata, failures and schedules remain open.
 Existing successful-bind, healthy-stdout, delivered-request-event and transport
 assumptions remain unchanged, as does the scoped symbolic missing-Allow finding.
 
+## Unfinished model operations
+
+Open-string and other explicit path model guards produce
+[execution boundary leaves](execution-boundaries.md). The partial module and
+operation functions also opt into shared member, own-key/descriptor,
+symbol/prototype and metadata guards. Supported siblings continue with their
+own heap and effects; stopped calls have an attempted host-call effect and no
+return effect. These records provide no resumed execution or path result.
+Shared argument-diagnostic guards and unmarked Error metadata remain legacy
+engine failures. This changes incomplete-analysis representation, not the
+supported path API/input domain; the complete upstream candidates below remain
+unactivated with their existing blockers.
+
 ## Complete upstream cases reviewed
 
 The following complete cases were reviewed at the pinned revision. None is

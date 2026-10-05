@@ -1,3 +1,4 @@
+import { unsupportedPropertyError } from "../execution-context/analysis-failure";
 import { Any, isESNull, Undefined, WithProperties } from "../types";
 import { withValue } from "../conversion/toString";
 import { BranchResult } from "../execution-context/branches";
@@ -17,7 +18,7 @@ export function readWellKnownSymbol(
     const slots = (object as WithProperties).wellKnownSymbols;
     if (slots && slots.has(key)) return [slots.get(key)!, branch];
     const partial = (object as WithProperties).unknownProperties;
-    if (partial) throw new Error(`Unmodeled host ${key.name} read: ${partial}`);
+    if (partial) throw unsupportedPropertyError(object, `Unmodeled host ${key.name} read: ${partial}`);
     return withInternalPrototype(object, branch, (prototype, after) => isESNull(prototype)
       ? [Undefined, after] : readWellKnownSymbol(prototype, key, after, seen.concat([object])));
   });

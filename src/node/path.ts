@@ -1,3 +1,4 @@
+import { markUnsupportedBoundaryObject, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { invoke, readMember } from "../ASTResolvers";
 import { isESFunction } from "../Function/Function";
 import { withValue } from "../conversion/toString";
@@ -12,7 +13,7 @@ import { Any, ESNumber, isESString, ThrownValue, Undefined } from "../types";
 import { withStringArgument } from "./arguments";
 
 function unsupported(detail: string): never {
-  throw new Error(`POSIX path analysis is not yet supported: ${detail}`);
+  throw new UnsupportedAnalysisError(`POSIX path analysis is not yet supported: ${detail}`);
 }
 
 // Lexical POSIX normalization, independent of the machine running Prophet.
@@ -74,6 +75,7 @@ function operation(name: string, length: number, model: HostModel) {
     unmodeledPropertyReads: ["caller", "arguments"],
     unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
   });
+  markUnsupportedBoundaryObject(method);
   Object.assign(method.properties, { name: ESString(name), length: ESNumber(length) });
   return method;
 }
@@ -90,6 +92,7 @@ export function createPosixPathModel() {
     unknownProperties: "Node POSIX path API",
     unmodeledOwnPropertyInspection: "Node POSIX path descriptors"
   });
+  markUnsupportedBoundaryObject(module);
   module.properties.posix = module;
   module.properties.normalize = operation("normalize", 1, (call, context) =>
     withPath(call.args[0] || Undefined, context, (path, branch) => [ESString(normalizePath(path)), branch]));

@@ -244,19 +244,15 @@ test("an open symbolic number still throws the known argument error while its me
 });
 
 for (const body of [
-  'path.normalize({});', 'path.join("valid", []);', 'path.normalize(function() {});',
   'path.resolve("a");', 'path.win32;',
   'path.normalize.name = "changed";', 'path.join.length = 1;',
   'path.normalize.caller;', 'path.join.arguments;',
   'Object.prototype.hasOwnProperty.call(path.normalize, "prototype");',
-  'try { path.normalize(null); } catch (error) { error.toString(); }',
-  'try { path.normalize(null); } catch (error) { error.stack; }',
-  'try { path.normalize(null); } catch (error) { error.constructor; }'
 ]) {
   test(`unmodeled path APIs and diagnostic/descriptor cases remain explicit gaps: ${body}`, () => {
     // Fail outside the expected error assertion if the model itself is absent.
     expect(typeof createPosixPathModel).toBe("function");
-    expect(() => load(body)).toThrow(/[Pp]ath|Unmodeled (?:host )?property/);
+    expect(load(body).value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
   });
 }
 
@@ -265,6 +261,15 @@ for (const [body, input] of [
 ] as Array<[string, Any]>) {
   test(`open symbolic string remains an explicit analysis gap: ${body}`, () => {
     expect(typeof createPosixPathModel).toBe("function");
-    expect(() => load(body, { input })).toThrow(/[Pp]ath|symbolic number/);
+    expect(load(body, { input }).value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported", message: expect.stringContaining("open symbolic path") });
   });
 }
+
+for (const body of [
+  'path.normalize({});', 'path.join("valid", []);', 'path.normalize(function() {});',
+  'try { path.normalize(null); } catch (error) { error.toString(); }',
+  'try { path.normalize(null); } catch (error) { error.stack; }',
+  'try { path.normalize(null); } catch (error) { error.constructor; }'
+]) test(`legacy path diagnostic guard remains an engine failure: ${body}`, () => {
+  expect(() => load(body)).toThrow(/[Pp]ath|Unmodeled (?:host )?property/);
+});

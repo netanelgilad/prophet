@@ -5,7 +5,7 @@ import { isObjectValue, toString, withValue } from "../conversion/toString";
 import { createHostFunction, effectPaths } from "../effects";
 import { createError, getErrorConstructor } from "../error/Error";
 import { bindNormal } from "../evaluate";
-import { withAnalysisFailureContext } from "../execution-context/analysis-failure";
+import { markUnsupportedBoundaryObject, UnsupportedAnalysisError, withAnalysisFailureContext } from "../execution-context/analysis-failure";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getArrayElements, getProperties, writeProperty } from "../execution-context/Heap";
@@ -25,7 +25,7 @@ export type PendingWarningPath = { knowledge: Knowledge; warnings: ReadonlyArray
 export type WarningOutputPath = { knowledge: Knowledge; chunks: ReadonlyArray<TESString> };
 
 function unsupported(detail: string): never {
-  throw new Error(`Process warning analysis is not yet supported: ${detail}`);
+  throw new UnsupportedAnalysisError(`Process warning analysis is not yet supported: ${detail}`);
 }
 
 function withKnownOptionalString(name: string, value: Any, context: TExecutionContext,
@@ -105,6 +105,7 @@ export function createWarningModel(options: WarningModelOptions = {}) {
     unmodeledPropertyReads: ["caller", "arguments"],
     unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
   });
+  markUnsupportedBoundaryObject(emitWarning);
   Object.assign(emitWarning.properties, { name: ESString("emitWarning"), length: ESNumber(4) });
   const flags = ["noDeprecation", "throwDeprecation", "traceDeprecation", "traceProcessWarnings"];
   const process = Object.assign(ESObject({ emitWarning, pid: ESNumber(pid) }), {
@@ -116,6 +117,7 @@ export function createWarningModel(options: WarningModelOptions = {}) {
       ? { "node.process.warnings": state, "node.nextTick": nextTick.state }
       : { "node.process.warnings": state })
   });
+  markUnsupportedBoundaryObject(process);
   // Flags are absent by default, so inherited writes must not be shadowed by
   // invented own undefined values. Changing their effective configuration is
   // outside this default-handler model, including through Object.prototype.
