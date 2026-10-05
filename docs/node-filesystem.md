@@ -8,6 +8,37 @@ Filesystem compatibility is host coverage, separate from Test262 language
 coverage. An explicit filesystem environment is not a snapshot of the machine
 running Prophet unless an embedding actually supplies and validates that snapshot.
 
+## Known callable exports without an implementation
+
+The model exposes a stable `readdirSync` function identity. Saving the export,
+comparing aliases and reading its ordinary inherited `.call` do not enumerate
+anything. Invoking it records the reached `fs.readdirSync` call and returns a
+[typed unfinished leaf](execution-boundaries.md), preserving prefix state and
+noncalling siblings without a return, guest error or filesystem mutation.
+Directory enumeration remains unsupported (FS-002).
+
+The generic [`createOpaqueHostFunction`](../src/node/opaque.ts) is only for
+runtime-known ordinary callable exports with the modeled Function prototype.
+It does not discover native functions or register a builtin catalog. Name,
+length, own prototype, descriptors, other property reads/writes and construction
+remain guarded. In particular, the pinned `fs.readdirSync` is constructible;
+the model stops before claiming either successful construction or a TypeError.
+The shared `.call` value keeps its known length of 1 and inherited `.call`,
+while its missing metadata is guarded too (LANG-006). Legacy reflection guards
+still reject instead of producing typed leaves in some cases (REPORT-001).
+
+[Identity and boundary specs](../test/opaque-host-functions.spec.ts) compare
+aliases, callable type and metadata with pinned Node. The construction control
+uses `Reflect.construct` with an empty target and `readdirSync` only as
+`newTarget`; no directory operation is run. Node's
+[function declaration and exports](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/fs.js)
+and [querystring object export](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/lib/querystring.js)
+are the primary references. The CLI adds only an opaque querystring object;
+this increment does not connect the filesystem model to CLI capture or establish
+successful import/evaluation of a complete application. No complete upstream
+Node case is newly activated, and existing filesystem candidates below retain
+their dependencies and unsupported scenarios.
+
 ## One shared symbolic filesystem state
 
 `createFileSystemModel({ root, cwd?, fileDescriptorsAvailable?, platform? })` exposes `.module` for registration as

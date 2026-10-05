@@ -90,7 +90,8 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
       // These known object exports can be retained without inventing their
       // environment. Reached operations still stop at the shared guards.
       https: createOpaqueBuiltinModule("https"), fs: createOpaqueBuiltinModule("fs"),
-      url: createOpaqueBuiltinModule("url"), path: createOpaqueBuiltinModule("path")
+      url: createOpaqueBuiltinModule("url"), path: createOpaqueBuiltinModule("path"),
+      querystring: createOpaqueBuiltinModule("querystring")
     } });
     // The evaluator consumes its budget in place. Keep that runner bookkeeping
     // separate so the retained initial state still records the initial budget.

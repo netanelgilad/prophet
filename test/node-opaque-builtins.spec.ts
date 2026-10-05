@@ -9,11 +9,11 @@ import { assertPinnedNode, nodeModuleObservation, withModuleGraphFixture } from 
 
 beforeAll(assertPinnedNode);
 
-// These four public Node modules have object exports. This list is not a claim
+// These five public Node modules have object exports. This list is not a claim
 // that every builtin exports an object, or that any of their APIs are modeled.
 const modules = [
   ["https", "createServer"], ["fs", "readFileSync"],
-  ["url", "parse"], ["path", "join"]
+  ["url", "parse"], ["path", "join"], ["querystring", "parse"]
 ];
 
 for (const [name, member] of modules) {

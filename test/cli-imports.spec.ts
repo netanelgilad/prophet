@@ -272,3 +272,12 @@ test("the actual CLI returns the bare result graph after acquiring a local impor
   expect(completion.entries).toEqual(expect.arrayContaining([["type", "number"], ["value", 42]]));
   expect(existsSync(join(directory, "entry.cjs"))).toBe(true);
 }, 40000);
+
+test("unused querystring imports preserve the pinned object export and canonical alias", () => {
+  const result = run({ 'entry.cjs': `const qs = require('querystring');
+    module.exports = typeof qs === 'object' && qs !== null && qs === require('node:querystring');
+    console.log(module.exports ? "known" : "wrong");` });
+  expect(result.status).toBe('evaluated');
+  expect(result.completion).toMatchObject({ value: true });
+  expect(outputs(result.current)[0].join('')).toBe(nativeOutput());
+});

@@ -1,3 +1,4 @@
+import { createOpaqueHostFunction } from "./opaque";
 import { ESBoolean } from "../boolean/ESBoolean";
 import { withValue } from "../conversion/toString";
 import { createHostFunction, HostModel } from "../effects";
@@ -223,6 +224,7 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
     // their replacement effects require a descriptor/FD model; never ignore it.
     unmodeledPropertyWrites: ["openSync", "fstatSync", "readSync", "closeSync"]
   });
+  module.properties.readdirSync = createOpaqueHostFunction("fs.readdirSync");
   module.properties.existsSync = operation("existsSync", 1, (call, context) =>
     withPath(call.args[0] || Undefined, context, (path, branch) => path.includes("\0")
       ? [ESBoolean(false), branch] : lookup(path, branch, (result, after) => [ESBoolean("node" in result), after])));

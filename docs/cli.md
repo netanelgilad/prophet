@@ -47,7 +47,7 @@ I/O, parser and serializer limits are not supplied by the AST evaluation budget.
 
 The VM receives a partial standard global object and one shared global/imported
 console model. `console`, `http` and the HTTP model's shared `events` builtin are
-registered, including their `node:` aliases. HTTPS, filesystem, URL and path have
+registered, including their `node:` aliases. HTTPS, filesystem, URL, path and querystring have
 opaque object exports: imports and alias identity work, but reached property
 reads/writes, inspection or coercion stop. These do not establish APIs, filesystem
 contents or warning state. Other builtins stop on import. General process state
