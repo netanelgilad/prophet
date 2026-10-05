@@ -47,9 +47,9 @@ The reviewed worktree increments add object declaration bindings, incomplete
 execution leaves, read-only filesystem capture, shared warning scheduling,
 POSIX resolve and process cwd, opaque callable identity, and bounded histories
 through two incoming events. Separate PRs and the integration worktree must stay
-distinct from merged master. Review found and is correcting a provider-choice
-continuation correlation defect and a directory-name alias/absence defect;
-regressions must remain part of the final integrated validation.
+distinct from merged master. Review caught a provider-choice continuation correlation defect and a
+directory-name alias/absence defect. Focused fixes preserve those regressions
+in the combined validation; an independent enumeration-contract review follows.
 
 1. Assemble the actual CLI environment. Preserve pico's completed OPTIONS/405,
    waiting and bind-failure alternatives beside GET/HEAD open-URL boundaries.

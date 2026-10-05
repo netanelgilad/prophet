@@ -25,7 +25,7 @@ test("the default environment shares process, path and URL identities and captur
     same: process === require('process') && process === require('node:process') &&
       path === require('path') && path.posix === require('node:path/posix') &&
       require('url') === require('node:url'),
-    cwd: process.cwd(), resolved: path.resolve('site', '..', 'public')
+    cwd: process.cwd(), resolved: path.resolve('site', '..', 'public'), url: require('url')
   };`);
   expect(result.status).toBe("evaluated");
   expect(getProperties(result.completion as WithProperties, result.current)).toMatchObject({
@@ -34,6 +34,12 @@ test("the default environment shares process, path and URL identities and captur
   const process = getProperties(result.initial.value.global, result.initial).process as WithProperties;
   const state = (process as any).hostSlots["node.process.environment"];
   expect(getProperties(state, result.initial).cwd).toMatchObject({ value: directory });
+  expect((process as any).hostSlots["node.nextTick"]).toBe(result.initial.value.global.hostSlots!["node.nextTick"]);
+  expect((process as any).hostSlots["node.process.warnings"]).toBeDefined();
+  const url = getProperties(result.completion as WithProperties, result.current).url as WithProperties;
+  const urlState = (url as any).hostSlots["node.url.deprecation"];
+  expect(result.initial.value.global.hostSlots!["node.url.deprecation"]).toBe(urlState);
+  expect(getProperties(urlState, result.initial).warned).toMatchObject({ value: false });
 });
 
 test("path.resolve reads the current method on its captured process identity", () => {
@@ -53,9 +59,12 @@ test("URL warnings and HTTP notifications use one queue and retain warning state
     require('http').createServer().listen(8080, function() { console.log('ready'); });
     url.parse('/second'); console.log('top');`);
   expect(result.status).toBe("evaluated");
+  const urlState = result.initial.value.global.hostSlots!["node.url.deprecation"] as WithProperties;
+  expect(getProperties(urlState, result.initial).warned).toMatchObject({ value: false });
   const outcomes = leaves([result.completion!, result.current]);
   expect(outcomes.some(([value]) => isThrownValue(value))).toBe(true);
   for (const [, context] of outcomes) {
+    expect(getProperties(urlState, context).warned).toMatchObject({ value: true });
     for (const path of effectPaths(context.value.effects, context.value.knowledge)) {
       const events = path.events.filter(event => event.kind === "call");
       expect(events.filter(event => event.call.operation === "process.emitWarning")).toHaveLength(1);

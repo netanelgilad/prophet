@@ -151,8 +151,9 @@ formatter/listening-callback failures with pinned Node children. Native warning 
 record delivery time; a fatal monitor does not recover exceptions. Symbolic
 specs retain unsupported/throwing siblings, late formatting state, once/source
 eligibility, queue-option snapshots and graph links. Existing explicit-delivery
-specs remain active. The CLI must choose this shared queue during runtime
-assembly; this model option alone does not enable more CLI builtins.
+specs remain active. The CLI now chooses this same queue for warnings and HTTP startup.
+The model option remains available to other embeddings without changing their
+builtin registration.
 
 
 ## Composing the models

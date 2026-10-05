@@ -18,8 +18,8 @@ factory, with no filesystem or HTTP operations during import. Calling its
 public factory with a directory reaches a typed unfinished boundary at the
 first regular-expression literal in its default ignores setup. That literal is
 the next demonstrated language blocker; import success is not server startup
-or request coverage. Runtime models preserve querystring identity and the known
-readdirSync callable without pretending unimplemented work completed.
+or request coverage. Runtime models preserve querystring identity and provide shared bounded directory
+enumeration, without pretending the factory has reached those later operations.
 
 ## Incremental acceptance
 

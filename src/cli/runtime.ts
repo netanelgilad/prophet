@@ -87,7 +87,8 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
     ...ESInitialGlobal.properties, Math: math, console: consoleModel.module, process: processModel.process
   }, "unmodeled"), { unknownProperties: "Node globals not captured by the automatic starting environment" });
   Object.assign(global.properties, { global, globalThis: global });
-  Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state, "node.fs": filesystem.state, externalEvents: externalEvents.state }) });
+  Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state,
+    "node.fs": filesystem.state, "node.url.deprecation": url.state, externalEvents: externalEvents.state }) });
   const initial = ExecutionContext({ global, thisValue: global,
     evaluationBudget: { remaining: options.maxSteps } });
   try {
