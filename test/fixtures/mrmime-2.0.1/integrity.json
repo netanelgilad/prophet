@@ -1,0 +1,16 @@
+{
+  "name": "mrmime",
+  "version": "2.0.1",
+  "metadataUrl": "https://registry.npmjs.org/mrmime/2.0.1",
+  "tarballUrl": "https://registry.npmjs.org/mrmime/-/mrmime-2.0.1.tgz",
+  "archiveIntegrity": "sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==",
+  "gitHead": "c95e4bf5ac71e7847c7e74d409e237a37c7b5053",
+  "files": {
+    "package/license": "ba573393f24555ac0528612ad39665fab5bdcc80330a61096024bbf5f736526d",
+    "package/index.js": "d85cf096c0fbd1da566df54c22e32c8fa9873437b06b64b99d055763db3c4f38",
+    "package/package.json": "bbe60d7ad0ce4cdca6c452bc88d60ed6997c05b9e2e433475844b7d4de3176bb",
+    "package/readme.md": "df6eb07c79467b7fdf6011c1072bf3d8f0ca35a396a757500aa0d074beca17d8",
+    "package/index.mjs": "d17f751e95dc06e697375fd54413b5681a2d223370960ad5de2f5a3e98c4d5b6",
+    "package/index.d.ts": "369052a48d896f6da8f051051a547790c09c46b8b1e4fff1cf8fcf066daab7da"
+  }
+}
