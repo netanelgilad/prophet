@@ -448,8 +448,16 @@ phases and unhealthy stderr outcomes. No CLI assembly is changed by this model
 option; no new whole upstream case or Test262 selection is claimed. All 62 gap
 groups remain open, and the complete historical skip inventory is unchanged.
 
-At reconciliation there were **86 source files**, **101 spec files**, and
-**445 source lines in 61 files** matching the broad guard/placeholder search
+
+Reconciled for the second immutable target on **2026-10-05**: complete sirv 3.0.2
+and three runtime dependency fixtures add provenance checks and pinned Node
+GET/HEAD/missing-file references. CLI source acquisition selects its real package
+export, then stops at object binding destructuring (LANG-001). No new production
+semantics or support guard was added; later host/language gaps remain open.
+The historical skipped-file and active Test262 inventories are unchanged.
+
+At reconciliation there were **86 source files**, **100 spec files**, and
+**437 source lines in 59 files** matching the broad guard/placeholder search
 below. These are search hits, including internal validation and comments, **not
 445 independent missing features**. Concurrent implementation can change these
 counts; rerun them before publishing a reconciliation. The active Test262 corpus

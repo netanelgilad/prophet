@@ -1,0 +1,15 @@
+{
+  "name": "@polka/url",
+  "version": "1.0.0-next.29",
+  "metadataUrl": "https://registry.npmjs.org/@polka%2furl/1.0.0-next.29",
+  "tarballUrl": "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.29.tgz",
+  "archiveIntegrity": "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==",
+  "gitHead": "02cbdb529ddca0a9f3d225e2abb2931924219cc3",
+  "files": {
+    "package/build.js": "df25bb799f43af54c8c07c2665c05f9ac41dcb95410501a6d4c01f4b34e96440",
+    "package/package.json": "edc9d88105fe9c7123b8c26dd121c13b3b1dc6bbd5445fc616657ea1a9c2bba1",
+    "package/readme.md": "c8bc0cd661d06fd899eccf9bdf3c32459d9172ab0c5e83939e439ae76208297c",
+    "package/build.mjs": "65ed346b3fd818328403d4f88ef3569e9e9b8cc00ea7779afbca3438baf3d664",
+    "package/index.d.ts": "73523d538ca7a2a3adf40ca029f196d2332862ec616a972ebfb66d23c259c0d1"
+  }
+}

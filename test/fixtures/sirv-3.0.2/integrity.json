@@ -1,0 +1,16 @@
+{
+  "name": "sirv",
+  "version": "3.0.2",
+  "metadataUrl": "https://registry.npmjs.org/sirv/3.0.2",
+  "tarballUrl": "https://registry.npmjs.org/sirv/-/sirv-3.0.2.tgz",
+  "archiveIntegrity": "sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==",
+  "gitHead": "1135207e92c40354543cbd15c763c7a61d79d432",
+  "files": {
+    "package/build.js": "245cf4a18c3902ba690497a9088e6dcb5d7a9012fd6bd76ecedfad0fcbf6d55d",
+    "package/package.json": "8ea2c94fa39ec92ed0f61b22a629f597c92a2e02039e6c4acf2653cb32a776a2",
+    "package/readme.md": "7834fa71b0dadf786bca4a3431fc8edd4662b47b9fd9cd8df48c426326b2c4ee",
+    "package/build.mjs": "b5b9c79b302712b2ac0d0ef88ce170588c08f6ad1e6443d47c60996f65c5b0fb",
+    "package/index.d.mts": "4f10b34d39d752db178a61cd2e67666dd831b6d2d11d1a9f4a77cea0de06938d",
+    "package/index.d.ts": "d6178e0ea8afbf02a236966bd0d99eed2646599482249e6ba281d16e6fb185d0"
+  }
+}

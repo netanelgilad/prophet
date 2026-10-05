@@ -436,3 +436,11 @@ now cover module registration, observed/resource outcomes and graph state. This
 does not yet execute a pico request or close the broader runtime milestone;
 binary/symlink/nonregular files, acquisition races, broader failures and future
 request domains remain explicit gaps.
+
+## Growing beyond the first target
+
+The next larger pinned target is [sirv 3.0.2 with its actual dependencies](sirv-target.md).
+Its complete fixtures and pinned Node references are retained. Prophet currently
+reaches an object binding destructuring boundary during import; this is not a
+completed startup/request analysis. Advance shared VM semantics from that actual
+blocker while preserving pico's existing proofs.
