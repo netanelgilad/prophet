@@ -63,3 +63,8 @@ Complete upstream process tests remain inactive:
   detection, process version fields and common/assert support.
 
 These complete cases are not reduced to the local fixtures or counted passing.
+
+The shared warning process now opts into typed partial-object boundaries, so
+reached absent APIs such as env/chdir preserve supported branch siblings. The
+cwd function itself retains its existing unmarked constructor/metadata guards;
+this does not implement those APIs or broaden the declared environment.

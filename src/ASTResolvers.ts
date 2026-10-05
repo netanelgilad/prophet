@@ -157,7 +157,7 @@ export function readMember(object: Any, name: string, context: TExecutionContext
   assert(properties, "Cannot read a property of null or undefined");
   if ((object as WithProperties).unmodeledPropertyReads &&
       (object as WithProperties).unmodeledPropertyReads!.includes(name)) {
-    throw new Error(`Unmodeled property read '${name}'`);
+    throw unsupportedPropertyError(object, `Unmodeled property read '${name}'`);
   }
   const access = (object as WithProperties).propertyAccess;
   const exotic = access && access.read(name, context);

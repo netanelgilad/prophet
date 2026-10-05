@@ -387,8 +387,6 @@ test("an open numeric input has a known TypeError but an unknown diagnostic stri
 for (const body of [
   'path.parse({});', 'path.parse([]);', 'path.parse(function() {});',
   'path.parse({ toString: function() { throw "not string coercion"; } });',
-  'path.parse.name = "changed";', 'path.parse.length = 2;', 'path.parse.caller;', 'path.parse.arguments;',
-  'Object.prototype.hasOwnProperty.call(path.parse, "prototype");',
   'try { path.parse(null); } catch (error) { error.stack; }',
   'try { path.parse(null); } catch (error) { error.toString(); }',
   'try { path.parse(null); } catch (error) { error.constructor; }'
@@ -402,6 +400,14 @@ for (const body of [
 
 test("an open string is an explicit analysis gap, not an interpreted exception or invented parse result", () => {
   expect(load('module.exports = path.parse("file.txt").ext;').value).toMatchObject({ value: ".txt" });
-  expect(() => load('try { path.parse(input); } catch (error) { module.exports = "caught"; }',
-    { input: ESString() })).toThrow(/open symbolic path string/);
+  expect(load('try { path.parse(input); } catch (error) { module.exports = "caught"; }',
+    { input: ESString() }).value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+      message: expect.stringContaining("open symbolic path string") });
+});
+
+for (const body of [
+  'path.parse.name = "changed";', 'path.parse.length = 2;', 'path.parse.caller;', 'path.parse.arguments;',
+  'Object.prototype.hasOwnProperty.call(path.parse, "prototype");'
+]) test(`parse metadata remains unfinished without a fabricated result: ${body}`, () => {
+  expect(load(body).value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
 });

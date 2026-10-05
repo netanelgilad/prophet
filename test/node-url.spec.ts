@@ -123,7 +123,7 @@ test("constructing the legacy parser is an explicit gap despite Node allowing it
   withModuleFixture(source('module.exports = new url.parse("/constructed").pathname;'), filename => {
     expect(nodeModuleObservation(filename)).toEqual({ kind: "return", value: encoded("/constructed") });
   });
-  expect(() => load('new url.parse("/constructed");')).toThrow(/url\.parse construction/);
+  expect(load('new url.parse("/constructed");').value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported", message: expect.stringMatching(/url\.parse construction/) });
 });
 
 for (const [argument, detail] of [
@@ -212,36 +212,39 @@ test("a call without source metadata cannot invent warning eligibility", () => {
   const model = createLegacyURLModel();
   const initial = ExecutionContext({ ...nodeInitialExecutionContext.value, sourceFile: undefined,
     global: ESObject({ ...nodeInitialExecutionContext.value.global.properties, url: model.module }) });
-  expect(() => evaluateCode('url.parse("/path");', initial)).toThrow(/known source filename/);
+  expect(evaluateCode('url.parse("/path");', initial)[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported", message: expect.stringMatching(/known source filename/) });
 });
 
 for (const body of [
   'url.parse("http://example.test/path");', 'url.parse("mailto:user@example.test");',
   'url.parse("//host/path", false, true);', 'url.parse("//user@host/path");',
-  'url.parse("/path?x=1", true);', 'url.parse({});', 'url.parse(function() {});',
+  'url.parse("/path?x=1", true);',
   'url.parse("/path").format();', 'url.parse("/path").parse("/other");', 'url.parse("/path").constructor;',
   'url.Url;', 'url.URL;', 'url.parse.name = "changed";',
   'String.prototype.charCodeAt = function() { throw "changed"; }; url.parse("/path");',
   'String.prototype.slice = function() { throw "changed"; }; url.parse(" /path");',
-  'try { url.parse(null); } catch (error) { error.toString(); }'
 ]) {
   test(`unmodeled URL domains and observable mutation remain explicit gaps: ${body}`, () => {
     expect(typeof createLegacyURLModel).toBe("function");
-    expect(() => load(body)).toThrow(/URL|[Uu]rl|Unmodeled (?:host )?property/);
+    expect(load(body).value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
   });
 }
 
 test("arbitrary open URL strings remain an explicit parser gap", () => {
   expect(typeof createLegacyURLModel).toBe("function");
-  expect(() => load("url.parse(input);", { input: ESString() })).toThrow(/URL|[Uu]rl/);
+  expect(load("url.parse(input);", { input: ESString() }).value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported", message: expect.stringContaining("open symbolic URL") });
 });
 
 test("a conditional String prototype mutation cannot be ignored on the affected path", () => {
   expect(typeof createLegacyURLModel).toBe("function");
-  expect(() => load(`
+  const { value } = load(`
     if (selected) String.prototype.charCodeAt = function() { throw "changed"; };
     url.parse("/path");
-  `, { selected: ESBoolean() })).toThrow(/URL|[Uu]rl/);
+  `, { selected: ESBoolean() });
+  // The joined intrinsic presence is unknown. This guard conservatively stops
+  // at that joined checkpoint; it does not claim the absent branch was parsed.
+  expect(value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+    message: expect.stringContaining("modified String.prototype.charCodeAt") });
 });
 
 test("unknown numeric input still has a certain TypeError with an unknown diagnostic", () => {
@@ -256,3 +259,10 @@ test("unknown numeric input still has a certain TypeError with an unknown diagno
   expect(properties.caught).toMatchObject({ value: true });
   expect(properties.message).toMatchObject({ type: "string", value: undefined });
 });
+
+for (const body of ['url.parse({});', 'url.parse(function() {});',
+  'try { url.parse(null); } catch (error) { error.toString(); }']) {
+  test(`legacy URL argument diagnostic guard remains an engine failure: ${body}`, () => {
+    expect(() => load(body)).toThrow(/URL|[Uu]rl|Unmodeled (?:host )?property/);
+  });
+}
