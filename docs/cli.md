@@ -5,7 +5,7 @@ Run from a dependency-installed checkout:
 ```sh
 ./bin/prophet.js --runtime node@24.21.0 -- app.cjs arg1 > result.json
 ./bin/prophet.js --max-steps 10000 -- app.js > result.json
-./bin/prophet.js --max-events 1 -- app.js > first-event.json
+./bin/prophet.js --max-events 2 -- app.js > two-events.json
 ./bin/prophet.js --help
 ```
 
@@ -94,8 +94,12 @@ draining preserves the entry's exports; a job throw becomes the completion.
 This checkpoint covers modeled startup work, not process exit or a general Node
 event loop. By default request handlers remain registered. `--max-events 1`
 adds [one optional symbolic incoming event](external-events.md) after normal
-startup; only 0 and 1 are currently accepted. Every eligible server and waiting
-are alternatives. Independent unknown string method/url fields are a parsed-event
+startup; `--max-events 2` retains histories through a second arrival, including
+zero/one-arrival waiting alternatives. Only 0, 1 and 2 are currently accepted.
+Every step selects among the current eligible servers or waiting. Normally
+completed arrivals drain supported nextTick work before another arrival, even
+at the final horizon. Throws and classified unsupported/budget frontiers stop
+their own history while supported siblings remain. Independent unknown string method/url fields are a parsed-event
 overapproximation, not a wire parser. Timers, microtasks, promises and the public
 `process.nextTick` API remain unsupported.
 A throwing completion is the state at exception propagation, not after process

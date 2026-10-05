@@ -3,6 +3,7 @@ import { ESBoolean } from '../src/boolean/ESBoolean';
 import { createHostFunction, effectPaths } from '../src/effects';
 import { createExternalEvents } from '../src/external-events';
 import { analysisFailureContext } from '../src/execution-context/analysis-failure';
+import { isExecutionBoundary } from '../src/execution-context/Completion';
 import { evaluateBranches } from '../src/execution-context/branches';
 import { getArrayElements, getProperties, writeProperty } from '../src/execution-context/Heap';
 import { ESObject } from '../src/Object';
@@ -53,7 +54,8 @@ test('unsupported delivery retains its active resource, and active reentry rejec
   expect(failure.message).toMatch(/unsupported provider/);
   const checkpoint = analysisFailureContext(failure)!;
   expect(getProperties(events.state, checkpoint).active).toBe(provider);
-  expect(() => events.explore(checkpoint, 1)).toThrow(/active/);
+  const [boundary] = events.step(checkpoint);
+  expect(isExecutionBoundary(boundary) && boundary.message).toMatch(/active/);
 });
 
 test('language throws clear active delivery and never execute another source', () => {

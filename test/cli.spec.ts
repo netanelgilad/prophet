@@ -4,7 +4,7 @@ import { tmpdir } from "os";
 import { join, resolve } from "path";
 import { effectPaths, isExecutionBoundary, isForkedCompletion } from "../src";
 import { getArrayElements, getProperties } from "../src/execution-context/Heap";
-import { isThrownValue, TESBoolean, WithProperties, isUndefined } from "../src/types";
+import { isThrownValue, isESString, TESBoolean, WithProperties, isUndefined } from "../src/types";
 import { TESString } from "../src/string/String";
 import { assertPinnedNode } from "./commonjs/oracle";
 import { choiceOf, resolveBoolean } from "../src/symbolic";
@@ -355,4 +355,25 @@ test("CLI serializes automatic first-request alternatives and resource identity 
   }
   expect(roots.current.value.global.hostSlots.externalEvents).toBeDefined();
   expect(isForkedCompletion(roots.completion)).toBe(true);
+}, 40000);
+
+
+
+
+test("CLI max-events 2 serializes shorter histories and a second-request armed failure", () => {
+  const { child, roots } = run(`let armed = false;
+    require('http').createServer(function(req, res) {
+      if (req.url === '/fire' && armed) throw 'armed failure';
+      if (req.url === '/arm') armed = true;
+      res.end();
+    }).listen(8080);`, ['--max-events', '2']);
+  expect(child.status).toBe(0);
+  const paths = effectPaths(roots.current.value.effects);
+  const counts = paths.map(path => path.events.filter(event => event.kind === 'call' && event.call.operation === 'http.server.request').length);
+  expect(counts).toEqual(expect.arrayContaining([0, 1, 2]));
+  expect(counts.every(count => count <= 2)).toBe(true);
+  const outcomes = (function leaves(result: any[]): any[][] {
+    return isForkedCompletion(result[0]) ? leaves(result[0].consequent).concat(leaves(result[0].alternate)) : [result];
+  })([roots.completion, roots.current]);
+  expect(outcomes.some(([value]) => isThrownValue(value) && isESString(value.value) && value.value.value === 'armed failure')).toBe(true);
 }, 40000);

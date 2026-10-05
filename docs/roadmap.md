@@ -136,12 +136,12 @@ for this first no-environment-file run. See [the runtime contract](symbolic-runt
 and gaps REPORT-001, CJS-001, HOST-002, HTTP-001 and CONSOLE-002.
 
 The first bounded [automatic incoming-event checkpoint](external-events.md) is
-available with `--max-events 1`: the Node provider supplies a symbolic parsed
-request without a hand-authored concrete request, retaining waiting and failed
+available with `--max-events 1` or `2`: the Node provider supplies symbolic parsed
+requests without a hand-authored concrete request, retaining waiting and failed
 bind paths. Multiple/conditional servers share the generic persistent registry.
-Bounds above one explicitly reject; default zero preserves startup. Parsed
+Bounds above two explicitly reject; default zero preserves startup. Parsed
 method/URL strings overapproximate wire-valid inputs; parser dispatch and
-multi-event stateful behavior remain work. Preserve [callback summaries and invocation-state dependencies](symbolic-runtime.md#conditional-history-and-callback-knowledge);
+histories beyond two remain work. Preserve [callback summaries and invocation-state dependencies](symbolic-runtime.md#conditional-history-and-callback-knowledge);
 retaining a function is not evidence that all its paths were analyzed. The
 current startup milestone does not claim coverage of arbitrary future event
 sequences. Keep Node public built-ins as the modeling boundary and generic
@@ -609,3 +609,11 @@ claiming filesystem containment from textual prefixes. Next string work includes
 startsWith/endsWith, richer length/equality constraints and slice composition;
 regex/search, characters, legacy split/substr and allocation failures remain in
 the backlog. It is independent of the next HTTP response increment.
+
+
+The bounded event registry now composes histories through two arrivals, keeping
+waiting and shorter histories, current listeners/resources and classified stopped
+siblings. CLI nextTick draining occurs between normal arrivals and after the last
+one. A stateful `/arm` then `/fire` spec now reaches the second-request failure;
+its one-event domain cannot fabricate the prior arming request. This is a bounded
+history result, not a general callback summary or proof over arbitrary timelines.
