@@ -11,6 +11,7 @@ import { setVariablesInScope } from '../src/execution-context/ExecutionContext';
 import { getArrayElements } from '../src/execution-context/Heap';
 import { resolveBoolean } from '../src/symbolic';
 import { Any, ESNumber, Undefined } from '../src/types';
+import { ESObject } from '../src/Object';
 import { assertPinnedNode } from './commonjs/oracle';
 import { loadTest262, test262Root } from './test262/runner';
 
@@ -72,6 +73,63 @@ test('shared inherited legacy methods retain reverse/join/slice behavior without
     const proof = array.join === second.join && array.reverse === second.reverse && array.slice === second.slice &&
       !array.hasOwnProperty("reverse") && !array.hasOwnProperty("slice") && array.reverse() === array &&
       array.join("|") === "2|1" && copied.length === 1 && copied[0] === 2;`);
+});
+
+test.each(['slice()', 'join()', 'reverse()'])('sparse legacy %s stops at current inherited indexed elements', operation => {
+  const source = `Object.prototype[0] = 7; const array = [, 2]; array.${operation};`;
+  const result = run(source);
+  expect(isExecutionBoundary(result[0])).toBe(true);
+  expect(getArrayElements(result[1].value.scope.array as TArray<Any>, result[1])).toHaveLength(2);
+  expect(Object.prototype.hasOwnProperty.call(getArrayElements(result[1].value.scope.array as TArray<Any>, result[1]), 0)).toBe(false);
+});
+
+test('inherited indexed regression cases have independently observed Node behavior', () => {
+  for (const source of [
+    'const copied = array.slice(); const proof = copied[0] === 7 && copied.hasOwnProperty("0");',
+    'const proof = array.join() === "7,2";',
+    'array.reverse(); const proof = array[1] === 7 && array.hasOwnProperty("1");'
+  ]) {
+    const native = execFileSync(process.env.PROPHET_NODE_BINARY || process.execPath,
+      ['-e', 'Object.prototype[0] = 7; const array = [, 2]; ' + source + ' process.stdout.write(JSON.stringify(proof));'],
+      { encoding: 'utf8', timeout: 10000, env: { ...process.env, NODE_OPTIONS: '', NODE_PATH: '' } });
+    expect(native).toBe('true');
+  }
+});
+
+test('legacy sparse methods preserve absent versus own undefined and unaffected inherited indices', () => {
+  compare(`Object.prototype[0] = 7; Object.prototype[9] = 9;
+    const array = [undefined, , 2], copied = array.slice();
+    const joined = array.join(); array.reverse();
+    const proof = copied.hasOwnProperty("0") && copied[0] === undefined && !copied.hasOwnProperty("1") &&
+      joined === ",,2" && array[0] === 2 && !array.hasOwnProperty("1") && array.hasOwnProperty("2") && array[2] === undefined;`);
+});
+
+test.each(['slice()', 'join()', 'reverse()'])('conditional inherited indexed state cannot fabricate a %s result', operation => {
+  const result = run(`const array = [, 2]; if (selected) Object.prototype[0] = 7; array.${operation};`, { selected: ESBoolean() });
+  expect(isExecutionBoundary(result[0])).toBe(true);
+});
+
+test('nested join checks inherited holes; push still preserves inherited reads without materializing holes', () => {
+  expect(isExecutionBoundary(run('Object.prototype[0] = 7; const array = [[, 2]]; array.join();')[0])).toBe(true);
+  compare(`Object.prototype[0] = 7; const array = [, 2]; array.push(3);
+    const proof = array[0] === 7 && !array.hasOwnProperty("0") && array.length === 3 && array[2] === 3;`);
+});
+
+test.each(['slice', 'join', 'reverse'])('sparse custom lookup cannot be silently ignored by %s', method => {
+  const elements = [ESNumber(1)]; elements.length = 2;
+  const custom = Object.assign(ESArray(elements), { prototype: ESObject({ 1: ESNumber(7) }) });
+  const hooked = Object.assign(ESArray(elements), { propertyAccess: {
+    read() { throw new Error('unverified getter must not execute'); }, write() { return undefined; }
+  } });
+  for (const array of [custom, hooked]) {
+    expect(isExecutionBoundary(run(`Array.prototype.${method}.call(array);`, { array })[0])).toBe(true);
+  }
+});
+
+test('a proved absent inherited index remains usable after a conditional prototype write', () => {
+  const [, context] = run(`const array = [, 2]; if (selected) Object.prototype[0] = 7;
+    const proof = selected ? true : array.join() === ",2";`, { selected: ESBoolean() });
+  expect(resolveBoolean(context.value.scope.proof as ReturnType<typeof ESBoolean>, context.value.knowledge)).toBe(true);
 });
 
 test('symbolic element values and same-length conditional mutations retain correlations after joining', () => {

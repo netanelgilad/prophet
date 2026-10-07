@@ -10,6 +10,16 @@ shadowing, before reuse; custom lookup and replacement functions remain untruste
 Unimplemented standard Array method names stop explicitly. This is not complete
 Array conformance or an implementation of all constructor overloads.
 
+The legacy `reverse`, `join` and concrete `slice` algorithms reject sparse arrays
+when a hole may resolve to an inherited indexed property in the current persistent
+heap. This includes conditional `Object.prototype` writes and nested arrays read
+by `join`; own `undefined` elements and inherited indices outside the array length
+remain distinct and supported. Sparse custom prototype chains or lookup hooks
+also stop. The guard conservatively checks the whole array even for a restricted
+slice range. It does not implement inherited HasProperty/Get effects or conditional
+element materialization. Dense symbolic-snapshot slice and recursive summaries
+retain their existing behavior.
+
 `push` operates on ordinary modeled arrays with a known current element layout
 and length. Appended values retain identity, including symbolic values and
 self-references. It preserves holes versus own undefined, updates the persistent

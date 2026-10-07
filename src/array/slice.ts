@@ -4,6 +4,7 @@ import { Any, isESNumber, isUndefined, TESNumber } from "../types";
 import { Array, TArray } from "./Array";
 import { getArrayElements } from "../execution-context/Heap";
 import { getSymbolicArrayShape, sliceSymbolicArray } from "./symbolic";
+import { assertNoInheritedArrayElements } from './inherited-elements';
 
 type SliceResult = TArray<any> & {
   type: string;
@@ -31,6 +32,7 @@ export function* slice(
   if (elements === undefined) {
     throw new Error("Array.slice requires an array with known element positions");
   }
+  assertNoInheritedArrayElements(self, elements, execContext);
 
   const start = concreteBound(args[0]);
   const end = concreteBound(args[1]);

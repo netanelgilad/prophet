@@ -4,6 +4,7 @@ import { TArray } from "./Array";
 import { ESString } from "../string/String";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { getArrayElements } from "../execution-context/Heap";
+import { assertNoInheritedArrayElements } from './inherited-elements';
 
 export function* join(
   self: TArray<any>,
@@ -26,6 +27,7 @@ function joinText(
   if (active.has(array)) return "";
   const elements = getArrayElements(array, context);
   if (elements === undefined) return undefined;
+  assertNoInheritedArrayElements(array, elements, context);
   active.add(array);
   const parts: string[] = [];
   let unknown = separator === undefined;
