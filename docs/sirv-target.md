@@ -18,10 +18,11 @@ factory, with no filesystem or HTTP operations during import. The real CLI
 subprocess now serializes this import and its nested function definitions into
 the ordinary graph. [RegExp literal values](regexp-literals.md) allocate fresh
 VM state without native objects leaking from retained ASTs. Calling the public
-factory with a directory proceeds past its first literal and reaches the
-unimplemented Array.push call in default ignores setup. This legacy call failure
-retains a checkpoint rather than a completed branch tree; import success is not
-server startup or request coverage. Runtime models preserve querystring identity
+factory with a directory evaluates two regular-expression literals and appends
+them through the shared persistent Array.push intrinsic. It then reaches the
+explicit Array.concat boundary in default ignores setup; the retained unfinished
+state contains both regex identities. Import success is not server startup or
+request coverage. Runtime models preserve querystring identity
 and provide shared bounded directory enumeration, without pretending the factory
 has reached those later operations.
 

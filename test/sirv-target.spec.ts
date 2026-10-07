@@ -5,6 +5,8 @@ import { copySync, removeSync } from "fs-extra";
 import { tmpdir } from "os";
 import { join } from "path";
 import { runFile } from "../src/cli/runtime";
+import { ArrayValue } from "../src/array/Array";
+import { getArrayElements } from "../src/execution-context/Heap";
 import { effectPaths } from "../src/effects";
 import { isESFunction } from "../src/Function/Function";
 import { assertPinnedNode } from "./commonjs/oracle";
@@ -73,12 +75,18 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
-  // The literal argument now evaluates. Missing Array.push is still a legacy
-  // call failure on this base, with a checkpoint rather than a boundary tree.
-  expect(result.diagnostic).toBe("Value is not callable");
-  expect(result.completion).toBeUndefined();
+  // Both literal arguments and ordinary push calls execute before the next
+  // unsupported intrinsic read. This is an unfinished factory, not HTTP setup.
+  expect(result.diagnostic).toBe("Unmodeled property read 'concat'");
+  expect(result.completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
   expect(result.current.value.sourceFile).toMatch(/sirv\/build\.js$/);
-  expect(result.current.value.scope.ignores).toMatchObject({ type: "array", value: [] });
+  const ignores = getArrayElements(result.current.value.scope.ignores as ArrayValue, result.current)!;
+  expect(ignores).toHaveLength(2);
+  expect(ignores[0]).not.toBe(ignores[1]);
+  for (const value of ignores) expect(value).toMatchObject({
+    regexpData: { originalSource: expect.any(String), originalFlags: "" },
+    properties: { lastIndex: { value: 0 } }
+  });
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {

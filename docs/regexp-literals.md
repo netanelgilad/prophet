@@ -56,8 +56,9 @@ observations against pinned Node and check symbolic writes, retained graphs,
 unsupported siblings and syntax failure before prefix effects. The
 [sirv subprocess](../test/sirv-target.spec.ts) imports the complete unchanged
 package/dependencies and emits the actual CLI JSON graph, including nested
-function literal ASTs. Its default factory proceeds past literal creation to
-the next unimplemented Array.push call; this is not factory/startup coverage.
+function literal ASTs. Its default factory creates and pushes two regex values
+before the explicit Array.concat boundary; this is not completed factory/startup
+coverage.
 
 Seven complete unmodified cases from the pinned Test262 revision are activated:
 `language/literals/regexp/S7.8.5_A4.2.js`, `early-err-pattern.js`,

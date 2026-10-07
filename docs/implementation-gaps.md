@@ -604,8 +604,8 @@ compiler/Unicode-version dependence remains explicit under new REGEXP-001;
 there is no matching backend, global constructor or complete grammar claim.
 Seven complete Test262 files add 14 variants (one identity, six parse-negative).
 The actual CLI sirv-import graph now serializes nested function definitions;
-its default factory next hits the legacy missing Array.push call, not completed
-startup. LIB-001, LANG-002, REPORT-001 and TARGET-002 stay open. All 64 gap groups
+at that intermediate revision its default factory next hit the legacy missing
+Array.push call. The combined array increment advances to Array.concat below. LIB-001, LANG-002, REPORT-001 and TARGET-002 stay open. All 64 gap groups
 remain open and the complete 46-file historical skip inventory is unchanged.
 
 Reconciled in the shared Array.prototype/push layer on **2026-10-05**:
@@ -616,6 +616,16 @@ includes actual Array intrinsic relationships; PATH-001 keeps its observable
 native push dependency guarded. The added complete push and instanceof cases
 have independent pinned Node evidence; no historical skip changed. Missing Number
 constants still reject reads instead of enabling false upstream passes.
+
+Reconciled in the **combined CLI/npm milestone** on **2026-10-07**: the unchanged
+sirv factory now stores two distinct regex objects through shared Array.push,
+then retains its state at the typed Array.concat boundary. This replaces the
+legacy missing-call checkpoint without claiming completed factory execution.
+Pico's bounded CLI request proof, source provenance and Node controls remain
+regressions. The user's separately added authorization-history consumer goal is
+preserved; policy stays outside the VM. Explicit environment authoring,
+concat/forEach, loop completion/scope semantics, RegExp matching, file metadata,
+streams and unbounded scheduling remain work for the next workflow.
 
 At reconciliation there were **93 source files**, **119 spec files**, and
 **509 source lines in 69 files** matching the broad guard/placeholder search

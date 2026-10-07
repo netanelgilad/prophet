@@ -9,13 +9,13 @@ policies, classifications and verdicts ([roadmap](docs/roadmap.md)).
 
 # Repository workflow
 
-Use isolated worktrees and focused PRs for the autonomous workflow requested on
-2026-10-05. Run parallel Astra agents at high reasoning effort, review their
-changes and integrate validated increments without stopping after each feature.
-Preserve unrelated work in the shared checkout. See
-[the execution plan](docs/autonomous-development.md) for ownership and review
-gates; [the old stack](docs/stack.md) is historical. GitHub merge protections
-remain in force; any explicit approval request stays pending until answered.
+Work directly on `master` and push validated changes to `origin/master`, as
+requested by the user. Preserve unrelated work in the shared checkout. PRs
+#23–#51 are historical; the autonomous worktree wave and its review evidence are
+recorded in [the handoff](docs/autonomous-development.md). On 2026-10-07 the user
+asked to finish the nearest milestone, push it, and then hold for a new task-and-agent
+workflow. Do not start another autonomous feature wave until that workflow is
+provided. Repository protections remain in force.
 
 Develop toward full Test262 coverage and advanced symbolic evaluation by adding
 specs and extending the shared VM to satisfy them. Concrete execution remains a

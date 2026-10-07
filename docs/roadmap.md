@@ -158,13 +158,19 @@ conditional state/effect graphs as the representation; derive HTTP-focused
 inspection views in consumers.
 
 The next larger immutable application is [sirv 3.0.2](sirv-target.md), including
-three pinned runtime dependencies and independent Node request references. The assembled CLI imports all four unchanged
-packages and returns the actual interpreted factory. Calling it with a directory
-reaches its first regular-expression literal. Extend shared language semantics
-at that demonstrated boundary, then follow array, enumeration, loop, metadata
-and stream blockers. Do not rewrite package code or equate retained handlers
-with analyzed requests. The current evaluator import is intermediate: raw regex
-AST objects still block sirv CLI graph serialization until the parser follow-up.
+three pinned runtime dependencies and independent Node request references. The
+actual CLI imports all four unchanged packages, returns the interpreted factory,
+and serializes its nested definitions without leaking native regex objects.
+Calling the default factory now creates two regex identities and appends them
+through shared Array.push before reaching an explicit Array.concat boundary.
+Shared concat/forEach are the next demonstrated language operations; ordinary
+loops, regex matching, file metadata and streams remain further target needs.
+Import success is not completed server setup or request analysis. Do not rewrite
+package code or equate retained handlers with analyzed requests.
+
+**2026-10-07 handoff:** finish and publish this integration milestone, then hold
+for the user's new task-and-agent workflow. See the [handoff and candidate tasks](autonomous-development.md#handoff-at-the-pause);
+no next feature wave is authorized to begin before that handoff.
 
 ## Following product milestones
 

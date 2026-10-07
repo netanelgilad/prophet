@@ -75,10 +75,10 @@ are independent evidence, not shortened replacements:
 
 - [`test-next-tick-ordering.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-next-tick-ordering.js)
   combines public nextTick with thirty timers and exit-time assertions. It needs
-  timer ordering, process exit events, Array push, loop support and common/assert.
+  timer ordering, process exit events, loop support and common/assert.
 - [`test-next-tick-ordering2.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-next-tick-ordering2.js)
   schedules a timer and nested nextTick from a callback; public process APIs,
-  timer/checkpoint ordering, exit events, Array push and common/assert remain.
+  timer/checkpoint ordering, exit events and common/assert remain.
 - [`test-next-tick-errors.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-next-tick-errors.js)
   validates invalid callbacks and uses `uncaughtException` to resume later work.
   Default fatal-stop fixtures do not implement process recovery, public nextTick

@@ -884,7 +884,7 @@ symbolic results. See [the string boundary](docs/symbolic-strings.md) for remain
 precision, API and allocation assumptions. Run the spec with
 `node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-strings.spec.ts`.
 
-The active Test262 baseline runs **471 strict/sloppy variants of 240 complete,
+The active Test262 baseline runs **491 strict/sloppy variants of 250 complete,
 unmodified files** from the revision pinned in `yarn.lock`. It covers selected
 primitive comparisons, conditional/logical expressions, `typeof`, and parse
 errors, plus lexical scopes, closures, shadowing, declaration hoisting, selected
@@ -899,7 +899,8 @@ remain gaps; internal symbol-slot specs do not claim public Symbol support.
 Two complete object-spread cases exercise source-expression exceptions; positive
 upstream spread files still need further operators, built-ins, or harness support.
 Forty-five complete object declaration binding files add var/let/const defaults,
-nesting, renaming, trailing commas and abrupt completion coverage.
+nesting, renaming, trailing commas and abrupt completion coverage. Seven complete
+RegExp literal/parser cases and three array push/intrinsic cases add 20 variants.
 Strictness follows actual directive
 source text; escaped or parenthesized strings do not become `use strict`.
 Parse-negative cases do not imply runtime support for their syntax.

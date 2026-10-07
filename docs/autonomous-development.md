@@ -1,10 +1,10 @@
 # Autonomous VM development
 
-The user requested sustained autonomous progress on **2026-10-05**, including
-parallel Astra agents at high reasoning effort, isolated worktrees, and focused
-PRs reviewed and merged by the orchestrator. Continue into subsequent increments
-without requiring approval at each milestone. This replaces the prior
-master-only workflow; preserve unrelated changes in the shared checkout.
+The autonomous worktree wave began on **2026-10-05**. After a quota interruption,
+the user requested on **2026-10-07** that we finish the nearest milestone, push all
+completed work, and **hold for a new task-and-agent workflow**. That instruction
+supersedes the open-ended continuation plan below. Preserve unrelated changes in
+the shared checkout and the separately added downstream authorization-history goal.
 
 The objective remains the [symbolic runtime contract](symbolic-runtime.md):
 execute real, unchanged programs against symbolic environments and retain their
@@ -30,9 +30,9 @@ specs and 46 existing skips; neither count is a conformance claim.
 | Filesystem acquisition | A read-only adapter acquires reached concrete observations for a generic open filesystem state, with uncaptured entries distinct from missing entries. | File/miss/directory, lazy contents, repeated observations, permissions, symbolic resource availability, symlink/nonregular/binary boundaries, pinned Node comparisons. |
 | Integration and next target | Assemble these shared pieces in the CLI, run pico requests, and select a larger immutable npm fixture and dependency graph. | No application-specific VM shortcuts, exact source provenance, completed and unfinished paths in one result, regression/native comparisons. |
 
-These are intended results, not claims that the branches have landed. The
-[roadmap](roadmap.md), PRs and [gap backlog](implementation-gaps.md) record the
-supported boundary after each merge.
+These workstreams form the completed integration milestone; they do not claim
+full input or schedule coverage. The [roadmap](roadmap.md), PRs and
+[gap backlog](implementation-gaps.md) record the supported boundary.
 
 Keep ownership separate while work proceeds: language/completion machinery,
 Node host semantics, environment acquisition, CLI assembly/serialization, and
@@ -43,13 +43,14 @@ interpreted JavaScript.
 
 ## Current integration and following waves
 
-The reviewed worktree increments add object declaration bindings, incomplete
+The reviewed integration increments add object declaration bindings, incomplete
 execution leaves, read-only filesystem capture, shared warning scheduling,
 POSIX resolve and process cwd, opaque callable identity, and bounded histories
-through two incoming events. Separate PRs and the integration worktree must stay
-distinct from merged master. Review caught a provider-choice continuation correlation defect and a
+through two incoming events. The focused PRs retain the review history. Review caught a provider-choice continuation correlation defect and a
 directory-name alias/absence defect. Focused fixes preserve those regressions
-in the combined validation; an independent enumeration-contract review follows.
+in the combined validation. Independent enumeration review also rejected sparse
+or inherited observation entries. Final array review exposed legacy methods
+that guessed inherited-hole results; those reached cases now stop explicitly.
 
 1. Assemble the actual CLI environment. Preserve pico's completed OPTIONS/405,
    waiting and bind-failure alternatives beside GET/HEAD open-URL boundaries.
@@ -60,7 +61,8 @@ in the combined validation; an independent enumeration-contract review follows.
    every future timeline; repair lost correlations before broadening the horizon.
 3. Unchanged sirv 3.0.2 and its three pinned dependencies now import in the assembled
    CLI. RegExp literal state now survives evaluation and CLI graph serialization. Its
-   default factory next reaches the absent Array.push call. Extend shared
+   default factory now executes two regex pushes and reaches the explicit
+   Array.concat boundary. Extend shared
    language semantics there, then follow actual blockers through ordinary
    arrays, directory enumeration, loops, file metadata and streams. Native
    references retain GET, HEAD and 404; symbolic request coverage is still work.
@@ -88,3 +90,21 @@ Documentation must distinguish a completed result from an unfinished branch;
 retained functions are not automatically analyzed callbacks. CLI stdout remains
 exactly the reference graph (`roots` and `nodes`), with diagnostics on stderr.
 Do not add policy verdicts, project-status prose or backlog IDs to runtime state.
+
+## Handoff at the pause
+
+The milestone is the assembled default Node environment plus real CLI import of
+unchanged sirv and its three dependencies. Pico's bounded incoming exploration
+retains completed OPTIONS/405 responses, waiting and binding failures alongside
+GET/HEAD URL-parser boundaries. Sirv's default factory creates two distinct regex
+values, appends them through shared Array.push, then stops at the unimplemented
+Array.concat read with its exact state retained. The runtime emits the same bare
+graph, with no consumer policy or project status fields.
+
+Resume only after the new workflow is specified. Candidate tasks are ordinary
+Array.concat/forEach to move the actual sirv factory forward; shared for-loop
+semantics (including lexical iteration scopes and Empty/UpdateEmpty completion);
+and explicit environment authoring for concrete/finite pico URL and filesystem
+proofs through the CLI. The interrupted loop worktree has **no implementation**;
+its design notes are not a completed feature. RegExp matching, Stats metadata,
+streams, unrestricted schedules and portable resumption remain separate gaps.
