@@ -36,3 +36,12 @@ not permission to change Atlas itself or expose its loopback services.
 Sources: Atlas `cli/atlas-status.ts`, `src/shared/agent.ts`,
 `server/index.ts`, `server/agent-service.ts`, `server/opencode-client.ts`, and
 P001's recorded API responses. Archival will be verified at task completion.
+
+## Observed provider failure
+
+P001 encountered a provider rate limit after useful work. Three same-thread
+retries following increasing cooldowns also failed with zero output and no
+reset/Retry-After metadata. This establishes an operational blocker, not its
+quota type or duration. See the [dated review log](../agent-tasks/P001-array-concat/review.md)
+for timestamps and the resumption checkpoint. An accepted send or an active
+turn may represent provider retries, so neither is evidence of model progress.

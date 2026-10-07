@@ -66,3 +66,71 @@ The rejected-candidate full validation was deliberately stopped by the reviewer
 at 19:56 UTC (signal exit); it is not a passing run or a newly discovered test
 failure. Independent pinned Node also confirmed an inherited
 Symbol.isConcatSpreadable=false causes both arrays to append without spreading.
+
+Retry 1: sent at 20:00:01 UTC after over 60 seconds idle. Provider failed again
+at 20:01:31 UTC with the same limit, zero generated tokens and no reset metadata.
+Next retry waits at least 120 seconds after that failure. User was asked whether
+to keep waiting or permit another model if limits persist; no substitution is
+authorized by silence.
+
+Independent check of the partially saved revision (concat.ts SHA-256
+`83ef971073c70aadcbc22e7090a2d364836011535ef85c1f226b07822a31dca5`)
+passes both reviewer probes: 1 suite / 2 tests, exit 0 in 2.754s. This is not a
+completed worker handoff or acceptance; regression integration, docs/evidence,
+full verification and commit binding remain outstanding. The log is
+`/tmp/prophet-p001-independent-review-revision.log`, SHA-256
+`e183854776a6ba29dc12fc7b0e64aae60883dd70df2061c429972e7da35d9b43`.
+The invocation matches the earlier independent command and external timeout.
+
+Retry 2: accepted at 20:04:02 UTC, after more than 120 seconds since the prior
+failure; the provider failed again at 20:05:28 UTC with zero output and the same
+message. Next eligible retry is 20:09:28 UTC (240-second backoff). The reset time
+remains unknown. Three provider failures do not mean the implementation passed
+or that a daily quota is known to be exhausted.
+
+Retry 3: accepted at 20:09:40 UTC after the 240-second cooldown. The provider
+failed at 20:11:10 UTC, again without output or reset metadata. The next retry
+is eligible no earlier than 20:19:10 UTC (480-second backoff). Further feature
+work requires provider recovery or the user's model preference; no silent
+substitution and no acceptance/archival has occurred. Atlas blocker:
+`blocker_4aea995c-18ee-450b-ba46-7bdb626168c8`.
+
+## Resumption checklist
+
+1. Read the current Atlas catalog and runtime; keep Muse Spark 1.3 build/high
+   unless the user changes that preference. Inspect active/error/approval state
+   before sending anything; the last observed thread was idle after failure.
+2. Reuse `agent/p001-array-concat` in its existing worktree. Code commit
+   `a3d39a8` is **rejected**, with an uncommitted partial correction in concat.ts.
+   Do not replace it with a fresh implementation or cherry-pick it as accepted.
+3. Resume correction 2: retain the independent regressions in the worker specs,
+   finish docs/wiki (including per-path resource limits and residual gaps),
+   remove unused imports, commit source, then focused/full/typecheck and hashed
+   evidence. The stopped full run is not passing evidence.
+4. Review the frozen final diff and exact-commit evidence, integrate only after
+   acceptance, publish validated code and record CI. Save lessons and verify
+   archival only when the task is complete. P002 remains scoped but unlaunched.
+
+Main's process-document publication does not include P001 source or specs.
+The untracked website files are unrelated and remain untouched.
+
+## Process-only master validation
+
+Validated master code at `c084695fc72cd4010b52fdb39cf7846e62d17c45` with the
+remaining changes limited to these review/operational docs. Compared source,
+specs and dependency files against `c47246d`: unchanged. This verification is
+for publishing the orchestration documents, **not P001 implementation acceptance**.
+
+- Pinned Node 24.21.0 with PROPHET_NODE_BINARY set to the same executable:
+  `node .yarn/releases/yarn-3.1.1.cjs test --runInBand`; exit 0, 119 suites,
+  2,851 passing tests and 46 unchanged historical skips, 524.297 seconds.
+  Log `/tmp/prophet-orchestration-master-suite.log`, SHA-256
+  `3c77e32270f24ed6fcb7728b671a60ff67a81e8f1cd0d597128543f7af697553`.
+- `node .yarn/releases/yarn-3.1.1.cjs typecheck`; exit 0. Empty success log
+  `/tmp/prophet-orchestration-master-typecheck.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+- `git diff --check` passed. No production, spec, dependency, fixture or CI
+  change is part of this process-only publication.
+
+Exact published commit and CI status are linked from the Atlas project progress
+record. The worker thread remains unarchived because it has outstanding work.

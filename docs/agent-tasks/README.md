@@ -11,7 +11,7 @@ Numeric provider quotas are unknown. P001 observed a provider limit at 2026-10-0
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Running in Atlas `ses_ee8296c07ffecB4caLjcDkS5EK` | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
+| [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Provider-limited; resume Atlas `ses_ee8296c07ffecB4caLjcDkS5EK` | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
 
 Candidate queue after the pilot: shared forEach at the next reached sirv boundary;
 ordinary for-loop completion/lexical semantics as a separate higher-risk task;
