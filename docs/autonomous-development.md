@@ -1,5 +1,9 @@
 # Autonomous VM development
 
+Historical wave. The pause below was superseded by the user's 2026-10-07
+[Atlas Muse orchestration workflow](agent-workflow.md); retain this record as
+evidence, not current operating instructions.
+
 The autonomous worktree wave began on **2026-10-05**. After a quota interruption,
 the user requested on **2026-10-07** that we finish the nearest milestone, push all
 completed work, and **hold for a new task-and-agent workflow**. That instruction

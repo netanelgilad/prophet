@@ -168,9 +168,13 @@ loops, regex matching, file metadata and streams remain further target needs.
 Import success is not completed server setup or request analysis. Do not rewrite
 package code or equate retained handlers with analyzed requests.
 
-**2026-10-07 handoff:** finish and publish this integration milestone, then hold
-for the user's new task-and-agent workflow. See the [handoff and candidate tasks](autonomous-development.md#handoff-at-the-pause);
-no next feature wave is authorized to begin before that handoff.
+**2026-10-07 resumed workflow:** the user supplied the new
+[orchestrator/Atlas Muse playbook](agent-workflow.md). Start with one scoped
+Array.concat pilot, independently review code/evidence, improve the prompt and
+record knowledge in the [wiki](wiki/README.md) before increasing parallelism.
+[Task status and calibration](agent-tasks/README.md) track actual results and
+thread archival. The preceding [handoff](autonomous-development.md#handoff-at-the-pause)
+is historical; implementation is resumed through workers.
 
 ## Following product milestones
 

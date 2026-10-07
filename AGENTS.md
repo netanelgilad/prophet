@@ -9,13 +9,17 @@ policies, classifications and verdicts ([roadmap](docs/roadmap.md)).
 
 # Repository workflow
 
-Work directly on `master` and push validated changes to `origin/master`, as
-requested by the user. Preserve unrelated work in the shared checkout. PRs
-#23–#51 are historical; the autonomous worktree wave and its review evidence are
-recorded in [the handoff](docs/autonomous-development.md). On 2026-10-07 the user
-asked to finish the nearest milestone, push it, and then hold for a new task-and-agent
-workflow. Do not start another autonomous feature wave until that workflow is
-provided. Repository protections remain in force.
+The user resumed work on 2026-10-07 with the [agent implementation playbook](docs/agent-workflow.md).
+The orchestrator scopes tasks, launches Atlas Muse Spark 1.3 workers, reviews
+independent evidence and code, improves prompts, and integrates validated changes
+onto `master` for push to `origin/master`. Workers implement in assigned worktrees;
+they do not push or mutate the shared checkout. Start with one worker and increase
+parallelism only through the recorded review/capacity gates. Preserve unrelated
+work. Keep the [task ledger](docs/agent-tasks/README.md) and [LLM wiki](docs/wiki/README.md)
+current; capture lessons before archiving completed Atlas threads. Honor observed
+Muse rate limits without duplicate prompts or unapproved model substitution.
+The earlier wave and pause remain [historical evidence](docs/autonomous-development.md),
+not an instruction to stay paused. Repository protections remain in force.
 
 Develop toward full Test262 coverage and advanced symbolic evaluation by adding
 specs and extending the shared VM to satisfy them. Concrete execution remains a
