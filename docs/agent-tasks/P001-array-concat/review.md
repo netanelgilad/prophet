@@ -12,7 +12,7 @@ shallow aliases, branch-local boundaries, complete upstream cases, real sirv
 progress assertion, and binding test evidence to the commit. Independent
 adversarial reruns and full integration validation are pending.
 
-Numeric provider quotas: unknown. No observed rate-limit event yet.
+Numeric provider quotas: unknown. First observed provider limit is recorded below.
 
 Operational observation: the first four worktree reads waited on Atlas/OpenCode
 external_directory permission. Reviewed the paths, granted only the assigned
@@ -52,3 +52,17 @@ Returned [correction 2](correction-2.md); worker must retain regressions and rer
 verification. Decision remains not accepted; one worker/full review. The playbook
 now explicitly budgets work independent of output size and reviews inherited
 lookup knowledge for each operand category.
+
+## Provider cooldown 1
+
+At 2026-10-07 19:57:57 UTC, Atlas recorded `opencode request failed`:
+`Rate limit exceeded. Please try again later.` The turn failed and became idle;
+no Retry-After, reset, limit or remaining count was supplied. The correction is
+partially written but not validated/committed. Keep this thread unarchived; wait
+at least 60 seconds before one same-thread retry, then back off to 120/240 seconds
+if needed. No new worker, account or model is used to bypass the limit.
+
+The rejected-candidate full validation was deliberately stopped by the reviewer
+at 19:56 UTC (signal exit); it is not a passing run or a newly discovered test
+failure. Independent pinned Node also confirmed an inherited
+Symbol.isConcatSpreadable=false causes both arrays to append without spreading.

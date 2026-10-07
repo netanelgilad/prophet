@@ -1,7 +1,9 @@
 # P001 — Shared Array.prototype.concat
 
-Task version: 1. Worker: Atlas OpenCode Muse Spark 1.3, build/high.
-State: prepared. Base: orchestration documentation commit following c47246d.
+Task version: 1, amended by [correction 1](correction-1.md) and
+[correction 2](correction-2.md). Worker: Atlas OpenCode Muse Spark 1.3, build/high.
+State: in revision; [review record](review.md).
+Base: `999236fd4c0dc68972434c91d6e4895edc6fa8a2`.
 Worktree: /Users/netanelgilad/development/prophet-worktrees/muse-p001-concat
 Branch: agent/p001-array-concat
 
