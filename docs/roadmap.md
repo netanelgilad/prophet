@@ -173,7 +173,9 @@ package code or equate retained handlers with analyzed requests.
 Array.concat pilot, independently review code/evidence, improve the prompt and
 record knowledge in the [wiki](wiki/README.md) before increasing parallelism.
 [Task status and calibration](agent-tasks/README.md) track actual results and
-thread archival. The preceding [handoff](autonomous-development.md#handoff-at-the-pause)
+thread archival. [Read-only package scouting](wiki/package-candidates.md) records
+serve-handler and http-server as later candidates with concrete analysis questions;
+neither is an acquired or analyzed package milestone. The preceding [handoff](autonomous-development.md#handoff-at-the-pause)
 is historical; implementation is resumed through workers.
 
 ## Following product milestones

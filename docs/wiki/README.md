@@ -8,7 +8,9 @@ not add fields to Prophet's runtime output.
 ## Start here
 
 - [Agent workflow](../agent-workflow.md): roles, evidence, review, rate limits and archival.
+- [Atlas operations](atlas-operations.md): observed thread/model/permission controls.
 - [VM foundations](vm-foundations.md): persistence, boundaries and common traps.
+- [Package candidates](package-candidates.md): pinned read-only scouting beyond sirv.
 - [Task ledger](../agent-tasks/README.md): actual prompts, evidence and review outcomes.
 - [Runtime contract](../symbolic-runtime.md), [roadmap](../roadmap.md),
   [gap backlog](../implementation-gaps.md), [sirv target](../sirv-target.md).

@@ -10,7 +10,7 @@ Numeric provider quotas are unknown. No limit has been observed in this workflow
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Prepared; thread not yet started | Pilot; no trust increment yet |
+| [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Running in Atlas `ses_ee8296c07ffecB4caLjcDkS5EK` | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
 
 Candidate queue after the pilot: shared forEach at the next reached sirv boundary;
 ordinary for-loop completion/lexical semantics as a separate higher-risk task;

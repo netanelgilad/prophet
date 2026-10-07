@@ -56,6 +56,8 @@ back to the worker with a reproducible counterexample and updated task version.
 1. Read AGENTS, this playbook, the task and linked wiki/boundary pages. Verify cwd,
    branch and base before edits. Add intended behavior and meaningful failure or
    unknown specs first, and retain evidence that they fail for the right reason.
+   Inspect every red failure: a wrong native expectation or broken harness is not
+   evidence of a missing VM feature. Check oracle results before implementing.
 2. Read the actual shared machinery and applicable specification. Implement the
    reusable operation; reuse persistent heap, lookup, coercion, branch and
    completion operations. Do not copy native results into the interpreter.
@@ -66,7 +68,13 @@ back to the worker with a reproducible counterexample and updated task version.
    Reconcile guard scans and the complete skip inventory. No unsupported case or
    narrowed assumption disappears merely because the target moved forward.
 5. Commit code/specs; record the tested commit and tracked source/test diff. Run
-   the full suite and typecheck. Record exact commands, exit codes, counts, local
+   the full suite and typecheck. Do not pipe verification through filters that
+   mask exit codes; redirect complete output, record the command status, then
+   inspect the log separately. Bound host-side scans/allocations before stress
+   cases; use an external timeout for exploratory runs so a synchronous host loop
+   cannot evade Jest/VM limits. Budget operand count/recursion independently of
+   output size: empty inputs can consume unbounded work. Place checks before
+   preparatory scans and copies as well as the main loop. Record exact commands, exit codes, counts, local
    log paths and SHA-256 hashes in `evidence.json`; do not claim commands not run.
    Evidence-only docs may follow in a separate commit, with that distinction noted.
 6. Return commit IDs, owned diff, supported behavior, remaining gaps, failing
@@ -86,6 +94,10 @@ prototype state, branching, failure paths and target assertion—not just the ha
 path. Keep independent adversarial probes outside worker-owned expectations until
 review; then retain useful regressions in specs through a worker revision.
 Never accept a test that merely mirrors the implementation.
+For each operand category, trace inherited lookups as well as own properties:
+an array type tag does not prove an inherited customization is absent. Explicitly
+justify trusted intrinsic hooks; distinguish semantic facts from conservative
+implementation guards in docs and the wiki.
 
 Record each round in its task's `review.md`: model/version, task/prompt version,
 review scope, independent commands, concrete findings, revision count, evidence
