@@ -108,3 +108,25 @@ and explicit environment authoring for concrete/finite pico URL and filesystem
 proofs through the CLI. The interrupted loop worktree has **no implementation**;
 its design notes are not a completed feature. RegExp matching, Stats metadata,
 streams, unrestricted schedules and portable resumption remain separate gaps.
+
+## Validation and review record
+
+Final local validation on 2026-10-07 used pinned Node v24.21.0: **119 suites,
+2,851 passing tests, 46 existing skips**, plus a clean TypeScript check. The
+selected Test262 corpus is **250 complete files / 491 variants**. The gap audit
+reconciled 94 source files, 119 spec files, 65 open gap groups, the complete
+46-file skip inventory, and documentation links. None of these counts is an
+all-path or full-conformance claim.
+
+Focused review history remains in PRs #52–#69: plan (#52), filesystem capture
+and CLI connection (#53/#58), incoming event exploration (#54/#61), pinned sirv
+(#55), unfinished branches (#56), POSIX resolve (#57), object bindings (#59),
+shared warnings/process (#60/#62), opaque functions and typed boundaries
+(#63/#64), directory enumeration and observation validation (#65/#67), provider
+correlation repair (#66), assembled environment (#68), and regex literals (#69).
+The closing milestone also includes the interrupted shared-array commits
+`678dc69`/`0f48e89` and the independently reviewed inherited-element repair
+`121b4a3`, replayed into the integrated linear history. The temporary process/path
+spike is superseded by the committed process model and identical integration spec;
+it is not additional unfinished feature work. Unrelated website files remain
+outside this milestone.
