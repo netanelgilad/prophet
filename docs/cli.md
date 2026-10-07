@@ -231,12 +231,15 @@ The [pico startup milestone](roadmap.md#next-milestone-pico-startup-through-the-
 now has a bounded subprocess proof: the unchanged example follows `../index.js`
 into the pinned package and reaches either a waiting server with its exact
 startup message or an unhandled bind Error without that message. Its request
-handler remains registered; no request was invented or analyzed. Unused opaque
-imports do not provide filesystem state or the URL/path/HTTPS APIs.
+handler remains registered; default `--max-events 0` analyzes no incoming request.
+With `1` or `2`, the provider supplies parsed symbolic events. Pico's completed
+OPTIONS/405, waiting and bind-failure alternatives coexist with unfinished
+GET/HEAD URL parsing. Filesystem, URL and path use the assembled models; HTTPS
+and querystring retain opaque APIs.
 [Queue specs](../test/jobs.spec.ts), [HTTP startup specs](../test/node-http-startup.spec.ts)
 and [pinned ordering observations](../test/node-startup-reference.spec.ts) cover
 the supported checkpoint; [opaque builtin specs](../test/node-opaque-builtins.spec.ts)
 check identities and conservative boundaries. Full environment input, portable
-round trips/resumption and automatic reachable callback analysis follow.
+round trips/resumption, broader callback domains and unbounded scheduling follow.
 Track residual scope under REPORT-001, CJS-001, HOST-002, CONSOLE-002,
 LANG/LIB/LEGACY and SECURITY-002 in the [backlog](implementation-gaps.md).

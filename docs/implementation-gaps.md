@@ -625,12 +625,19 @@ Pico's bounded CLI request proof, source provenance and Node controls remain
 regressions. The user's separately added authorization-history consumer goal is
 preserved; policy stays outside the VM. Explicit environment authoring,
 concat/forEach, loop completion/scope semantics, RegExp matching, file metadata,
-streams and unbounded scheduling remain work for the next workflow.
+streams and unbounded scheduling remain work for the next workflow. Final review
+found that inherited indexed properties could make legacy sparse reverse/join/slice
+produce incorrect concrete results. Shared guards now stop those reached cases,
+including conditional prototype writes and nested joins, before mutation. Own
+undefined and proven absent/out-of-range inherited indices remain supported.
+The final inventory retains all **65 open gap groups**, 23 legacy assertion/helper
+search hits in five files, and the exact **46 historical skipped files**. These
+are audit counts, not a complete semantic inventory.
 
-At reconciliation there were **93 source files**, **119 spec files**, and
-**509 source lines in 69 files** matching the broad guard/placeholder search
+At reconciliation there were **94 source files**, **119 spec files**, and
+**525 source lines in 70 files** matching the broad guard/placeholder search
 below. These are search hits, including internal validation and comments, **not
-509 independent missing features**. Concurrent implementation can change these
+525 independent missing features**. Concurrent implementation can change these
 counts; rerun them before publishing a reconciliation. The active Test262 corpus
 now has **250 complete files / 491 variants**, including the 19 untagged-template
 files from the console/template layer and five quoted-string files from the

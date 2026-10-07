@@ -55,18 +55,20 @@ The CLI captures reached local, JSON and package imports through the shared
 CommonJS resolver and loader. Source bytes and positive/negative file probes are
 cached across symbolic branches; evaluated modules retain each branch's own
 cache state. Capture is read-only, POSIX-only and non-atomic. Unresolved bare
-packages stop because external search paths are not captured. The console, HTTP
-and shared EventEmitter builtins are connected. HTTPS, filesystem, URL and path
-imports have stable object identities, but reached APIs stop analysis.
+packages stop because external search paths are not captured. The CLI composes
+console, HTTP/EventEmitter, read-only filesystem observations, POSIX path,
+process cwd and legacy URL models; HTTPS/querystring APIs remain opaque.
 HTTP binding can succeed or fail symbolically without probing or opening a real
-socket. After normal entry completion, the CLI drains a persistent FIFO of
-supported startup jobs, executing the actual listening/error callbacks. A thrown
-branch retains later jobs without executing them. It does not invent requests,
-filesystem contents or a general event loop. Default stdout is modeled
-as healthy; random draws stay symbolic. A stopped result retains one partial checkpoint, which may omit sibling
-histories. The graph is nonresumable and future request callbacks are unexplored.
-The unchanged pico example now produces the conditional startup result through
-the CLI. See the [CLI format and boundaries](docs/cli.md).
+socket. A shared persistent FIFO drains supported startup/warning jobs and runs
+registered callbacks against current state. Default `--max-events 0` stops after
+startup; `1` or `2` explores bounded parsed incoming events and intervening jobs.
+Default stdout is modeled as healthy; random draws stay symbolic. Classified
+unsupported/budget leaves preserve exact state alongside completed siblings;
+legacy unclassified failures retain one checkpoint. The graph is nonresumable.
+The unchanged pico entry now retains OPTIONS/405, waiting and bind-failure
+alternatives beside GET/HEAD open-URL boundaries. The larger unchanged sirv graph
+imports through the real CLI; its default factory stops at Array.concat after
+two regex pushes. See the [CLI format and boundaries](docs/cli.md).
 
 ## Run the specs
 

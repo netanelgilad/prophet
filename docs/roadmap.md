@@ -89,8 +89,8 @@ keep read-only non-atomic acquisition distinct from target filesystem execution.
 Unresolved bare packages, dependency symlinks/aliases, nonregular/invalid-UTF8
 sources and acquisition errors remain explicit boundaries. The unchanged pico
 example now enters its original `index.js` and completes its bounded startup.
-HTTPS/URL/path imports retain guarded object identities; those APIs are not used
-during HTTP startup. The CLI's `fs` module now uses actual separately acquired
+HTTPS retains a guarded module with opaque APIs. URL and POSIX path use shared
+models, even though startup does not reach their APIs. The CLI's `fs` module uses separately acquired
 filesystem observations, preserving open/unobserved entries and symbolic resource
 availability. No warning state is fabricated.
 

@@ -35,11 +35,11 @@ syntax. The complete original declarations remain in the integrity inventory.
 
 `test/sirv-target.spec.ts` runs the shared CLI runtime acquisition against
 `module.exports = require("sirv")`. Conditional package exports select the
-actual `build.js`; evaluation currently stops at the shared identifier-only
-binding guard for its object destructuring. No successful sirv startup or
-symbolic request result is claimed yet. Replace this boundary assertion with
-supported behavior as the generic VM feature lands, keeping later reached gaps
-explicit.
+actual `build.js`; all four unchanged packages now import and their nested
+function definitions serialize through the real CLI graph. Calling the default
+factory creates two regex values and appends them through shared Array.push,
+then stops at the explicit Array.concat boundary. Successful server startup and
+symbolic request coverage remain unimplemented; keep later reached gaps explicit.
 
 The independent pinned Node **v24.21.0** reference uses a temporary regular-file
 tree, the original default sirv factory, Node HTTP and its actual registered
