@@ -134,7 +134,11 @@ Poll Atlas thread status at a modest cadence and inspect before resending: an
 active/retrying turn must not receive a duplicate prompt. Do not create extra
 threads/accounts to evade a limit or silently switch models. During cooldown,
 review completed evidence and maintain docs. Persistent quota exhaustion leaves a
-faithful checkpoint; ask about changing provider only when progress requires it.
+faithful checkpoint. On 2026-10-08 (Asia/Jerusalem), the user explicitly chose to
+keep waiting for Muse after repeated limits. Keep that preference across turns:
+resume the same worker after cooldown, do not switch models, and do not repeatedly
+ask the user to choose a fallback. Only revisit the model if the user changes
+direction. A successful send is not recovery; confirm actual model work.
 
 ## Atlas lifecycle, integration and durable knowledge
 

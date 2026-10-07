@@ -134,3 +134,23 @@ for publishing the orchestration documents, **not P001 implementation acceptance
 
 Exact published commit and CI status are linked from the Atlas project progress
 record. The worker thread remains unarchived because it has outstanding work.
+
+## User-directed Muse resumption — 2026-10-08 local
+
+The user explicitly chose to keep waiting for Muse rather than switch models.
+Rechecked the Atlas catalog and runtime: the same Muse Spark 1.3 free model,
+build/high, remains available and writable. The thread was idle after the prior
+provider failure. Sent one same-thread resume at 2026-10-07 21:38:28 UTC, after
+over 87 minutes since the last failure. It failed at 21:39:46 UTC with the same
+rate-limit response, zero output and no reset metadata. Send acceptance and model
+catalog availability do not establish provider recovery. The next attempt waits
+the capped 15-minute cooldown, until at least 21:54:46 UTC.
+
+During cooldown, expanded the separate independent review spec with conditional
+current-element mutation, normal/unsupported sibling state, and pre-boundary
+argument effects. The saved source revision is unchanged. All five probes passed
+(exit 0, 2.426s) under pinned Node using the same command and 45-second timeout.
+Log `/tmp/prophet-p001-independent-review-resume.log`, SHA-256
+`740e2c6525aa82f9dbca58c51d8ad394120119ef2c54e01e24c4044fa9e5a0ff`. Updated probe SHA-256:
+`dea6f2a45c3fffac4a0a4d052eebb21d48cd2f690fbe04691b031a2a53d628b7`. This additional review evidence
+does not replace the worker's required regressions/frozen handoff/full verification.
