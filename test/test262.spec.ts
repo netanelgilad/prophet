@@ -28,6 +28,12 @@ const activeCorpus = [
   "built-ins/Array/prototype/push/S15.4.4.7_A1_T1.js",
   "built-ins/Array/prototype/push/S15.4.4.7_A6.7.js",
   "language/expressions/instanceof/S11.8.6_A7_T2.js",
+  // Complete shared concat calls over ordinary literals (holes included) and
+  // the builtin's non-construction rule. Constructor-overload, generic-receiver,
+  // inherited-index, species/spreadable and descriptor files stay inactive.
+  "built-ins/Array/prototype/concat/S15.4.4.4_A1_T3.js",
+  "built-ins/Array/prototype/concat/S15.4.4.4_A1_T4.js",
+  "built-ins/Array/prototype/concat/not-a-constructor.js",
   // Complete object declaration bindings: names, defaults, nested objects and errors.
   "language/statements/variable/dstr/obj-ptrn-prop-id.js",
   "language/statements/variable/dstr/obj-ptrn-prop-id-init.js",

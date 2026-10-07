@@ -6,6 +6,7 @@ import { Any, ESNumber, FunctionBinding, isArray } from '../types';
 import { ESString } from '../string/String';
 import { Array as ESArray, ArrayValue, TArray } from './Array';
 import { push } from './push';
+import { concat } from './concat';
 import { reverse } from './reverse';
 import { join } from './join';
 import { slice } from './slice';
@@ -20,7 +21,7 @@ export function arrayBoundary(detail: string): never {
 // Complete standard method names for this intrinsic surface. Missing supported
 // methods are not ordinary undefined properties; Symbol APIs remain guarded by
 // the shared Symbol boundary. Arbitrary absent string properties stay absent.
-const deferred = ['at', 'concat', 'copyWithin', 'entries', 'every', 'fill', 'filter',
+const deferred = ['at', 'copyWithin', 'entries', 'every', 'fill', 'filter',
   'find', 'findIndex', 'findLast', 'findLastIndex', 'flat', 'flatMap', 'forEach',
   'includes', 'indexOf', 'keys', 'lastIndexOf', 'map', 'pop', 'reduce', 'reduceRight',
   'shift', 'some', 'sort', 'splice', 'toLocaleString', 'toReversed', 'toSorted',
@@ -58,7 +59,8 @@ export function getArrayPrototype(): ArrayValue {
     slice: method('slice', 2, function*(self, args, context) {
       if (!isArray(self)) return arrayBoundary('generic non-array slice receivers');
       return yield* slice(self as TArray<Any>, args, context);
-    })
+    }),
+    concat: method('concat', 1, function*(self, args, context) { return concat(self, args, context); })
   });
   // Both lazy getters publish identities before following the constructor link.
   Object.assign(prototype.properties, { constructor: getArrayConstructor() });

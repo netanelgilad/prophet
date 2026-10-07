@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **250 complete files / 491 strictness variants**,
+The active corpus contains **253 complete files / 497 strictness variants**,
 including 19 parse-negative files / 37 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -307,7 +307,15 @@ gaps and unselected whole upstream candidates. Parser-only passes do not
 establish a regex matching implementation.
 
 The shared array layer adds two complete push cases (A1_T1 and A6.7) and the
-complete instanceof A7_T2 case, six variants total. See [array boundaries](../../docs/array-push.md)
-for independently pinned native evidence, mutation/symbolic coverage and the
-remaining 15 complete push candidates. Missing Number constants are guarded, not
+complete instanceof A7_T2 case, six variants total. Shared bounded concat adds
+three complete files (A1_T3, A1_T4 and not-a-constructor), six more variants:
+ordinary copies with fresh identity, holes and empty arrays, and the
+non-construction rule. `not-a-constructor.js` uses the upstream `assert.js`
+harness alongside `sta.js`; no harness substitutes for missing built-ins.
+See [array boundaries](../../docs/array-push.md)
+for independently pinned native evidence, mutation/symbolic coverage, the
+1024-element analysis limit, and the remaining 15 complete push candidates plus
+the unselected concat files (constructor overloads, generic receivers,
+inherited-index materialization, species/spreadable symbols, descriptors).
+Missing Number constants are guarded, not
 replaced by harness values or silently treated as undefined.

@@ -75,9 +75,10 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
-  // Both literal arguments and ordinary push calls execute before the next
-  // unsupported intrinsic read. This is an unfinished factory, not HTTP setup.
-  expect(result.diagnostic).toBe("Unmodeled property read 'concat'");
+  // Both literal arguments, ordinary push calls and the shared concat of the
+  // default ignores list execute before the next unsupported intrinsic read.
+  // This is an unfinished factory, not HTTP setup.
+  expect(result.diagnostic).toBe("Unmodeled property read 'forEach'");
   expect(result.completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
   expect(result.current.value.sourceFile).toMatch(/sirv\/build\.js$/);
   const ignores = getArrayElements(result.current.value.scope.ignores as ArrayValue, result.current)!;

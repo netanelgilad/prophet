@@ -70,3 +70,50 @@ and `A5_T1` need generic receivers, length coercion and inherited properties;
 `name.js`, `prop-desc.js` need descriptors and the full propertyHelper harness.
 No historical skip file was removed or added. This selected coverage is not
 full ECMAScript or Node conformance.
+
+## Shared bounded concat
+
+`concat` is registered beside the other methods with name `concat`, length 1
+and no construct capability through the existing shared intrinsic machinery.
+The receiver and every argument are read from current heap state. Ordinary
+known-layout arrays spread their own present indices and keep holes absent;
+holes still advance the result length, matching pinned Node. Primitives and
+ordinary plain objects append by reference; array elements may contain
+arbitrary VM values and aliases, including symbolic values. Inputs are never
+mutated, snapshots survive, and every result is a fresh ordinary array.
+Conditional operands branch through shared `withValue` semantics, so each path
+extends its own copy and supported siblings survive a typed unsupported sibling.
+Nullish receivers throw an interpreted TypeError with unknown message.
+
+Observable constructor/species/spread state stops explicitly outside the proven
+ordinary intrinsic case. Each array operand must have the shared Array
+prototype, no custom access hooks, unknown fields, unmodeled reads/writes/
+inspection or internal symbol slots, no own `constructor` shadow, and the
+current `Array.prototype.constructor` must still be the shared Array
+constructor without symbol slots. Non-array object operands must have an
+ordinary prototype chain (Object/Array/Function prototypes to null) with none
+of those slots or hooks; function operands therefore stop because
+`Function.prototype` carries an internal `hasInstance` slot. Sparse operands
+reuse the legacy inherited-index guard per operand: `HasProperty` observes the
+prototype chain and pinned Node materializes an inherited value as an own
+result property, so a hole that may resolve to an inherited index stops rather
+than guessing absence or content. Unknown/segmented/symbolic-snapshot layouts,
+generic/boxed receivers, `Array.prototype` operands and the remaining
+constructor, prototype and descriptor cases stay explicit boundaries.
+
+Copying runs as a synchronous host loop, so one documented element limit
+(`maximumConcatElements`, currently 1024) bounds every operand scan and the
+cumulative total before any copying work. Exceeding it, like exceeding the
+maximum-length/overflow check, is a typed unsupported analysis boundary that
+preserves all input state, never a language throw. [Local specs](../test/array-concat.spec.ts)
+compare concrete behavior independently with pinned Node v24.21.0 and assert
+evaluation order, aliases, holes versus own undefined, non-mutation, symbolic
+correlations with a mandatory unknown, joined conditional results, surviving
+siblings and every representation boundary above. Three complete Test262 files
+add six variants: `S15.4.4.4_A1_T3` (ordinary copy with fresh identity),
+`S15.4.4.4_A1_T4` (holes and empty arrays) and `not-a-constructor.js`.
+Constructor overloads, generic receivers and length coercion, inherited-index
+materialization, species/spreadable symbols, descriptors and the remaining
+concat directory files stay inactive rather than trimmed. The unchanged sirv
+factory now evaluates its default ignores concat and retains its state at the
+`forEach` boundary. `forEach`, loops and RegExp matching remain separate work.

@@ -19,9 +19,11 @@ subprocess now serializes this import and its nested function definitions into
 the ordinary graph. [RegExp literal values](regexp-literals.md) allocate fresh
 VM state without native objects leaking from retained ASTs. Calling the public
 factory with a directory evaluates two regular-expression literals and appends
-them through the shared persistent Array.push intrinsic. It then reaches the
-explicit Array.concat boundary in default ignores setup; the retained unfinished
-state contains both regex identities. Import success is not server startup or
+them through the shared persistent Array.push intrinsic. The default ignores
+`[].concat(opts.ignores || [])` now evaluates through the shared bounded
+Array.concat operation; the factory then retains its unfinished state at the
+explicit Array.forEach boundary. The retained state contains both regex
+identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity
 and provide shared bounded directory enumeration, without pretending the factory
 has reached those later operations.
