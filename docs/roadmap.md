@@ -165,7 +165,9 @@ Calling the default factory now creates two regex identities and appends them
 through shared Array.push, bounded Array.concat and shared Array.forEach. The
 default empty ignores list completes iteration and reaches totalist's directory
 loop: its success path stops at ForStatement beside a filesystem-failure throw.
-Shared for-loop semantics are the next reached language blocker; regex
+Shared for-loop semantics are the next reached language blocker;
+[P003](agent-tasks/P003-for-statement/task.md) now implements this under the
+one-worker/full-review playbook, including lexical iterations and abrupt completions; regex
 construction/matching, file metadata and streams remain further target needs.
 Import success is not completed server setup or request analysis. Do not rewrite
 package code or equate retained handlers with analyzed requests.
