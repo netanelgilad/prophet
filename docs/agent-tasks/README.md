@@ -17,7 +17,7 @@ increase or first-review acceptance streak.
 | [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Accepted/pushed `b9c3864`; CI green; Atlas thread archived | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
 | [P002](P002-array-foreach/task.md) | Shared Array.forEach; next reached sirv operation | Accepted/pushed `7defa45`; CI green; Atlas thread archived | [One correction round](P002-array-foreach/review.md); 12 independent probes, full suite/typecheck pass; evidence artifacts cleaned up |
 | [P003](P003-for-statement/task.md) | Shared ForStatement at totalist | Provider-limited after initial reads and one cooldown retry; idle, unarchived thread `ses_ee4c57620ffeA7vzQE3Q5b1dyH`; isolated `agent/p003-for-statement` from `bb7dce2` | Higher-risk completion/scope work; full review required |
-| [P004](P004-loop-min-specs/task.md) | Loop-min proof-spec design; LongCat pilot | Active separate LongCat thread `ses_ee4968dbdffezuWu3XARIEtS01` on `agent/p004-loop-min-specs` | Uncalibrated, full native/spec review; expected-red specs staged outside master |
+| [P004](P004-loop-min-specs/task.md) | Loop-min proof-spec design; LongCat pilot | Reviewed spec staged in [draft PR70](https://github.com/netanelgilad/prophet/pull/70); thread archived after provider-interrupted metadata handoff | Corrected spec accepted; 8 intended ForStatement failures; full review retained, no VM feature accepted |
 
 P003 owns the reached totalist for-loop blocker. Subsequent candidates:
 the actual next sirv boundary, explicit starting-environment input for pico,
@@ -26,7 +26,10 @@ Scope each from the actual integrated result, not a speculative feature list.
 
 Both pilot workers are complete and archived. P003 is blocked on the provider
 and saved idle/unarchived for same-thread resumption. Its observed reset is
-2026-10-09 00:00 UTC; P004 is the sole active worker on a separate free model.
+2026-10-09 00:00 UTC. P004 is archived after its reviewed spec was staged;
+LongCat also reached HTTP429 (upstream Console), without a reported reset. No
+worker is active and no model rotation is queued. PR70 must stay draft until
+P003 satisfies its assertions.
 Atlas completion does not automatically wake the orchestrator. No scheduled
 retry or unattended review is configured.
 This is an orchestration boundary, not a Prophet runtime feature or user policy.

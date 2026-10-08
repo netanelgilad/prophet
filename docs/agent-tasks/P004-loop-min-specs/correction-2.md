@@ -1,0 +1,3 @@
+# P004 scope tightening
+
+P004 scope tightening: You have enough context for the bounded spec-design task. Stop preliminary source searches and probes now. Next action should write the owned test/loop-min.spec.ts using established test/min.spec.ts and pinned-Node helper patterns; then run it and typecheck, write wiki/evidence, commit and hand off. Existing ForStatement rejection is expected, so no further exploration of loop implementation or generic property reads is needed. Reduce the pilot to about 8 focused tests if needed; do not expand production scope. Preserve independently checked concrete expectations and honest red evidence. This is an instruction to finish the prepared artifact, not a duplicate task or model retry.

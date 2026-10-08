@@ -1,0 +1,28 @@
+{
+  "observedAtUTC": "2026-10-08T12:49:04Z",
+  "model": "opencode/longcat-2.5-preview-free",
+  "thread": "ses_ee4968dbdffezuWu3XARIEtS01",
+  "httpStatus": 429,
+  "error": {
+    "type": "error",
+    "error": {
+      "type": "FreeUsageLimitError",
+      "message": "Error from provider (Console): Rate limit exceeded. Please try again later."
+    }
+  },
+  "serverDate": "Thu, 08 Oct 2026 12:45:57 GMT",
+  "retryAfter": null,
+  "reset": "unknown: response contains no Retry-After",
+  "localDayCompletedResponseCounts": {
+    "tool-calls": 88,
+    "error": 1
+  },
+  "ownedTaskCompletedResponseCounts": {
+    "tool-calls": 88,
+    "error": 1
+  },
+  "firstLoggedFailureUTC": "2026-10-08T12:44:43.175Z",
+  "lastLoggedFailureUTC": "2026-10-08T12:45:57.840Z",
+  "automaticFailedAttempts": 6,
+  "note": "The actual OpenCode client exhausted bounded retries then became idle. No root retry/new model request was sent after this limit. Counts are local metadata, not a published quota; this upstream Console error differs from Muse response with an explicit reset."
+}

@@ -1,6 +1,10 @@
 # P004 — Loop minimum proof specs / LongCat calibration
 
-State: assigned 2026-10-08. New, separate Atlas LongCat 2.5 Preview Free thread;
+State: reviewed spec artifact staged 2026-10-08; provider interrupted final
+handoff, and root curated documentation/evidence. Runtime assertions remain red.
+See [draft PR70](https://github.com/netanelgilad/prophet/pull/70), [review](review.md) and
+[root evidence](review-evidence.json). Thread archived after task closure.
+Originally assigned 2026-10-08. New, separate Atlas LongCat 2.5 Preview Free thread;
 no Muse trust transfers. Atlas thread `ses_ee4968dbdffezuWu3XARIEtS01`,
 actual runtime verified build/high. One worker, full review. This is a **spec design task**,
 not implementation of loops and not a claim that a new proof currently passes.

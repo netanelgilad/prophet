@@ -16,7 +16,7 @@ assign a numerical reliability probability from a few tasks.
 | --- | --- | --- |
 | `opencode/muse-spark-1.3-contributor-free`, shared bounded Array intrinsics | P001 concat (2 source correction rounds); P002 forEach (1 round); independent probes, full suite/typecheck and CI | Early evidence of capability; zero consecutive first-review acceptances. Full code/spec/evidence review. |
 | Same Muse model, loop/completion/lexical semantics | P003 quota-blocked before implementation | No accepted task in this family; full semantic review always required. |
-| `opencode/longcat-2.5-preview-free`, proof-spec design | P004 active calibration; no accepted handoff yet | Untested. Full line-by-line/native-oracle review. No trust inherited from Muse or inferred from availability. |
+| `opencode/longcat-2.5-preview-free`, proof-spec design | P004 corrected spec accepted for draft staging; provider interrupted final metadata handoff, which root curated | One reviewed spec artifact, zero clean first-review acceptances, no VM implementation evidence. Full review retained. |
 | Other free catalog models | No Prophet evidence | Uncalibrated; no launch by automatic rotation. |
 
 Current provider/client at verification: OpenCode 1.18.21; both pilot identities

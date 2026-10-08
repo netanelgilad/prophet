@@ -77,3 +77,18 @@ may have been honoring a long provider wait. Do not interrupt/resubmit based
 only on minutes without output. Prefer the error/reset metadata, which current
 Atlas conversation projections omit. A different free-model pilot can have
 capacity, but belongs in a new thread and a separate trust record.
+
+## Archive verification can differ from cached conversation metadata
+
+P004 archive returned `archived: true` at 2026-10-08T12:53:27.172Z. The thread
+list GET independently showed that timestamp, while cached conversation GET
+still showed null. Verify archive through the project thread list after the
+mutation; do not resend the archive merely because a conversation snapshot is
+stale. This is observed Atlas behavior, not a change to its service.
+
+The blocker PATCH API updates status/owner/source only; a supplied body is ignored.
+For a materially obsolete blocker description, create an accurate replacement,
+then close the old record with a `superseded-by:<id>` source and a progress note
+that this is replacement, not recovery. Never claim a body was edited without
+reading the persisted result. P004 replaced the earlier Muse-only description
+with blocker `blocker_5d08fc2f-542a-4341-985c-4432651a598f`.

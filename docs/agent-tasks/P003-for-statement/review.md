@@ -81,3 +81,13 @@ eighteen-minute retry. P003 stays idle until eligibility resumes.
 The contract now includes the loop-based minimum proof requested by the user,
 with P004 preparing bounded specs and unknown-length invariant inference as a
 separate follow-up. No VM or solver support is claimed from this plan.
+
+## Root review-fixture typecheck follow-up (2026-10-08)
+
+P004 review exposed TypeScript-only defects in the root-owned, uncommitted
+`review-p003-for/test/p003-independent-review.spec.ts`: unused ExecutionContext
+import and missing TESBoolean/TESNumber narrowing. Its Jest red-run evidence
+remains as recorded; that is not a passing typecheck. Fix and typecheck this
+review fixture before publishing or using it as final P003 evidence. This is a
+review-harness issue, not a worker or production VM regression. P004 was checked
+separately in a clean review worktree. Log: `/tmp/prophet-p004-review-typecheck.log`.

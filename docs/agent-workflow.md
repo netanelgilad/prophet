@@ -60,6 +60,13 @@ back to the worker with a reproducible counterexample and updated task version.
    unknown specs first, and retain evidence that they fail for the right reason.
    Inspect every red failure: a wrong native expectation or broken harness is not
    evidence of a missing VM feature. Check oracle results before implementing.
+   For a spec-only task, inspect the named patterns then produce the owned spec;
+   avoid a chain of unowned scratch probes. Use deterministic witnesses for both
+   outcomes of an unknown condition, never random sampling as an existence check.
+   Keep witness values inside the declared symbolic domain. Assert normal VM
+   completion before inspecting values, and distinguish NaN/undefined/signed zero
+   when they can yield the same Boolean observation. Keep incidental syntax/API
+   dependencies out of a focused acceptance test unless the task requires them.
 2. Read the actual shared machinery and applicable specification. Implement the
    reusable operation; reuse persistent heap, lookup, coercion, branch and
    completion operations. Do not copy native results into the interpreter.
@@ -103,6 +110,9 @@ implementation/spec line. Calibration is per provider/model/configuration and
 task family; a new model starts uncalibrated and does not inherit a streak.
 Separate model threads preserve attribution; the shared wiki carries reviewed
 knowledge, not assumed trust.
+Batch findings from the full draft into one correction contract when possible;
+avoid a stream of small steering messages while the worker is editing. Distinguish
+worker defects from reviewer false alarms and reviewer-supplied refinements.
 Review the domain, rejection placement, effects, aliasing, holes/absence, current
 prototype state, branching, failure paths and target assertion—not just the happy
 path. Keep independent adversarial probes outside worker-owned expectations until

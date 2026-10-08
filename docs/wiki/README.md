@@ -14,6 +14,7 @@ not add fields to Prophet's runtime output.
 - [VM foundations](vm-foundations.md): persistence, boundaries and common traps.
 - [Bounded Array.concat](array-concat.md): current heap, holes, branches and host work limits.
 - [Bounded Array.forEach](array-foreach.md): captured length, current-state visits and flat host iteration.
+- [Loop minimum acceptance](https://github.com/netanelgilad/prophet/blob/agent/p004-loop-min-specs/docs/wiki/loop-minimum.md): reviewed proposed specs in draft PR70; ForStatement still unsupported.
 - [Package candidates](package-candidates.md): pinned read-only scouting beyond sirv.
 - [Task ledger](../agent-tasks/README.md): actual prompts, evidence and review outcomes.
 - [Runtime contract](../symbolic-runtime.md), [roadmap](../roadmap.md),

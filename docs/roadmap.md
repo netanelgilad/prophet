@@ -172,10 +172,14 @@ completions; the worker is currently provider-limited before implementation. Reg
 construction/matching, file metadata and streams remain further target needs.
 The loop increment also reconnects the original minimum proof to local mutable
 state: `best = a[0]`, then compare each later item and conditionally assign best.
-[P004](agent-tasks/P004-loop-min-specs/task.md) prepares specs for ten independent
-symbolic values: no member is below the result, the result remains symbolic, and
+[P004](agent-tasks/P004-loop-min-specs/task.md) has reviewed specs in
+[draft PR70](https://github.com/netanelgilad/prophet/pull/70) for ten independent
+Math.random symbols in [0,1): no member is below the result, the result remains symbolic, and
 unrelated/strict comparisons remain unknown. P003 must satisfy the reviewed
 bounded specs through generic execution, without recognizing a function's name.
+They remain red at ForStatement and are not on master; native controls pass, but
+no new loop proof is implemented. Muse's observed retry time is October 9 00:00
+UTC; the LongCat spec pilot also hit a limit with no reported reset.
 
 The subsequent reasoning milestone is **unknown-length loop summaries**. Derive
 and validate a fact like “best is a selected element of the visited prefix and

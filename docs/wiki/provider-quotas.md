@@ -21,7 +21,7 @@ LongCat direct probe returned `FreeTierError` requiring the OpenCode client;
 that restriction was respected by using the actual Atlas/OpenCode worker, not
 by spoofing eligibility headers. LongCat then produced real tool activity in
 [its separate P004 thread](../agent-tasks/P004-loop-min-specs/task.md).
-This establishes current LongCat availability, not its numeric quota or proof
+This established initial LongCat availability, not its numeric quota or proof
 that every free model has an independent pool.
 
 ## Published implementation and what remains unknown
@@ -64,6 +64,27 @@ quota: concurrent requests, other clients on the same network and server-side
 configuration are not observable in this count. Owned tasks contributed 72
 (P001), 179 (P002) and 8 (P003) completed responses that day. Counts span local
 projects because the server quota does not belong to this repository.
+
+## LongCat pilot reached another limit
+
+At 2026-10-08 12:44:43 UTC the actual OpenCode LongCat worker began receiving
+HTTP429 `FreeUsageLimitError` with **"Error from provider (Console)"**. The
+client made six bounded automatic attempts through 12:45:57, then became idle.
+The saved final response has Date `Thu, 08 Oct 2026 12:45:57 GMT` and **no
+Retry-After header**. Its reset time and numeric ceiling are unknown; do not
+assign Muse's midnight reset to it. Local metadata records 88 successful
+LongCat tool-call responses and one final error, all in this pilot. That count
+is task usage, not a published quota. [Sanitized evidence](../agent-tasks/P004-loop-min-specs/quota-evidence.json).
+The published handler adds the provider name when forwarding upstream errors;
+this suggests an upstream capacity limit, not necessarily the same gateway IP
+counter seen for Muse. The deployed provider configuration is not observable.
+
+The alternative therefore made useful progress but did not provide reliable
+unlimited fallback. Root sent no new model request after observing this limit
+and did not sweep more models. The committed spec passed independent review as
+an expected-red acceptance artifact; root finished only documentation/evidence
+curation after the interrupted handoff. Availability grants no correctness trust.
+No automatic retry or wake-up has been installed for either model.
 
 ## Workload policy
 
