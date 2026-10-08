@@ -12,6 +12,10 @@ import { getArrayElements } from '../src/execution-context/Heap';
 import { randomNumber, resolveBoolean } from '../src/symbolic';
 import { Any, ESNumber } from '../src/types';
 import { ESObject } from '../src/Object';
+import { captureExecutionBoundary } from '../src/execution-context/analysis-failure';
+import { getObjectPrototype } from '../src/Object/prototype';
+import { getArrayPrototype } from '../src/array/Array';
+import { concat } from '../src/array/concat';
 import { toPrimitiveSymbol } from '../src/Object/wellKnownSymbols';
 import { assertPinnedNode } from './commonjs/oracle';
 import { loadTest262, test262Root } from './test262/runner';
@@ -180,7 +184,19 @@ test('a supported sibling survives a typed unsupported conditional argument', ()
   } });
   const outcomes = leaves(run('const out = [0].concat(selected ? [1] : exotic);', { selected, exotic }));
   expect(outcomes.some(([value]) => isExecutionBoundary(value))).toBe(true);
-  expect(outcomes.some(([value]) => !isExecutionBoundary(value))).toBe(true);
+  const survived = outcomes.filter(([value]) => !isExecutionBoundary(value));
+  expect(survived).toHaveLength(1);
+  expect(getArrayElements(survived[0][1].value.scope.out as TArray<Any>, survived[0][1])).toHaveLength(2);
+});
+
+test('concat reads current element state through a same-length conditional join', () => {
+  const selected = ESBoolean();
+  const [, context] = run(`const array = [1, 2];
+    if (selected) array[0] = 9;
+    const out = array.concat([3]);
+    const proof = out.length === 3 && out[2] === 3 &&
+      (selected ? out[0] === 9 && out[1] === 2 : out[0] === 1 && out[1] === 2);`, { selected });
+  expect(resolveBoolean(context.value.scope.proof as ReturnType<typeof ESBoolean>, context.value.knowledge)).toBe(true);
 });
 
 test.each(['null', 'undefined'])('nullish receiver %s throws TypeError with an honest unknown diagnostic', receiver => {
@@ -221,6 +237,9 @@ test('constructor shadows and internal symbol slots stop before unmodeled specie
   const shadowed = ESArray([ESNumber(1)]);
   Object.assign(shadowed.properties, { constructor: ESArray([]) });
   expect(isExecutionBoundary(run('array.concat([2]);', { array: shadowed })[0])).toBe(true);
+  const shadowedArg = ESArray([ESNumber(2)]);
+  Object.assign(shadowedArg.properties, { constructor: ESArray([]) });
+  expect(isExecutionBoundary(run('[1].concat(arg);', { arg: shadowedArg })[0])).toBe(true);
   const spreadable = ESArray([ESNumber(1)]);
   Object.assign(spreadable, { wellKnownSymbols: new Map([[toPrimitiveSymbol, ESBoolean(true)]]) });
   expect(isExecutionBoundary(run('[0].concat(spreadable);', { spreadable })[0])).toBe(true);
@@ -280,6 +299,76 @@ test('cumulative totals respect the documented element limit without copying', (
     expect(getArrayElements(input.first as TArray<Any>, result[1])).toHaveLength(
       (input.first as TArray<Any>).value!.length);
   }
+});
+
+test('the operand limit counts zero-length operands before any descent', () => {
+  // Guest call/array spread is unsupported, so host-built operand lists pin
+  // the bound directly: each operand is one host recursion level even when it
+  // contributes no elements. The limit is 32 total operands including the
+  // receiver; the caps below bound per-path copying and recursion depth, not
+  // total symbolic fork growth or allocation failure.
+  const empty = () => ESArray([]);
+  expect(isExecutionBoundary(concat(empty(), new Array(30).fill(null).map(empty),
+    nodeInitialExecutionContext)[0])).toBe(false);
+  const at = concat(empty(), new Array(31).fill(null).map(empty), nodeInitialExecutionContext);
+  expect(isExecutionBoundary(at[0])).toBe(false);
+  expect(getArrayElements(at[0] as TArray<Any>, at[1])).toHaveLength(0);
+  // Direct calls bypass the evaluator's boundary capture, so apply the same
+  // capture here: only a typed unsupported boundary may emerge, never a host
+  // RangeError from unbounded recursion.
+  const [overValue] = captureExecutionBoundary(nodeInitialExecutionContext, () =>
+    concat(empty(), new Array(32).fill(null).map(empty), nodeInitialExecutionContext));
+  expect(overValue).toMatchObject({ type: 'ExecutionBoundary', kind: 'unsupported' });
+});
+
+test('hundreds of empty operands stop fast instead of overflowing the host stack', () => {
+  const empty = ESArray([]);
+  const args = new Array(500).fill(null).map(() => ESArray([]));
+  const [value, after] = captureExecutionBoundary(nodeInitialExecutionContext, () =>
+    concat(empty, args, nodeInitialExecutionContext));
+  expect(value).toMatchObject({ type: 'ExecutionBoundary', kind: 'unsupported' });
+  expect(getArrayElements(empty, after)).toHaveLength(0);
+});
+
+test('argument effects are preserved at and above the operand limit', () => {
+  const pushes = (count: number) =>
+    Array.from({ length: count }, (_, index) => `log.push(${index + 1})`).join(', ');
+  compare(`const log = []; const out = [0].concat(${pushes(31)});
+    const proof = out.length === 32 && out[0] === 0 && out[31] === 31 &&
+      log.length === 31 && log[0] === 1 && log[30] === 31;`);
+  const over = run(`const log = []; const out = [0].concat(${pushes(32)});`);
+  expect(isExecutionBoundary(over[0])).toBe(true);
+  expect(getArrayElements(over[1].value.scope.log as TArray<Any>, over[1])).toHaveLength(32);
+});
+
+test('unresolved inherited symbol state stops concat instead of guessing spreadability', () => {
+  const objectPrototype = getObjectPrototype(), arrayPrototype = getArrayPrototype();
+  const savedUnknown = objectPrototype.unknownProperties;
+  const savedObjectSlots = objectPrototype.wellKnownSymbols;
+  const savedArraySlots = arrayPrototype.wellKnownSymbols;
+  try {
+    Object.assign(objectPrototype, { unknownProperties: 'possible inherited spreadable flag' });
+    expect(isExecutionBoundary(run('[1].concat([2]);')[0])).toBe(true);
+  } finally {
+    if (savedUnknown === undefined) delete objectPrototype.unknownProperties;
+    else objectPrototype.unknownProperties = savedUnknown;
+  }
+  try {
+    Object.assign(objectPrototype, { wellKnownSymbols: new Map([[toPrimitiveSymbol, ESBoolean(true)]]) });
+    expect(isExecutionBoundary(run('[1].concat([2]);')[0])).toBe(true);
+  } finally {
+    if (savedObjectSlots === undefined) delete objectPrototype.wellKnownSymbols;
+    else objectPrototype.wellKnownSymbols = savedObjectSlots;
+  }
+  try {
+    Object.assign(arrayPrototype, { wellKnownSymbols: new Map([[toPrimitiveSymbol, ESBoolean(false)]]) });
+    expect(isExecutionBoundary(run('[1].concat([2]);')[0])).toBe(true);
+  } finally {
+    if (savedArraySlots === undefined) delete arrayPrototype.wellKnownSymbols;
+    else arrayPrototype.wellKnownSymbols = savedArraySlots;
+  }
+  compare(`const out = [1].concat([2]);
+    const proof = out.length === 2 && out[0] === 1 && out[1] === 2;`);
 });
 
 test('missing Number constants cannot make a deferred whole upstream case pass accidentally', () => {

@@ -3,7 +3,7 @@
 Question: how do you add a shared `Array.prototype` method that observes
 constructor/species/spread state without silently ignoring it?
 
-Rule: implement the ordinary intrinsic case completely and stop with a typed
+Rule: implement the supported ordinary subset and stop with a typed
 unsupported boundary before any unmodeled observable lookup or effect. The
 call machinery already evaluates the receiver, method and arguments
 left-to-right with current heap state; the method itself must re-read current
@@ -36,11 +36,23 @@ Semantic traps, each with pinned Node 24.21.0 evidence behind it:
 - A shared host accumulator must be copied per conditional branch. Threading
   one host array through `withValue` continuations leaks one sibling's
   elements into the other; copy before extending.
-- Synchronous host loops need an explicit documented element cap checked
-  before any copying work, cumulatively across operands. A maximum-length
+- Synchronous host work needs explicit documented caps checked before any
+  descent, scan or copy, in order: at most 32 total operands including the
+  receiver (each operand is one host recursion level even when empty; hundreds
+  of empty operands otherwise overflow the host stack), then known
+  length/layout, then at most 1024 cumulative elements. A maximum-length
   operand otherwise passes the overflow check and iterates billions of times
-  outside the VM evaluation budget. P001 caps at 1024 elements as an analysis
-  boundary, never a language throw, preserving all input state.
+  outside the VM evaluation budget. Both caps are analysis boundaries, never
+  language throws, preserving all input state. They bound per-path copying and
+  recursion depth, not total symbolic fork growth or allocation failure.
+- Array operands must prove the intrinsic chain's symbol state, not just their
+  own slots: `IsConcatSpreadable` reads through the chain, so mark
+  `Object.prototype` unknown (or add slots to either singleton) and concat
+  must stop. `Array.prototype`'s string hook is exempt by identity with a
+  documented justification. Whole-slot guards are conservative: no claim that
+  `hasInstance` itself affects spreading. An argument-array `constructor`
+  shadow is conservatively rejected although species consults only the
+  receiver; record such over-restrictions instead of widening blindly.
 
 Limits: ordinary known-layout arrays, primitives and plain objects only;
 unknown/segmented/symbolic layouts, generic/boxed receivers, constructor
@@ -49,8 +61,14 @@ descriptors and over-limit totals all stop. `forEach`, loops and RegExp
 matching remain separate work; the unchanged sirv factory now waits at
 `forEach`.
 
-Corrections recorded during P001 review: the cap above was a required
+Corrections recorded during P001 review: the element cap above was a required
 review addition (the first implementation looped to `elements.length`
 unchecked); three spec premises were repaired against native runs (nested
 appends see receiver plus both arguments, hole index advancement, unknown
-self-equality). No scope expansion was needed and no shared helper changed.
+self-equality). A second review round required the operand cap before descent,
+the intrinsic-chain symbol proof for array operands, and budget-before-scan
+ordering; its probes (conditional current-element mutation, sibling state,
+argument effects at the cap, empty-operand bound, inherited unknown symbols)
+are retained as specs. Direct implementation calls in specs need the same
+boundary capture the evaluator applies, or a typed stop surfaces as a raw
+throw. No scope expansion was needed and no shared helper changed.

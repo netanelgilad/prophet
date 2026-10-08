@@ -86,24 +86,42 @@ extends its own copy and supported siblings survive a typed unsupported sibling.
 Nullish receivers throw an interpreted TypeError with unknown message.
 
 Observable constructor/species/spread state stops explicitly outside the proven
-ordinary intrinsic case. Each array operand must have the shared Array
+ordinary subset. Each array operand must have the shared Array
 prototype, no custom access hooks, unknown fields, unmodeled reads/writes/
 inspection or internal symbol slots, no own `constructor` shadow, and the
 current `Array.prototype.constructor` must still be the shared Array
-constructor without symbol slots. Non-array object operands must have an
-ordinary prototype chain (Object/Array/Function prototypes to null) with none
-of those slots or hooks; function operands therefore stop because
-`Function.prototype` carries an internal `hasInstance` slot. Sparse operands
-reuse the legacy inherited-index guard per operand: `HasProperty` observes the
-prototype chain and pinned Node materializes an inherited value as an own
-result property, so a hole that may resolve to an inherited index stops rather
-than guessing absence or content. Unknown/segmented/symbolic-snapshot layouts,
-generic/boxed receivers, `Array.prototype` operands and the remaining
-constructor, prototype and descriptor cases stay explicit boundaries.
+constructor without symbol slots. Because `IsConcatSpreadable` consults its
+symbol through the prototype chain, every array operand additionally proves
+the permitted intrinsic chain: the Array-to-Object-prototype links must be the
+shared singletons, and neither singleton may carry symbol slots, unknown
+fields or an unmodeled prototype. Marking `Object.prototype` with unknown
+fields or slots therefore stops analysis. `Array.prototype`'s own
+propertyAccess hook is exempted by identity: symbol reads consult only slots
+and links, never string hooks, and that hook defers to ordinary lookup. Any
+slot anywhere stops conservatively; the guard cannot enumerate which symbol a
+slot holds, so it makes no claim that a `hasInstance` slot itself affects
+spreading. An own `constructor` shadow on an argument array is likewise
+rejected even though `ArraySpeciesCreate` consults only the receiver: a
+residual over-restriction, not a soundness gap. Non-array object operands must
+have an ordinary prototype chain (Object/Array/Function prototypes to null)
+with none of those slots or hooks; function operands therefore stop. Sparse
+operands reuse the legacy inherited-index guard per operand: `HasProperty`
+observes the prototype chain and pinned Node materializes an inherited value
+as an own result property, so a hole that may resolve to an inherited index
+stops rather than guessing absence or content. Unknown/segmented/symbolic-
+snapshot layouts, generic/boxed receivers, `Array.prototype` operands and the
+remaining constructor, prototype and descriptor cases stay explicit boundaries.
 
-Copying runs as a synchronous host loop, so one documented element limit
-(`maximumConcatElements`, currently 1024) bounds every operand scan and the
-cumulative total before any copying work. Exceeding it, like exceeding the
+Copying and operand descent run as synchronous host work outside the VM
+evaluation budget, so two documented limits apply before any descent, scan or
+copy, in order: at most 32 total operands including the receiver (each operand
+is one recursion level, so an unbounded argument list would overflow the host
+stack even with zero-length operands), then known length/layout, then at most
+1024 cumulative elements (`maximumConcatElements`), and only then inherited-
+index inspection, so every scan runs on a layout already known to fit the
+budget. These caps bound per-path copying and recursion depth, not total
+symbolic fork growth or allocation failure, which stay open under SYM-004 and
+STRING-001-style resource limits. Exceeding either cap, like exceeding the
 maximum-length/overflow check, is a typed unsupported analysis boundary that
 preserves all input state, never a language throw. [Local specs](../test/array-concat.spec.ts)
 compare concrete behavior independently with pinned Node v24.21.0 and assert
