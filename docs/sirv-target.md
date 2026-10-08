@@ -21,12 +21,16 @@ VM state without native objects leaking from retained ASTs. Calling the public
 factory with a directory evaluates two regular-expression literals and appends
 them through the shared persistent Array.push intrinsic. The default ignores
 `[].concat(opts.ignores || [])` now evaluates through the shared bounded
-Array.concat operation; the factory then retains its unfinished state at the
-explicit Array.forEach boundary. The retained state contains both regex
-identities. Import success is not server startup or
+Array.concat operation, and the empty result's `forEach` completes through the
+shared bounded Array.forEach operation with zero visits. The factory then
+calls totalist and retains its unfinished state inside totalist's directory
+loop at the explicit loop boundary, beside a sibling filesystem throw. The
+retained state contains both regex identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity
 and provide shared bounded directory enumeration, without pretending the factory
-has reached those later operations.
+has reached those later operations. A nonempty custom ignores list would next
+reach the `RegExp` constructor inside the forEach callback, which remains
+separate work alongside loops.
 
 ## Incremental acceptance
 

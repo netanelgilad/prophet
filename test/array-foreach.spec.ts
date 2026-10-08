@@ -13,6 +13,7 @@ import { getArrayElements } from '../src/execution-context/Heap';
 import { randomNumber, resolveBoolean } from '../src/symbolic';
 import { Any, ESNumber, Undefined, isThrownValue } from '../src/types';
 import { ESObject } from '../src/Object';
+import { toPrimitiveSymbol } from '../src/Object/wellKnownSymbols';
 import { captureExecutionBoundary } from '../src/execution-context/analysis-failure';
 import { getObjectPrototype } from '../src/Object/prototype';
 import { getArrayPrototype } from '../src/array/Array';
@@ -201,12 +202,15 @@ test('a guest throw on one symbolic path survives beside its normal sibling', ()
 test('a supported sibling survives a typed unsupported conditional callback', () => {
   const selected = ESBoolean();
   const seen = ESArray([]);
-  const outcomes = leaves(run(`[0].forEach(selected ? (value) => { seen.push(value); } : (value) => [].map((item) => item));`,
+  const outcomes = leaves(run(`[0].forEach(selected ? (value) => { seen.push(value); } : (value) => { seen.push(value); [].map((item) => item); });`,
     { selected, seen }));
   expect(outcomes.some(([value]) => isExecutionBoundary(value))).toBe(true);
   const survived = outcomes.filter(([value]) => !isExecutionBoundary(value));
   expect(survived).toHaveLength(1);
   expect(getArrayElements(survived[0][1].value.scope.seen as TArray<Any>, survived[0][1])).toHaveLength(1);
+  const stopped = outcomes.filter(([value]) => isExecutionBoundary(value));
+  expect(stopped).toHaveLength(1);
+  expect(getArrayElements(stopped[0][1].value.scope.seen as TArray<Any>, stopped[0][1])).toHaveLength(1);
 });
 
 test('conditional inherited writes visit each presence path with correlated effects', () => {
@@ -221,10 +225,8 @@ test('conditional inherited writes visit each presence path with correlated effe
 });
 
 test('unresolved inherited index state stops holey iteration but leaves dense arrays alone', () => {
-  const objectPrototype = getObjectPrototype(), arrayPrototype = getArrayPrototype();
+  const objectPrototype = getObjectPrototype();
   const savedUnknown = objectPrototype.unknownProperties;
-  const savedObjectSlots = objectPrototype.wellKnownSymbols;
-  const savedArraySlots = arrayPrototype.wellKnownSymbols;
   try {
     Object.assign(objectPrototype, { unknownProperties: 'possible inherited forEach index' });
     expect(isExecutionBoundary(run('[1, 2].forEach(() => {});')[0])).toBe(false);
@@ -233,22 +235,84 @@ test('unresolved inherited index state stops holey iteration but leaves dense ar
     if (savedUnknown === undefined) delete objectPrototype.unknownProperties;
     else objectPrototype.unknownProperties = savedUnknown;
   }
+  compare(`const seen = []; [1, 2].forEach((value) => { seen.push(value); });
+    const proof = seen.length === 2 && seen[0] === 1 && seen[1] === 2;`);
+});
+
+test('a later layout boundary preserves effects of completed callback visits', () => {
+  const flag = ESBoolean();
+  const result = run(`const a = [1, 2]; let seen = 0, caught = false;
+    try { a.forEach(function(value, index) {
+      seen = seen + 1;
+      if (index === 0 && flag) a.push(9);
+    }); } catch (error) { caught = true; }`, { flag });
+  expect(isExecutionBoundary(result[0])).toBe(true);
+  expect(result[1].value.scope.seen).toMatchObject({ value: 1 });
+  expect(result[1].value.scope.caught).toMatchObject({ value: false });
+});
+
+test('unknown inherited state is encountered after the dense prefix, not before it', () => {
+  const objectPrototype = getObjectPrototype(), saved = objectPrototype.unknownProperties;
+  Object.assign(objectPrototype, { unknownProperties: 'possible inherited numeric field' });
   try {
-    Object.assign(objectPrototype, { wellKnownSymbols: new Map([[Symbol(), ESBoolean(true)]]) });
-    expect(isExecutionBoundary(run('[,].forEach(() => {});')[0])).toBe(true);
+    const result = run(`let seen = 0, caught = false;
+      try { [1, ,].forEach(function() { seen = seen + 1; }); }
+      catch (error) { caught = true; }`);
+    expect(isExecutionBoundary(result[0])).toBe(true);
+    expect(result[1].value.scope.seen).toMatchObject({ value: 1 });
+    expect(result[1].value.scope.caught).toMatchObject({ value: false });
+  } finally {
+    if (saved === undefined) delete objectPrototype.unknownProperties;
+    else objectPrototype.unknownProperties = saved;
+  }
+});
+
+test('unrelated inherited symbol slots do not change a string-index lookup', () => {
+  // String-index HasProperty/Get never consult well-known-symbol slots (the
+  // spreadability lookup does, but this algorithm performs no such lookup),
+  // so they cannot stop iteration here.
+  const objectPrototype = getObjectPrototype(), arrayPrototype = getArrayPrototype();
+  const savedObjectSlots = objectPrototype.wellKnownSymbols;
+  const savedArraySlots = arrayPrototype.wellKnownSymbols;
+  try {
+    Object.assign(objectPrototype, { wellKnownSymbols: new Map([[toPrimitiveSymbol, ESBoolean(true)]]) });
+    const objectResult = run(`let seen = 0; [1, ,].forEach(function() { seen = seen + 1; });
+      const proof = seen === 1;`);
+    expect(isExecutionBoundary(objectResult[0])).toBe(false);
+    expect(resolveBoolean(objectResult[1].value.scope.proof as ReturnType<typeof ESBoolean>,
+      objectResult[1].value.knowledge)).toBe(true);
   } finally {
     if (savedObjectSlots === undefined) delete objectPrototype.wellKnownSymbols;
     else objectPrototype.wellKnownSymbols = savedObjectSlots;
   }
   try {
-    Object.assign(arrayPrototype, { wellKnownSymbols: new Map([[Symbol(), ESBoolean(false)]]) });
-    expect(isExecutionBoundary(run('[,].forEach(() => {});')[0])).toBe(true);
+    Object.assign(arrayPrototype, { wellKnownSymbols: new Map([[toPrimitiveSymbol, ESBoolean(false)]]) });
+    const arrayResult = run(`let seen = 0; [1, ,].forEach(function() { seen = seen + 1; });
+      const proof = seen === 1;`);
+    expect(isExecutionBoundary(arrayResult[0])).toBe(false);
+    expect(arrayResult[1].value.scope.proof).toMatchObject({ value: true });
   } finally {
     if (savedArraySlots === undefined) delete arrayPrototype.wellKnownSymbols;
     else arrayPrototype.wellKnownSymbols = savedArraySlots;
   }
-  compare(`const seen = []; [1, 2].forEach((value) => { seen.push(value); });
-    const proof = seen.length === 2 && seen[0] === 1 && seen[1] === 2;`);
+});
+
+test('a later inherited lookup stop does not erase an already thrown sibling', () => {
+  const objectPrototype = getObjectPrototype(), saved = objectPrototype.unknownProperties;
+  Object.assign(objectPrototype, { unknownProperties: 'unresolved inherited index' });
+  try {
+    const flag = ESBoolean();
+    const result = run(`let seen = 0;
+      [1, ,].forEach(function() { seen = seen + 1; if (flag) throw 9; });`, { flag });
+    expect(isForkedCompletion(result[0])).toBe(true);
+    const outcomes = leaves(result);
+    expect(outcomes.some(([value]) => isExecutionBoundary(value))).toBe(true);
+    expect(outcomes.some(([value]) => isThrownValue(value))).toBe(true);
+    for (const [, after] of outcomes) expect(after.value.scope.seen).toMatchObject({ value: 1 });
+  } finally {
+    if (saved === undefined) delete objectPrototype.unknownProperties;
+    else objectPrototype.unknownProperties = saved;
+  }
 });
 
 test('typed unsupported, budget and guest-throw completions stay distinct', () => {

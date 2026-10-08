@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **253 complete files / 497 strictness variants**,
+The active corpus contains **260 complete files / 511 strictness variants**,
 including 19 parse-negative files / 37 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -312,6 +312,16 @@ three complete files (A1_T3, A1_T4 and not-a-constructor), six more variants:
 ordinary copies with fresh identity, holes and empty arrays, and the
 non-construction rule. `not-a-constructor.js` uses the upstream `assert.js`
 harness alongside `sta.js`; no harness substitutes for missing built-ins.
+Shared bounded forEach adds seven complete files (fourteen variants):
+`15.4.4.18-1-1/1-2` (nullish receiver TypeErrors), `2-2` (ordinary length
+read), `5-2` (object thisArg), `7-1` (callback-added elements within the
+captured range), `8-1` (empty arrays) and `8-13` (the undefined return). Each
+runs in both language variants and independently in fresh pinned Node
+contexts with the upstream harness installed separately from the test script.
+The remaining forEach directory files stay inactive rather than trimmed:
+`new Array(n)` receivers, generic receivers and length coercion, subclassing,
+boolean computed keys (`8-12` needs general ToPropertyKey conversion),
+deletion, freezing, descriptors and the propertyHelper harness.
 See [array boundaries](../../docs/array-push.md)
 for independently pinned native evidence, mutation/symbolic coverage, the
 1024-element analysis limit, and the remaining 15 complete push candidates plus

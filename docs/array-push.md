@@ -133,5 +133,83 @@ add six variants: `S15.4.4.4_A1_T3` (ordinary copy with fresh identity),
 Constructor overloads, generic receivers and length coercion, inherited-index
 materialization, species/spreadable symbols, descriptors and the remaining
 concat directory files stay inactive rather than trimmed. The unchanged sirv
-factory now evaluates its default ignores concat and retains its state at the
-`forEach` boundary. `forEach`, loops and RegExp matching remain separate work.
+factory then evaluated its default ignores concat and retained its state at
+the `forEach` boundary. Loops and RegExp matching remain separate work.
+
+## Shared bounded forEach
+
+`forEach` is registered beside the other methods with name `forEach`, length 1
+and no construct capability through the existing shared intrinsic machinery.
+The receiver length is captured once from current heap state; each visited
+index then re-reads current presence and value after prior callbacks, in
+increasing index order, invoking the callback with value, index and the
+original receiver identity plus the supplied thisArg. The result is always
+undefined; callback return values never stop iteration. Holes are skipped only
+when absence is established through the shared `HasProperty` operation, while
+own `undefined` elements are visited. Ordinary inherited indexed values flow
+through the same shared lookup instead of stopping: pinned Node visits them,
+so a holey array with `Object.prototype[1] = 7` invokes once with `7`.
+Callback writes to later elements inside the captured range are visible
+(including filling a hole before its visit), appends beyond that range are
+never visited, shrinking the length skips later indices, and non-index
+expandos are ignored. Callability throws an interpreted TypeError even for
+empty/holey arrays, after the receiver/length reads the specification orders
+first; nullish receivers throw first with an unknown message. Ordinary object
+thisArg keeps its identity; strict callbacks see `undefined`, arrows keep
+lexical `this`, and sloppy callbacks without thisArg share one object
+receiver. Guest throws stop later visits and preserve earlier effects; typed
+unsupported and budget completions stay distinct `ExecutionBoundary` leaves
+beside throwing and normal siblings. Symbolic elements, receiver/callback
+choices, conditional presence/inherited writes and same-length conditional
+mutations stay correlated; one independent unresolved comparison pins the
+NaN semantics beside the finite-correlation proof.
+
+Only the operations this algorithm actually performs are guarded. forEach
+consults neither constructor/species/spreadability nor result allocation, so
+its final form carries none of concat's guards there: no own-`constructor`
+rejection, no symbol-slot or spreadable-flag proofs (an initially copied
+whole-symbol-map proof was removed on review, since string-index lookups
+never consult symbol slots). It performs no direct writes, so
+callback writes are checked by the shared write operations when they execute.
+Each receiver must still be an ordinary known-layout array with the shared
+Array prototype (custom prototypes, access hooks, unknown fields, unmodeled
+reads/inspection/prototypes and `Array.prototype` itself stop). The intrinsic
+lookup chain is proven clean only when an index actually needs it: a hole or
+unresolved own presence with unknown inherited fields, unmodeled prototypes
+or unmodeled reads of that index stops instead of guessing absence or
+content, while dense visits never touch the chain. String-index lookups never
+consult well-known-symbol slots, so unrelated symbol state cannot stop
+iteration here (unlike concat's spreadable lookup). Layout
+is re-established per visit because callbacks can join paths with different
+lengths; coherent growth passes freely. Typed stops checkpoint the current
+per-visit context, so completed callbacks, heap and path knowledge survive on
+the boundary, and each forked leaf retains its own stop position beside its
+siblings. Unknown/segmented/symbolic-snapshot
+layouts, generic/boxed receivers and their length coercion, and sloppy
+primitive thisArg boxing remain explicit boundaries.
+
+Normal visits advance imperatively, so host stack depth stays flat across the
+whole captured range; only genuine forks consume host recursion. A documented
+1024-element analysis limit caps captured visits per path before the loop, in
+addition to the maximum-length coherence check: exceeding it, like the
+inherited-state and layout stops, is a typed unsupported boundary preserving
+all input state, never a language throw. Callback-added appends beyond the
+captured range can never extend host iteration. The cap bounds per-path host
+work, not total symbolic fork growth (callbacks that fork on every visit can
+still grow the completion tree), allocation failure, or scheduling fairness.
+[Local specs](../test/array-foreach.spec.ts) compare concrete behavior
+independently with pinned Node v24.21.0 and assert ordering, holes versus own
+undefined, inherited values, current-state mutation, thisArg rules, throws,
+aliases, snapshots, symbolic correlations with one independent unknown control, surviving
+siblings, every representation boundary above, and the exact limit with its
+just-over rejection. Seven complete Test262 files add fourteen variants:
+`15.4.4.18-1-1/1-2` (nullish receiver TypeErrors), `2-2` (ordinary length
+read), `5-2` (object thisArg), `7-1` (callback-added elements within the
+captured range), `8-1` (empty arrays) and `8-13` (the undefined return). The
+remaining forEach directory files stay inactive rather than trimmed:
+constructor overloads and `new Array(n)` receivers, generic receivers and
+length coercion, subclassing, boolean computed keys (`8-12`), deletion,
+freezing, descriptors and the propertyHelper harness. The unchanged sirv
+factory now evaluates its default empty ignores forEach with zero visits and
+retains its state inside totalist's directory loop beside a sibling
+filesystem throw; loops and `RegExp` construction remain separate work.

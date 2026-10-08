@@ -11,6 +11,7 @@ not add fields to Prophet's runtime output.
 - [Atlas operations](atlas-operations.md): observed thread/model/permission controls.
 - [VM foundations](vm-foundations.md): persistence, boundaries and common traps.
 - [Bounded Array.concat](array-concat.md): current heap, holes, branches and host work limits.
+- [Bounded Array.forEach](array-foreach.md): captured length, current-state visits and flat host iteration.
 - [Package candidates](package-candidates.md): pinned read-only scouting beyond sirv.
 - [Task ledger](../agent-tasks/README.md): actual prompts, evidence and review outcomes.
 - [Runtime contract](../symbolic-runtime.md), [roadmap](../roadmap.md),

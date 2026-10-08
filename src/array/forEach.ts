@@ -3,6 +3,7 @@ import { getArrayElements, getProperties, ownPropertyPresence } from '../executi
 import { TExecutionContext } from '../execution-context/ExecutionContext';
 import { BranchResult, evaluateBranches, mergeBranchResults } from '../execution-context/branches';
 import { CompletionBranch, isExecutionBoundary, isForkedCompletion } from '../execution-context/Completion';
+import { captureExecutionBoundary } from '../execution-context/analysis-failure';
 import { withValue } from '../conversion/toString';
 import { hasProperty, getObjectPrototype, prototypeOf } from '../Object/prototype';
 import { createError } from '../error/Error';
@@ -103,6 +104,10 @@ function continueVisits(array: ArrayValue, callback: Any, thisArg: Any, next: nu
 }
 
 function visitOne(array: ArrayValue, callback: Any, thisArg: Any, index: number, context: TExecutionContext): BranchResult {
+  // Typed stops below must checkpoint the current per-visit context — with its
+  // completed callbacks, heap and path knowledge — not the outer call's
+  // original context, or earlier effects would be lost from the boundary.
+  return captureExecutionBoundary(context, () => {
   // Callbacks run arbitrary interpreted code between visits, so the layout is
   // re-established on current state rather than proven once. A conditional
   // length change can join paths with different element structures and lose
@@ -126,13 +131,16 @@ function visitOne(array: ArrayValue, callback: Any, thisArg: Any, index: number,
     present => bindNormal(readMember(array, name, present), (element, afterRead) =>
       invoke(callback, [element, ESNumber(index), array], afterRead, thisArg)),
     absent => [Undefined, absent] as BranchResult);
+  });
 }
 
 // Only the index lookup chain this algorithm can actually reach is proven:
-// the shared Array-to-Object-to-null links with no hidden symbol slots,
-// unknown fields, unmodeled prototypes or unmodeled reads of this index.
-// Ordinary inherited values then flow through the shared HasProperty/Get
-// operations above; anything else stops before a guess.
+// the shared Array-to-Object-to-null links with no unknown fields, unmodeled
+// prototypes or unmodeled reads of this index. String-index HasProperty/Get
+// never consult well-known-symbol slots, so unrelated symbol state (which the
+// spreadability lookup observes, but this algorithm does not) cannot stop
+// iteration here. Ordinary inherited values then flow through the shared
+// HasProperty/Get operations above; anything else stops before a guess.
 function assertCleanInheritedIndex(name: string): void {
   if (prototypeOf(getArrayPrototype()) !== getObjectPrototype() ||
     !isESNull(prototypeOf(getObjectPrototype()))) {
@@ -140,8 +148,7 @@ function assertCleanInheritedIndex(name: string): void {
   }
   for (const link of [getArrayPrototype(), getObjectPrototype()]) {
     const model = link as WithProperties;
-    if ((model.wellKnownSymbols && model.wellKnownSymbols.size) ||
-      model.unknownProperties || model.unmodeledPrototype ||
+    if (model.unknownProperties || model.unmodeledPrototype ||
       (model.unmodeledPropertyReads && model.unmodeledPropertyReads.includes(name))) {
       return arrayBoundary('unresolved inherited index state in forEach receivers');
     }
