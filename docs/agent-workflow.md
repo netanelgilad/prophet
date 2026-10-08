@@ -81,6 +81,10 @@ back to the worker with a reproducible counterexample and updated task version.
    validate every recorded hash programmatically; do not transcribe hashes.
    Name the revision for each run when focused tests precede source cleanup.
    A later documentation-only edit is not part of the tested source snapshot.
+   Keep generated logs and temporary oracle scripts as local ignored artifacts;
+   commit their paths/hashes in evidence.json, not the ignored files themselves.
+   Do not force-add ignored outputs. Recheck the final cumulative diff after the
+   evidence commit; a clean pre-handoff working tree is not that check.
 6. Return commit IDs, owned diff, supported behavior, remaining gaps, failing
    probes, test evidence and wiki lessons. Stop editing while under review.
 
@@ -101,7 +105,9 @@ Never accept a test that merely mirrors the implementation.
 For each operand category, trace inherited lookups as well as own properties:
 an array type tag does not prove an inherited customization is absent. Explicitly
 justify trusted intrinsic hooks; distinguish semantic facts from conservative
-implementation guards in docs and the wiki.
+implementation guards in docs and the wiki. In imperative built-in loops,
+capture reached analysis boundaries at the current step's context. Test a stop
+after earlier effects and after a fork, not only a rejection at call entry.
 
 Record each round in its task's `review.md`: model/version, task/prompt version,
 review scope, independent commands, concrete findings, revision count, evidence
@@ -157,6 +163,15 @@ Atlas currently creates project threads at the project repo path. Task prompts
 must name their separate worktree and require explicit tool working directories
 or absolute edit paths. Verify the resulting diff stayed there. Do not mutate
 Atlas's project repoPath to route a worker or edit its database directly.
+
+Atlas worker threads are external to this chat's built-in subagent lifecycle.
+Starting one does not install a completion notification or wake this orchestrator
+when its turn ends. No automatic completion trigger is currently configured.
+During autonomous orchestration, keep the orchestrator turn active and poll at
+modest intervals through review/integration, or explicitly establish and verify a
+wake mechanism first. Do not imply that ending a turn leaves automatic review
+running. If a turn must end with a worker pending, state the missing wake-up and
+save its exact thread/worktree/review checkpoint.
 
 After acceptance, integrate onto current master, preserve other work, run required
 combined tests/typecheck and push. Record exact published commit and CI results.

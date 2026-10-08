@@ -1,0 +1,109 @@
+{
+  "task": "P002-array-foreach",
+  "taskVersion": 1,
+  "worker": "Atlas OpenCode Muse Spark 1.3, build/high",
+  "branch": "agent/p002-array-foreach",
+  "base": "b9c38644d1d51423722fad4c1e16f970711c5a4f",
+  "worktree": "/Users/netanelgilad/development/prophet-worktrees/muse-p002-foreach",
+  "codeCommits": [
+    "3180b9b Bound shared Array.prototype.forEach with current-state visits (P002) [rejected candidate: full run historical only]",
+    "31511e0 Preserve per-visit state at forEach boundaries; drop unrelated symbol guard (P002 correction 1)"
+  ],
+  "testedCommit": "31511e01bd6691aeb3d2e356d9292d93cbe7f63a",
+  "node": "pinned /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node (v24.21.0) used for yarn and PROPHET_NODE_BINARY",
+  "test262Pin": "47bf9d1db9f6e7632120ac1b1946ad092e6c214e",
+  "testFirst": {
+    "redLog": "docs/agent-tasks/P002-array-foreach/logs/red-31511e0-predecessor.log",
+    "redResult": "35 failed, 24 passed of 59 (missing forEach behavior: unmodeled member reads, stub boundary, and one native-premise ordering case). Boundary specs and native controls passed vacuously pre-implementation as designed.",
+    "premiseCorrections": [
+      "boolean computed keys (arr[true]) need general ToPropertyKey conversion: local expando spec uses a string key; Test262 15.4.4.18-8-12 stays inactive, never trimmed",
+      "dirty-receiver method reads hit a pre-existing host assertion: embedding/custom-lookup boundary specs use the explicit .call form, mirroring the concat precedent",
+      "post-mutation lengths must be read through heap entries, not base-object properties"
+    ]
+  },
+  "corrections": [
+    "Review correction 1 (independent, 3 probes failed on first saved source): visitOne now checkpoints typed stops at the current per-visit context via captureExecutionBoundary (later layout/inherited stops kept losing completed callbacks, seen=0); the copied whole-symbol-map guard was removed since string-index HasProperty/Get never consult symbol slots. Retained four equivalent regressions (later layout boundary, unknown inherited state after dense prefix, unrelated symbol slots visit normally, later inherited stop beside thrown sibling) plus strengthened unsupported-sibling prefix state. No shared helper changed.",
+    "Implementation review during development: the first per-visit recursive loop overflowed the host stack at 1024 depth; normal visits now advance imperatively with recursion only into fork continuations. Fork/path volume stays a residual limitation, not a typed stop.",
+    "Operational: the earlier full-suite run on 3180b9b (121 suites / 2981 passed / 46 skipped, exit 0) is a historical rejected-candidate run, not validation of the tested commit; fresh full verification ran on frozen 31511e0."
+  ],
+  "review": "Independent re-probe of exact 31511e0 forEach.ts bytes (SHA-256 0ed99417dc03939bd50bb8af4cce4e35fc61d4352b0bfe74d9088a5a65ad1717) and prototype bytes: all 12 reviewer specs pass, including four review reproductions, seven original checks, and 128 independent possible early exits retaining 129 leaves. Pinned Node, external 60-second timeout, exit 0, 18.558s; log /tmp/prophet-p002-independent-correction1.log. The 128-exit stress probe is independent review evidence and is not copied into worker specs; it does not imply unbounded branch volume is supported.",
+  "commands": [
+    {
+      "command": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/array-foreach.spec.ts test/array-concat.spec.ts test/array-push.spec.ts test/sirv-target.spec.ts test/test262.spec.ts test/test262/runner.spec.ts",
+      "exit": 0,
+      "log": "docs/agent-tasks/P002-array-foreach/logs/affected-31511e0.log",
+      "sha256": "0e948a443087b9c622738a64523accf369a1cf3b95ed1c87af3e72295a6338ab",
+      "result": "6 suites passed; 693 passed, 46 skipped, 739 total (run on frozen 31511e0 source)"
+    },
+    {
+      "command": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand",
+      "exit": 0,
+      "log": "docs/agent-tasks/P002-array-foreach/logs/full-31511e0.log",
+      "sha256": "1c6d0dcc0fe74a1cc236840a6060fd0253ae305db5e042f9603ebc1960e3ea3e",
+      "result": "121 suites passed; 2985 passed, 46 skipped, 3031 total"
+    },
+    {
+      "command": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs typecheck",
+      "exit": 0,
+      "log": "docs/agent-tasks/P002-array-foreach/logs/typecheck-31511e0.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": "empty output, no errors"
+    },
+    {
+      "command": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/test262.spec.ts -t \"forEach\" --verbose",
+      "exit": 0,
+      "log": "docs/agent-tasks/P002-array-foreach/logs/foreach-t262-31511e0.log",
+      "sha256": "4fea8460d6f7444047ab7391ce9375a362291b6bedbad4183e75aa90dd1ca5d6",
+      "result": "14 passed (7 files x sloppy+strict), 543 skipped by filter"
+    }
+  ],
+  "upstream": {
+    "activated": [
+      "built-ins/Array/prototype/forEach/15.4.4.18-1-1.js",
+      "built-ins/Array/prototype/forEach/15.4.4.18-1-2.js",
+      "built-ins/Array/prototype/forEach/15.4.4.18-2-2.js",
+      "built-ins/Array/prototype/forEach/15.4.4.18-5-2.js",
+      "built-ins/Array/prototype/forEach/15.4.4.18-7-1.js",
+      "built-ins/Array/prototype/forEach/15.4.4.18-8-1.js",
+      "built-ins/Array/prototype/forEach/15.4.4.18-8-13.js"
+    ],
+    "variants": 14,
+    "nativeCheck": "each file run independently in fresh pinned Node contexts with upstream sta.js/assert.js in both strictness variants before activation (all passed); per-file native agreement tests in test/array-foreach.spec.ts",
+    "corpusNow": "260 complete files / 511 strictness variants; 46 historical skipped files unchanged, no skip site added"
+  },
+  "sirv": {
+    "prior": "Unmodeled property read 'forEach'",
+    "now": "Can't resolve type of ast type ForStatement",
+    "retained": "default empty ignores forEach completes with zero visits; factory reaches totalist's directory loop with both regex identities in state; forked completion holds one unsupported loop boundary beside a sibling filesystem throw; sourceFile totalist/sync/index.js; still unfinished, not HTTP setup"
+  },
+  "scans": {
+    "broadGuards": "542 lines in 72 files (533/71 at P001 review; +9 lines/+1 file from forEach.ts)",
+    "assertLines": "23 lines in 5 files, unchanged",
+    "skipSites": "only test/test262.spec.ts historical backlog (46 files), unchanged",
+    "diffCheck": "git diff --check clean"
+  },
+  "residualGaps": "ARRAY-001 stays open: generic/boxed receivers and length coercion, custom prototypes/hooks, unknown/segmented/symbolic layouts, unequal-length joins, sloppy primitive thisArg boxing, boolean-key/deletion/freezing gaps, descriptors, constructor overloads, per-visit fork growth/path volume without a typed stop, and the 1024-visit analysis limit. Loops, RegExp construction/matching, and a nonempty custom ignores list (RegExp constructor in callback) are the actual next sirv boundaries. No gap group is closed.",
+  "hashMethod": "All hashes generated programmatically, never transcribed: sourceHashes from git show 31511e0:<path> piped to sha256; logHashes from the in-repo log copies (byte-identical copies of the actual run outputs). This script re-reads the saved evidence.json and asserts every persisted hash matches a fresh computation.",
+  "sourceHashes": {
+    "src/array/forEach.ts": "0ed99417dc03939bd50bb8af4cce4e35fc61d4352b0bfe74d9088a5a65ad1717",
+    "src/array/prototype.ts": "321687e33f1e8e65f8ecf9c49048f654070f4c3e33286cf5cb45d6e21ea53f74",
+    "test/array-foreach.spec.ts": "892819a4a7236d53cf9980d61117f707d1e5de22daa53f1f1ce561bbc70b0567",
+    "test/sirv-target.spec.ts": "36b8f4ada2e19c80d7c4ca50d91b0a388fbda9e007225084d9df964e8a5f9f07",
+    "test/test262.spec.ts": "8320832b90b1256450a6f6a34bbe4331de4f301a83e3718a3e72bf258a9e6efe",
+    "docs/array-push.md": "f1d0d3ced959a38931f292831d91f8bd2a098f3fdd2333b8851a5bfe7e0aa91a",
+    "docs/sirv-target.md": "c8bce0cdc06628219cf78e97f9b6086ab249bef56b46b999293da538135be3ad",
+    "docs/implementation-gaps.md": "ad57e4ce0950d305003ce9f12d6862ada9aaf40127b83d304ac6c0464f44e2ab",
+    "test/test262/README.md": "4adb321b7cb82c8a1859f8b88445243c7c980b40434f798051725a711ccc00c3",
+    "docs/wiki/array-foreach.md": "a128b6a61bd878e266e88cc7f2f9ceb86428f966e06e2a963b9745b23f7296c5",
+    "docs/wiki/README.md": "ebd1be42af94513e9bee963f5929bbddc79948a09fbd78878df45608eb05fc21"
+  },
+  "logHashes": {
+    "red-31511e0-predecessor.log": "2374a0375914c955c8d0a32b5c67c08a1272299a77582e23daf98e4586d1acb0",
+    "affected-31511e0.log": "0e948a443087b9c622738a64523accf369a1cf3b95ed1c87af3e72295a6338ab",
+    "full-31511e0.log": "1c6d0dcc0fe74a1cc236840a6060fd0253ae305db5e042f9603ebc1960e3ea3e",
+    "typecheck-31511e0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "foreach-t262-31511e0.log": "4fea8460d6f7444047ab7391ce9375a362291b6bedbad4183e75aa90dd1ca5d6",
+    "native-check.js": "8a53d6d463aac41bbf8c4ca744f718158947efc799c49ab0e6a4d81c920711cd"
+  },
+  "handoffCleanup": "The six files under docs/agent-tasks/P002-array-foreach/logs/ (five run logs plus native-check.js) are local ignored artifacts: untracked via git rm --cached, every byte preserved on disk, and all recorded logHashes above still validate against them. Task ownership allowed evidence.json, not tracked oracle scripts or generated logs. The scans.diffCheck clean result below was the tracked working tree at verification time; raw Jest log whitespace in the force-added logs made the cumulative b9c3864..1b11982 diff fail git diff --check, so the logs were untracked and the cumulative b9c3864..HEAD diff was re-validated clean after this cleanup. No source, spec, or tested-commit bytes changed; no test or typecheck rerun."
+}

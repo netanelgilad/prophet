@@ -1,12 +1,13 @@
 # P002 — Shared bounded Array.prototype.forEach
 
-State: launched 2026-10-08 after accepted P001 integration.
+State: source accepted and integrated 2026-10-08; final publication/archival pending.
 Worker: Atlas OpenCode Muse Spark 1.3, build/high; runtime identity verified.
 Base: `b9c38644d1d51423722fad4c1e16f970711c5a4f`.
 Worktree: `/Users/netanelgilad/development/prophet-worktrees/muse-p002-foreach`.
 Branch: `agent/p002-array-foreach`. Atlas thread: `ses_ee67d7d87ffedICsrLok92nfcn`.
-One worker, full review. [Sent prompt](initial-prompt.md) binds the worktree copy
-of this contract to the same base; no source handoff or acceptance yet.
+One worker, full review. Amended by [correction 1](correction-1.md). [Sent prompt](initial-prompt.md) binds the worktree copy
+of this contract to the same base. Tested source `31511e0` is integrated as
+`bc85e2c`; see [review and evidence](review.md).
 
 ## Outcome and ownership
 

@@ -9,9 +9,8 @@ current heap and invoke through the shared `invoke` operation with
 imperatively so host stack depth stays flat; only genuine forks consume host
 recursion. See [the implementation](../../src/array/forEach.ts),
 [the boundary record](../array-push.md#shared-bounded-foreach) and
-[the specs](../../test/array-foreach.spec.ts). Provisional pending independent
-review and root acceptance; the verified source commit is recorded at handoff,
-not claimed here.
+[the specs](../../test/array-foreach.spec.ts). Verified source `31511e0`, integrated as `bc85e2c`; accepted 2026-10-08
+after [independent review](../agent-tasks/P002-array-foreach/review.md).
 
 Semantic traps, each with pinned Node 24.21.0 evidence behind it:
 
@@ -65,5 +64,5 @@ then required per-visit boundary checkpoints (later layout/inherited stops
 kept losing completed callbacks) and removal of the copied whole-symbol-map
 guard, since string-index lookups never consult symbol slots. An empty-array
 shortcut does not satisfy this task: real nonempty iteration with
-current-state re-reads is required. No scope expansion was needed and no
-shared helper changed.
+current-state re-reads is required. The one-line wiki index addition was approved during review; no shared
+runtime helper changed.

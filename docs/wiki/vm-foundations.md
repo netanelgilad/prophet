@@ -28,6 +28,13 @@ full ECMAScript/Node or all-path coverage.
   Complete Test262 cases run through Prophet, including their actual harness.
 - Current real-package progress: pico has bounded automatic OPTIONS/405 and
   unfinished open-URL GET/HEAD; sirv imports, then its factory passes concat and
-  stops at forEach (P001 accepted 2026-10-08; [review](../agent-tasks/P001-array-concat/review.md)).
+  forEach and stops inside totalist's for-loop beside a filesystem throw
+  (P002 accepted 2026-10-08; [review](../agent-tasks/P002-array-foreach/review.md)).
   The next task must replace the rejection with actual reusable behavior and
   retain the next reached boundary. Package sources stay byte-identical.
+
+- Imperative built-in algorithms need a failure checkpoint at each effectful
+  step, using the current context. Catching a later unsupported guard only at
+  the outer call can erase completed callbacks and forked siblings. P002's
+  [boundary regressions](../../test/array-foreach.spec.ts) establish this trap;
+  shared `captureExecutionBoundary` records the per-visit prefix.

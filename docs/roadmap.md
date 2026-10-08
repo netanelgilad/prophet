@@ -162,9 +162,11 @@ three pinned runtime dependencies and independent Node request references. The
 actual CLI imports all four unchanged packages, returns the interpreted factory,
 and serializes its nested definitions without leaking native regex objects.
 Calling the default factory now creates two regex identities and appends them
-through shared Array.push and bounded Array.concat before reaching an explicit
-Array.forEach boundary. Shared callback iteration is the next scoped task; ordinary
-loops, regex matching, file metadata and streams remain further target needs.
+through shared Array.push, bounded Array.concat and shared Array.forEach. The
+default empty ignores list completes iteration and reaches totalist's directory
+loop: its success path stops at ForStatement beside a filesystem-failure throw.
+Shared for-loop semantics are the next reached language blocker; regex
+construction/matching, file metadata and streams remain further target needs.
 Import success is not completed server setup or request analysis. Do not rewrite
 package code or equate retained handlers with analyzed requests.
 
@@ -175,8 +177,13 @@ record knowledge in the [wiki](wiki/README.md) before increasing parallelism.
 On 2026-10-08 that pilot was accepted after two implementation correction rounds
 and evidence repairs: 120 suites / 2,909 passing tests / 46 unchanged skips,
 plus typecheck and five independent reviewer probes. [P002](agent-tasks/P002-array-foreach/task.md)
-adds shared forEach next. Retain one worker and full review; this result does not
-justify increasing concurrency.
+then added shared forEach, accepted after one source correction round on
+2026-10-08: 121 suites / 2,985 passing tests / 46 unchanged skips, typecheck and
+12 independent review probes. The selected Test262 corpus is now 260 complete
+files / 511 variants. Retain one worker and full review; neither task achieved
+a first-review acceptance. External Atlas workers do not wake this orchestrator
+automatically: keep active supervision or establish a verified completion trigger
+before relying on unattended follow-up (see the playbook).
 [Task status and calibration](agent-tasks/README.md) track actual results and
 thread archival. [Read-only package scouting](wiki/package-candidates.md) records
 serve-handler and http-server as later candidates with concrete analysis questions;
