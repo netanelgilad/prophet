@@ -13,8 +13,8 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Accepted; integrated through `14752c1`, archival pending | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
-| [P002](P002-array-foreach/task.md) | Shared Array.forEach; next reached sirv operation | Scoped, not launched | One Muse worker/full review; real callback iteration and persistent effects |
+| [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Accepted/pushed `b9c3864`; CI green; Atlas thread archived | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
+| [P002](P002-array-foreach/task.md) | Shared Array.forEach; next reached sirv operation | Active Atlas `ses_ee67d7d87ffedICsrLok92nfcn`; base `b9c3864` | One Muse worker/full review; real callback iteration and persistent effects |
 
 Candidate queue after the pilot: shared forEach at the next reached sirv boundary;
 ordinary for-loop completion/lexical semantics as a separate higher-risk task;

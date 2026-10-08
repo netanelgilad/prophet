@@ -1,9 +1,10 @@
 # P001 review record
 
-Status: accepted and integrated; publication/CI and archival pending.
+Status: accepted, pushed and CI-verified; Atlas thread archived.
 Two implementation correction rounds; one worker/full review retained.
 Model verified by Atlas runtime: `opencode/muse-spark-1.3-contributor-free`,
-`build`, `high`. Thread: `ses_ee8296c07ffecB4caLjcDkS5EK` (not archived while active).
+`build`, `high`. Thread: `ses_ee8296c07ffecB4caLjcDkS5EK`
+(archived 2026-10-08T03:18:11.879Z after acceptance and publication).
 Base: `999236fd4c0dc68972434c91d6e4895edc6fa8a2`.
 Task/prompt version: 1; [sent prompt](initial-prompt.md).
 
@@ -219,3 +220,9 @@ No redundant full run is required for documentation-only descendants.
 Calibration remains one Muse worker, full semantic review, zero consecutive
 first-review acceptances. P002 is shared bounded forEach; it must inspect that
 algorithm's lookups rather than copying concat's species/spread guards.
+
+Published `b9c38644d1d51423722fad4c1e16f970711c5a4f` to origin/master.
+[GitHub CI 37721846155](https://github.com/netanelgilad/prophet/actions/runs/37721846155)
+passed both test and type-check jobs on that exact revision. Archived only the
+completed P001 Atlas thread; thread get verified `archivedAt`
+`2026-10-08T03:18:11.879Z` and no active turn. Unrelated website work is unchanged.

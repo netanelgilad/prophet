@@ -35,7 +35,8 @@ not permission to change Atlas itself or expose its loopback services.
 
 Sources: Atlas `cli/atlas-status.ts`, `src/shared/agent.ts`,
 `server/index.ts`, `server/agent-service.ts`, `server/opencode-client.ts`, and
-P001's recorded API responses. Archival will be verified at task completion.
+P001's recorded API responses. P001 archival was verified at completion on
+2026-10-08T03:18:11.879Z, after accepted source and successful published CI.
 
 ## Observed provider failure
 
@@ -45,3 +46,8 @@ reset/Retry-After metadata. This establishes an operational blocker, not its
 quota type or duration. See the [dated review log](../agent-tasks/P001-array-concat/review.md)
 for timestamps and the resumption checkpoint. An accepted send or an active
 turn may represent provider retries, so neither is evidence of model progress.
+
+Muse recovered on 2026-10-08: the same P001 thread produced edits and completed
+verification after the 02:55:31 UTC resume. No model/account substitution was
+used. P002 starts separately only because it is a new accepted follow-on task;
+its worktree reads can require their own scoped external_directory approval.
