@@ -1,6 +1,6 @@
 # P002 — Shared bounded Array.prototype.forEach
 
-State: source accepted and integrated 2026-10-08; final publication/archival pending.
+State: accepted, pushed and CI-verified 2026-10-08; worker archived.
 Worker: Atlas OpenCode Muse Spark 1.3, build/high; runtime identity verified.
 Base: `b9c38644d1d51423722fad4c1e16f970711c5a4f`.
 Worktree: `/Users/netanelgilad/development/prophet-worktrees/muse-p002-foreach`.

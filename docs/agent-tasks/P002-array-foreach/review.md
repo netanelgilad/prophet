@@ -1,6 +1,6 @@
 # P002 review record
 
-Status: accepted and integrated; publication/CI and archival pending.
+Status: accepted, pushed and CI-verified; Atlas thread archived.
 Model: Atlas OpenCode `opencode/muse-spark-1.3-contributor-free`, build/high;
 verified with thread runtime before work. Thread: `ses_ee67d7d87ffedICsrLok92nfcn`.
 Base: `b9c38644d1d51423722fad4c1e16f970711c5a4f`; branch `agent/p002-array-foreach`;
@@ -128,3 +128,10 @@ correction round and one handoff cleanup mean no first-review acceptance streak.
 Next demonstrated application blocker: totalist's ordinary for-loop, with lexical
 iteration scope, ordered completion/effects and execution budgets to scope as a
 separate task. No further worker has been launched at this checkpoint.
+
+Published `7defa45f5d18344b86ca46169a353467947cf819` to origin/master.
+[GitHub CI 37729598889](https://github.com/netanelgilad/prophet/actions/runs/37729598889)
+passed tests and type-check on that exact revision. Archived the completed
+P002 Atlas thread and verified `archivedAt` `2026-10-08T04:55:06.711Z` with no
+active turn. The later archival/process note changes documentation only.
+No unfinished worker is left relying on an unconfigured wake-up mechanism.

@@ -18,6 +18,9 @@ parallelism only through the recorded review/capacity gates. Preserve unrelated
 work. Keep the [task ledger](docs/agent-tasks/README.md) and [LLM wiki](docs/wiki/README.md)
 current; capture lessons before archiving completed Atlas threads. Honor observed
 Muse rate limits without duplicate prompts or unapproved model substitution.
+Atlas workers do not automatically wake this orchestrator when finished; remain
+active through review or establish a verified wake-up mechanism before relying
+on unattended follow-up.
 The earlier wave and pause remain [historical evidence](docs/autonomous-development.md),
 not an instruction to stay paused. Repository protections remain in force.
 
