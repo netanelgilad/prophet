@@ -46,3 +46,23 @@ red probe form failed ten tests as expected in 4.694s; native controls passed.
 [Exact commands and programmatically verified artifact hashes](preparation-evidence.json)
 are preparation evidence only, not feature acceptance. Subsequent records are
 documentation-only. No new runtime guard, selected Test262 file or skip was added.
+
+Published preparation checkpoint `f138cdad3f8241ab16486b0a14e4b8881bb68ec9`
+passed [CI 37770813732](https://github.com/netanelgilad/prophet/actions/runs/37770813732)
+(test and type-check). After more than eighteen minutes of unchanged provider
+activity, root interrupted the stalled turn and verified `activeTurnId: null`,
+then sent [resume attempt 1](resume-1.md) on the same thread/model. Dispatch is
+not evidence of provider recovery; inspect actual subsequent work/error.
+
+Resume attempt 1 reached the provider at `2026-10-08T11:36:28.268Z` and failed
+at `11:36:29.449Z` with the same rate-limit error, before any model output or
+edits. No reset metadata was exposed. Root interrupted that retrying turn to
+save an idle checkpoint and verified no active turn; the blocked task remains
+**unarchived** for same-thread resumption. There is no automatic wake-up or
+background orchestrator review. No further model prompts or fallback were used.
+
+Resume: verify the catalog and provider state, then send a single continuation to
+`ses_ee4c57620ffeA7vzQE3Q5b1dyH`, Muse build/high, keeping the exact assigned
+worktree/branch/base. Inspect current status before sending. Review worktree and
+independent probes are retained. Feature acceptance is still pending, with zero
+implementation/evidence handoffs and no change to the calibration streak.

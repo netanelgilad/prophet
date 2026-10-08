@@ -1,6 +1,8 @@
 # P003 — Shared bounded ForStatement
 
-State: assigned 2026-10-08; one Muse Spark 1.3 build/high worker, full review.
+State: assigned 2026-10-08; provider-limited before implementation after one
+cooldown retry. Same Muse Spark 1.3 build/high thread is idle/unarchived for
+resumption, full review required. See [review checkpoint](review.md).
 Base: `bb7dce2f1db39cead4d198f11c61f232a416bce3`.
 Worktree: `/Users/netanelgilad/development/prophet-worktrees/muse-p003-for`.
 Branch: `agent/p003-for-statement`. Atlas thread: `ses_ee4c57620ffeA7vzQE3Q5b1dyH`.
