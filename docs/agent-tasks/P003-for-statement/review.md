@@ -24,3 +24,25 @@ loop behavior. A second red log records the final probe form.
 
 State: awaiting worker implementation/evidence. No acceptance or coverage claim.
 Atlas completion does not wake this chat; root remains active through review.
+
+## Provider interruption
+
+At `2026-10-08T11:17:50.460Z`, OpenCode's local provider log recorded
+`AI_APICallError: Rate limit exceeded. Please try again later.` for this exact
+P003 session/model. Atlas still reported an active turn and its last completed
+reads at 11:17:49; the error was not included in the conversation projection at
+11:24. The approval queue was empty. No worker implementation edits exist yet.
+No reset/Retry-After was exposed in that log line. Root does not submit a duplicate
+while the provider turn is active and keeps the user's Muse-only preference.
+The runtime catalog/model identity and successful initial reads establish that
+this is provider interruption, not an unstarted task or a claimed feature result.
+
+## Preparation checkpoint validation
+
+On unchanged production/spec/dependency bytes at scope commit `0fc8e16`, root
+ran the full suite: **121 suites, 2,985 passing tests, 46 unchanged historical
+skips**, 308.79s, exit 0. Pinned-Node typecheck passed, exit 0. The final independent
+red probe form failed ten tests as expected in 4.694s; native controls passed.
+[Exact commands and programmatically verified artifact hashes](preparation-evidence.json)
+are preparation evidence only, not feature acceptance. Subsequent records are
+documentation-only. No new runtime guard, selected Test262 file or skip was added.

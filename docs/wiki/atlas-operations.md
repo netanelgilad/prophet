@@ -51,3 +51,19 @@ Muse recovered on 2026-10-08: the same P001 thread produced edits and completed
 verification after the 02:55:31 UTC resume. No model/account substitution was
 used. P002 starts separately only because it is a new accepted follow-on task;
 its worktree reads can require their own scoped external_directory approval.
+
+## An active turn can hide a provider retry
+
+Observed during [P003](../agent-tasks/P003-for-statement/review.md), 2026-10-08:
+Atlas continued reporting an active turn with unchanged completed reads after
+OpenCode's provider log recorded a rate-limit error. Its conversation projection
+had no retry/error item and the approval queue was empty. `readThread` in
+`server/opencode-client.ts` maps both OpenCode `busy` and `retry` to an active
+turn; activity alone is not evidence of progress or a reason to resend.
+
+When the conversation and approvals do not explain a stalled owned worker, a
+bounded read of the local OpenCode provider log filtered to that exact session
+can establish a provider error without changing the service or exposing secrets.
+Record the timestamp and observed message; do not invent quota/reset metadata.
+Keep the existing turn during provider backoff. Polling a local status endpoint
+does not warrant additional model prompts or model/account substitution.
