@@ -1,0 +1,99 @@
+{
+  "task": "P001-array-concat",
+  "taskVersion": 1,
+  "worker": "Atlas OpenCode Muse Spark 1.3, build/high",
+  "branch": "agent/p001-array-concat",
+  "base": "999236fd4c0dc68972434c91d6e4895edc6fa8a2",
+  "codeCommits": [
+    "a3d39a8 Implement shared bounded Array.prototype.concat (P001)",
+    "4757a85 Bound concat operand descent and prove inherited symbol state (P001 correction 2)",
+    "365cbe0 Repair typecheck findings in concat correction (P001)"
+  ],
+  "testedCommit": "365cbe0e9eca6443c48a25feef85bf0a1f7967c4",
+  "node": "pinned /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node (v24.21.0) used for yarn and PROPHET_NODE_BINARY",
+  "test262Pin": "47bf9d1db9f6e7632120ac1b1946ad092e6c214e",
+  "testFirst": {
+    "redLog": "docs/agent-tasks/P001-array-concat/logs/array-concat-01.log",
+    "redResult": "19 failed, 26 passed of 45 (missing concat intrinsic; two spec premises and one native harness fixed before green, see corrections)"
+  },
+  "corrections": [
+    "Review correction 1: added documented 1024-element host-loop cap before any copy; repaired three spec premises against pinned Node (nested appends observe receiver plus both arguments for length 4; holes advance the result index; bare unknown numbers cannot prove self-equality, use finite randomNumber facts with an independent unknown control).",
+    "Review correction 2 (independent, 2 probes failed on a3d39a8): added 32-total-operand cap before descent (empty operands consume host recursion levels); array operands now prove the intrinsic chain carries no hidden symbol state with a justified Array.prototype hook exemption; budget checks run before the inherited-index scan. Retained all five probes as regression specs (conditional current-element mutation, sibling state with surviving result, argument effects at/above the operand cap, empty-operand work bound, inherited unknown symbol state). Distinguished the conservative whole-slot guard from any hasInstance-implies-spreadability claim; documented the argument-array constructor-shadow over-restriction.",
+    "Operational: full-suite-01.log (exit 129) is intentional reviewer cancellation of the a3d39a8 run, not a test failure; fresh full verification ran on 365cbe0."
+  ],
+  "commands": [
+    {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/array-concat.spec.ts test/array-push.spec.ts test/sirv-target.spec.ts test/unknown-length.spec.ts test/test262.spec.ts test/test262/runner.spec.ts",
+      "exit": 0,
+      "log": "docs/agent-tasks/P001-array-concat/logs/focused-final.log",
+      "sha256": "64f5a392eacdb3a78e6374c255e92bc2cf934818b04c8bee4b60852ac661ab14",
+      "result": "6 suites passed; 630 passed, 46 skipped, 676 total"
+    },
+    {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs test --runInBand",
+      "exit": 0,
+      "log": "docs/agent-tasks/P001-array-concat/logs/full-suite-365cbe0.log",
+      "sha256": "99d28f4ffc91babc278dcee6a44cae89dbebd4d349e06ffd687ec001182b1310",
+      "result": "120 suites passed; 2909 passed, 46 skipped, 2955 total"
+    },
+    {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs typecheck",
+      "exit": 0,
+      "log": "docs/agent-tasks/P001-array-concat/logs/typecheck-365cbe0.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": "empty output, no errors"
+    }
+  ],
+  "upstream": {
+    "activated": [
+      "built-ins/Array/prototype/concat/S15.4.4.4_A1_T3.js",
+      "built-ins/Array/prototype/concat/S15.4.4.4_A1_T4.js",
+      "built-ins/Array/prototype/concat/not-a-constructor.js"
+    ],
+    "variants": 6,
+    "nativeCheck": "each file run independently in fresh pinned Node contexts with upstream sta.js (plus assert.js for not-a-constructor); see per-file tests in test/array-concat.spec.ts and test262-concat-filter.log",
+    "corpusNow": "253 complete files / 497 strictness variants; 46 historical skipped files unchanged, no skip site added"
+  },
+  "sirv": {
+    "prior": "Unmodeled property read 'concat'",
+    "now": "Unmodeled property read 'forEach'",
+    "retained": "both regex identities in ignores; factory still unfinished, not HTTP setup"
+  },
+  "sourceHashes": {
+    "src/array/concat.ts": "1076a81cd723c651aee220bb84f189780145c5027d5b34e465c18d36a0112cdd",
+    "src/array/prototype.ts": "faea04684fbb64261d77604715599e2a63d5b118f6645047366042ad06d11b77",
+    "test/array-concat.spec.ts": "b74a0305e591233ac74e6088a73e3206b2017fc98d16bcbcb98c66287aba4f36",
+    "test/sirv-target.spec.ts": "2723bb1fdee3f7796421b7bab76521eb70345a7b79fa46d374102db281288f5b",
+    "test/test262.spec.ts": "faa8f792d159f5615c88f6c69ded3541d617db979a806254289337024e258f31",
+    "test/test262/README.md": "6b4b03db93ca9e5a538966c56a5d2143b434811c14cb7ec192ceb510b99d5f21",
+    "docs/array-push.md": "5be52359f4176c29491a2154c41561858ffdf0cd8d695f36386436c1a48c6f1e",
+    "docs/sirv-target.md": "4258dc70291219bb6750ea4024ca19ab941640d3f8c22fadc669c61fd877116e",
+    "docs/implementation-gaps.md": "e4573eafe3a61077caef3a406d25bfc4760f0f6faa460f80c556f",
+    "docs/wiki/array-concat.md": "1899bf3a58280d9d2dc05d1d2e05ac0b47fae09e7f007bd5ac59e1a33c754732"
+  },
+  "logHashes": {
+    "array-concat-01.log": "92570d100fe215a9d7db9bc47fe6d16823b90f47fa3eeb390d4a27d23e635f18",
+    "array-concat-02.log": "4a5a8f29868d18fce17f010228d72d4b74e33d35793e0f5477a09ce831659c18",
+    "array-concat-03.log": "b925a30b5a06715e6e48176ad46098fedf7ea423bf764bfe03ae20e6d55d9a61",
+    "array-concat-04.log": "26d284cfc7816d82c886c1158ceb6d39adb18594196cd9e2d7fbab977f427f99",
+    "focused-final.log": "64f5a392eacdb3a78e6374c255e92bc2cf934818b04c8bee4b60852ac661ab14",
+    "full-suite-01.log": "2b74d0caa56d5393f40b7a0e7c1e651e4e27c6e5d778948df7ea977a3d0e0d06",
+    "full-suite-365cbe0.log": "99d28f4ffc91babc278dcee6a44cae89dbebd4d349e06ffd687ec001182b1310",
+    "full-suite-final.log": "b346a2326d21f2b96c3ef61578eb04b5bfcda2b9762130c3c067b2c4605f719c",
+    "neighbors-01.log": "4bac8fe9afec389a4f67c7b61eecfad48551b5fca9502977d7765e9d5698bc5d",
+    "sirv-01.log": "024f2e2636cdebbddcf2326283d5f2fcf85dbd7be04902e241276fdba7eb1749",
+    "sirv-probe.log": "7bfbb3803e52a4e4b21760f32d075f44e4fef46583a4247bd7c4537ced7f1ef9",
+    "test262-01.log": "bc5ce4d14dc68027556a56a96ef32d0efa755264e25ff32e2aa32c3f4bd56140",
+    "test262-concat-filter.log": "0b9304fbb8fdb03d5f08ec24c20e9b51e2c53c6f31cc51fe868251553b294c7b",
+    "typecheck-365cbe0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typecheck-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "note": "logs are git-ignored local files under docs/agent-tasks/P001-array-concat/logs/; hashes bind them to this evidence record",
+  "residualBoundaries": [
+    "ARRAY-001 open: constructor overloads, generic receivers/ToLength, inherited-index materialization, species/spreadable symbols, descriptors/accessors, overflow/partial maximum-length writes, totals above 1024 elements or 32 operands",
+    "Argument-array constructor shadows conservatively rejected although species consults only the receiver (documented over-restriction)",
+    "Caps bound per-path copying/recursion, not total symbolic fork growth (SYM-004) or allocation failure",
+    "forEach, loops, RegExp matching remain separate work; sirv factory waits at forEach"
+  ],
+  "wiki": "docs/wiki/array-concat.md (semantics traps, caps, both review corrections, limits)"
+}
