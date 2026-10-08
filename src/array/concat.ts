@@ -1,4 +1,4 @@
-import { Any, ESNumber, isArray, isESNull, isESNumber, isUndefined, ThrownValue, WithProperties } from '../types';
+import { Any, isArray, isESNull, isESNumber, isUndefined, ThrownValue, WithProperties } from '../types';
 import { getArrayElements, getProperties, ownPropertyPresence } from '../execution-context/Heap';
 import { TExecutionContext } from '../execution-context/ExecutionContext';
 import { BranchResult } from '../execution-context/branches';
@@ -72,12 +72,13 @@ function ordinaryElements(array: ArrayValue, context: TExecutionContext): Any[] 
   // argument array carrying its own constructor shadow is conservatively
   // rejected too: the shared operation cannot otherwise prove the shadow is
   // unobserved. This is a residual over-restriction, not a soundness gap.
+  const inheritedConstructor: Any = getProperties(getArrayPrototype(), context).constructor;
   if (resolveBoolean(ownPropertyPresence(array, 'constructor', context), context.value.knowledge) !== false ||
-    getProperties(getArrayPrototype(), context).constructor !== getArrayConstructor() ||
+    inheritedConstructor !== getArrayConstructor() ||
     (getArrayConstructor().wellKnownSymbols && getArrayConstructor().wellKnownSymbols!.size)) {
     return arrayBoundary('custom constructor/species array concat operands');
   }
-  assertNoInheritedSpreadableFlag(context);
+  assertNoInheritedSpreadableFlag();
   const elements = getArrayElements(array, context), length = getProperties(array, context).length;
   if (!elements || !isESNumber(length) || typeof length.value !== 'number' || length.value !== elements.length) {
     return arrayBoundary('concat requires a known current array length and element structure');
@@ -96,7 +97,7 @@ function ordinaryElements(array: ArrayValue, context: TExecutionContext): Any[] 
 // defers to ordinary lookup by returning undefined. Any slot anywhere stops
 // conservatively: the guard cannot enumerate which symbol a slot holds, so it
 // makes no claim that a hasInstance slot itself affects spreading.
-function assertNoInheritedSpreadableFlag(context: TExecutionContext): void {
+function assertNoInheritedSpreadableFlag(): void {
   if (prototypeOf(getArrayPrototype()) !== getObjectPrototype() ||
     !isESNull(prototypeOf(getObjectPrototype()))) {
     return arrayBoundary('custom prototype concat operands');
@@ -113,7 +114,7 @@ function assertNoInheritedSpreadableFlag(context: TExecutionContext): void {
 // IsConcatSpreadable observes @@isConcatSpreadable through the prototype chain.
 // Public symbol keys remain unsupported, so an ordinary chain without internal
 // slots cannot carry the flag; anything else stops before spreading or appending.
-function assertNoSpreadableFlag(value: Any, context: TExecutionContext): void {
+function assertNoSpreadableFlag(value: Any): void {
   let current: Any = value;
   const seen = new Set<Any>();
   while (true) {
@@ -155,7 +156,7 @@ function appendOperand(item: Any, combined: Any[], context: TExecutionContext): 
     combined.length = base + elements.length;
     return combined;
   }
-  if (isObjectValue(item)) assertNoSpreadableFlag(item, context);
+  if (isObjectValue(item)) assertNoSpreadableFlag(item);
   if (combined.length + 1 > 0xffffffff) return arrayBoundary('concat overflow and partial maximum-length writes');
   if (combined.length + 1 > maximumConcatElements) {
     return arrayBoundary('concat exceeds the supported element limit');

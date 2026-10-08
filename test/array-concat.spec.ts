@@ -2,7 +2,7 @@ import { execFileSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { evaluateCode, nodeInitialExecutionContext } from '../src';
-import { Array as ESArray, TArray } from '../src/array/Array';
+import { Array as ESArray, ArrayValue, TArray } from '../src/array/Array';
 import { symbolicNumberArray } from '../src/array/symbolic';
 import { ESBoolean } from '../src/boolean/ESBoolean';
 import { BranchResult } from '../src/execution-context/branches';
@@ -286,7 +286,7 @@ test('cumulative totals respect the documented element limit without copying', (
   const sevenHundred = dense(700), otherSevenHundred = dense(700), threeHundred = dense(300);
   const [, under] = run('const out = first.concat(second);',
     { first: sevenHundred, second: threeHundred });
-  expect((under.value.scope.out as TArray<Any>).properties.length).toMatchObject({ value: 1000 });
+  expect((under.value.scope.out as ArrayValue).properties.length).toMatchObject({ value: 1000 });
   expect(getArrayElements(under.value.scope.out as TArray<Any>, under)).toHaveLength(1000);
   expect(getArrayElements(under.value.scope.first as TArray<Any>, under)).toHaveLength(700);
   for (const [script, input] of [
