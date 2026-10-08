@@ -34,6 +34,19 @@ const activeCorpus = [
   "built-ins/Array/prototype/concat/S15.4.4.4_A1_T3.js",
   "built-ins/Array/prototype/concat/S15.4.4.4_A1_T4.js",
   "built-ins/Array/prototype/concat/not-a-constructor.js",
+  // Complete shared forEach calls over ordinary arrays: nullish receiver
+  // TypeErrors, ordinary length reads, object thisArg, callback-added elements
+  // within the captured range, empty arrays and the undefined return. Files
+  // needing generic receivers, length coercion, subclassing, boolean computed
+  // keys, deletion, freezing, descriptors or the propertyHelper harness stay
+  // inactive rather than trimmed.
+  "built-ins/Array/prototype/forEach/15.4.4.18-1-1.js",
+  "built-ins/Array/prototype/forEach/15.4.4.18-1-2.js",
+  "built-ins/Array/prototype/forEach/15.4.4.18-2-2.js",
+  "built-ins/Array/prototype/forEach/15.4.4.18-5-2.js",
+  "built-ins/Array/prototype/forEach/15.4.4.18-7-1.js",
+  "built-ins/Array/prototype/forEach/15.4.4.18-8-1.js",
+  "built-ins/Array/prototype/forEach/15.4.4.18-8-13.js",
   // Complete object declaration bindings: names, defaults, nested objects and errors.
   "language/statements/variable/dstr/obj-ptrn-prop-id.js",
   "language/statements/variable/dstr/obj-ptrn-prop-id-init.js",

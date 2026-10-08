@@ -5,10 +5,10 @@ import { copySync, removeSync } from "fs-extra";
 import { tmpdir } from "os";
 import { join } from "path";
 import { runFile } from "../src/cli/runtime";
-import { ArrayValue } from "../src/array/Array";
-import { getArrayElements } from "../src/execution-context/Heap";
 import { effectPaths } from "../src/effects";
 import { isESFunction } from "../src/Function/Function";
+import { executionBoundaries, hasExecutionBoundary, isForkedCompletion, ForkedCompletion } from "../src/execution-context/Completion";
+import { Any, isThrownValue } from "../src/types";
 import { assertPinnedNode } from "./commonjs/oracle";
 
 const packages = [
@@ -75,19 +75,26 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
-  // Both literal arguments, ordinary push calls and the shared concat of the
-  // default ignores list execute before the next unsupported intrinsic read.
-  // This is an unfinished factory, not HTTP setup.
-  expect(result.diagnostic).toBe("Unmodeled property read 'forEach'");
-  expect(result.completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
-  expect(result.current.value.sourceFile).toMatch(/sirv\/build\.js$/);
-  const ignores = getArrayElements(result.current.value.scope.ignores as ArrayValue, result.current)!;
-  expect(ignores).toHaveLength(2);
-  expect(ignores[0]).not.toBe(ignores[1]);
-  for (const value of ignores) expect(value).toMatchObject({
-    regexpData: { originalSource: expect.any(String), originalFlags: "" },
-    properties: { lastIndex: { value: 0 } }
-  });
+  // The default ignores list is empty, so the shared bounded forEach completes
+  // with zero visits and the factory reaches its totalist directory walk. The
+  // walk then retains its unfinished state at the explicit loop boundary while
+  // the sibling filesystem failure path still throws beside it. This is an
+  // unfinished factory, not HTTP setup.
+  expect(result.diagnostic).toBe("Can't resolve type of ast type ForStatement");
+  expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
+  expect(isForkedCompletion(result.completion)).toBe(true);
+  const boundaries = executionBoundaries(result.completion as Any);
+  expect(boundaries).toHaveLength(1);
+  expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+    message: "Can't resolve type of ast type ForStatement" });
+  const forked = result.completion as ForkedCompletion;
+  const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
+    leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
+    isThrownValue(leaf) ? "thrown" : "normal");
+  expect(kinds).toContain("boundary");
+  expect(kinds).toContain("thrown");
+  expect(kinds).not.toContain("normal");
+  expect(result.current.value.sourceFile).toMatch(/totalist\/sync\/index\.js$/);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
