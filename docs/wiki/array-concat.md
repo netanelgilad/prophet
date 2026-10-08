@@ -10,8 +10,8 @@ left-to-right with current heap state; the method itself must re-read current
 elements/length (never initial snapshots), branch conditional operands with
 `withValue` so each path extends its own result copy, and never mutate inputs.
 See [the implementation](../../src/array/concat.ts), [the boundary record](../array-push.md)
-and [the specs](../../test/array-concat.spec.ts). Verified at P001,
-2026-10-07 (pending review).
+and [the specs](../../test/array-concat.spec.ts). Reviewed revision 365cbe0,
+pending final acceptance; the curator records the accepted date on integration.
 
 Semantic traps, each with pinned Node 24.21.0 evidence behind it:
 

@@ -21,13 +21,14 @@
     "Review correction 2 (independent, 2 probes failed on a3d39a8): added 32-total-operand cap before descent (empty operands consume host recursion levels); array operands now prove the intrinsic chain carries no hidden symbol state with a justified Array.prototype hook exemption; budget checks run before the inherited-index scan. Retained all five probes as regression specs (conditional current-element mutation, sibling state with surviving result, argument effects at/above the operand cap, empty-operand work bound, inherited unknown symbol state). Distinguished the conservative whole-slot guard from any hasInstance-implies-spreadability claim; documented the argument-array constructor-shadow over-restriction.",
     "Operational: full-suite-01.log (exit 129) is intentional reviewer cancellation of the a3d39a8 run, not a test failure; fresh full verification ran on 365cbe0."
   ],
+  "review": "Independent review reran all five adversarial specs against the exact 365cbe0 concat/prototype bytes: 5/5 pass, exit 0. The 365cbe0 full-suite log (120 suites / 2909 passed / 46 skipped) is independently confirmed; no full-suite rerun for evidence/docs. Two conservative guard comments overstate why the whole-slot/argument-constructor checks are necessary; docs already acknowledge the over-restriction, treated as nonblocking nits with no source change. Source frozen at 365cbe0 (git diff over src/test/README/docs/AGENTS shows only the wiki date line below).",
   "commands": [
     {
       "command": "node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/array-concat.spec.ts test/array-push.spec.ts test/sirv-target.spec.ts test/unknown-length.spec.ts test/test262.spec.ts test/test262/runner.spec.ts",
       "exit": 0,
-      "log": "docs/agent-tasks/P001-array-concat/logs/focused-final.log",
-      "sha256": "64f5a392eacdb3a78e6374c255e92bc2cf934818b04c8bee4b60852ac661ab14",
-      "result": "6 suites passed; 630 passed, 46 skipped, 676 total"
+      "log": "docs/agent-tasks/P001-array-concat/logs/focused-365cbe0.log",
+      "sha256": "baf573a0f3d564006e1a502fd5196b7ce9532b9a55aa4a489f71f0414debd04b",
+      "result": "6 suites passed; 630 passed, 46 skipped, 676 total (run on frozen 365cbe0 source)"
     },
     {
       "command": "node .yarn/releases/yarn-3.1.1.cjs test --runInBand",
@@ -59,6 +60,7 @@
     "now": "Unmodeled property read 'forEach'",
     "retained": "both regex identities in ignores; factory still unfinished, not HTTP setup"
   },
+  "hashMethod": "sourceHashes generated and validated programmatically: for each path, `git show 365cbe0:<path> | sha256sum`; all 10 match the testedCommit bytes (no manual transcription). docs/wiki/array-concat.md below is the 365cbe0 bytes; the worktree descendant (sha256 70c05d23405dff71277d3cbce0bcab1955ff501434fd6391aef5069a4739887c) differs only by the review-requested acceptance wording and is not hashed as tested source.",
   "sourceHashes": {
     "src/array/concat.ts": "1076a81cd723c651aee220bb84f189780145c5027d5b34e465c18d36a0112cdd",
     "src/array/prototype.ts": "faea04684fbb64261d77604715599e2a63d5b118f6645047366042ad06d11b77",
@@ -68,7 +70,7 @@
     "test/test262/README.md": "6b4b03db93ca9e5a538966c56a5d2143b434811c14cb7ec192ceb510b99d5f21",
     "docs/array-push.md": "5be52359f4176c29491a2154c41561858ffdf0cd8d695f36386436c1a48c6f1e",
     "docs/sirv-target.md": "4258dc70291219bb6750ea4024ca19ab941640d3f8c22fadc669c61fd877116e",
-    "docs/implementation-gaps.md": "e4573eafe3a61077caef3a406d25bfc4760f0f6faa460f80c556f",
+    "docs/implementation-gaps.md": "e4573eafe3a61077caef3a7a36bb9793a406d25bfc4760f0f6faa460f80c556f",
     "docs/wiki/array-concat.md": "1899bf3a58280d9d2dc05d1d2e05ac0b47fae09e7f007bd5ac59e1a33c754732"
   },
   "logHashes": {
@@ -76,7 +78,8 @@
     "array-concat-02.log": "4a5a8f29868d18fce17f010228d72d4b74e33d35793e0f5477a09ce831659c18",
     "array-concat-03.log": "b925a30b5a06715e6e48176ad46098fedf7ea423bf764bfe03ae20e6d55d9a61",
     "array-concat-04.log": "26d284cfc7816d82c886c1158ceb6d39adb18594196cd9e2d7fbab977f427f99",
-    "focused-final.log": "64f5a392eacdb3a78e6374c255e92bc2cf934818b04c8bee4b60852ac661ab14",
+    "focused-365cbe0.log": "baf573a0f3d564006e1a502fd5196b7ce9532b9a55aa4a489f71f0414debd04b",
+    "skip-inventory-365cbe0.log": "343cbc163bf9393b37da3b1cefe5893cdf599d8c4ba4647c090bf6c5aa30b5e5",
     "full-suite-01.log": "2b74d0caa56d5393f40b7a0e7c1e651e4e27c6e5d778948df7ea977a3d0e0d06",
     "full-suite-365cbe0.log": "99d28f4ffc91babc278dcee6a44cae89dbebd4d349e06ffd687ec001182b1310",
     "full-suite-final.log": "b346a2326d21f2b96c3ef61578eb04b5bfcda2b9762130c3c067b2c4605f719c",
@@ -88,6 +91,30 @@
     "typecheck-365cbe0.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "typecheck-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
+  "scans": {
+    "guardSearch": {
+      "command": "rg -n 'throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented' src --glob '*.ts'",
+      "result": "71 files / 533 hit lines (audit baseline 70/525; +1 file concat.ts with its guards)"
+    },
+    "assertSearch": {
+      "command": "rg -n 'assert\\(|unimplemented\\(' src --glob '*.ts'",
+      "result": "5 files / 23 hit lines (unchanged from audit)"
+    },
+    "skipSites": {
+      "command": "rg -n '\\b(test|it|describe)\\.(skip|todo)\\s*\\(' test --glob '*.ts'",
+      "result": "exactly one test.skip site in test/test262.spec.ts (line 354)"
+    },
+    "gapWordLines": 948,
+    "openGapIds": 65,
+    "skipInventory": {
+      "log": "docs/agent-tasks/P001-array-concat/logs/skip-inventory-365cbe0.log",
+      "sha256": "343cbc163bf9393b37da3b1cefe5893cdf599d8c4ba4647c090bf6c5aa30b5e5",
+      "activeFiles": 253,
+      "skippedFiles": 46,
+      "reconciliation": "all 46 inventory names match the backlog inventory table exactly (46 table rows; empty diff both ways)"
+    },
+    "gitDiffScope": "src/test/README/docs/AGENTS diff is empty except the wiki date-line fix below"
+  },
   "note": "logs are git-ignored local files under docs/agent-tasks/P001-array-concat/logs/; hashes bind them to this evidence record",
   "residualBoundaries": [
     "ARRAY-001 open: constructor overloads, generic receivers/ToLength, inherited-index materialization, species/spreadable symbols, descriptors/accessors, overflow/partial maximum-length writes, totals above 1024 elements or 32 operands",
@@ -95,5 +122,5 @@
     "Caps bound per-path copying/recursion, not total symbolic fork growth (SYM-004) or allocation failure",
     "forEach, loops, RegExp matching remain separate work; sirv factory waits at forEach"
   ],
-  "wiki": "docs/wiki/array-concat.md (semantics traps, caps, both review corrections, limits)"
+  "wiki": "docs/wiki/array-concat.md (sha256 70c05d23405dff71277d3cbce0bcab1955ff501434fd6391aef5069a4739887c): semantics traps, caps, both review corrections, limits; states reviewed revision 365cbe0 pending final acceptance, curator records accepted date"
 }
