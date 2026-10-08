@@ -1,0 +1,81 @@
+{
+  "observedAt": "2026-10-08",
+  "museLiveResponse": {
+    "observedAt": "2026-10-08T12:04:23.096946+00:00",
+    "model": "muse-spark-1.3-contributor-free",
+    "endpoint": "/zen/v1/responses",
+    "status": 429,
+    "headers": {
+      "date": "Thu, 08 Oct 2026 12:04:23 GMT",
+      "retry-after": "42937"
+    },
+    "error": {
+      "type": "FreeUsageLimitError",
+      "message": "Rate limit exceeded. Please try again later."
+    },
+    "estimatedResetUTC": "2026-10-09T00:00:00.096946+00:00"
+  },
+  "longcatDirectResponse": {
+    "observedAt": "2026-10-08T12:06:12.990016+00:00",
+    "model": "longcat-2.5-preview-free",
+    "endpoint": "/zen/v1/chat/completions",
+    "status": 403,
+    "headers": {
+      "date": "Thu, 08 Oct 2026 12:06:13 GMT"
+    },
+    "error": {
+      "type": "FreeTierError",
+      "message": "Error from provider (Console): OpenCode's free tier can only be used from within OpenCode"
+    },
+    "hasResponse": false
+  },
+  "localMuseDailyMetadata": {
+    "completedModelResponses": 501,
+    "toolCallResponses": 489,
+    "finalResponses": 12,
+    "streamStarts": 504,
+    "streamErrors": 3,
+    "scope": "all local OpenCode sessions; aggregate only; not a guaranteed server counter"
+  },
+  "ownedTaskCounts": [
+    {
+      "task": "P001",
+      "completedModelResponsesToday": 72,
+      "toolCallResponses": 70,
+      "otherCompletedResponses": 2,
+      "failedOrInterruptedMessages": 0
+    },
+    {
+      "task": "P002",
+      "completedModelResponsesToday": 179,
+      "toolCallResponses": 176,
+      "otherCompletedResponses": 3,
+      "failedOrInterruptedMessages": 0
+    },
+    {
+      "task": "P003",
+      "completedModelResponsesToday": 8,
+      "toolCallResponses": 8,
+      "otherCompletedResponses": 0,
+      "failedOrInterruptedMessages": 2
+    }
+  ],
+  "inspectedPublicSourceCommit": "5d9cd9b259f0456522f318a7435501d03cfbee79",
+  "installedClientSourceCommit": "826d9ad46a22bef0294998e08daa3c4904fea28f",
+  "atlasVersion": "1.18.21",
+  "longcatActualWorker": "ses_ee4968dbdffezuWu3XARIEtS01",
+  "longcatActualWorkerObserved": "actual OpenCode tool activity; response accepted beyond direct-client restriction",
+  "sourceArtifactHashes": {
+    "ipRateLimiter.ts": "040f5eb981de64ba69ecdf479a75e5608e4a950fa47514cd1e7ec209747e744c",
+    "modelTpsLimiter.ts": "6379349962dfec4bb5bd730cb1e486ad8e12c0044cc8d5cac8b4d0b5a6aed38e",
+    "installed-retry.ts": "7d41cf569141a5b0c04e87bd82a796ba131a0274b0fad6163f16651831ca2009",
+    "retry.ts": "7e24b96622f7b46586eabb68d3c2464d1c68f5cc58262f2d305878d5e55b9aed",
+    "model.ts": "ea3f54dd52b51fa9200c5b0dfccd48764c02b8dcaeaf5619c237aae0bd430ef7",
+    "modelTpmLimiter.ts": "dd00adc86c4b8b8e0f95f0da916d9b155d3f269416f6bc2023b751e6128d6255",
+    "installed-provider.ts": "b78249983e3310ce57dc04ec7be7363a2dcba29a64a5af4bdaadb90f3a5514cd",
+    "trialLimiter.ts": "3bfa604fc7c5df654f35a17061dd740f2604c49480938f91da2a18bad6019d3e",
+    "subscription.ts": "9c6b4afb978d9ddd4bdb959c5bd230295317e17b8d2b9bce285e73c368936202",
+    "handler.ts": "fa2eb024307b8b0ddc45b5f74de52d185981dc8d78838407b13ca201c71be122",
+    "keyRateLimiter.ts": "1c5752c407ba980d2f57d22db893c8e94954d817a66f65d83cb95e05320f8c40"
+  }
+}

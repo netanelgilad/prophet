@@ -10,14 +10,17 @@ policies, classifications and verdicts ([roadmap](docs/roadmap.md)).
 # Repository workflow
 
 The user resumed work on 2026-10-07 with the [agent implementation playbook](docs/agent-workflow.md).
-The orchestrator scopes tasks, launches Atlas Muse Spark 1.3 workers, reviews
+The orchestrator scopes tasks, launches Atlas workers, reviews
 independent evidence and code, improves prompts, and integrates validated changes
 onto `master` for push to `origin/master`. Workers implement in assigned worktrees;
 they do not push or mutate the shared checkout. Start with one worker and increase
 parallelism only through the recorded review/capacity gates. Preserve unrelated
 work. Keep the [task ledger](docs/agent-tasks/README.md) and [LLM wiki](docs/wiki/README.md)
 current; capture lessons before archiving completed Atlas threads. Honor observed
-Muse rate limits without duplicate prompts or unapproved model substitution.
+provider rate limits and reset times. Muse remains the preferred calibrated worker;
+other free models may be piloted in separate threads/worktrees with separate
+[trust records](docs/agent-models.md), following the user's 2026-10-08 update.
+Keep one active worker total until review gates permit more; no paid fallback.
 Atlas workers do not automatically wake this orchestrator when finished; remain
 active through review or establish a verified wake-up mechanism before relying
 on unattended follow-up.

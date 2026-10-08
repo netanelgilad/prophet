@@ -1,0 +1,25 @@
+{
+  "kind": "root documentation/process validation; no changed production/spec/dependency bytes",
+  "sourceBaseCommit": "c89c0b73bbaab0645d345600a39d500a48b6c2a6",
+  "fullSuite": {
+    "exit": 0,
+    "suites": 121,
+    "passed": 2985,
+    "skipped": 46,
+    "seconds": 292.147,
+    "log": "/tmp/prophet-quota-policy-full.log"
+  },
+  "typecheck": {
+    "exit": 0,
+    "log": "/tmp/prophet-quota-policy-typecheck.log"
+  },
+  "node": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "commands": [
+    "PROPHET_NODE_BINARY=<node> <node> .yarn/releases/yarn-3.1.1.cjs test --runInBand",
+    "<node> .yarn/releases/yarn-3.1.1.cjs typecheck"
+  ],
+  "hashes": {
+    "/tmp/prophet-quota-policy-full.log": "888d90776cce649fe02f135c688dc4089ac4fe2aa2427b4b15e9dca1e1146972",
+    "/tmp/prophet-quota-policy-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

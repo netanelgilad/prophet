@@ -16,10 +16,12 @@ independent review probes, test execution and integration are orchestrator work.
 Ask the user only for a material product/architecture ambiguity or an authorization
 that is actually missing; continue independently otherwise.
 
-Workers use Atlas OpenCode **Muse Spark 1.3**. The live catalog on 2026-10-07 exposed
+Workers use Atlas OpenCode, with **Muse Spark 1.3** as the initial calibrated model.
+The user's 2026-10-08 update permits other free-model pilots with separate
+threads/worktrees and per-model/task-family [trust records](agent-models.md). The live catalog on 2026-10-07 exposed
 `opencode/muse-spark-1.3-contributor-free`; select `build` and `high` explicitly,
 and verify the actual invocation. Discover the catalog each resumed session;
-never silently substitute another model or paid service. One worker owns one
+never silently mix models within a thread or substitute a paid service. One worker owns one
 bounded task and one branch/worktree. Main is the integration branch. Preserve
 unrelated work, particularly the untracked website files. Workers do not push,
 merge, switch the main checkout, or change another worker's files.
@@ -96,7 +98,11 @@ to the actual commit and independently rerun selected adversarial cases and CI.
 
 ## Review and calibration
 
-Begin at **one active worker**, reviewing every changed implementation/spec line.
+Begin at **one active worker total across models**, reviewing every changed
+implementation/spec line. Calibration is per provider/model/configuration and
+task family; a new model starts uncalibrated and does not inherit a streak.
+Separate model threads preserve attribution; the shared wiki carries reviewed
+knowledge, not assumed trust.
 Review the domain, rejection placement, effects, aliasing, holes/absence, current
 prototype state, branching, failure paths and target assertion—not just the happy
 path. Keep independent adversarial probes outside worker-owned expectations until
@@ -135,20 +141,37 @@ integration/full-suite lane. Test success alone never relaxes semantic review.
 
 ## Rate limits and interruption
 
-The free model has provider limits; the catalog exposes no numeric quota. Do not
-invent requests/minute or assume free means unlimited. Record actual 429/error,
-Retry-After/reset information, timestamp, thread and retry outcome in the ledger.
-Use one active worker initially. Respect provider backoff; if absent, wait at
-least 60 seconds, then increase delay (120, 240 seconds, capped at 15 minutes).
-Poll Atlas thread status at a modest cadence and inspect before resending: an
-active/retrying turn must not receive a duplicate prompt. Do not create extra
-threads/accounts to evade a limit or silently switch models. During cooldown,
-review completed evidence and maintain docs. Persistent quota exhaustion leaves a
-faithful checkpoint. On 2026-10-08 (Asia/Jerusalem), the user explicitly chose to
-keep waiting for Muse after repeated limits. Keep that preference across turns:
-resume the same worker after cooldown, do not switch models, and do not repeatedly
-ask the user to choose a fallback. Only revisit the model if the user changes
-direction. A successful send is not recovery; confirm actual model work.
+Free models have distinct price, eligibility and capacity rules. Read the
+[verified quota/reset record](wiki/provider-quotas.md) before dispatch. Record
+actual error class/status, server Date, Retry-After/reset timestamp, model/thread
+and retry outcome. A known server cooldown overrides guessed short backoff;
+respect it across a shared quota pool. One agent task can make hundreds of model
+requests, and other projects on the same IP can share counters. Exact current
+numeric limits are deployment configuration, so local counts are estimates.
+
+If reset metadata is unavailable, use bounded backoff (60, 120, 240 seconds,
+capped at 15 minutes) only after verifying that no retry is already active. Do
+not interrupt an active provider wait merely because it has no tool output:
+Atlas currently maps busy and retry to active and can hide the future retry time.
+Capture metadata through supported interfaces when possible; preserve a faithful
+idle checkpoint if active supervision must end. No automatic wake is configured.
+
+The earlier 2026-10-08 Muse-only waiting preference is superseded by the user's
+later same-day permission to assess **free alternatives**. That permits a new
+model in its own thread/worktree with fresh trust; it does not authorize paid
+fallback, identity/network rotation, or spraying capped endpoints. A catalog
+free flag is not evidence of available quota. Use the actual permitted client;
+respect client-only restrictions. If an alternative shares the exhausted limit,
+wait for reset. Keep one active worker total and full review. Provider success
+means actual model/tool work, not an accepted dispatch. Quota failures affect
+capacity records, not model correctness scores.
+
+Batch independent worker reads/checks and avoid unnecessary full-suite repeats,
+while preserving every required proof, full validation and review. Before a
+large task, compare observed daily use with prior task request costs and leave
+headroom; the documented warning threshold is an operating heuristic, not a
+provider promise. A scheduled check-in, if later installed, must honor reset
+and verify real recovery without duplicate model prompts.
 
 ## Atlas lifecycle, integration and durable knowledge
 

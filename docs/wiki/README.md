@@ -9,6 +9,8 @@ not add fields to Prophet's runtime output.
 
 - [Agent workflow](../agent-workflow.md): roles, evidence, review, rate limits and archival.
 - [Atlas operations](atlas-operations.md): observed thread/model/permission controls.
+- [Provider quotas](provider-quotas.md): measured resets, shared limits and workload planning.
+- [Model trust register](../agent-models.md): separate calibration for each model/task family.
 - [VM foundations](vm-foundations.md): persistence, boundaries and common traps.
 - [Bounded Array.concat](array-concat.md): current heap, holes, branches and host work limits.
 - [Bounded Array.forEach](array-foreach.md): captured length, current-state visits and flat host iteration.

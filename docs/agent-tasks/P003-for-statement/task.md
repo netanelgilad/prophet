@@ -21,7 +21,7 @@ in src/ASTResolvers.ts, src/evaluate.ts, src/types.ts,
 src/execution-context/Completion.ts, src/execution-context/branches.ts and
 src/execution-context/ExecutionContext.ts needed to compose loop completion and
 clone lexical records. Existing function/instantiate and binding helpers should
-be reused. Own test/for-statement.spec.ts, sirv's progress assertion in
+be reused. Own test/for-statement.spec.ts, test/loop-min.spec.ts after P004 review, sirv's progress assertion in
 test/sirv-target.spec.ts, complete-case selection in test/test262.spec.ts,
 docs/for-statement.md, docs/sirv-target.md, docs/implementation-gaps.md,
 test/test262/README.md, docs/wiki/for-statement.md and task evidence.json.
@@ -70,6 +70,24 @@ rather than claiming full eval-value semantics or expanding every statement.
   remaining path-volume/host-stack/allocation limits honestly if not solved here.
 - Typed boundaries for excluded labels/loop kinds remain honest; do not add fake
   guest exceptions or silently ignore unsupported syntax to satisfy selected tests.
+
+## Loop-based minimum acceptance (user update, 2026-10-08)
+
+Add the same original proof through `let best = a[0]` and an ordinary for-loop
+that updates best when `a[i] < best`. For ten independent symbolic random values,
+`d[0] < minimum(d)` must be false, every `minimum(d) <= d[j]` true, while strict
+reverse/unrelated comparisons remain unknown and the returned number remains
+symbolic. [P004](../P004-loop-min-specs/task.md) prepares the spec file in a separate
+free-model pilot; take only its reviewed exact commit after ownership transfer.
+No host random sampling or special min/source recognizer. Include renamed code,
+maximum/wrong-reducer controls and native non-finite/empty/tie behavior.
+
+This bounded execution acceptance does **not** establish unknown-length loops.
+A subsequent reusable loop-invariant task must derive and validate facts about
+all visited elements, loop-carried state and progress. The recursive summary
+implementation remains unchanged in P003. If existing shared numeric reasoning
+cannot prove the bounded case, return the precise blocker instead of broadening
+solver ownership or hard-coding the theorem.
 
 ## Specs and evidence
 

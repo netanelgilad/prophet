@@ -67,3 +67,13 @@ can establish a provider error without changing the service or exposing secrets.
 Record the timestamp and observed message; do not invent quota/reset metadata.
 Keep the existing turn during provider backoff. Polling a local status endpoint
 does not warrant additional model prompts or model/account substitution.
+
+## Reset metadata discovered after P003
+
+The later [quota investigation](provider-quotas.md) recovered an actual
+FreeUsageLimitError response and Retry-After targeting 2026-10-09 00:00 UTC.
+That changes the interpretation of the apparently stalled active turn: OpenCode
+may have been honoring a long provider wait. Do not interrupt/resubmit based
+only on minutes without output. Prefer the error/reset metadata, which current
+Atlas conversation projections omit. A different free-model pilot can have
+capacity, but belongs in a new thread and a separate trust record.

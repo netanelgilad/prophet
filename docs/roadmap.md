@@ -170,6 +170,24 @@ Shared for-loop semantics are the next reached language blocker;
 the one-worker/full-review playbook, including lexical iterations and abrupt
 completions; the worker is currently provider-limited before implementation. Regex
 construction/matching, file metadata and streams remain further target needs.
+The loop increment also reconnects the original minimum proof to local mutable
+state: `best = a[0]`, then compare each later item and conditionally assign best.
+[P004](agent-tasks/P004-loop-min-specs/task.md) prepares specs for ten independent
+symbolic values: no member is below the result, the result remains symbolic, and
+unrelated/strict comparisons remain unknown. P003 must satisfy the reviewed
+bounded specs through generic execution, without recognizing a function's name.
+
+The subsequent reasoning milestone is **unknown-length loop summaries**. Derive
+and validate a fact like “best is a selected element of the visited prefix and
+is <= every element of that prefix.” Check initialization, both update paths,
+exit and progress, including current bindings/heap dependencies. Finite unrolling
+cannot publish that universal fact. Nonempty dense finite-number arrays are an
+initial proof domain, not a permanent VM restriction; NaN, empty/sparse arrays,
+mutation/effects and broader termination strategies remain explicit work under
+SYM-003/LANG-001. Include maximum and incorrect-reducer countercontrols before
+calling this reusable inference. The existing recursive summary does not already
+cover this loop case.
+
 Import success is not completed server setup or request analysis. Do not rewrite
 package code or equate retained handlers with analyzed requests.
 

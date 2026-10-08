@@ -66,3 +66,18 @@ Resume: verify the catalog and provider state, then send a single continuation t
 worktree/branch/base. Inspect current status before sending. Review worktree and
 independent probes are retained. Feature acceptance is still pending, with zero
 implementation/evidence handoffs and no change to the calibration streak.
+
+## Quota investigation and proof-target update
+
+The user's later 2026-10-08 instruction permits free-model pilots with separate
+trust/threads. A live diagnostic now identifies the limit as FreeUsageLimitError
+and gives a midnight-UTC reset; see [quota evidence](quota-evidence.json) and
+[workload policy](../../wiki/provider-quotas.md). The earlier conclusion that no
+reset was exposed applied only to Atlas/log projection, not the HTTP response.
+The client may have been correctly waiting for that reset, so an unchanged
+active turn alone did not establish a hung request. Do not repeat the blind
+eighteen-minute retry. P003 stays idle until eligibility resumes.
+
+The contract now includes the loop-based minimum proof requested by the user,
+with P004 preparing bounded specs and unknown-length invariant inference as a
+separate follow-up. No VM or solver support is claimed from this plan.
