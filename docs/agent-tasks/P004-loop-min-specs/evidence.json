@@ -1,0 +1,85 @@
+{
+  "task": "P004-loop-min-specs",
+  "taskVersion": 1,
+  "worker": "Atlas OpenCode LongCat 2.5 Preview Free, build/high",
+  "branch": "agent/p004-loop-min-specs",
+  "base": "c89c0b73bbaab0645d345600a39d500a48b6c2a6",
+  "worktree": "/Users/netanelgilad/development/prophet-worktrees/longcat-p004-loop-min",
+  "codeCommits": [
+    "d9f4ed4 Add loop minimum proof specs and wiki (P004)"
+  ],
+  "testedCommit": "d9f4ed4661faacc46608b605ad5623b214072ce7",
+  "node": "pinned /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node (v24.21.0) used for yarn and PROPHET_NODE_BINARY",
+  "testFirst": {
+    "redLog": "docs/agent-tasks/P004-loop-min-specs/logs/red-d9f4ed4.log",
+    "redResult": "8 failed, 1 passed of 9. All 8 VM tests fail with 'Evaluation stopped at an execution boundary: Can't resolve type of ast type ForStatement' (the intended unsupported-ForStatement red). The deterministic native witness test passes. All native concrete and boundary controls passed before their VM assertions.",
+    "premiseCorrections": [
+      "first native control used a 100-trial random-sampling existence test with the comparison written backwards (d[0] < best, always false for this minimum), then required a true sample; a harness mistake, fixed then removed entirely",
+      "tenRandom originally emitted interpreted Array.from plus arrow syntax, adding unrelated unsupported dependencies; replaced with a literal array of ten Math.random() calls"
+    ]
+  },
+  "reviewCorrections": [
+    "root review 1: delete the random-sampling test; use deterministic native witness arrays to show both strict-reverse outcomes, independently asserted before VM unknown assertions; no subprocess sampling loop",
+    "root review 1: tenRandom must be a literal array of ten Math.random() calls, not interpreted Array.from/arrow syntax",
+    "root review 1: scope() must assert evaluation completed normally (no execution boundary / throw) before returning scope, so red evidence shows unsupported ForStatement instead of a missing-property matcher; tests require normal completion",
+    "root review 1: add an explicit d[0] < d[1] unknown control (ordering of independent elements); make aliasBound compare the alias rather than m",
+    "root review 2 (addendum): the suspected nativeObservation newline issue was NOT reproduced; left unchanged",
+    "root review 2 (addendum): boundary cases must assert the returned minimum value as well as x/lowerBound, so NaN and undefined cannot be interchanged; assert NaN-first=>NaN, NaN-later=>1, first-hole/empty=>undefined, later-hole=>1, infinity and signed zero distinctly",
+    "root review 2 (addendum): call assertPinnedNode() inside nativeObservation before execFileSync (Jest 24 beforeAll alone is insufficient)",
+    "root review 3: witness arrays refined to [0.25, 0.75] and [0.75, 0.25] to stay within Math.random's [0,1) domain (review refinement, not a worker-origin mistake)",
+    "root review 3: scope() also rejects a forked completion and any nested boundary before reading the final scope; a stopped or thrown sibling cannot be counted as normal completion"
+  ],
+  "expectedRed": "The 8 VM tests are red at the base commit because ForStatement is unsupported ('Can't resolve type of ast type ForStatement'). This is the intended spec-first red: the specs are proposed acceptance criteria for the shared loop implementation (P003), not a claim that a proof currently passes. The 1 native witness test passes at baseline and after. A red test or harness mistake is not evidence of future correctness; the native controls that pass are independent concrete evidence.",
+  "commands": [
+    {
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts",
+      "exit": 1,
+      "log": "docs/agent-tasks/P004-loop-min-specs/logs/red-d9f4ed4.log",
+      "sha256": "fe5e366679304f8af0fe8a29a2483afeb99a49c7059c19f692eb6b2989e59973",
+      "result": "8 failed, 1 passed of 9; all failures are the intended unsupported ForStatement boundary; run on frozen d9f4ed4 source"
+    },
+    {
+      "command": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs typecheck",
+      "exit": 0,
+      "log": "docs/agent-tasks/P004-loop-min-specs/logs/typecheck-d9f4ed4.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": "empty output, no errors"
+    }
+  ],
+  "residualGaps": "ForStatement is unsupported at the base commit; the loop minimum proof is a proposed acceptance criterion, not an implemented fact. Unknown-length arrays need separate reusable loop-invariant inference (a documented follow-up); bounded unrolling does not prove them. Path-volume limits for the ten-element forking proof are a P003 implementation concern. No production source, runner, dependency, existing spec, fixture, main checkout or other worktree was changed.",
+  "hashMethod": "All hashes generated programmatically, never transcribed: sourceHashes from git show d9f4ed4:<path> piped to shasum -a 256; logHashes from shasum -a 256 of the in-repo log copies. This script re-reads the saved evidence.json and asserts every persisted hash matches a fresh computation.",
+  "sourceHashes": {
+    "test/loop-min.spec.ts": "c8ea4affb8fa1a1f2714393f1ae70eec307128a7bf1b2a6b8e9857afe0b52b13",
+    "docs/wiki/loop-minimum.md": "13c7feebfb820208b69621a0f0235dc229f18b6231d9e6c866ca2f2e5f33a498"
+  },
+  "logHashes": {
+    "red-d9f4ed4.log": "fe5e366679304f8af0fe8a29a2483afeb99a49c7059c19f692eb6b2989e59973",
+    "typecheck-d9f4ed4.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "handoffCleanup": "Recorded logs remain local ignored artifacts; no generated logs or temporary scripts are committed. Root commits only the final wiki and this evidence file after the provider-interrupted worker handoff. Test source remains identical to testedCommit. Task and initial-prompt delivery copies remain untracked in the worktree.",
+  "rootHandoffCuration": {
+    "reason": "LongCat became idle after HTTP429 FreeUsageLimitError from upstream Console with no Retry-After, before its final evidence commit. Root reviewed the spec without changing any spec/source bytes, retained the worker pending domain clarification, corrected the wiki relative evidence link and curated this metadata. This is a reviewed spec artifact, not a complete independent worker handoff or implemented loop proof.",
+    "date": "2026-10-08",
+    "workerSpecCommit": "d9f4ed4661faacc46608b605ad5623b214072ce7",
+    "workerWikiCommit": "112404f600340f590cdce5000f472db1e8079f94",
+    "specUnchanged": true,
+    "finalWikiSha256": "2feccabab4782f2db82c5c4099cb8e2689537c6a4ac03bfca430d35f72a6eb8e",
+    "independentFullSuite": {
+      "exit": 1,
+      "suitesPassed": 121,
+      "suitesFailed": 1,
+      "passed": 2986,
+      "failed": 8,
+      "skipped": 46,
+      "seconds": 315.189,
+      "log": "/tmp/prophet-p004-review-full.log",
+      "sha256": "c3a8629389331c052e5a86a813c5f9e5668c8caa0833c7be9f51ec8886304710",
+      "interpretation": "Only new loop-min suite fails, all eight at ForStatement; native witness passes, no regression in existing suites."
+    },
+    "independentTypecheck": {
+      "exit": 0,
+      "log": "/tmp/prophet-p004-isolated-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

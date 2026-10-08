@@ -52,10 +52,12 @@ empty arrays. The returned value is asserted distinctly (NaN, undefined,
 +/-Infinity, +/-0) so NaN and undefined cannot be interchanged. This is the
 loop's actual selection behavior, not `Math.min`.
 
-Limits: known-length arrays of finite symbolic numbers; unknown length,
-loop-invariant inference, and path-volume limits are follow-ups. The specs are
-red at the base commit (`ForStatement` unsupported) and are proposed acceptance
-criteria for the loop feature, not implemented facts.
+Limits: the symbolic domain is ten independent `Math.random` symbols in
+`[0, 1)` plus a three-symbol membership case; broader arbitrary finite symbolic
+inputs, unknown length, loop-invariant inference, and path-volume limits are
+follow-ups. The specs are red at the base commit (`ForStatement` unsupported)
+and are proposed acceptance criteria for the loop feature, not implemented
+facts.
 
 Corrections recorded during review: the first native control used a 100-trial
 random-sampling existence test with the comparison written backwards (`d[0] <
@@ -70,4 +72,4 @@ nested boundaries, forks and throws) so red evidence shows the unsupported
 distinctly, not only `x`/`lowerBound`.
 
 Base `c89c0b7`, 2026-10-08. Tested commit, exact commands, exit codes and
-programmatic hashes in [evidence.json](evidence.json).
+programmatic hashes in [evidence.json](../agent-tasks/P004-loop-min-specs/evidence.json).
