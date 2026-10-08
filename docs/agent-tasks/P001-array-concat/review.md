@@ -1,6 +1,7 @@
 # P001 review record
 
-Status: awaiting worker implementation; no acceptance or trust increase yet.
+Status: accepted and integrated; publication/CI and archival pending.
+Two implementation correction rounds; one worker/full review retained.
 Model verified by Atlas runtime: `opencode/muse-spark-1.3-contributor-free`,
 `build`, `high`. Thread: `ses_ee8296c07ffecB4caLjcDkS5EK` (not archived while active).
 Base: `999236fd4c0dc68972434c91d6e4895edc6fa8a2`.
@@ -10,7 +11,7 @@ Review scope: full implementation/spec diff, actual-current-state checks,
 constructor/spread/species lookup ordering, holes and inherited elements,
 shallow aliases, branch-local boundaries, complete upstream cases, real sirv
 progress assertion, and binding test evidence to the commit. Independent
-adversarial reruns and full integration validation are pending.
+adversarial reruns pass on the final source; publication is pending.
 
 Numeric provider quotas: unknown. First observed provider limit is recorded below.
 
@@ -154,3 +155,67 @@ Log `/tmp/prophet-p001-independent-review-resume.log`, SHA-256
 `740e2c6525aa82f9dbca58c51d8ad394120119ef2c54e01e24c4044fa9e5a0ff`. Updated probe SHA-256:
 `dea6f2a45c3fffac4a0a4d052eebb21d48cd2f690fbe04691b031a2a53d628b7`. This additional review evidence
 does not replace the worker's required regressions/frozen handoff/full verification.
+
+## Provider recovery and final source review — 2026-10-08
+
+After the additional 21:55:14 UTC retry also failed on October 7, the user asked
+"Now?". The same Muse worker resumed at 02:55:31 UTC on October 8 and produced
+actual edits and passing tests. Resolved the Atlas provider blocker only after
+that work was observed; model catalog availability alone was not recovery.
+
+Reviewed final code `365cbe0e9eca6443c48a25feef85bf0a1f7967c4`, including correction
+`4757a85` and the typecheck cleanup. The last source changes remove unused
+parameters/imports and make existing value typing explicit; no new algorithm
+was substituted. Root copied exact source bytes to the separate review worktree
+and reran all five independent probes with pinned Node and an external 45-second
+timeout: exit 0, 5 passed in 3.186s. Log
+`/tmp/prophet-p001-independent-review-final.log`, SHA-256
+`2129aca7673ee7a93d39881343f0758db0d59486a66dc166b2f86e72b59d033a`;
+probe SHA-256 remains
+`dea6f2a45c3fffac4a0a4d052eebb21d48cd2f690fbe04691b031a2a53d628b7`.
+Command: pinned `node .yarn/releases/yarn-3.1.1.cjs test --runInBand
+test/p001-independent-review.spec.ts`.
+
+All changed implementation/spec lines received semantic review. Fresh shallow
+results preserve holes, aliases, current conditional elements and sibling state.
+Caps precede copying, recursion and inherited-index scans; constructor/species,
+custom spreadability and unknown inherited state retain typed boundaries. The
+32-operand/1024-element limits bound per-path work only, not fork growth or
+allocation failure. Conservative whole-symbol-map checks and argument constructor
+rejections remain documented over-restrictions. Two code comments overstate the
+necessity of these guards; accepted as nonblocking wording nits, not additional
+semantic coverage. Unchanged sirv advances only to the forEach boundary.
+
+Independently reran the documented scans: 533 broad guard lines in 71 files,
+23 assertion/helper lines in 5 files, one historical skip site. Reconciled all
+46 skipped filenames against the backlog (none missing), 253 selected Test262
+files / 497 variants, and 65 open gap IDs. No gap is declared closed.
+
+The initial handoff contained a truncated documentation hash and a focused run
+from before the final type cleanup. Returned these evidence corrections rather
+than treating prose claims as verification. The worker reran focused tests on
+the frozen revision and must regenerate and validate persisted hashes directly.
+The playbook now requires generated hashes, a re-read of saved evidence and
+revision-specific run attribution. Two implementation correction rounds plus
+evidence corrections mean no first-review acceptance or concurrency increase.
+
+## Acceptance and integration
+
+Accepted final worker handoff `9bb3bfd` after independently verifying every
+persisted source/log/command hash: zero mismatches. Focused final revision:
+6 suites / 630 passing / 46 skips, exit 0; full final revision: 120 suites /
+2,909 passing / 46 skips, exit 0 in 293.950s; typecheck exit 0. Complete commands
+and local logs/hashes are in [worker evidence](evidence.json). The final evidence
+commit changes only docs; no source was repaired by the orchestrator.
+
+Integrated by cherry-pick onto current master without conflicts:
+`a3d39a8` → `e3e77a8`, `4757a85` → `cbe142b`, `365cbe0` → `e55b5d9`,
+`5ac6b37` → `4573486`, `9bb3bfd` → `14752c1`. The tested production/spec/dependency
+tree is identical after integration; remaining differences are orchestration
+docs and wiki curation. Full suite/typecheck evidence therefore applies to the
+integrated code, with remote CI to validate the exact published revision.
+No redundant full run is required for documentation-only descendants.
+
+Calibration remains one Muse worker, full semantic review, zero consecutive
+first-review acceptances. P002 is shared bounded forEach; it must inspect that
+algorithm's lookups rather than copying concat's species/spread guards.

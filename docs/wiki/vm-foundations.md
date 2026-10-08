@@ -27,6 +27,7 @@ full ECMAScript/Node or all-path coverage.
   24.21.0. It must not execute the symbolic target as an implementation shortcut.
   Complete Test262 cases run through Prophet, including their actual harness.
 - Current real-package progress: pico has bounded automatic OPTIONS/405 and
-  unfinished open-URL GET/HEAD; sirv imports, then its factory stops at concat.
+  unfinished open-URL GET/HEAD; sirv imports, then its factory passes concat and
+  stops at forEach (P001 accepted 2026-10-08; [review](../agent-tasks/P001-array-concat/review.md)).
   The next task must replace the rejection with actual reusable behavior and
   retain the next reached boundary. Package sources stay byte-identical.

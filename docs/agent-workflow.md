@@ -77,6 +77,10 @@ back to the worker with a reproducible counterexample and updated task version.
    preparatory scans and copies as well as the main loop. Record exact commands, exit codes, counts, local
    log paths and SHA-256 hashes in `evidence.json`; do not claim commands not run.
    Evidence-only docs may follow in a separate commit, with that distinction noted.
+   Generate hashes directly from files or `git show <testedCommit>:<path>` and
+   validate every recorded hash programmatically; do not transcribe hashes.
+   Name the revision for each run when focused tests precede source cleanup.
+   A later documentation-only edit is not part of the tested source snapshot.
 6. Return commit IDs, owned diff, supported behavior, remaining gaps, failing
    probes, test evidence and wiki lessons. Stop editing while under review.
 

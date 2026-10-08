@@ -18,6 +18,9 @@ test/sirv-target.spec.ts, complete-case selection in test/test262.spec.ts,
 docs/array-push.md, docs/sirv-target.md, docs/implementation-gaps.md,
 test/test262/README.md, docs/wiki/array-foreach.md and task evidence.json.
 Read the playbook, wiki foundations and P001 corrections before writing specs.
+Apply the lessons, not concat's algorithm-specific guards: forEach does not
+consult constructor/species/spreadability. Justify every new rejection against
+the property lookup or invocation that this algorithm actually reaches.
 Propose any shared helper/ownership expansion before editing outside these paths.
 No runner/fixture/dependency/CI/parser/solver/CLI-schema changes or pushes.
 
@@ -83,4 +86,6 @@ scans, and the full historical skipped-file inventory. Update boundary docs/wiki
 Follow the playbook evidence format: exact tested commit, commands/status/counts,
 log paths and SHA-256, source diff, residual gaps, concrete next target boundary,
 corrections and wiki contribution. Add evidence-only commit after verification.
+Generate source hashes from the tested commit and log hashes from actual files;
+re-read the saved JSON and assert every hash matches before claiming validation.
 Stop editing for full review; root returns corrections instead of implementing them.
