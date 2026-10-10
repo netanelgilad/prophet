@@ -1,5 +1,6 @@
 import { Any, TESBoolean, Undefined, WithProperties, isArray,
-  isReturnValue, isThrownValue, ReturnValue, ThrownValue } from "../types";
+  isReturnValue, isThrownValue, isBreakValue, isContinueValue,
+  ReturnValue, ThrownValue, BreakValue, ContinueValue } from "../types";
 import { TArray } from "../array/Array";
 import { assume, resolveBoolean, selectValue } from "../symbolic";
 import { Binding, ExecutionContext, TExecutionContext } from "./ExecutionContext";
@@ -168,8 +169,19 @@ export function mergeBranchResults(
   if (isThrownValue(yes[0]) && isThrownValue(no[0])) {
     return [ThrownValue(select(yes[0].value, no[0].value)), context];
   }
+  // Matching loop jumps merge their contexts like matching returns, keeping
+  // one jump per kind. A jump against any other completion kind stays a fork:
+  // joining a break with a normal value would invent a continuation.
+  if (isBreakValue(yes[0]) && isBreakValue(no[0])) {
+    return [BreakValue(), context];
+  }
+  if (isContinueValue(yes[0]) && isContinueValue(no[0])) {
+    return [ContinueValue(), context];
+  }
   if (isReturnValue(yes[0]) || isReturnValue(no[0]) ||
       isThrownValue(yes[0]) || isThrownValue(no[0]) ||
+      isBreakValue(yes[0]) || isBreakValue(no[0]) ||
+      isContinueValue(yes[0]) || isContinueValue(no[0]) ||
       isForkedCompletion(yes[0]) || isForkedCompletion(no[0])) {
     return [{ type: "ForkedCompletion", condition, base,
       consequent: yes, alternate: no }, context];

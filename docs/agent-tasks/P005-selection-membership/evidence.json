@@ -1,0 +1,160 @@
+{
+  "task": "P005-selection-membership",
+  "worktree": "/Users/netanelgilad/development/prophet-worktrees/muse-p005-selection",
+  "branch": "agent/p005-selection-membership",
+  "testedSourceCommit": "e18d18e120ac4b61643182645b8a54fd67d825fb",
+  "testedCommitNote": "Focused, regression and typecheck runs executed pre-commit on bytes later committed verbatim in e18d18e (git diff e18d18e -- src test is empty). The full suite ran on committed e18d18e. Later commits are docs/evidence-only.",
+  "sourceDiffStatVsBase": {
+    "base": "b508ad9f18bdcb2edef7adba3df70a5fd0b3e9e7",
+    "src/symbolic/index.ts": "+148/-0",
+    "test/symbolic-selection-membership.spec.ts": "new (+457)"
+  },
+  "pinnedNode": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "pinnedNodeVersion": "v24.21.0",
+  "generatedAtUtc": "2026-10-10T18:42:05Z",
+  "sourceHashes": {
+    "src/symbolic/index.ts": "d0ce640f970510975b91b821049c411411eb93eb5868fabb1fef1a4b00560af9",
+    "test/symbolic-selection-membership.spec.ts": "e62a8ded67ff45fad8a1d5c446a4c9fb26fa0181d92ec4248e6936d05a7915ce"
+  },
+  "supersededReviewNote": "Reviewer snapshot2 (38/38 incl. 12 probes) tested interim 8-leaf-cap bytes and is superseded; it is not final-source evidence. Final-source evidence is snapshot 4607900 (45/45) plus the worker full suite on e18d18e.",
+  "runs": [
+    {
+      "path": "/tmp/prophet-p005-red.log",
+      "sha256": "01f060befb24514ddf9f5225ae03a5fc0500e677921383d0d897bbbb8b2173ea",
+      "stage": "red-spec-pre-fix",
+      "byteBasis": "pre-implementation working tree (spec added, source unmodified from base b508ad9)",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-selection-membership.spec.ts > /tmp/prophet-p005-red.log 2>&1",
+      "exit": 1,
+      "result": "3 failed, 12 passed, 15 total (reverse, renamed-reverse, comparison-driven unknown)",
+      "note": "Exploratory red: Yarn ran under system `node`, not the pinned binary; exit preserved via redirect (no pipe). Failures re-confirmed by reviewer fixed-snapshot reductions and disclosed independent probes."
+    },
+    {
+      "path": "/tmp/prophet-p005-green-focused2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "superseded-exploratory-eight-leaf-boundary",
+      "byteBasis": "interim implementation bytes (superseded; never committed)",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout --kill-after=5s 120s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-selection-membership.spec.ts > /tmp/prophet-p005-green-focused2.log 2>&1",
+      "exit": 124,
+      "result": "empty log; external timeout after 180s observed wall time; inconclusive resource result, not a green test or a false theorem",
+      "note": "Eight-leaf end-to-end disjunction impractical; motivated the smaller 4-leaf cap and the 4/5-leaf boundary pair. Superseded by /tmp/prophet-p005-green-focused5.log."
+    },
+    {
+      "path": "/tmp/prophet-p005-green-focused5.log",
+      "sha256": "b2a59e456705d72cd03cf152807a4bdd19265f2b7f0a802c8371f1eba844c054",
+      "stage": "focused-green-final-spec",
+      "byteBasis": "pre-commit working tree; bytes later committed verbatim in e18d18e (git diff e18d18e -- src test is empty)",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout --kill-after=5s 120s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-selection-membership.spec.ts > /tmp/prophet-p005-green-focused5.log 2>&1",
+      "exit": 0,
+      "result": "24 passed, 24 total"
+    },
+    {
+      "path": "/tmp/prophet-p005-regress2.log",
+      "sha256": "390ec7e9cf5be82189c81150e853677fabc7f067d4ee89db3fe852cf2c417ee4",
+      "stage": "regression-choice-loop-min",
+      "byteBasis": "pre-commit working tree; bytes later committed verbatim in e18d18e",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout --kill-after=5s 300s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts test/symbolic-choice-equality.spec.ts test/min.spec.ts test/unknown-length.spec.ts > /tmp/prophet-p005-regress2.log 2>&1",
+      "exit": 0,
+      "result": "4 suites, 56 passed (loop-min member now true; every existing assertion retained)"
+    },
+    {
+      "path": "/tmp/prophet-p005-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "typecheck",
+      "byteBasis": "pre-commit working tree; bytes later committed verbatim in e18d18e",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout --kill-after=5s 180s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs tsc --noEmit > /tmp/prophet-p005-typecheck.log 2>&1",
+      "exit": 0,
+      "result": "clean (empty output)"
+    },
+    {
+      "path": "/tmp/prophet-p005-full.log",
+      "sha256": "62b4bdeb03239389225c84f2ef9f462f3ca3f65b942d131b29c3d825e6805cd9",
+      "stage": "full-suite",
+      "byteBasis": "on committed e18d18e (run after the source commit, before docs/evidence commits)",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout --kill-after=30s 1500s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand > /tmp/prophet-p005-full.log 2>&1",
+      "exit": 0,
+      "result": "124 suites passed; 3102 passed, 46 skipped, 0 failed"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-guards.log",
+      "sha256": "a6c1cfeb08138589dd60f90f6bc8097d8632cc93d541baa660602885dfc5977f",
+      "stage": "audit-guard-scan",
+      "byteBasis": "working tree at e18d18e (read-only scan)",
+      "command": "rg -n 'throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented' src --glob '*.ts' > /tmp/prophet-p005-audit-guards.log 2>&1",
+      "exit": 0,
+      "result": "548 hits (search hits, not missing features)"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-assert.log",
+      "sha256": "3c82372df7a6b9508ea515dd31d662ab9687e9d3657e2f9853a49044e8081c2f",
+      "stage": "audit-assert-scan",
+      "byteBasis": "working tree at e18d18e (read-only scan)",
+      "command": "rg -n 'assert\\(|unimplemented\\(' src --glob '*.ts' > /tmp/prophet-p005-audit-assert.log 2>&1",
+      "exit": 0,
+      "result": "23 hits"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-skip.log",
+      "sha256": "6beff296b900833d13d152230226c4cd18f78ac8002bf9947c6dc4e0c09b9d78",
+      "stage": "audit-skip-scan",
+      "byteBasis": "working tree at e18d18e (read-only scan)",
+      "command": "rg -n '\\b(test|it|describe)\\.(skip|todo)\\s*\\(' test --glob '*.ts' > /tmp/prophet-p005-audit-skip.log 2>&1",
+      "exit": 0,
+      "result": "1 site: test/test262.spec.ts historical glob (46 files, unchanged)"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-docs.log",
+      "sha256": "cbd2b25711124c866fa244761a493067e627fdfe244ff42a2ea0c44761c070e9",
+      "stage": "audit-docs-scan",
+      "byteBasis": "working tree at e18d18e (read-only scan)",
+      "command": "rg -n 'gap|unsupported|assum|remain|limit|not yet|not modeled' README.md docs test/commonjs/README.md test/test262/README.md > /tmp/prophet-p005-audit-docs.log 2>&1",
+      "exit": 0,
+      "result": "1209 hits"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-diff.log",
+      "sha256": "db327b9f4280f0d4cd52021feb3c59c6a9934fea15366ca44d53469692e52e13",
+      "stage": "audit-owned-diff",
+      "byteBasis": "working tree after docs clarifications, before evidence commit",
+      "command": "git diff --stat -- src test README.md docs AGENTS.md > /tmp/prophet-p005-audit-diff.log 2>&1",
+      "exit": 0,
+      "result": "owned docs/clarification diff only at audit time (src/test identical to tested commit)"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-skipinv.log",
+      "sha256": "92f60777cc7c20e0cef1db9640880c98ceccc87c5d31cdad0ddfe3274ae1c820",
+      "stage": "audit-skip-inventory",
+      "byteBasis": "working tree at e18d18e (read-only inventory)",
+      "command": "timeout --kill-after=5s 120s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node -e \"const fs = require('fs'); const { sync } = require('globby'); const { dirname, join, relative } = require('path'); const source = fs.readFileSync('test/test262.spec.ts', 'utf8'); const active = [...source.split('const activeCorpus = [')[1].split('\\n];')[0].matchAll(/\\\"([^\\\"]+\\.js)\\\"/g)].map(match => match[1]); const globs = [...source.split('const historicalGlobs = [')[1].split('\\n];')[0].matchAll(/\\\"([^\\\"]+)\\\"/g)].map(match => match[1]); const root = join(dirname(require.resolve('test262/package.json')), 'test'); const skipped = sync(globs.map(glob => join(root, glob))).map(file => relative(root, file)).filter(file => !active.includes(file)).sort(); console.log(JSON.stringify({ activeFiles: active.length, skippedFiles: skipped.length }, null, 2));\" > /tmp/prophet-p005-audit-skipinv.log 2>&1",
+      "exit": 0,
+      "result": "286 active files, 46 skipped files (unchanged)",
+      "note": "Exact inventory logic per docs/implementation-gaps.md audit section; worker-local reproduction of that documented command."
+    },
+    {
+      "path": "/tmp/prophet-p005-snapshot3-review.log",
+      "sha256": "42a78ac4351f55442e254db90d9785f01a94b3708e2572a063c0aeed09e418dd",
+      "stage": "independent-review-final-source",
+      "byteBasis": "reviewer snapshot 4607900 of final source bytes (reviewer-verified identical to e18d18e src)",
+      "command": "reviewer-run (see review worktree); log disclosed read-only",
+      "exit": 0,
+      "result": "45/45 (19 reviewer probes + 26 existing choice tests), 4.65s"
+    },
+    {
+      "path": "/tmp/prophet-p005-final-review-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "independent-review-final-typecheck",
+      "byteBasis": "reviewer snapshot of final source bytes",
+      "command": "reviewer-run; log disclosed read-only",
+      "exit": 0,
+      "result": "clean (empty output)"
+    },
+    {
+      "path": "/tmp/prophet-p005-four-way-review.log",
+      "sha256": "44e4d502fbcc9090dc793d5df93c90890234fbb25dbadcc8c49655233aa0ca9c",
+      "stage": "independent-review-four-way-permutations",
+      "byteBasis": "reviewer-run against e18d18e bytes",
+      "command": "reviewer-run; log disclosed read-only",
+      "exit": 0,
+      "result": "24/24 four-way candidate permutations pass, 6.414s"
+    }
+  ]
+}

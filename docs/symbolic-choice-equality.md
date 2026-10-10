@@ -71,6 +71,24 @@ can similarly imply a disjunction. The specs retain these as mandatory unknowns,
 alongside positive unique-leaf and common-fact proofs. General disjunctive
 propagation and a full equality solver remain open under SYM-001.
 
+Finite selection membership is now proved within an explicit bound, in any
+candidate order. A nested selection of finite symbolic values proves the
+exhaustive `selected === a || selected === b || ...` disjunction (and the
+corresponding conjunctive rejection is false) by refuting infeasible
+selection-path combinations: a branch survives only while some syntactic
+sub-leaf contradicts no assumed equality about the same selection, and an
+equality resolves only when every surviving leaf agrees through known strict
+equality. The [selection-membership specs](../test/symbolic-selection-membership.spec.ts)
+cover forward/reverse/renamed/comparison-driven selections, all six candidate
+orders, incomplete lists, fresh values, aliases, NaN/maybe-NaN,
+infinities/signed zero, mixed primitives and object identity. The leaf
+exploration is capped (4 leaves, depth 16, 8 usable assumptions including
+the current one, 8 resolution priors, non-choice leaves/candidates only,
+no reentrant new exploration); over-cap inputs keep prior behavior, which
+can still prove some cases (the tested five-leaf order remains unknown).
+Incomplete-list, fresh-value and NaN unknowns are tested countercontrols,
+not universal categories. See the [selection-membership wiki](wiki/selection-membership.md).
+
 Nine complete, unmodified strict equality/inequality Test262 cases add 18 variants
 for signed zero, primitive comparisons and operand effects/throws. See the
 [Test262 record](../test/test262/README.md) for remaining whole-file NaN and

@@ -251,6 +251,129 @@ function withSharedFacts(facts: Knowledge, alternatives: Knowledge[]): Knowledge
   ));
 }
 
+// P005: bounded syntactic leaves of a nested conditional selection. Paths
+// hold the guard choices from the flattened root to each leaf. Returns
+// undefined when the selection exceeds the explicit exploration bound, in
+// which case callers keep current behavior (unknown) under SYM-004. These
+// constants bound one flattening only (the leaf cap is deliberately small:
+// P005 needs three leaves and the at-cap control uses four); the helpers
+// below additionally refuse reentrant new exploration (see
+// selectionMembershipDepth) and apply solely to non-choice leaves/candidates,
+// so they do not bound the pre-existing solver's general costs, which remain
+// SYM-004.
+const maxSelectionLeaves = 4;
+const maxSelectionDepth = 16;
+const maxSelectionPriors = 8;
+
+// Reentrancy guard for the new leaf exploration. assume/strictEquality used
+// while flattening may themselves reach choice-valued equality guards;
+// nested entries keep pre-existing behavior instead of starting further new
+// exploration.
+let selectionMembershipDepth = 0;
+
+function selectionLeaves(value: Any, path: Array<{ condition: TESBoolean; truth: boolean }> = [], depth = 0):
+  Array<{ leaf: Any; path: Array<{ condition: TESBoolean; truth: boolean }> }> | undefined {
+  const choice = choiceOf(value);
+  if (!choice) return [{ leaf: value, path }];
+  if (depth >= maxSelectionDepth) return undefined;
+  const consequent = selectionLeaves(choice.consequent, [...path, { condition: choice.condition, truth: true }], depth + 1);
+  if (!consequent) return undefined;
+  const alternate = selectionLeaves(choice.alternate, [...path, { condition: choice.condition, truth: false }], depth + 1);
+  if (!alternate) return undefined;
+  const leaves = [...consequent, ...alternate];
+  return leaves.length > maxSelectionLeaves ? undefined : leaves;
+}
+
+// P005: an outer selection branch stays feasible when at least one of its
+// syntactic sub-leaves contradicts no assumed equality about the same outer
+// selection (the current assumption plus prior strict-equal truth facts).
+// Unknown leaf equalities stay feasible; only a known disagreement discards
+// a leaf. Discarding needs every sub-leaf contradicted, so incomplete lists,
+// fresh values, NaN leaves and maybe-NaN unknowns keep their branch.
+// Narrowed inference: non-choice leaves/candidates only, bounded priors, and
+// no reentrant new exploration (reentrant entries keep the branch).
+function branchHasFeasibleLeaf(
+  value: Any,
+  branchFacts: Knowledge,
+  assumptions: Array<{ candidate: Any; truth: boolean }>
+): boolean {
+  if (selectionMembershipDepth > 0) return true;
+  if (assumptions.length > maxSelectionPriors) return true;
+  if (assumptions.some(({ candidate }) => choiceOf(candidate))) return true;
+  const leaves = selectionLeaves(value);
+  if (!leaves || leaves.some(({ leaf }) => choiceOf(leaf))) return true;
+  selectionMembershipDepth++;
+  try {
+    return leaves.some(({ leaf, path }) => {
+      let subFacts = branchFacts;
+      for (const step of path) subFacts = assume(subFacts, step.condition, step.truth);
+      return assumptions.every(({ candidate, truth }) => {
+        const equality = strictEquality(leaf, candidate, subFacts);
+        const resolved = resolveBoolean(equality, subFacts);
+        return resolved === undefined || resolved === truth;
+      });
+    });
+  } finally {
+    selectionMembershipDepth--;
+  }
+}
+
+// P005: prior-aware resolution of `selected === candidate` where selected is
+// a nested selection. Leaves contradicting a prior strict-equal assumption
+// about the same selection are discarded; a definite answer needs every
+// remaining leaf to agree through known strict equality. Unknown leaves,
+// incomplete coverage, NaN and maybe-NaN inputs yield unknown. Returns
+// undefined both when unknown and when this narrowed inference gives up, in
+// which case callers use the pre-existing expansion.
+function tryResolveChoiceEquality(selected: Any, candidate: Any, knowledge: Knowledge): boolean | undefined {
+  if (selectionMembershipDepth > 0) return undefined;
+  if (choiceOf(candidate)) return undefined;
+  const leaves = selectionLeaves(selected);
+  if (!leaves || leaves.some(({ leaf }) => choiceOf(leaf))) return undefined;
+  const priors: Array<{ candidate: Any; truth: boolean }> = [];
+  for (const fact of knowledge) {
+    if (fact.kind !== "truth" || !fact.condition.expression ||
+        fact.condition.expression.kind !== "strict-equal") continue;
+    const prior = fact.condition.expression;
+    if (priors.length >= maxSelectionPriors) return undefined;
+    if (sameIdentity(prior.left, selected)) {
+      if (choiceOf(prior.right)) return undefined;
+      priors.push({ candidate: prior.right, truth: fact.truth });
+    } else if (sameIdentity(prior.right, selected)) {
+      if (choiceOf(prior.left)) return undefined;
+      priors.push({ candidate: prior.left, truth: fact.truth });
+    }
+  }
+  selectionMembershipDepth++;
+  try {
+    const results: boolean[] = [];
+    for (const { leaf, path } of leaves) {
+      let subFacts = knowledge;
+      for (const step of path) subFacts = assume(subFacts, step.condition, step.truth);
+      let contradicted = false;
+      for (const { candidate: priorCandidate, truth: priorTruth } of priors) {
+        const priorEquality = strictEquality(leaf, priorCandidate, subFacts);
+        const priorResolved = resolveBoolean(priorEquality, subFacts);
+        if (priorResolved !== undefined && priorResolved !== priorTruth) {
+          contradicted = true;
+          break;
+        }
+      }
+      if (contradicted) continue;
+      const equality = strictEquality(leaf, candidate, subFacts);
+      const resolved = resolveBoolean(equality, subFacts);
+      if (resolved === undefined) return undefined;
+      results.push(resolved);
+    }
+    if (!results.length) return undefined;
+    if (results.every(result => result)) return true;
+    if (results.every(result => !result)) return false;
+    return undefined;
+  } finally {
+    selectionMembershipDepth--;
+  }
+}
+
 export function assume(knowledge: Knowledge, condition: TESBoolean, truth: boolean): Knowledge {
   let facts: Knowledge = knowledge.concat({ kind: "truth", condition, truth });
   const expression = condition.expression;
@@ -277,6 +400,21 @@ export function assume(knowledge: Knowledge, condition: TESBoolean, truth: boole
     if (selected) {
       const choice = choiceOf(selected)!;
       const guard = resolveBoolean(choice.condition, knowledge);
+      const candidate = selected === left ? right : left;
+      const assumptions: Array<{ candidate: Any; truth: boolean }> = [{ candidate, truth }];
+      // Bounded prior collection: stop growing at the cap and conservatively
+      // give up the new inference for this assumption when over cap.
+      let priorsCapped = false;
+      for (const fact of knowledge) {
+        if (assumptions.length > maxSelectionPriors) { priorsCapped = true; break; }
+        if (fact.kind !== "truth" || !fact.condition.expression ||
+            fact.condition.expression.kind !== "strict-equal") continue;
+        const prior = fact.condition.expression;
+        if (sameIdentity(prior.left, selected)) assumptions.push({ candidate: prior.right, truth: fact.truth });
+        else if (sameIdentity(prior.right, selected)) assumptions.push({ candidate: prior.left, truth: fact.truth });
+        if (assumptions.length > maxSelectionPriors) { priorsCapped = true; break; }
+      }
+
       const alternatives: Knowledge[] = [];
       for (const branch of [true, false]) {
         if (guard !== undefined && guard !== branch) continue;
@@ -288,6 +426,11 @@ export function assume(knowledge: Knowledge, condition: TESBoolean, truth: boole
           selected === right ? value : right, branchFacts);
         const resolved = resolveBoolean(equality, branchFacts);
         if (resolved !== undefined && resolved !== truth) continue;
+        // Refute branches whose every sub-leaf contradicts the current or a
+        // prior equality about this same selection. Unknown leaves stay
+        // feasible; only known disagreements discard. Over-cap prior
+        // collection gives up this refinement and keeps the branch.
+        if (!priorsCapped && !branchHasFeasibleLeaf(value, branchFacts, assumptions)) continue;
         alternatives.push(assume(branchFacts, equality, truth));
       }
       facts = withSharedFacts(facts, alternatives);
@@ -408,6 +551,11 @@ function resolveEquality(left: Any, right: Any, knowledge: Knowledge): boolean |
   if (sameIdentity(left, right) && !isESNumber(left) && !isChoice(left)) return true;
   const selected = choiceOf(left) ? left : choiceOf(right) ? right : undefined;
   if (selected) {
+    // Prior-aware leaf resolution first; on unknown/giveup use the
+    // pre-existing per-guard expansion below.
+    const candidate = selected === left ? right : left;
+    const leafResult = tryResolveChoiceEquality(selected, candidate, knowledge);
+    if (leafResult !== undefined) return leafResult;
     const choice = choiceOf(selected)!;
     const condition = resolveBoolean(choice.condition, knowledge);
     const branch = (truth: boolean) => resolveEquality(
