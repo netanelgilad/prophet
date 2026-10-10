@@ -43,13 +43,21 @@ import { tuple } from "@deaven/tuple";
 // bounded forEach traversal). Host work is bounded two ways. Each active path
 // carries its own remaining ordinary-body-entry count in persistent context
 // state, so sibling paths do not consume each other's iterations. A shared
-// step counter per loop evaluation additionally caps total advances, so
-// adversarial fork-per-iteration shapes cannot evade the per-path limit by
-// multiplying paths. Reaching either cap retains the actual unfinished
+// step counter per loop evaluation additionally caps total frontier visits:
+// every advanceOne call below counts, including tests, copies, updates,
+// body entries, and re-walks past finished leaves — not just body entries —
+// so the cap tracks total driver work per evaluation, including the repeated
+// traversal that dominates multiplying path shapes. Ordinary 1024-iteration
+// paths touch roughly one node per advance and fit with margin; multiplying
+// shapes exhaust the cap while their tree is still small. Once the shared
+// cap fires, all remaining actives stop together in one pass instead of
+// converting one by one. Reaching either cap retains the actual unfinished
 // context as a typed budget boundary beside completed siblings; a cap never
-// implies termination.
+// implies termination. Merges, joins, allocation and host-stack depth remain
+// separate residual limits (see SYM-004): the visit count bounds driver
+// traversal and phase evaluations, not merge or collapse work.
 const maximumForIterations = 1024;
-const maximumForSteps = 4096;
+const maximumForSteps = 8192;
 
 function budgetBoundary(message: string): ExecutionBoundary {
   return { type: "ExecutionBoundary", kind: "budget", message, frames: [], pendingStatements: [] };
@@ -207,19 +215,35 @@ export function evaluateForStatement(ast: ESTree.ForStatement, context: TExecuti
     if (remaining <= 0) {
       return tuple(budgetBoundary("For loop exceeded its per-path iteration budget"), current);
     }
-    if (++sharedSteps > maximumForSteps) {
-      return tuple(budgetBoundary("For loop exceeded its shared evaluation step budget"), current);
-    }
     const budgeted = ExecutionContext({ ...current.value, loopBudget: { remaining: remaining - 1 } });
     return evaluate(ast.body, budgeted);
   };
 
+  // Stop every remaining active leaf together once the shared cap fires, each
+  // with its own actual unfinished context. Converting one leaf per advance
+  // would re-walk the whole frontier per leaf; a single pass keeps the stop
+  // proportional to the retained tree instead of quadratic in it.
+  const stopAllActives = (frontier: Frontier): Frontier => {
+    if (frontier.kind === "done") return frontier;
+    if (frontier.kind === "active") {
+      return { kind: "done", result: tuple(
+        budgetBoundary("For loop exceeded its shared evaluation step budget"), frontier.context) };
+    }
+    return { kind: "fork", condition: frontier.condition, base: frontier.base,
+      consequent: stopAllActives(frontier.consequent), alternate: stopAllActives(frontier.alternate) };
+  };
+
   // Advance the leftmost active leaf one phase and splice the expansion back
   // in place, preserving every recorded fork. Ordinary paths stay iterative;
-  // only fork nesting consumes host recursion here.
+  // only fork nesting consumes host recursion here. Every call counts one
+  // shared frontier visit, including passes that only re-walk finished
+  // leaves: traversal is driver work too.
   const advanceOne = (frontier: Frontier): [Frontier, boolean] => {
+    sharedSteps++;
     if (frontier.kind === "done") return [frontier, false];
-    if (frontier.kind === "active") return [expand(evaluatePhase(frontier.phase, frontier.context), frontier.phase), true];
+    if (frontier.kind === "active") {
+      return [expand(evaluatePhase(frontier.phase, frontier.context), frontier.phase), true];
+    }
     const [consequent, advancedConsequent] = advanceOne(frontier.consequent);
     if (advancedConsequent) {
       return [{ kind: "fork", condition: frontier.condition, base: frontier.base,
@@ -264,6 +288,15 @@ export function evaluateForStatement(ast: ESTree.ForStatement, context: TExecuti
   const entered = ExecutionContext({ ...initial.value, loopBudget: { remaining: maximumForIterations } });
   let frontier: Frontier = { kind: "active", phase: "init", context: entered };
   for (;;) {
+    // Check the shared cap between advances: once maximumForSteps visits
+    // have run, no further walk starts. A single walk's own visits can
+    // overshoot the cap, bounded by the tree at firing time. Everything
+    // still active then stops here in one pass with its reached context,
+    // beside already completed siblings.
+    if (sharedSteps >= maximumForSteps) {
+      frontier = stopAllActives(frontier);
+      break;
+    }
     const [next, advanced] = advanceOne(frontier);
     frontier = next;
     if (!advanced) break;

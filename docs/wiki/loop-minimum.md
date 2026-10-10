@@ -55,10 +55,10 @@ correct (a nested conditional selection of the inputs), and the same case
 proves its alias bound (`alias <= d[0]` true) and strict comparison
 (`d[0] < alias` false). Membership needs refutation of infeasible
 selection-path combinations, which forward-only strict-equality reasoning
-does not perform; that inference belongs to the deferred loop-invariant task
-under SYM-001, not to solver expansion here. A deliberately wrong reducer
-still proves its own concrete membership, so the residual is specific to
-symbolic selection chains.
+does not perform; that precision belongs to separately scoped selection work
+(P005 candidate) under SYM-001, not to solver expansion here. A deliberately
+wrong reducer still proves its own concrete membership, so the residual is
+specific to symbolic selection chains.
 
 Limits: the symbolic domain is ten independent `Math.random` symbols in
 `[0, 1)` plus a three-symbol membership case; broader arbitrary finite symbolic

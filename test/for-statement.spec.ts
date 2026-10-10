@@ -8,7 +8,7 @@ import { TArray } from "../src/array/Array";
 import { createConsoleModel } from "../src/node/console";
 import { createOpaqueBuiltinModule } from "../src/node/opaque";
 import { resolveBoolean } from "../src/symbolic";
-import { Any, isThrownValue, TESBoolean, TESNumber } from "../src/types";
+import { Any, ESNumber, isThrownValue, TESBoolean, TESNumber } from "../src/types";
 import { assertPinnedNode } from "./commonjs/oracle";
 
 beforeAll(assertPinnedNode);
@@ -370,5 +370,51 @@ describe("for statement budgets", () => {
     expect(stopped[1].value.scope.cleanup).toMatchObject({ value: 0 });
     expect(normal[1].value.scope.n).toMatchObject({ value: 0 });
     expect(normal[1].value.scope.cleanup).toMatchObject({ value: 1 });
+  });
+
+  test("multiplying finite paths reach the shared visit cap with completed siblings retained", () => {
+    const result = run(`let n = 0;
+      for (let i = 0; i < 13; i++) {
+        if (Math.random() < 0.5) continue;
+        n = n + 1;
+      }
+      const done = true;`);
+    expect(hasExecutionBoundary(result[0])).toBe(true);
+    const outcomes = leaves(result);
+    expect(outcomes.some(([value]) => !isExecutionBoundary(value))).toBe(true);
+    for (const [value, context] of outcomes) {
+      expect(isThrownValue(value)).toBe(false);
+      if (isExecutionBoundary(value)) {
+        expect(value).toMatchObject({ kind: "budget",
+          message: "For loop exceeded its shared evaluation step budget" });
+        const n = (context.value.scope.n as TESNumber).value!;
+        expect(n).toBeGreaterThanOrEqual(0);
+        expect(n).toBeLessThanOrEqual(13);
+      } else {
+        expect(context.value.scope.done).toMatchObject({ value: true });
+      }
+    }
+  });
+
+  test("accumulated symbolic test exits reach the shared visit cap beside completed exits", () => {
+    const limit = ESNumber();
+    const result = run(`let n = 0;
+      for (let i = 0; i < limit; i++) { n = n + 1; }
+      const done = true;`, { limit });
+    expect(hasExecutionBoundary(result[0])).toBe(true);
+    const outcomes = leaves(result);
+    const stopped = outcomes.filter(([value]) => isExecutionBoundary(value));
+    const finished = outcomes.filter(([value]) => !isExecutionBoundary(value));
+    // Unknown-bound loops retain one normal exit per explored iteration while
+    // a single active path continues; the visit cap stops that continuation
+    // with its reached prefix, never the finished exits.
+    expect(finished.length).toBeGreaterThan(0);
+    expect(stopped).toHaveLength(1);
+    expect(stopped[0][0]).toMatchObject({ kind: "budget",
+      message: "For loop exceeded its shared evaluation step budget" });
+    for (const [, context] of finished) {
+      expect(context.value.scope.done).toMatchObject({ value: true });
+    }
+    expect((stopped[0][1].value.scope.n as TESNumber).value).toBeGreaterThan(0);
   });
 });

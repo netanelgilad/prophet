@@ -45,17 +45,20 @@ Semantic traps, each with pinned Node 24.21.0 evidence behind it:
 - Bounded unrolling proves order bounds from executed comparisons
   (`minimum(d) <= d[j]` for every member) but cannot prove disjunctive
   membership (`m === d[0] || ...`) without refuting infeasible
-  selection-path combinations. That inference belongs to loop-invariant work,
-  not to solver expansion here.
+  selection-path combinations. That precision belongs to separately scoped
+  selection work, not to solver expansion here.
 
 Limits: ordinary `for` only; while/do-while/for-in/of, labels, switch,
 sequence expressions, compound assignment and completion values remain gaps.
-Array/rest head patterns stop explicitly. Per-path budgets (1024 entries) and
-the shared step cap (4096 advances) bound host work; unknown-bound loops
-still accumulate one exit leaf per explored iteration. Verified against
-complete Test262 for/continue cases plus stray-jump parse negatives; the
-unchanged sirv factory now walks totalist's loop and stops at the
-ignore-filter RegExp `.test` beside its filesystem-throw sibling.
+Array/rest head patterns stop explicitly. Per-path budgets (1024 body
+entries) and the shared visit cap (8192 frontier visits, counting re-walks
+past finished leaves as well as phase steps) bound driver traversal and
+phase evaluations; unknown-bound loops still accumulate one exit leaf per
+explored iteration until the cap fires. Merge/join cost, allocation,
+host-stack depth and same-phase continuation coalescing remain residuals.
+Verified against complete Test262 for/continue cases plus stray-jump parse
+negatives; the unchanged sirv factory now walks totalist's loop and stops at
+the ignore-filter RegExp `.test` beside its filesystem-throw sibling.
 
 Corrections recorded during P003 development: the first driver recursed per
 phase and overflowed the host stack on budget-length loops; the rewrite uses
