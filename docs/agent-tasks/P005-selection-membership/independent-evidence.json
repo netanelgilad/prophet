@@ -9,12 +9,111 @@
       "sha256": "241feb7a1d86d2a514c772b56c6a4acd3bf1690e765ab761257338508b9ce4a3"
     },
     {
-      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p005-selection/test/p005-independent-review.spec.ts",
-      "sha256": "86cea1006061b5fad102bcc83ea53997026610ff135cb999fd48ea948719bbc2"
+      "path": "/tmp/prophet-p005-review-baseline.spec.ts",
+      "sha256": "86cea1006061b5fad102bcc83ea53997026610ff135cb999fd48ea948719bbc2",
+      "originalPath": "/Users/netanelgilad/development/prophet-worktrees/review-p005-selection/test/p005-independent-review.spec.ts",
+      "stage": "Exact archived baseline fixture, before seven additional probes"
     },
     {
       "path": "/tmp/prophet-p005-review-typecheck2.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/prophet-p005-snapshot1-review.log",
+      "sha256": "ba4aabd85947f62216065f4f60a5f8ba59e41e7a0281e5f2f962eee4edbee854"
+    },
+    {
+      "path": "/tmp/prophet-p005-snapshot2-review.log",
+      "sha256": "5ef70140ade01dce309db0bdc14387317ee47fea45fe05856cce276a893a8fc6"
+    },
+    {
+      "path": "/tmp/prophet-p005-snapshot2-extra-review.log",
+      "sha256": "871bd3ecefd2040685557c7fd98fd82115509625bbe0afe4309a9f81754fecab"
+    },
+    {
+      "path": "/tmp/prophet-p005-snapshot3-review.log",
+      "sha256": "42a78ac4351f55442e254db90d9785f01a94b3708e2572a063c0aeed09e418dd"
+    },
+    {
+      "path": "/tmp/prophet-p005-snapshot3-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/prophet-p005-four-way-review.log",
+      "sha256": "44e4d502fbcc9090dc793d5df93c90890234fbb25dbadcc8c49655233aa0ca9c"
+    },
+    {
+      "path": "/tmp/prophet-p005-final-review-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/prophet-p005-review-guards.log",
+      "sha256": "26585154980f5996c63c079a055ddbc48916d47670a9620f52bbf40c236448fb"
+    },
+    {
+      "path": "/tmp/prophet-p005-review-assertions.log",
+      "sha256": "3c82372df7a6b9508ea515dd31d662ab9687e9d3657e2f9853a49044e8081c2f"
+    },
+    {
+      "path": "/tmp/prophet-p005-review-skips.log",
+      "sha256": "6beff296b900833d13d152230226c4cd18f78ac8002bf9947c6dc4e0c09b9d78"
+    },
+    {
+      "path": "/tmp/prophet-p005-review-docs.log",
+      "sha256": "1c558ea829fa9fe6e68ee5ed8af3e28323bc2f2a0bdf1761671ca894831adb46"
+    },
+    {
+      "path": "/tmp/prophet-p005-review-inventory.json",
+      "sha256": "0e51b614a81957665d2300f863ee39f285b2f0277c79fed0f32cbf0b63e6e67a"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p005-selection/test/p005-independent-review.spec.ts",
+      "sha256": "a71a8435bbeb7aee3adbe19a90cada5f14c4b4466f3778f0cf550d9a8f89da90"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p005-selection/test/p005-four-way-review.spec.ts",
+      "sha256": "311c3efdd09649f34a6ef6e0bad4a128f8565975d7c65f143ea091800ebba570"
     }
-  ]
+  ],
+  "reviewSnapshots": [
+    {
+      "snapshot": "12f05b934d7f9d491295d3ed789700b8b55c1673",
+      "path": "src/symbolic/index.ts",
+      "sha256": "afc695bb4dda2a845d26cfe7eb5f6d005440d30d47bd60aab01a9390e624f8ab"
+    },
+    {
+      "snapshot": "4989bd81dad65afee17e729ec3ee8993e36211de",
+      "path": "src/symbolic/index.ts",
+      "sha256": "926160d5733347383d10bc919a9d4645811c312f91d62fb46a43eb06b4e09553"
+    },
+    {
+      "snapshot": "460790037f979c8867d9c69b2151b0add0500ec7",
+      "path": "src/symbolic/index.ts",
+      "sha256": "d0ce640f970510975b91b821049c411411eb93eb5868fabb1fef1a4b00560af9"
+    }
+  ],
+  "latest": {
+    "snapshot": "460790037f979c8867d9c69b2151b0add0500ec7",
+    "tests": 45,
+    "passed": 45,
+    "seconds": 4.65,
+    "typecheckExit": 0,
+    "disclosure": "Initial12 independent probes disclosed after snapshot1; seven additional swapped/reentrant probes authored after that correction and not yet disclosed."
+  },
+  "sourceEquivalentWorkerCommit": "e18d18e120ac4b61643182645b8a54fd67d825fb",
+  "fourWayReview": {
+    "cases": 24,
+    "passed": 24,
+    "seconds": 6.414,
+    "exit": 0
+  },
+  "audit": {
+    "activeFiles": 286,
+    "uniqueActiveFiles": 286,
+    "historicalSkippedFiles": 46,
+    "allSkippedDocumented": true,
+    "guardHits": 548,
+    "assertionHits": 23,
+    "skipSites": 1
+  }
 }
