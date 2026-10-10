@@ -227,6 +227,13 @@ wake mechanism first. Do not imply that ending a turn leaves automatic review
 running. If a turn must end with a worker pending, state the missing wake-up and
 save its exact thread/worktree/review checkpoint.
 
+Before integration, read both classic branch protection and rulesets. User
+authorization to push master directly supersedes the PR workflow, but does not
+imply permission to violate linear history. Use reviewed cherry-picks/rebase or
+a fast-forward; do not create a merge commit on protected master. Where required
+checks must be green before publication, push the exact candidate head to a
+validation branch, verify CI, then fast-forward master to that same head. Do not
+change protection settings or force-rewrite published history to hide a mistake.
 After acceptance, integrate onto current master, preserve other work, run required
 combined tests/typecheck and push. Record exact published commit and CI results.
 On completion/rejection/cancellation, save the task result, review and reusable

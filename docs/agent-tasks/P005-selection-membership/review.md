@@ -134,3 +134,19 @@ typecheck. Unrelated untracked website/workflow/scripts remain untouched.
 P005 canonical archive verified2026-10-10T18:43:02.784Z; no active worker remains.
 Publication/CI follow this documentation update; the project board records the
 exact pushed head and CI run.
+
+## Publication and orchestrator correction
+
+Pushed head6de5b6f69dc4962060a0864e774c1f76edc7b45e to origin/master. GitHub
+accepted the push using the existing administrator exemption and reported PR/
+status requirements plus a linear-history violation for merge f6da7af. Direct
+master publication was user-authorized; choosing a merge commit despite the
+linear-history rule was the orchestrator's mistake, not a worker defect. No
+protection setting was changed. Published history is retained; no force rewrite.
+
+Read-only classic protection inspection confirms linear history, test/type-check
+contexts, one PR approval and enforce_admins:false; the separate ruleset endpoint
+returns no rules. The playbook now requires inspecting both and linear integration.
+The documentation follow-up uses an exact-head validation branch before ordinary
+master fast-forward. First publication CI: [38077022515](https://github.com/netanelgilad/prophet/actions/runs/38077022515).
+Final validation and pushed head are recorded in the Atlas project board.
