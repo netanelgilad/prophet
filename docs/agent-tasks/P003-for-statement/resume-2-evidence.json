@@ -1,0 +1,36 @@
+{
+  "base": "6ba7e8778590c1ab473eff4f5551e90597fb099c",
+  "reviewProbeSha256": "09f249b44132311bb6b459f134ee417423e1dad789d2ee1706e62f792bf9e0fb",
+  "focused": {
+    "exit": 1,
+    "failed": 10,
+    "seconds": 7.912,
+    "command": "PROPHET_NODE_BINARY=<pinned-node> <pinned-node> .yarn/releases/yarn-3.1.1.cjs test --runInBand test/p003-independent-review.spec.ts"
+  },
+  "typecheck": {
+    "exit": 0,
+    "command": "<pinned-node> .yarn/releases/yarn-3.1.1.cjs typecheck"
+  },
+  "hashes": {
+    "/tmp/prophet-p003-independent-red-oct10.log": "c3470f89ecd7e797b573a5a067446714571bc6c50fff8449884b6b479447f0d6",
+    "/tmp/prophet-p003-review-oct10-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "expandedReviewProbes": {
+    "base": "6ba7e8778590c1ab473eff4f5551e90597fb099c",
+    "count": 12,
+    "focused": {
+      "exit": 1,
+      "failed": 12,
+      "seconds": 5.958
+    },
+    "typecheck": {
+      "exit": 0
+    },
+    "sha256": "14b6d8f11bfaf194e8012407437e95d78bbecca415af3e246a1d9e9809794ac7",
+    "logs": {
+      "/tmp/prophet-p003-independent-red-oct10-v2.log": "4853b06ef665cc916a67e1700be2387bcc7f0bf52b61839b10f26372e71002a3",
+      "/tmp/prophet-p003-review-oct10-typecheck-v2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "note": "Two additional reviewer probes cover object-pattern/sibling lexical cells and symbolic heap alias correlation; original ten cases were disclosed to worker. Exact delivered implementation still awaits review."
+  }
+}

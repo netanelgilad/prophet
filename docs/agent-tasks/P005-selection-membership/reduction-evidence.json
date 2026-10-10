@@ -1,0 +1,13 @@
+{
+  "reviewSnapshot": "bc62ddcbc9076a7fbf8ca43f00568c703a766e29",
+  "exit": 1,
+  "passed": 1,
+  "failed": 2,
+  "seconds": 3.029,
+  "scope": "Generic no-loop reductions; independent guards in matching candidate order pass, reverse order and comparison-driven selections remain unknown. No worker dispatched and no production fix.",
+  "command": "timeout --kill-after=5s 60s <pinned-node> .yarn/releases/yarn-3.1.1.cjs test --runInBand test/p005-selection-review.spec.ts",
+  "sha256": {
+    "/tmp/prophet-p005-selection-reduction-v2.log": "bd48790bc1e78bd452590a42c984440064896c4fa37009db9a4cf436485688c2",
+    "/Users/netanelgilad/development/prophet-worktrees/review-p003-for/test/p005-selection-review.spec.ts": "1dd40bf9ef41c5ba21077ec188250504457cfb0e4076a4d26531701af8a37024"
+  }
+}

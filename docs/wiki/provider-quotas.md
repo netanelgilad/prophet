@@ -107,4 +107,21 @@ No automatic retry or wake-up has been installed for either model.
    the same shared cap, wait for it rather than sweeping every model.
 6. Re-check once after the reported reset while supervised. Record actual recovery.
    No scheduled wake/retry is currently installed. Surfacing provider status/reset
-   through Atlas is useful future infrastructure; this doc is not that feature.
+   through Atlas was missing at this checkpoint; see the Oct10 adapter update
+   below. This document does not install a scheduler.
+
+## Supervised recovery, 2026-10-10
+
+User requested continuation and sleeping through future limits. Root resumed
+the same P003 Muse thread after the recorded Oct9 reset, verified build/high
+and free catalog identity, and observed fresh successful model/tool activity
+beginning 2026-10-10T16:55:45Z. This establishes Muse availability at resumption,
+not a new fixed quota or LongCat recovery. One worker remains active. The
+orchestrator stays in the active turn while waiting/reviewing; no external
+automatic wake-up mechanism has been installed.
+
+Atlas's current adapter now exposes retry activity and its scheduled `nextAt`
+through the conversation API; see [verification and limits](atlas-operations.md#retry-status-is-now-exposed-2026-10-10).
+Prefer that status surface when waiting. It does not publish a numeric quota or
+guarantee that the next attempt will succeed, and no new cooldown was observed
+during this verification.

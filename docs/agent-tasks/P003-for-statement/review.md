@@ -91,3 +91,136 @@ remains as recorded; that is not a passing typecheck. Fix and typecheck this
 review fixture before publishing or using it as final P003 evidence. This is a
 review-harness issue, not a worker or production VM regression. P004 was checked
 separately in a clean review worktree. Log: `/tmp/prophet-p004-review-typecheck.log`.
+
+## Supervised resume 2, 2026-10-10
+
+User requested continuation and sleeping through limits until recovery. Same
+thread/model/build/high resumed; actual tool activity began at 16:55:45 UTC
+after the previously observed reset. No model/identity/network substitution.
+Root updated the idle worker to master7ce6d1f and transferred reviewed PR70
+commits as 387c615/9784225/917cefa, then committed only task-delivery docs in
+6ba7e8778590c1ab473eff4f5551e90597fb099c. Worker code base is 917cefa; production
+source is unchanged from master. Old untracked delivery files are preserved at
+/tmp/prophet-p003-oct10-bootstrap. Test-loop-min ownership transferred to P003.
+See [resume prompt](resume-2.md).
+
+Root fixed its independent fixture's unused import/missing casts and checked
+pinned Node at each native invocation. Isolated review worktree now typechecks
+(exit0), closing the earlier review-harness-only issue. The ten baseline probes
+remain expected red at missing ForStatement (7.912s); no loop implementation
+is accepted yet. Native expectations pass before VM assertions. The probes
+were authored independently before implementation, but the worker read them and
+reused several cases in its own spec draft. They are disclosed review cases,
+not hidden holdout tests; acceptance still needs semantic code review and
+independent execution against the exact delivered commit.
+
+### Draft-spec correction 1
+
+At 17:08 UTC, root bundled a correction before production implementation:
+the return/break/continue snippets updated a counter but never the loop's `i`,
+causing the native probe to run forever; an out-of-scope lexical identifier was
+incorrectly expected to produce undefined; the catch/body-count expectation was
+off by one. Requested corrected guest code and native expectations through the
+spec's timeout-bounded oracle, rather than more ad-hoc native probes. Root made
+no worker spec/source changes. This is an early review correction, not a
+rejected finished handoff or provider-capacity failure. No trust gate relaxed.
+
+### Draft-source correction 2
+
+After the worker's first driver overflowed the host stack, its own focused specs
+caught all six budget failures. The worker rewrote ordinary iterations as an
+explicit phase/frontier driver. At 17:20 UTC root identified two regressions in
+that rewrite: body `continue` was classified as finished instead of advancing to
+copy/update, and an omitted test was evaluated as Undefined/false instead of
+true. Sent one bundled correction while worker debugging continued; required
+preserving the positive and budget assertions. No implementation was edited by
+root, accepted or integrated. These are pre-handoff corrections, with full
+review still required.
+
+The worker reported at 17:20:58 that both findings matched fixes it had just
+applied; the feedback and self-correction overlapped. Do not count this as a
+rejected delivered patch or claim that the review message caused those fixes.
+Its next focused run passed all 30 loop specs; independent implementation review
+and the broader proof/regression checks were still pending.
+
+### Fixed-draft independent review
+
+Root copied a hash-verified source/spec snapshot (not new implementation) into
+its isolated review branch as `bc62ddcbc9076a7fbf8ca43f00568c703a766e29`.
+Manifest: `/tmp/prophet-p003-review-snapshot1/manifest.json`. All twelve independent
+probes pass (18.345s including startup), and typecheck exits0. Source review
+covers the phase/frontier driver, per-iteration environments and new abrupt
+completion propagation. This is provisional evidence on a draft, not the final
+worker commit; any later source changes need a delta review and affected checks.
+
+The worker draft passes the original ten-element false result and all but one
+reviewed loop-min spec. The remaining three-element membership disjunction stays
+unknown while its alias/bound checks pass. Root scoped [candidate P005](../P005-selection-membership/task.md)
+for a generic selection-rule follow-up; it is not dispatched, and no reviewed
+assertion is weakened or skipped. Sirv now reaches RegExp.test beside its retained
+filesystem failure path. Full validation and publication remain pending.
+
+### Shared-work review finding (correction 3)
+
+An additional root spec with thirteen finite iterations and a fresh symbolic
+continue/normal split per iteration hit an external 60-second timeout (exit124,
+empty log), so it did not verify the draft's shared-work stop. This is a measured
+inconclusive resource check, not a demonstrated wrong semantic result. The draft
+counter also counts body entries, not every phase/frontier advance as comments
+imply. Root requested a practical bounded shared-limit regression retaining both
+completed and stopped siblings, accurate counter terminology and explicit
+remaining traversal/merge/allocation/stack limits. A documented lower shared cap
+that still permits 1024 ordinary iterations is within the scoped analysis-budget
+work; no public schema or solver expansion is authorized. Review spec remains in
+`review-p003-for/test/p003-shared-budget-review.spec.ts`; the worker owns the fix.
+
+Root's follow-up distinguished frontier visits from phase count and corrected
+valid-label/parser and bounded-membership/loop-invariant documentation claims.
+The worker's visit-count/batched-stop correction reduces the original stress
+case to about0.6s. Root snapshot `802d92c` independently passes fourteen probes
+in4.708s (13 semantics plus the shared-cap case), and typecheck exits0. The cap
+checks between walks, so one final tree walk may overshoot8192 visits; this
+rule must be documented, with merge/allocation/stack costs still explicit.
+
+Root also proposed an optional join of body normal/continue states before their
+common update. That is an implementation idea, not required acceptance. The
+worker tried it; root explicitly directed deferring it if it stalls or fails,
+retaining the already verified budget correction and recording the separate
+join-cost/precision work under SYM-004. Do not grow this task into solver tuning.
+The distinct no-loop membership reductions live in candidate P005.
+
+### Handoff review and evidence correction
+
+Worker handed off source1170562 plus docs/evidence4443b58 with a clean tree.
+Full suite:123 suites,3077 passes,46 unchanged skips, one preserved membership
+failure; typecheck0. Root verified16 source hashes and13 log hashes, unchanged
+source/spec bytes after1170562, complete owned diff and cumulative whitespace.
+Canonical Atlas thread list showed idle; cached conversation still said active.
+
+Hash correctness did not establish label correctness: evidence's
+`stress-join-stall-exit124.log` mapped to `/tmp/prophet-p003-stress3.log`, which
+actually contains the passing618ms bounded stress run. The actual join log was
+empty after its observed timeout. Root requested metadata-only correction,
+explicit persisted log-path mapping, exact pinned command spelling, honest
+focused-run stages and cumulative diff verification. No source changes or full
+suite repeat requested. This is one handoff evidence correction; acceptance
+and archival wait for the repaired record. Generic membership remains scoped
+to P005, so no green full-suite or integration claim is made for P003 alone.
+
+### Scoped acceptance and archive, 2026-10-10
+
+Metadata repair b508ad9f18bdcb2edef7adba3df70a5fd0b3e9e7 correctly separates
+the passing stress run from the optional-join timeout and records absolute log
+paths/stages. Root independently revalidated all16 source and15 log hashes,
+no src/test delta after tested1170562, and cumulative diff-check6ba7e87..HEAD.
+The scoped loop implementation is accepted on full semantic/evidence review;
+it is not integrated or fully green while P005's one membership theorem is red.
+Root's14 passing probes, honest failure result and unchanged reviewed assertions
+are retained in [independent evidence](independent-review-evidence.json).
+
+Archived the idle P003 thread at2026-10-10T18:12:41.198Z; canonical Atlas thread
+list verifies that timestamp. History/worktree retained. No paid fallback, no
+concurrency increase, zero clean first-review acceptance streak. This family
+needed early spec corrections, a resource correction and one delivered evidence
+correction; overlapping self-fixes are not counted as review-caused changes.
+P005 receives the exact reviewed head in a separate Muse thread/worktree.

@@ -165,21 +165,25 @@ Calling the default factory now creates two regex identities and appends them
 through shared Array.push, bounded Array.concat and shared Array.forEach. The
 default empty ignores list completes iteration and reaches totalist's directory
 loop: its success path stops at ForStatement beside a filesystem-failure throw.
-Shared for-loop semantics are the next reached language blocker;
-[P003](agent-tasks/P003-for-statement/task.md) is assigned this increment under
-the one-worker/full-review playbook, including lexical iterations and abrupt
-completions; the worker is currently provider-limited before implementation. Regex
-construction/matching, file metadata and streams remain further target needs.
-The loop increment also reconnects the original minimum proof to local mutable
-state: `best = a[0]`, then compare each later item and conditionally assign best.
-[P004](agent-tasks/P004-loop-min-specs/task.md) has reviewed specs in
-[draft PR70](https://github.com/netanelgilad/prophet/pull/70) for ten independent
-Math.random symbols in [0,1): no member is below the result, the result remains symbolic, and
-unrelated/strict comparisons remain unknown. P003 must satisfy the reviewed
-bounded specs through generic execution, without recognizing a function's name.
-They remain red at ForStatement and are not on master; native controls pass, but
-no new loop proof is implemented. Muse's observed retry time is October 9 00:00
-UTC; the LongCat spec pilot also hit a limit with no reported reset.
+[P003](agent-tasks/P003-for-statement/task.md) now implements bounded shared
+for-loop semantics in reviewed branch1170562/b508ad9, including lexical cells,
+abrupt completions and explicit per-path/shared-work stops. It advances unchanged
+sirv to RegExp.test beside its retained filesystem throw. The branch proves the
+original ten-item minimum bound through local state and ordinary comparisons:
+`d[0] < minimum(d)` is false for ten independent Math.random values. No function
+name or source recognition is used. These changes are not yet integrated.
+
+[P004](agent-tasks/P004-loop-min-specs/task.md)'s reviewed specs from
+[draft PR70](https://github.com/netanelgilad/prophet/pull/70) remain unchanged;
+8/9 pass. The remaining selected-value membership assertion also fails in a
+no-loop reduction, depending on candidate order.
+[P005](agent-tasks/P005-selection-membership/task.md) is assigned that generic
+reasoning gap in a fresh Muse build/high thread, with NaN and must-remain-unknown
+controls. P003 is archived after full scoped review; combined publication awaits
+a green full suite/typecheck and independent solver review. Regex matching, file
+metadata and streams remain further target needs. One worker remains active at
+a time. The user's Oct10 instruction is to wait through further provider limits
+under active supervision, without duplicate prompts or model rotation.
 
 The subsequent reasoning milestone is **unknown-length loop summaries**. Derive
 and validate a fact like “best is a selected element of the visited prefix and
