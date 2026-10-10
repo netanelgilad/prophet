@@ -82,16 +82,21 @@ adds elimination when all surviving leaves are known-decided.
 
 ## Resource bounds (explicit)
 
-- One flattening is capped at 4 leaves / depth 16 / 8 priors; over-limit
-  inputs keep current behavior (unknown). The 4-leaf cap is deliberately
-  small (P005 needs three); at-cap (4) proves and over-cap (5) stays
-  unknown in owned specs.
-- Prior collection in `assume()` stops growing at the cap and
-  conservatively skips the refinement for that assumption; the cap check in
-  the leaf helper alone would not bound the allocation.
+- One flattening is capped at 4 leaves / depth 16; pruning accepts 8
+  usable assumptions including the current one and resolution accepts 8
+  priors. The 4-leaf cap is deliberately small (P005 needs three); at-cap
+  (4) proves and the tested over-cap order (5) stays unknown in owned
+  specs, while other over-cap inputs keep prior behavior, which can still
+  prove some cases.
+- Prior collection in `assume()` stops growing at the cap (it may retain
+  one overflow entry) and conservatively skips the refinement for that
+  assumption; the cap check in the leaf helper alone would not bound the
+  allocation.
 - Reentrant new exploration is refused via `selectionMembershipDepth`:
   `assume`/`strictEquality` reached while flattening keep pre-existing
   behavior. The helper applies solely to non-choice leaves/candidates.
-- These constants bound the new leaf exploration only. Whole-solver
-  fallback, join/merge, frontier and store costs remain SYM-004. A
-  stopped/unknown result remains preferable to an unsound proof.
+- Only the leaf at/over cases were exercised directly; no dedicated
+  depth/prior stress coverage is claimed. These constants bound the new
+  leaf exploration only. Whole-solver fallback, join/merge, frontier and
+  store costs remain SYM-004. A stopped/unknown result remains preferable
+  to an unsound proof.

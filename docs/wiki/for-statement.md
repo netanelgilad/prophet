@@ -46,7 +46,8 @@ Semantic traps, each with pinned Node 24.21.0 evidence behind it:
   (`minimum(d) <= d[j]` for every member); disjunctive membership
   (`m === d[0] || ...`) is now proved by the separately scoped P005
   selection-membership refinement (infeasible-path refutation within an
-  explicit leaf bound), with over-cap selections remaining unknown.
+  explicit leaf bound), with the tested five-leaf order remaining
+  unknown.
 
 Limits: ordinary `for` only; while/do-while/for-in/of, labels, switch,
 sequence expressions, compound assignment and completion values remain gaps.

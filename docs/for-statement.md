@@ -73,4 +73,5 @@ separate residuals under SYM-004, as does coalescing same-phase
 continuations. Disjunctive membership over a loop-carried selection chain
 (`m === d[0] || ...`) is now proved by the separately scoped P005
 selection-membership refinement (infeasible-path refutation within an
-explicit leaf bound); over-cap selections remain unknown under SYM-001.
+explicit leaf bound); the tested five-leaf order remains unknown under
+SYM-001.

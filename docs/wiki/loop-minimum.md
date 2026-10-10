@@ -56,10 +56,12 @@ alias bound (`alias <= d[0]` true) and strict comparison (`d[0] < alias`
 false). Membership is proved by bounded refutation of infeasible
 selection-path combinations under SYM-001: a branch survives only while some
 syntactic sub-leaf contradicts no assumed equality about the same selection
-(4 leaves, depth 16, 8 priors, non-choice leaves/candidates only, no
-reentrant new exploration). A deliberately wrong reducer still proves its own
+(4 leaves, depth 16, 8 usable assumptions including the current one,
+8 resolution priors, non-choice leaves/candidates only, no reentrant new
+exploration). A deliberately wrong reducer still proves its own
 concrete membership, so the work was specific to symbolic selection chains.
-Over-cap selections remain unknown.
+The tested five-leaf order remains unknown; over-cap inputs otherwise keep
+prior behavior.
 
 Limits: the symbolic domain is ten independent `Math.random` symbols in
 `[0, 1)` plus a three-symbol membership case; broader arbitrary finite symbolic

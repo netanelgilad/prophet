@@ -1,0 +1,117 @@
+{
+  "task": "P005-selection-membership",
+  "worktree": "/Users/netanelgilad/development/prophet-worktrees/muse-p005-selection",
+  "branch": "agent/p005-selection-membership",
+  "testedSourceCommit": "e18d18e120ac4b61643182645b8a54fd67d825fb",
+  "testedCommitNote": "All green validation ran on e18d18e. Later working-tree changes are docs-only (git diff e18d18e -- src test is empty); no source rerun needed solely for docs per review.",
+  "pinnedNode": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "pinnedNodeVersion": "v24.21.0",
+  "generatedAtUtc": "2026-10-10T18:40:09Z",
+  "sourceHashes": {
+    "src/symbolic/index.ts": "d0ce640f970510975b91b821049c411411eb93eb5868fabb1fef1a4b00560af9",
+    "test/symbolic-selection-membership.spec.ts": "e62a8ded67ff45fad8a1d5c446a4c9fb26fa0181d92ec4248e6936d05a7915ce"
+  },
+  "runs": [
+    {
+      "path": "/tmp/prophet-p005-red.log",
+      "sha256": "01f060befb24514ddf9f5225ae03a5fc0500e677921383d0d897bbbb8b2173ea",
+      "stage": "red-spec-pre-fix",
+      "command": "PROPHET_NODE_BINARY=<pinned> node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-selection-membership.spec.ts > /tmp/prophet-p005-red.log 2>&1",
+      "exit": 1,
+      "result": "3 failed, 12 passed, 15 total (reverse, renamed-reverse, comparison-driven unknown; exploratory: Yarn ran under system node, not the pinned binary)",
+      "note": "Superseded exploratory red; failures re-confirmed by reviewer fixed-snapshot reductions and disclosed independent probes."
+    },
+    {
+      "path": "/tmp/prophet-p005-green-focused5.log",
+      "sha256": "b2a59e456705d72cd03cf152807a4bdd19265f2b7f0a802c8371f1eba844c054",
+      "stage": "focused-green-final-spec",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout --kill-after=5s 120s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-selection-membership.spec.ts > /tmp/prophet-p005-green-focused5.log 2>&1",
+      "exit": 0,
+      "result": "24 passed, 24 total"
+    },
+    {
+      "path": "/tmp/prophet-p005-regress2.log",
+      "sha256": "390ec7e9cf5be82189c81150e853677fabc7f067d4ee89db3fe852cf2c417ee4",
+      "stage": "regression-choice-loop-min",
+      "command": "PROPHET_NODE_BINARY=<pinned> timeout --kill-after=5s 300s <pinned>/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts test/symbolic-choice-equality.spec.ts test/min.spec.ts test/unknown-length.spec.ts > /tmp/prophet-p005-regress2.log 2>&1",
+      "exit": 0,
+      "result": "4 suites, 56 passed (loop-min member now true; every existing assertion retained)"
+    },
+    {
+      "path": "/tmp/prophet-p005-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stage": "typecheck",
+      "command": "PROPHET_NODE_BINARY=<pinned> timeout --kill-after=5s 180s <pinned>/bin/node .yarn/releases/yarn-3.1.1.cjs tsc --noEmit > /tmp/prophet-p005-typecheck.log 2>&1",
+      "exit": 0,
+      "result": "clean (empty output)"
+    },
+    {
+      "path": "/tmp/prophet-p005-full.log",
+      "sha256": "62b4bdeb03239389225c84f2ef9f462f3ca3f65b942d131b29c3d825e6805cd9",
+      "stage": "full-suite",
+      "command": "PROPHET_NODE_BINARY=<pinned> timeout --kill-after=30s 1500s <pinned>/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand > /tmp/prophet-p005-full.log 2>&1",
+      "exit": 0,
+      "result": "124 suites passed; 3102 passed, 46 skipped, 0 failed"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-guards.log",
+      "sha256": "a6c1cfeb08138589dd60f90f6bc8097d8632cc93d541baa660602885dfc5977f",
+      "stage": "audit-guard-scan",
+      "command": "rg -n 'throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented' src --glob '*.ts'",
+      "exit": 0,
+      "result": "548 hits (search hits, not missing features)"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-assert.log",
+      "sha256": "3c82372df7a6b9508ea515dd31d662ab9687e9d3657e2f9853a49044e8081c2f",
+      "stage": "audit-assert-scan",
+      "command": "rg -n 'assert\\(|unimplemented\\(' src --glob '*.ts'",
+      "exit": 0,
+      "result": "23 hits"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-skip.log",
+      "sha256": "6beff296b900833d13d152230226c4cd18f78ac8002bf9947c6dc4e0c09b9d78",
+      "stage": "audit-skip-scan",
+      "command": "rg -n '\\b(test|it|describe)\\.(skip|todo)\\s*\\(' test --glob '*.ts'",
+      "exit": 0,
+      "result": "1 site: test/test262.spec.ts historical glob (46 files, unchanged)"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-docs.log",
+      "sha256": "cbd2b25711124c866fa244761a493067e627fdfe244ff42a2ea0c44761c070e9",
+      "stage": "audit-docs-scan",
+      "command": "rg -n 'gap|unsupported|assum|remain|limit|not yet|not modeled' README.md docs test/commonjs/README.md test/test262/README.md",
+      "exit": 0,
+      "result": "1209 hits"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-diff.log",
+      "sha256": "db327b9f4280f0d4cd52021feb3c59c6a9934fea15366ca44d53469692e52e13",
+      "stage": "audit-owned-diff",
+      "command": "git diff --stat -- src test README.md docs AGENTS.md",
+      "exit": 0,
+      "result": "owned docs/clarification diff only at audit time (src/test identical to tested commit)"
+    },
+    {
+      "path": "/tmp/prophet-p005-audit-skipinv.log",
+      "sha256": "92f60777cc7c20e0cef1db9640880c98ceccc87c5d31cdad0ddfe3274ae1c820",
+      "stage": "audit-skip-inventory",
+      "command": "<pinned>/bin/node -e <globby inventory of test/test262.spec.ts activeCorpus vs historicalGlobs>",
+      "exit": 0,
+      "result": "286 active files, 46 skipped files (unchanged)"
+    }
+  ],
+  "independentReview": {
+    "snapshot2": {
+      "result": "38/38 (12 reviewer probes + 26 existing choice tests), 5.676s",
+      "log": "/tmp/prophet-p005-snapshot2-review.log",
+      "probeSpec": "/Users/netanelgilad/development/prophet-worktrees/review-p005-selection/test/p005-independent-review.spec.ts",
+      "note": "Disclosed read-only; reviewer-run, not worker-run."
+    },
+    "fourWayPermutation": {
+      "result": "24-case four-way candidate-permutation spec passes, 6.414s",
+      "note": "Reviewer-run on e18d18e bytes (src identical to tested commit)."
+    }
+  }
+}

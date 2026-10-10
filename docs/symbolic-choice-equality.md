@@ -82,9 +82,12 @@ equality. The [selection-membership specs](../test/symbolic-selection-membership
 cover forward/reverse/renamed/comparison-driven selections, all six candidate
 orders, incomplete lists, fresh values, aliases, NaN/maybe-NaN,
 infinities/signed zero, mixed primitives and object identity. The leaf
-exploration is capped (4 leaves, depth 16, 8 priors, non-choice
-leaves/candidates only, no reentrant new exploration); over-cap selections
-keep prior behavior. See the [selection-membership wiki](wiki/selection-membership.md).
+exploration is capped (4 leaves, depth 16, 8 usable assumptions including
+the current one, 8 resolution priors, non-choice leaves/candidates only,
+no reentrant new exploration); over-cap inputs keep prior behavior, which
+can still prove some cases (the tested five-leaf order remains unknown).
+Incomplete-list, fresh-value and NaN unknowns are tested countercontrols,
+not universal categories. See the [selection-membership wiki](wiki/selection-membership.md).
 
 Nine complete, unmodified strict equality/inequality Test262 cases add 18 variants
 for signed zero, primitive comparisons and operand effects/throws. See the
