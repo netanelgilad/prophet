@@ -1,9 +1,12 @@
 # P003 — Shared bounded ForStatement
 
-State: assigned 2026-10-08; provider-limited before implementation after one
-cooldown retry. Same Muse Spark 1.3 build/high thread is idle/unarchived for
-resumption, full review required. See [review checkpoint](review.md).
-Base: `bb7dce2f1db39cead4d198f11c61f232a416bce3`.
+State: resumed 2026-10-10 after the previously reported reset, same Muse Spark
+1.3 build/high thread, full review required. Actual provider recovery must be
+observed; dispatch alone is not recovery. See [review checkpoint](review.md).
+Original base: `bb7dce2f1db39cead4d198f11c61f232a416bce3`.
+Resume code base: `917cefaa348fad2eec6fd10d2fd1df5c74232f0a`, containing master
+`7ce6d1f` and the reviewed P004 specs/wiki/evidence from draft PR70. Root task
+delivery documentation follows in a bootstrap commit; no production edit by root.
 Worktree: `/Users/netanelgilad/development/prophet-worktrees/muse-p003-for`.
 Branch: `agent/p003-for-statement`. Atlas thread: `ses_ee4c57620ffeA7vzQE3Q5b1dyH`.
 
@@ -21,10 +24,10 @@ in src/ASTResolvers.ts, src/evaluate.ts, src/types.ts,
 src/execution-context/Completion.ts, src/execution-context/branches.ts and
 src/execution-context/ExecutionContext.ts needed to compose loop completion and
 clone lexical records. Existing function/instantiate and binding helpers should
-be reused. Own test/for-statement.spec.ts, test/loop-min.spec.ts after P004 review, sirv's progress assertion in
+be reused. Own test/for-statement.spec.ts, test/loop-min.spec.ts (P004 ownership now transferred), sirv's progress assertion in
 test/sirv-target.spec.ts, complete-case selection in test/test262.spec.ts,
 docs/for-statement.md, docs/sirv-target.md, docs/implementation-gaps.md,
-test/test262/README.md, docs/wiki/for-statement.md and task evidence.json.
+test/test262/README.md, docs/wiki/for-statement.md, docs/wiki/loop-minimum.md and task evidence.json.
 Propose any extra shared-file ownership before editing it. Root owns task/ledger,
 roadmap, playbook and wiki index. No parser/runner/solver/CLI-schema, fixtures,
 dependency, CI or external package changes; no push/merge or other workers.
@@ -77,8 +80,10 @@ Add the same original proof through `let best = a[0]` and an ordinary for-loop
 that updates best when `a[i] < best`. For ten independent symbolic random values,
 `d[0] < minimum(d)` must be false, every `minimum(d) <= d[j]` true, while strict
 reverse/unrelated comparisons remain unknown and the returned number remains
-symbolic. [P004](../P004-loop-min-specs/task.md) prepares the spec file in a separate
-free-model pilot; take only its reviewed exact commit after ownership transfer.
+symbolic. [P004](../P004-loop-min-specs/task.md) supplied reviewed specs in PR70.
+Root transferred exact spec SHA-256
+`c8ea4affb8fa1a1f2714393f1ae70eec307128a7bf1b2a6b8e9857afe0b52b13`
+and ownership to this task; do not weaken its assertions to fit an implementation.
 No host random sampling or special min/source recognizer. Include renamed code,
 maximum/wrong-reducer controls and native non-finite/empty/tie behavior.
 

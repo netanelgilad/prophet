@@ -74,9 +74,22 @@ The later [quota investigation](provider-quotas.md) recovered an actual
 FreeUsageLimitError response and Retry-After targeting 2026-10-09 00:00 UTC.
 That changes the interpretation of the apparently stalled active turn: OpenCode
 may have been honoring a long provider wait. Do not interrupt/resubmit based
-only on minutes without output. Prefer the error/reset metadata, which current
-Atlas conversation projections omit. A different free-model pilot can have
+only on minutes without output. Prefer the error/reset metadata, which the
+then-current Atlas conversation projection omitted. A different free-model pilot can have
 capacity, but belongs in a new thread and a separate trust record.
+
+## Retry status is now exposed (2026-10-10)
+
+Read-only inspection of Atlas checkout `983e98ce` shows `readThread` now returns
+`turnActivity`, with `kind: "retrying"`, attempt, message, reason and `nextAt`
+when the provider supplies them; the thread summary can report `retry`.
+The live P003 response includes `turnActivity: { kind: "working" }` while its
+test tool runs. Prefer this supported status surface before provider-log/DB
+diagnostics. `activeTurnId` alone still includes both busy and retry states.
+`nextAt` is a client retry deadline, not proof that a provider quota has reset;
+actual model/tool work establishes recovery. No retry event occurred in this
+verification, so a live cooldown projection is not claimed as tested. This
+adapter observation does not install an orchestrator wake-up mechanism.
 
 ## Archive verification can differ from cached conversation metadata
 

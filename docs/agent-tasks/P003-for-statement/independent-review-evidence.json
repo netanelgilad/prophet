@@ -1,0 +1,52 @@
+{
+  "sourceEquivalentWorkerCommit": "1170562094fee1ddcb84f8a650b4f418ce7e9be1",
+  "reviewSnapshots": [
+    "bc62ddcbc9076a7fbf8ca43f00568c703a766e29",
+    "802d92c0b456a192a0e1822f9b782d244989a2be"
+  ],
+  "probes": {
+    "count": 14,
+    "exit": 0,
+    "seconds": 4.708
+  },
+  "typecheck": {
+    "exit": 0
+  },
+  "supersededStress": {
+    "externalTimeoutSeconds": 60,
+    "exit": 124,
+    "classification": "inconclusive resource evidence, addressed by frontier-visit cap"
+  },
+  "inventory": {
+    "activeUniqueFiles": 286,
+    "historicalSkippedFiles": 46,
+    "allSkippedDocumented": true,
+    "skipSites": 1
+  },
+  "scans": {
+    "guardHits": 548,
+    "assertionHits": 23
+  },
+  "logHashes": {
+    "/tmp/prophet-p003-snapshot1-review.log": "f24f58223566747421c27aba58c55d6e5f3669f266e779f1d20d9ffb47f038b5",
+    "/tmp/prophet-p003-snapshot1-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/prophet-p003-snapshot1-shared-budget.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/prophet-p003-snapshot1-symbolic-head.log": "e25721d58148009dc5094ef127840e3bdda47dca82740608f535950923080dd0",
+    "/tmp/prophet-p003-snapshot2-review.log": "007f7094b5195e79872f905965963920df099b5e2b68b900bffa51346530bf70",
+    "/tmp/prophet-p003-snapshot2-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/prophet-p003-review-guards.log": "34c4311160a18c846c3add9d511953ad190e6aa3541174c1d504724c756826f6",
+    "/tmp/prophet-p003-review-assertions.log": "3c82372df7a6b9508ea515dd31d662ab9687e9d3657e2f9853a49044e8081c2f",
+    "/tmp/prophet-p003-review-skips.log": "6beff296b900833d13d152230226c4cd18f78ac8002bf9947c6dc4e0c09b9d78",
+    "/tmp/prophet-p003-review-docs.log": "3233e690e13fcf86fcb0cb6a8ed8273a16d6bf7c79dda85089eba93ff23dda51"
+  },
+  "note": "Source-equivalence checked with git diff; final worker metadata/handoff and P005 inference work remain pending. No integration or publication claimed.",
+  "reviewFixtureHashes": {
+    "/Users/netanelgilad/development/prophet-worktrees/review-p003-for/test/p003-independent-review.spec.ts": "93853fe626733dbeeb31052991608d3c5c5250448e9ccf63de08702f1ce59538",
+    "/Users/netanelgilad/development/prophet-worktrees/review-p003-for/test/p003-shared-budget-review.spec.ts": "756c95be097264a6794e0c156332aeb1feddafb50660b3d6874c4539eae75930"
+  },
+  "reviewWorktree": "/Users/netanelgilad/development/prophet-worktrees/review-p003-for",
+  "commands": {
+    "probes": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout --kill-after=5s 120s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/p003-independent-review.spec.ts test/p003-shared-budget-review.spec.ts",
+    "typecheck": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs typecheck"
+  }
+}

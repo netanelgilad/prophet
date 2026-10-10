@@ -118,6 +118,13 @@ prototype state, branching, failure paths and target assertion—not just the ha
 path. Keep independent adversarial probes outside worker-owned expectations until
 review; then retain useful regressions in specs through a worker revision.
 Never accept a test that merely mirrors the implementation.
+Record when a reviewer case was disclosed or copied into worker specs: independent
+authorship/reruns do not make it a hidden holdout. Separate overlapping worker
+self-correction from defects actually found in a delivered handoff. For loop
+drivers, inspect the call graph as well as the counters: an iteration cap does
+not bound recursive stack depth, frontier traversal, joins or allocations by
+itself. Exercise both per-path and shared-work limits. An external timeout is
+inconclusive resource evidence, not proof of a wrong symbolic answer.
 For each operand category, trace inherited lookups as well as own properties:
 an array type tag does not prove an inherited customization is absent. Explicitly
 justify trusted intrinsic hooks; distinguish semantic facts from conservative
@@ -151,6 +158,13 @@ integration/full-suite lane. Test success alone never relaxes semantic review.
 
 ## Rate limits and interruption
 
+User update 2026-10-10: continue the assigned workers and **wait/sleep through
+rate limits until recovery**, keeping the orchestrator turn active. Respect an
+observed reset; use bounded idle-only retries when no reset is available. Do not
+end the task merely because quota was exhausted, duplicate an active retry or
+switch models to avoid waiting. This is supervised waiting, not an installed
+background scheduler or a new concurrency allowance.
+
 Free models have distinct price, eligibility and capacity rules. Read the
 [verified quota/reset record](wiki/provider-quotas.md) before dispatch. Record
 actual error class/status, server Date, Retry-After/reset timestamp, model/thread
@@ -162,8 +176,10 @@ numeric limits are deployment configuration, so local counts are estimates.
 If reset metadata is unavailable, use bounded backoff (60, 120, 240 seconds,
 capped at 15 minutes) only after verifying that no retry is already active. Do
 not interrupt an active provider wait merely because it has no tool output:
-Atlas currently maps busy and retry to active and can hide the future retry time.
-Capture metadata through supported interfaces when possible; preserve a faithful
+`activeTurnId` covers both working and retrying. Prefer Atlas's current
+`turnActivity.kind` and `nextAt` fields (verified Oct10); older snapshots hid the
+retry deadline. `nextAt` is the client's next attempt, not a guaranteed quota
+reset. Capture metadata through supported interfaces when possible; preserve a faithful
 idle checkpoint if active supervision must end. No automatic wake is configured.
 
 The earlier 2026-10-08 Muse-only waiting preference is superseded by the user's

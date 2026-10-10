@@ -1,0 +1,20 @@
+{
+  "base": "b508ad9f18bdcb2edef7adba3df70a5fd0b3e9e7",
+  "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 120 /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/p005-independent-review.spec.ts",
+  "exit": 1,
+  "scope": "independent reviewer red baseline; final type-only cast change after run does not change runtime source",
+  "artifacts": [
+    {
+      "path": "/tmp/prophet-p005-independent-red2.log",
+      "sha256": "241feb7a1d86d2a514c772b56c6a4acd3bf1690e765ab761257338508b9ce4a3"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p005-selection/test/p005-independent-review.spec.ts",
+      "sha256": "86cea1006061b5fad102bcc83ea53997026610ff135cb999fd48ea948719bbc2"
+    },
+    {
+      "path": "/tmp/prophet-p005-review-typecheck2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
