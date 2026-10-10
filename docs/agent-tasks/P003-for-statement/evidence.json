@@ -1,0 +1,153 @@
+{
+  "task": "P003-for-statement",
+  "worker": "Atlas OpenCode Muse Spark 1.3, build/high",
+  "branch": "agent/p003-for-statement",
+  "base": "bb7dce2f1db39cead4d198f11c61f232a416bce3",
+  "resumeBase": "917cefaa348fad2eec6fd10d2fd1df5c74232f0a",
+  "worktree": "/Users/netanelgilad/development/prophet-worktrees/muse-p003-for",
+  "codeCommits": [
+    "1d7eb3b6187e555b38b96f36cbdaee3c16f344eb Implement shared bounded ForStatement with lexical iteration scope (P003)",
+    "1170562094fee1ddcb84f8a650b4f418ce7e9be1 Bound shared frontier visits and add shared-work regressions (P003 resource correction)"
+  ],
+  "testedCommit": "1170562094fee1ddcb84f8a650b4f418ce7e9be1",
+  "note": "1170562 is the tested source snapshot: full suite and typecheck ran on its exact bytes. The evidence commit on top is docs-only (evidence.json, P003-SOURCE hash fill, review-requested doc wording); no source, spec, or tested-commit bytes change there.",
+  "node": "pinned /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node (v24.21.0) used for yarn and PROPHET_NODE_BINARY",
+  "test262Pin": "47bf9d1db9f6e7632120ac1b1946ad092e6c214e",
+  "testFirst": {
+    "redLog": "/tmp/prophet-p003-red.log",
+    "redResult": "30 tests: 29 failed at the missing ForStatement resolver (native oracle passed in every compare case, so failures are VM gaps, not harness mistakes), 1 passed (pre-existing labeled/while unsupported boundaries). Exit 1.",
+    "premiseCorrections": [
+      "comma-operator test/updates rewritten without sequence expressions (out of scope); loop updates must advance the induction variable (root-bundled correction: return/break/continue specs use a step function)",
+      "out-of-scope let reads assert ReferenceError rather than undefined",
+      "catch/body-count premise fixed to bodies===2 against pinned Node",
+      "post-mutation array contents inspected through shared heap helpers, not base-object properties"
+    ]
+  },
+  "corrections": [
+    "Implementation review during development: the first phase-recursive driver overflowed the host stack on budget-length loops (RangeError); ordinary paths now advance through an explicit host frontier loop with recursion only into fork nesting.",
+    "Implementation review during development: two transition bugs (body continue classified as done, omitted tests decided as false) were caught by specs and root static review before green; fixed in the shared driver with assertions unchanged.",
+    "Independent resource review: the 13-iteration doubling probe timed out (exit 124, inconclusive, not a wrong answer) because the shared counter counted body entries only while frontier re-walks dominated. The driver now counts every frontier visit (checked between walks at >=8192), stops all remaining actives together in one pass, and exactly 1024 per-path body entries still run. An optional continue/normal control-flow join was tried and stalled its probe, so only the join edits were removed per scope decision; the visit cap is retained and coalescing is deferred under SYM-004.",
+    "Operational: the full-suite run on 1d7eb3b (123 suites / 3075 passed / 1 known member failure / 46 skipped, exit 1) is a superseded predecessor run, not validation of the tested commit; fresh full verification ran on 1170562."
+  ],
+  "review": "Root independently confirmed production src at 1170562 byte-matches reviewed snapshot 802d92c with 14 independent probes and typecheck green (logs /tmp/prophet-p003-snapshot2-review.log and -typecheck.log). The 13-iteration continue/normal stress is covered by the retained shared-visit regression in test/for-statement.spec.ts; the reviewer-owned probe files stay outside worker ownership.",
+  "commands": [
+    {
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 300 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/for-statement.spec.ts",
+      "exit": 1,
+      "log": "/tmp/prophet-p003-red.log",
+      "result": "red: 29 failed at missing ForStatement, 1 passed (pre-existing boundaries)"
+    },
+    {
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 300 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/for-statement.spec.ts",
+      "exit": 0,
+      "log": "/tmp/prophet-p003-green5.log",
+      "result": "green: 32 passed (30 behavior/budget + 2 shared-work regressions; multiplying-paths 606ms, symbolic-exits 201ms)"
+    },
+    {
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 600 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts test/min.spec.ts test/unknown-length.spec.ts",
+      "exit": 1,
+      "log": "/tmp/prophet-p003-green4.log",
+      "result": "29 passed, 1 failed: the three-element member assertion (forward-only select-chain membership blocker, SYM-001/P005); aliasBound true and aliasBelow false verified in the same shape"
+    },
+    {
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 600 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts test/sirv-target.spec.ts test/test262.spec.ts test/test262/runner.spec.ts",
+      "exit": 1,
+      "log": "/tmp/prophet-p003-affected2.log",
+      "result": "591 passed, 46 skipped, 1 failed (the same known member assertion); sirv factory reaches the RegExp .test boundary beside its filesystem-throw sibling"
+    },
+    {
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 3000 node .yarn/releases/yarn-3.1.1.cjs test --runInBand",
+      "exit": 1,
+      "log": "/tmp/prophet-p003-full2.log",
+      "result": "123 suites: 3077 passed, 46 skipped, 1 failed (the same known member assertion)"
+    },
+    {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs typecheck",
+      "exit": 0,
+      "log": "/tmp/prophet-p003-typecheck-final.log",
+      "result": "empty output, no errors"
+    }
+  ],
+  "upstream": {
+    "activated": [
+      "language/statements/for/S12.6.3_A2.1.js",
+      "language/statements/for/S12.6.3_A2.2.js",
+      "language/statements/for/S12.6.3_A6.js",
+      "language/statements/for/S12.6.3_A9.js",
+      "language/statements/for/S12.6.3_A13.js",
+      "language/statements/for/12.6.3_2-3-a-ii-1.js",
+      "language/statements/for/12.6.3_2-3-a-ii-11.js",
+      "language/statements/for/12.6.3_2-3-a-ii-12.js",
+      "language/statements/for/12.6.3_2-3-a-ii-13.js",
+      "language/statements/for/12.6.3_2-3-a-ii-14.js",
+      "language/statements/for/12.6.3_2-3-a-ii-15.js",
+      "language/statements/for/12.6.3_2-3-a-ii-16.js",
+      "language/statements/for/12.6.3_2-3-a-ii-17.js",
+      "language/statements/for/12.6.3_2-3-a-ii-18.js",
+      "language/statements/for/12.6.3_2-3-a-ii-19.js",
+      "language/statements/for/12.6.3_2-3-a-ii-20.js",
+      "language/statements/for/12.6.3_2-3-a-ii-21.js",
+      "language/statements/for/scope-body-lex-boundary.js",
+      "language/statements/continue/no-label-continue.js",
+      "language/statements/continue/nested-let-bound-for-loops-outer-continue.js",
+      "language/statements/for/S12.6.3_A7_T1.js",
+      "language/statements/for/S12.6.3_A8_T1.js",
+      "language/statements/for/decl-let.js",
+      "language/statements/for/decl-const.js",
+      "language/statements/break/S12.8_A1_T1.js",
+      "language/statements/continue/S12.7_A1_T1.js"
+    ],
+    "variants": 52,
+    "nativeCheck": "each compare case in test/for-statement.spec.ts runs its native oracle first under pinned Node (all passed before VM assertions); every activated Test262 file was inspected whole (metadata, flags, includes, syntax domain) and probed through the checked-in runner in both strictness variants before activation. Files needing labels, while/do-while/for-in/of, switch, sequence expressions, compound assignment, wrapper construction, completion values, or harness includes stay inactive.",
+    "corpusNow": "286 complete files / 563 strictness variants (25 parse-negative files / 49 variants); 46 historical skipped files reconcile unchanged against the backlog inventory, one skip site"
+  },
+  "sirv": {
+    "prior": "Can't resolve type of ast type ForStatement",
+    "now": "Unmodeled host property 'test': RegExp instance API",
+    "retained": "default empty ignores forEach completes with zero visits; totalist's ordinary for-loop walks directory entries through shared bounded ForStatement semantics; the walk reaches sirv's ignore-filter RegExp .test inside the walk callback; forked completion holds one unsupported RegExp boundary beside a sibling filesystem throw; sourceFile totalist/sync/index.js; still unfinished, not HTTP setup; dependency bytes unchanged"
+  },
+  "scans": {
+    "broadGuards": "548 lines in 73 files",
+    "assertLines": "23 lines in 5 files",
+    "sourceFiles": 97,
+    "specFiles": 122,
+    "skipSites": "only test/test262.spec.ts historical backlog (46 files), reconciled unchanged against the backlog inventory",
+    "diffCheck": "to be validated on the final cumulative diff after the evidence commit"
+  },
+  "residualGaps": "LANG-001 stays open: while/do-while/for-in/of, switch, labels, sequence expressions and excluded operators. LANG-003 stays open: general statement completion values still discarded. SYM-001 retains select-chain disjunctive membership (loop-min member red; P005 candidate). SYM-004 retains merge/join cost, environment-store growth, allocation, host-stack depth and continuation coalescing. Loop budgets: exactly 1024 per-path body entries; shared visits checked between walks at >=8192 with one-walk overshoot possible. test/loop-min.spec.ts is owned but unmodified; its member assertion is the one known red theorem. No gap group is closed.",
+  "knownRed": "test/loop-min.spec.ts 'loop selection updates and a post-return alias retain relationships': result.member unknown (expected true). The loop value is correct; forward-only reasoning cannot refute infeasible selection-path combinations. Preserved unweakened for separately scoped P005; all other loop-min assertions pass.",
+  "hashMethod": "All hashes generated programmatically, never transcribed: sourceHashes from git show testedCommit:<path> piped to sha256; logHashes from local ignored log files. A verifier re-reads the saved evidence.json and asserts every persisted hash matches a fresh computation.",
+  "sourceHashes": {
+    "src/loops/for.ts": "f4e57f31075b9de1cf3dca59b86b68baf4908ec95b0918ef6a45b9228d23df57",
+    "src/ASTResolvers.ts": "68a4513f53c7f9b669edc5dd98d6fb4fbe53a92e92c538a44ba545cd21c9102b",
+    "src/evaluate.ts": "81690e34392af683de16add7ba540797d6f537c4dd278e27ab883a54601a8eaf",
+    "src/types.ts": "1541ffad93e58bce732bbd5edfa126592c2c1a81ab5b6acc1fef5d2bac20a485",
+    "src/execution-context/branches.ts": "aa46e9920ecb5674d06a22a05e7bb46d54af7f73e86910394df3e62552c1d2d3",
+    "src/execution-context/ExecutionContext.ts": "5c7e53c1a252fed5d0cd4663d1cf2ccbe4e65e86d4d876378f0f021036dc0b43",
+    "test/for-statement.spec.ts": "6fc9008fce6003ceac6e7580b5b410c3bc49ac47b616edd1508d27dd386be08e",
+    "test/loop-min.spec.ts": "c8ea4affb8fa1a1f2714393f1ae70eec307128a7bf1b2a6b8e9857afe0b52b13",
+    "test/sirv-target.spec.ts": "00cdecb9d426d48ac18a7f1971ff5530e44f694d1bc5439ef484cec0479bba7e",
+    "test/test262.spec.ts": "30521629790447b803c19a5522b1fae74620b8be66967f16b9a58a096f1ddbd6",
+    "docs/for-statement.md": "b161b20d7f8d9ad9387bda87d44cf4f17a3664a681a5b6e0de5cd70102dd92bc",
+    "docs/sirv-target.md": "1f3af33941566bcb085d88451154a32b37224648359077f68ba3f8c1acf8ed96",
+    "docs/implementation-gaps.md": "ee9a52580f964c1c632555f5baab4554b44a18edeca33db4f3e9c7ae70042a5a",
+    "test/test262/README.md": "8f6f953fa46ea7866ceb86551fa4c89e6181b6d5bcd0fc0f374b2d4c4f623ce2",
+    "docs/wiki/for-statement.md": "10838fa7d0e15e5d8f55c8976f8513569a128f0224c975ab565cf48c3baa9961",
+    "docs/wiki/loop-minimum.md": "4aabd4187687b70cba468c65f4933598f81ac2e305ac47f7a5d9d65ed9b21c68"
+  },
+  "logHashes": {
+    "red-for-statement.log": "92ba5286203b2d85c40435e9aaa6004ece57ed490334d45831650e6fca01a869",
+    "green-for-statement.log": "67f8dee6fe3e5bc607f3e91844e0653c02129408a0263e694f1c121c3df59086",
+    "green-loop-min.log": "af7f56a29c577d613db64e21d93adb382e16aca5295e9c11beb5f63f4533e653",
+    "affected-suites.log": "2af27c80f268bcbf6082a2df70b2c4a1a1aacffde8b859ecdd849733be3be6db",
+    "full-suite.log": "64c1a3db4dd572c2c23c636bcafdeb0a2d8d4cf2807f30185a8941dd03dcd492",
+    "full-superseded-1d7eb3b.log": "f3924b126405935b82f0f9b633cbacbc6de3984ba3cafec6c4bdcc9be70b5e1c",
+    "typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "skip-inventory.json": "3f229873f0c1370a90b2595175c01a432a0d5bbd00ab8646406c78c4ac0c7474",
+    "stress-repro-exit124.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stress-scaling-visit-cap.log": "e78a37d9e3a5c4e029e40e40cc7b044f1a3b13e35d267b2848041c632ce1128c",
+    "stress-join-stall-exit124.log": "94bca857f20c29c638b26b4a16ac0f6baa8aaec001c0b6197459f2afcc30e9f7",
+    "review-snapshot2-14probes.log": "007f7094b5195e79872f905965963920df099b5e2b68b900bffa51346530bf70",
+    "review-snapshot1-shared-budget-exit124.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

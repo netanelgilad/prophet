@@ -57,11 +57,14 @@ Ordinary iterations advance through an explicit host frontier loop, never
 through a recursive call per iteration; only fork nesting consumes host
 recursion. Each active path carries its own remaining ordinary-body-entry
 count in persistent context state (1024 per path, saved and restored across
-nested loops), and a shared visit counter caps total frontier visits per loop
-evaluation (8192, covering ordinary paths with margin while stopping
-multiplying shapes early). Reaching either cap retains the actual unfinished
-context as a typed budget boundary beside completed siblings; a cap never
-implies program termination. Initialization, test, body and update stops each
+nested loops), and a shared visit counter caps frontier visits per loop
+evaluation: once 8192 visits have run, no further walk starts and all
+remaining actives stop together in one pass. A single walk's own visits can
+overshoot the cap, bounded by the tree at firing time, so 8192 is the
+between-walks checkpoint, not a strict total-visit ceiling. Ordinary
+1024-iteration paths fit with margin; multiplying shapes stop early. Reaching
+either cap retains the actual unfinished context as a typed budget boundary
+beside completed siblings; a cap never implies program termination. Initialization, test, body and update stops each
 checkpoint their own reached step with current heap/bindings/effects and path
 knowledge, while completed and thrown siblings continue. Unknown-bound loops
 retain one exit leaf per explored iteration, so the shared cap fires on

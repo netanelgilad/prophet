@@ -12,7 +12,7 @@ through persistent context state beside a shared step cap. Compose jumps
 through the shared merge/sequence/finally operations, never by joining a jump
 into a value. See [the implementation](../../src/loops/for.ts),
 [the boundary record](../for-statement.md) and
-[the specs](../../test/for-statement.spec.ts). Verified source `P003-SOURCE`.
+[the specs](../../test/for-statement.spec.ts). Verified source `1170562094fee1ddcb84f8a650b4f418ce7e9be1`.
 
 Semantic traps, each with pinned Node 24.21.0 evidence behind it:
 
@@ -51,10 +51,11 @@ Semantic traps, each with pinned Node 24.21.0 evidence behind it:
 Limits: ordinary `for` only; while/do-while/for-in/of, labels, switch,
 sequence expressions, compound assignment and completion values remain gaps.
 Array/rest head patterns stop explicitly. Per-path budgets (1024 body
-entries) and the shared visit cap (8192 frontier visits, counting re-walks
-past finished leaves as well as phase steps) bound driver traversal and
-phase evaluations; unknown-bound loops still accumulate one exit leaf per
-explored iteration until the cap fires. Merge/join cost, allocation,
+entries) and the shared visit cap (checked between walks at >= 8192 visits,
+counting re-walks past finished leaves as well as phase steps; one walk may
+overshoot by its size) bound driver traversal and phase evaluations;
+unknown-bound loops still accumulate one exit leaf per explored iteration
+until the cap fires. Merge/join cost, allocation,
 host-stack depth and same-phase continuation coalescing remain residuals.
 Verified against complete Test262 for/continue cases plus stray-jump parse
 negatives; the unchanged sirv factory now walks totalist's loop and stops at

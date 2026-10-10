@@ -11,7 +11,7 @@ is false because `best <= d[0]`. The proof does not depend on the function
 name or source: a renamed function, an analogous maximum, and a deliberately
 wrong reducer all exercise the same machinery. See
 [the specs](../../test/loop-min.spec.ts) and
-[the loop driver](../../src/loops/for.ts). Verified source `P003-SOURCE`;
+[the loop driver](../../src/loops/for.ts). Verified source `1170562094fee1ddcb84f8a650b4f418ce7e9be1`;
 the shared loop implementation (P003) executes these specs. The recursive
 summary implementation is unchanged.
 
