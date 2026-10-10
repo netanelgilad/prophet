@@ -161,29 +161,34 @@ The next larger immutable application is [sirv 3.0.2](sirv-target.md), including
 three pinned runtime dependencies and independent Node request references. The
 actual CLI imports all four unchanged packages, returns the interpreted factory,
 and serializes its nested definitions without leaking native regex objects.
-Calling the default factory now creates two regex identities and appends them
+Calling the default factory creates two regex identities and appends them
 through shared Array.push, bounded Array.concat and shared Array.forEach. The
-default empty ignores list completes iteration and reaches totalist's directory
-loop: its success path stops at ForStatement beside a filesystem-failure throw.
-[P003](agent-tasks/P003-for-statement/task.md) now implements bounded shared
-for-loop semantics in reviewed branch1170562/b508ad9, including lexical cells,
-abrupt completions and explicit per-path/shared-work stops. It advances unchanged
-sirv to RegExp.test beside its retained filesystem throw. The branch proves the
-original ten-item minimum bound through local state and ordinary comparisons:
-`d[0] < minimum(d)` is false for ten independent Math.random values. No function
-name or source recognition is used. These changes are not yet integrated.
+default empty ignores list completes; totalist now executes its ordinary
+for-loop and reaches sirv's RegExp.test beside a retained filesystem-failure
+throw. RegExp.test is the next reached application blocker. Factory startup and
+request analysis are still unfinished; regex matching, file metadata and streams
+remain target needs.
+
+[P003](agent-tasks/P003-for-statement/task.md) and
+[P005](agent-tasks/P005-selection-membership/task.md) are integrated on master
+in merge `f6da7af`: shared bounded for-loops preserve lexical cells, abrupt
+completions and explicit per-path/shared-work stops. The original ten-item
+minimum bound now proves `d[0] < minimum(d)` false for independent Math.random
+values, using ordinary comparisons and local state. Generic selection reasoning
+also proves the three-input membership assertion, independent of candidate order.
+No function name or source recognition is used.
 
 [P004](agent-tasks/P004-loop-min-specs/task.md)'s reviewed specs from
-[draft PR70](https://github.com/netanelgilad/prophet/pull/70) remain unchanged;
-8/9 pass. The remaining selected-value membership assertion also fails in a
-no-loop reduction, depending on candidate order.
-[P005](agent-tasks/P005-selection-membership/task.md) is assigned that generic
-reasoning gap in a fresh Muse build/high thread, with NaN and must-remain-unknown
-controls. P003 is archived after full scoped review; combined publication awaits
-a green full suite/typecheck and independent solver review. Regex matching, file
-metadata and streams remain further target needs. One worker remains active at
-a time. The user's Oct10 instruction is to wait through further provider limits
-under active supervision, without duplicate prompts or model rotation.
+[PR70](https://github.com/netanelgilad/prophet/pull/70) landed unchanged: all9 pass.
+Combined source `e18d18e` passes124 suites/3102 tests with46 unchanged skips and
+typecheck. Independent semantic review covers14 loop probes and43 selection
+probes, plus existing choice regressions. New membership refinement has local
+limits (4 leaves, depth16, bounded prior assumptions, no new reentrant exploration);
+its tested five-choice case remains unknown, while existing reasoning can still
+prove other larger cases. These are precision/work limits, not input restrictions.
+Both Muse threads are archived; one active worker/full review remains the policy.
+The user's Oct10 instruction is to wait through future provider limits under
+active supervision, without duplicate prompts or model rotation.
 
 The subsequent reasoning milestone is **unknown-length loop summaries**. Derive
 and validate a fact like “best is a selected element of the visited prefix and

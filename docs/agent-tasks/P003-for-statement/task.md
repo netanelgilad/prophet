@@ -1,5 +1,8 @@
 # P003 — Shared bounded ForStatement
 
+Completed in master merge `f6da7af` on 2026-10-10; Atlas thread archived.
+See the [review ledger](../README.md) for final evidence and remaining gaps.
+
 State: resumed 2026-10-10 after the previously reported reset, same Muse Spark
 1.3 build/high thread, full review required. Actual provider recovery must be
 observed; dispatch alone is not recovery. See [review checkpoint](review.md).

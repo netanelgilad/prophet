@@ -1,5 +1,8 @@
 # P004 — Loop minimum proof specs / LongCat calibration
 
+Completed in master merge `f6da7af` on 2026-10-10; Atlas thread archived.
+See the [review ledger](../README.md) for final evidence and remaining gaps.
+
 State: reviewed spec artifact staged 2026-10-08; provider interrupted final
 handoff, and root curated documentation/evidence. Runtime assertions remain red.
 See [draft PR70](https://github.com/netanelgilad/prophet/pull/70), [review](review.md) and

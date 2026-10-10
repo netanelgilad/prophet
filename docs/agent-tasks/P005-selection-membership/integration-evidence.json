@@ -1,0 +1,28 @@
+{
+  "integrationCommit": "f6da7af46dc4fba9bd206da2435305d9f57d5440",
+  "testedSourceCommit": "e18d18e120ac4b61643182645b8a54fd67d825fb",
+  "workerHandoff": "d1d788cd65ebb96f49b5b8316e260837f5ea9715",
+  "onlyTrackedDifferencesFromTestedSource": [
+    "docs/agent-tasks/P005-selection-membership/design.md",
+    "docs/agent-tasks/P005-selection-membership/dispatch.md",
+    "docs/agent-tasks/P005-selection-membership/evidence.json",
+    "docs/agent-tasks/P005-selection-membership/independent-evidence.json",
+    "docs/agent-tasks/P005-selection-membership/review.md",
+    "docs/for-statement.md",
+    "docs/implementation-gaps.md",
+    "docs/symbolic-choice-equality.md",
+    "docs/wiki/for-statement.md",
+    "docs/wiki/loop-minimum.md",
+    "docs/wiki/selection-membership.md"
+  ],
+  "nonDocumentationFilesIdentical": true,
+  "fullSuite": {
+    "suites": 124,
+    "passed": 3102,
+    "skipped": 46,
+    "exit": 0,
+    "seconds": 320.252
+  },
+  "typecheckExit": 0,
+  "archivedAt": "2026-10-10T18:43:02.784Z"
+}

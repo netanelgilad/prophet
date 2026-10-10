@@ -117,6 +117,11 @@ Review the domain, rejection placement, effects, aliasing, holes/absence, curren
 prototype state, branching, failure paths and target assertion—not just the happy
 path. Keep independent adversarial probes outside worker-owned expectations until
 review; then retain useful regressions in specs through a worker revision.
+For a claimed order-independent rule over a small candidate set, exercise all
+permutations and reversed operand positions, with incomplete/NaN/alias controls.
+Bind each review run to its actual source snapshot: a successful predecessor run
+is not final-source evidence after a cap or rule changes. Exact observed commands
+and saved log paths belong in evidence; executable placeholders do not.
 Never accept a test that merely mirrors the implementation.
 Record when a reviewer case was disclosed or copied into worker specs: independent
 authorship/reruns do not make it a hidden holdout. Separate overlapping worker

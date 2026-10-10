@@ -1,5 +1,8 @@
 # P005 — Correlated selection membership
 
+Completed in master merge `f6da7af` on 2026-10-10; Atlas thread archived.
+See the [review ledger](../README.md) for final evidence and remaining gaps.
+
 Assigned 2026-10-10 to Atlas Muse build/high thread
 `ses_ed8f8d055ffeudxFh2s7rNnu4P`. Exact free model:
 `opencode/muse-spark-1.3-contributor-free` (live catalog verified at dispatch).

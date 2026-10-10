@@ -121,3 +121,16 @@ one active worker/full review: early witness/evidence refinements, candidate-
 order/resource corrections and one delivered metadata correction preclude a
 clean first-review streak. Archive next; integrate combined P003/P005 without
 weakening P004's preserved assertions. No user product decision is needed.
+
+## Combined master integration
+
+Integrated P003/P004/P005 in merge
+`f6da7af46dc4fba9bd206da2435305d9f57d5440`. Every tracked non-documentation
+file is identical to fully tested worker source e18d18e; later edits only repair
+metadata and maintain root-owned plans/reviews. Full124 suites/3102pass/46skip
+and typecheck therefore validate the combined implementation without repeating
+the same full run. Root independently reran affected semantic checks and
+typecheck. Unrelated untracked website/workflow/scripts remain untouched.
+P005 canonical archive verified2026-10-10T18:43:02.784Z; no active worker remains.
+Publication/CI follow this documentation update; the project board records the
+exact pushed head and CI run.
