@@ -54,6 +54,12 @@ export type TExecutionContext = {
       access: "read" | "write"
     ) => void;
     evaluationBudget?: { remaining: number };
+    // Per-path remaining ordinary loop-body entries for the innermost
+    // interpreted loop under evaluation. Unlike the shared evaluation budget
+    // above, each active path carries its own count through persistent context
+    // copies, so sibling paths do not consume each other's iterations.
+    // Nested loops save and restore the outer count around their own driver.
+    loopBudget?: { remaining: number };
   };
 };
 

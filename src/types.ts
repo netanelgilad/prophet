@@ -197,6 +197,40 @@ export function isThrownValue(arg: any): arg is TThrownValue {
   return arg.type === "ThrownValue";
 }
 
+// Unlabeled loop jumps are interpreted abrupt completions, like return and
+// throw, so ordinary finally handling and branch composition observe them.
+// They carry no value: BreakStatement and ContinueStatement have no operand,
+// and the loop result keeps the existing Undefined statement-value residual.
+// The parser rejects jumps outside an iteration statement, so only the
+// innermost loop driver consumes these; they never cross a function boundary.
+export type TBreakValue = {
+  type: "BreakValue";
+};
+
+export function BreakValue(): TBreakValue {
+  return {
+    type: "BreakValue"
+  };
+}
+
+export function isBreakValue(arg: any): arg is TBreakValue {
+  return arg.type === "BreakValue";
+}
+
+export type TContinueValue = {
+  type: "ContinueValue";
+};
+
+export function ContinueValue(): TContinueValue {
+  return {
+    type: "ContinueValue"
+  };
+}
+
+export function isContinueValue(arg: any): arg is TContinueValue {
+  return arg.type === "ContinueValue";
+}
+
 export type TESBoolean = Type<"boolean"> &
   WithProperties &
   WithValue<boolean>;
@@ -212,5 +246,5 @@ export function isESBoolean(arg: Any): arg is TESBoolean {
 export type Any = object;
 
 export type ExpressionEvaluationResult = TThrownValue | ExecutionBoundary | ForkedCompletion | Any;
-export type ControlFlowResult = TThrownValue | TReturnValue | ExecutionBoundary | ForkedCompletion;
+export type ControlFlowResult = TThrownValue | TReturnValue | TBreakValue | TContinueValue | ExecutionBoundary | ForkedCompletion;
 export type EvaluationResult = Any | ControlFlowResult;

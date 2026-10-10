@@ -47,6 +47,40 @@ const activeCorpus = [
   "built-ins/Array/prototype/forEach/15.4.4.18-7-1.js",
   "built-ins/Array/prototype/forEach/15.4.4.18-8-1.js",
   "built-ins/Array/prototype/forEach/15.4.4.18-8-13.js",
+  // Complete ordinary for-loop evaluation: init/test/update order, throwing
+  // initializers/tests/updates, var heads, truthy/falsy test coercion, eval
+  // with break and the Undefined loop completion, unlabeled break/continue in
+  // nested let-bound loops, and per-iteration lexical environments. Files
+  // needing labels, while/do-while/for-in/of, switch, sequence expressions,
+  // compound assignment, wrapper construction or completion values stay
+  // inactive rather than trimmed. Parse negatives pin the malformed-head and
+  // stray-jump parser boundaries the loop driver relies on.
+  "language/statements/for/S12.6.3_A2.1.js",
+  "language/statements/for/S12.6.3_A2.2.js",
+  "language/statements/for/S12.6.3_A6.js",
+  "language/statements/for/S12.6.3_A9.js",
+  "language/statements/for/S12.6.3_A13.js",
+  "language/statements/for/12.6.3_2-3-a-ii-1.js",
+  "language/statements/for/12.6.3_2-3-a-ii-11.js",
+  "language/statements/for/12.6.3_2-3-a-ii-12.js",
+  "language/statements/for/12.6.3_2-3-a-ii-13.js",
+  "language/statements/for/12.6.3_2-3-a-ii-14.js",
+  "language/statements/for/12.6.3_2-3-a-ii-15.js",
+  "language/statements/for/12.6.3_2-3-a-ii-16.js",
+  "language/statements/for/12.6.3_2-3-a-ii-17.js",
+  "language/statements/for/12.6.3_2-3-a-ii-18.js",
+  "language/statements/for/12.6.3_2-3-a-ii-19.js",
+  "language/statements/for/12.6.3_2-3-a-ii-20.js",
+  "language/statements/for/12.6.3_2-3-a-ii-21.js",
+  "language/statements/for/scope-body-lex-boundary.js",
+  "language/statements/continue/no-label-continue.js",
+  "language/statements/continue/nested-let-bound-for-loops-outer-continue.js",
+  "language/statements/for/S12.6.3_A7_T1.js",
+  "language/statements/for/S12.6.3_A8_T1.js",
+  "language/statements/for/decl-let.js",
+  "language/statements/for/decl-const.js",
+  "language/statements/break/S12.8_A1_T1.js",
+  "language/statements/continue/S12.7_A1_T1.js",
   // Complete object declaration bindings: names, defaults, nested objects and errors.
   "language/statements/variable/dstr/obj-ptrn-prop-id.js",
   "language/statements/variable/dstr/obj-ptrn-prop-id-init.js",

@@ -19,13 +19,15 @@ subprocess now serializes this import and its nested function definitions into
 the ordinary graph. [RegExp literal values](regexp-literals.md) allocate fresh
 VM state without native objects leaking from retained ASTs. Calling the public
 factory with a directory evaluates two regular-expression literals and appends
-them through the shared persistent Array.push intrinsic. The default ignores
-`[].concat(opts.ignores || [])` now evaluates through the shared bounded
-Array.concat operation, and the empty result's `forEach` completes through the
-shared bounded Array.forEach operation with zero visits. The factory then
-calls totalist and retains its unfinished state inside totalist's directory
-loop at the explicit loop boundary, beside a sibling filesystem throw. The
-retained state contains both regex identities. Import success is not server startup or
+ them through the shared persistent Array.push intrinsic. The default ignores
+ `[].concat(opts.ignores || [])` now evaluates through the shared bounded
+ Array.concat operation, and the empty result's `forEach` completes through the
+ shared bounded Array.forEach operation with zero visits. Totalist's ordinary
+ `for` loop then walks the directory entries through the shared bounded
+ ForStatement operation, and the factory reaches sirv's ignore-filter RegExp
+ `.test` inside the walk callback: that RegExp instance API is an explicit
+ unsupported boundary beside a sibling filesystem throw. The retained state
+ contains both regex identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity
 and provide shared bounded directory enumeration, without pretending the factory
 has reached those later operations. A nonempty custom ignores list would next

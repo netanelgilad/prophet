@@ -76,17 +76,19 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
   // The default ignores list is empty, so the shared bounded forEach completes
-  // with zero visits and the factory reaches its totalist directory walk. The
-  // walk then retains its unfinished state at the explicit loop boundary while
-  // the sibling filesystem failure path still throws beside it. This is an
-  // unfinished factory, not HTTP setup.
-  expect(result.diagnostic).toBe("Can't resolve type of ast type ForStatement");
+  // with zero visits and totalist's ordinary for-loop now walks the directory
+  // entries through shared bounded ForStatement semantics. The walk reaches
+  // sirv's ignore-filter RegExp test inside the walk callback, which remains
+  // an explicit unsupported RegExp instance boundary while the sibling
+  // filesystem failure path still throws beside it. This is an unfinished
+  // factory, not HTTP setup.
+  expect(result.diagnostic).toBe("Unmodeled host property 'test': RegExp instance API");
   expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
   expect(isForkedCompletion(result.completion)).toBe(true);
   const boundaries = executionBoundaries(result.completion as Any);
   expect(boundaries).toHaveLength(1);
   expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "Can't resolve type of ast type ForStatement" });
+    message: "Unmodeled host property 'test': RegExp instance API" });
   const forked = result.completion as ForkedCompletion;
   const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
     leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :

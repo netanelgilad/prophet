@@ -7,8 +7,8 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **260 complete files / 511 strictness variants**,
-including 19 parse-negative files / 37 variants. The 46 historical skipped files
+The active corpus contains **286 complete files / 563 strictness variants**,
+including 25 parse-negative files / 49 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
 14,850 built-ins, 1,062 annexB, 640 intl402 and 80 harness tests. These are file
@@ -329,3 +329,19 @@ the unselected concat files (constructor overloads, generic receivers,
 inherited-index materialization, species/spreadable symbols, descriptors).
 Missing Number constants are guarded, not
 replaced by harness values or silently treated as undefined.
+
+Shared bounded for-loop evaluation adds twenty complete behavioral files (forty
+variants): init/test/update ordering with throwing initializers, tests and
+updates (`A2.1/A2.2/A6`), eval with break and the Undefined loop completion
+(`A9`), var heads (`A13`), truthy/falsy test coercion (`2-3-a-ii-1/11` through
+`2-3-a-ii-21` except the wrapper-construction files), unlabeled continue in
+plain and nested let-bound loops (`no-label-continue`,
+`nested-let-bound-for-loops-outer-continue`) and per-iteration lexical
+environments (`scope-body-lex-boundary`). Six complete parse-negative files
+(twelve variants: `A7_T1/A8_T1`, `decl-let/decl-const`, `break/A1_T1`,
+`continue/A1_T1`) pin the malformed-head and stray-jump parser boundaries the
+loop driver relies on. Each runs in both language variants. Files needing
+labels, while/do-while/for-in/of, switch, sequence expressions, compound
+assignment, wrapper construction, completion values or harness includes stay
+inactive rather than trimmed. See [loop boundaries](../../docs/for-statement.md)
+for iteration budgets, jump composition and the remaining loop candidates.

@@ -1,11 +1,12 @@
 /// <reference types="node" />
 
-import { unsupportedPropertyError } from "./execution-context/analysis-failure";
+import { unsupportedPropertyError, UnsupportedAnalysisError } from "./execution-context/analysis-failure";
 
 import { ESString, TESString } from "./string/String";
 import {
   WithProperties, isFunction, Any, Undefined, FunctionBinding, isThrownValue,
-  isReturnValue, ReturnValue, ThrownValue, TESNumber, ESNumber, ESNull,
+  isReturnValue, isBreakValue, isContinueValue, ReturnValue, ThrownValue, BreakValue, ContinueValue,
+  TESNumber, ESNumber, ESNull,
   isESNumber, isESString, isArray, isUndefined, isESNull, isESBoolean
 } from "./types";
 import { evaluate, evaluateThrowableIterator, evaluateStatements, mapCompletions, bindNormal } from "./evaluate";
@@ -35,6 +36,7 @@ import { assignBinding, bindingReference, readBinding, hasBinding, initializeBin
 import { initializeBindingPattern } from "./Function/binding-patterns";
 import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
 import { evalFn, evaluateEval } from "./eval/eval";
+import { evaluateForStatement } from "./loops/for";
 import { isExecutionBoundary, isForkedCompletion } from "./execution-context/Completion";
 import { prototypeOf, withoutPrototypeSetter } from "./Object/prototype";
 import { copyDataProperties } from "./Object/enumeration";
@@ -495,7 +497,12 @@ export const TryStatementResolver: ASTResolver<ESTree.TryStatement> = (ast, cont
   if (!ast.finalizer) return handled;
   return mapCompletions(handled, (prior, afterTry) =>
     mapCompletions(evaluate(ast.finalizer!, afterTry), (final, afterFinally) =>
-      tuple(isReturnValue(final) || isThrownValue(final) ? final : prior, afterFinally)));
+      // A finalizer jump (return, throw, break or continue) replaces the prior
+      // completion; a normal finalizer preserves it. Stopped execution never
+      // runs the finalizer: mapCompletions skips boundary leaves, so analysis
+      // boundaries retain their unfinished context without guest cleanup.
+      tuple(isReturnValue(final) || isThrownValue(final) ||
+        isBreakValue(final) || isContinueValue(final) ? final : prior, afterFinally)));
 };
 
 export const ThrowStatementResolver: ASTResolver<ESTree.ThrowStatement> = (ast, context) =>
@@ -504,6 +511,21 @@ export const ThrowStatementResolver: ASTResolver<ESTree.ThrowStatement> = (ast, 
 export const DoWhileStatementResolver: ASTResolver<ESTree.DoWhileStatement> = () => {
   throw new Error("Do-while evaluation is not yet supported");
 };
+
+export const BreakStatementResolver: ASTResolver<ESTree.BreakStatement> = (ast, context) => {
+  // Labels stay an honest unsupported boundary: the LabeledStatement guard
+  // rejects labeled loops before any labeled jump can evaluate.
+  if (ast.label) throw new UnsupportedAnalysisError("Labeled break statements are not yet supported");
+  return tuple(BreakValue(), context);
+};
+
+export const ContinueStatementResolver: ASTResolver<ESTree.ContinueStatement> = (ast, context) => {
+  if (ast.label) throw new UnsupportedAnalysisError("Labeled continue statements are not yet supported");
+  return tuple(ContinueValue(), context);
+};
+
+export const ForStatementResolver: ASTResolver<ESTree.ForStatement> = (ast, context) =>
+  evaluateForStatement(ast, context);
 
 export const UpdateExpressionResolver: ASTResolver<ESTree.UpdateExpression> = (ast, context) => {
   if (ast.argument.type !== "Identifier") return unimplemented();
@@ -546,5 +568,7 @@ export const ASTResolvers = new Map<string, ASTResolver<any>>([
   ["BlockStatement", BlockStatementResolver], ["NewExpression", NewExpressionResolver],
   ["LogicalExpression", LogicalExpressionResolver], ["TryStatement", TryStatementResolver],
   ["ThrowStatement", ThrowStatementResolver], ["DoWhileStatement", DoWhileStatementResolver],
+  ["ForStatement", ForStatementResolver], ["BreakStatement", BreakStatementResolver],
+  ["ContinueStatement", ContinueStatementResolver],
   ["UpdateExpression", UpdateExpressionResolver], ["UnaryExpression", UnaryExpressionResolver]
 ]);

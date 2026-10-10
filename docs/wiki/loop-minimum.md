@@ -4,37 +4,34 @@ Question: how do you reconnect the recursive minimum proof to an ordinary `for`
 loop with mutable local state, and prove the requested false result through
 actual comparisons rather than name recognition or a blanket min fact?
 
-Rule (proposed acceptance, not implemented facts): bounded unrolling of the
-`for` loop over a known-length symbolic array. The engine derives
-`best <= d[i]` for every member from the comparisons actually executed and the
-current bindings, so `d[0] < minimum(d)` is false because `best <= d[0]`. The
-proof must not depend on the function name or source: a renamed function, an
-analogous maximum, and a deliberately wrong reducer all exercise the same
-machinery. See [the specs](../../test/loop-min.spec.ts). The specs are red at
-the base commit because `ForStatement` is unsupported; they are staged as
-acceptance criteria for the shared loop implementation (P003), not a claim that
-a proof currently passes.
+Rule (verified): bounded unrolling of the `for` loop over a known-length
+symbolic array. The engine derives `best <= d[i]` for every member from the
+comparisons actually executed and the current bindings, so `d[0] < minimum(d)`
+is false because `best <= d[0]`. The proof does not depend on the function
+name or source: a renamed function, an analogous maximum, and a deliberately
+wrong reducer all exercise the same machinery. See
+[the specs](../../test/loop-min.spec.ts) and
+[the loop driver](../../src/loops/for.ts). Verified source `P003-SOURCE`;
+the shared loop implementation (P003) executes these specs. The recursive
+summary implementation is unchanged.
 
 Exact symbolic acceptance domain: ten independent `Math.random` symbols in
 `[0, 1)`, plus a smaller three-symbol membership case. Broader arbitrary finite
-symbolic inputs are not covered by these specs. The symbolic assertions below
-are proposed acceptance criteria, not yet passing; native Node does not
-establish symbolic VM behavior.
+symbolic inputs are not covered by these specs. Native Node does not establish
+symbolic VM behavior; deterministic native witnesses below are boundary
+observations only.
 
-Proposed symbolic assertions (not yet passing), each with the reason it must
-hold:
+Verified symbolic assertions, each with the reason it holds:
 
 - The VM's `Math.random` is a model that returns a symbolic number; it never
-  calls the host RNG. A `jest.spyOn(Math, "random")` will check that the
-  ten-element proof needs no host sampling when the loop proof runs; at the
-  base commit that assertion sits after the unsupported boundary and is not
-  reached.
-- The proof must come from actual comparisons and current bindings. A renamed
-  function (`lowest`) is proposed to prove the same bounds; an analogous
-  maximum (`highest`) the dual; a deliberately wrong reducer (`lastPick`, same
+  calls the host RNG. A `jest.spyOn(Math, "random")` checks that the
+  ten-element proof needs no host sampling.
+- The proof comes from actual comparisons and current bindings. A renamed
+  function (`lowest`) proves the same bounds; an analogous maximum
+  (`highest`) proves the dual; a deliberately wrong reducer (`lastPick`, same
   loop but returns the last element) cannot borrow the minimum proof — its
-  `d[0] < lastPick(d)` and `lastPick(d) <= d[0]` must remain unknown.
-- Unknown controls must remain unknown: the strict reverse `minimum < d[0]`, an
+  `d[0] < lastPick(d)` and `lastPick(d) <= d[0]` remain unknown.
+- Unknown controls remain unknown: the strict reverse `minimum < d[0]`, an
   unrelated `Math.random() < minimum`, and the ordering `d[0] < d[1]`.
   Deterministic native witnesses `[0.25, 0.75]` (strict reverse false) and
   `[0.75, 0.25]` (strict reverse true) show both outcomes occur, so no native
@@ -52,12 +49,21 @@ empty arrays. The returned value is asserted distinctly (NaN, undefined,
 +/-Infinity, +/-0) so NaN and undefined cannot be interchanged. This is the
 loop's actual selection behavior, not `Math.min`.
 
+Known residual: the three-element `member` assertion
+(`m === d[0] || m === d[1] || m === d[2]`) remains unknown. The loop value is
+correct (a nested conditional selection of the inputs), and the same case
+proves its alias bound (`alias <= d[0]` true) and strict comparison
+(`d[0] < alias` false). Membership needs refutation of infeasible
+selection-path combinations, which forward-only strict-equality reasoning
+does not perform; that inference belongs to the deferred loop-invariant task
+under SYM-001, not to solver expansion here. A deliberately wrong reducer
+still proves its own concrete membership, so the residual is specific to
+symbolic selection chains.
+
 Limits: the symbolic domain is ten independent `Math.random` symbols in
 `[0, 1)` plus a three-symbol membership case; broader arbitrary finite symbolic
 inputs, unknown length, loop-invariant inference, and path-volume limits are
-follow-ups. The specs are red at the base commit (`ForStatement` unsupported)
-and are proposed acceptance criteria for the loop feature, not implemented
-facts.
+follow-ups.
 
 Corrections recorded during review: the first native control used a 100-trial
 random-sampling existence test with the comparison written backwards (`d[0] <
@@ -73,3 +79,4 @@ distinctly, not only `x`/`lowerBound`.
 
 Base `c89c0b7`, 2026-10-08. Tested commit, exact commands, exit codes and
 programmatic hashes in [evidence.json](../agent-tasks/P004-loop-min-specs/evidence.json).
+Loop execution evidence is recorded under P003.

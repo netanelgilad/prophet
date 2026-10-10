@@ -2,6 +2,8 @@ import {
   isThrownValue,
   EvaluationResult,
   isReturnValue,
+  isBreakValue,
+  isContinueValue,
   ExpressionEvaluationResult,
   Undefined,
   Any
@@ -117,6 +119,8 @@ export function evaluateThrowableIterator<
     !isExecutionBoundary(currentEvaluationResult.value[0]) &&
     !isThrownValue(currentEvaluationResult.value[0]) &&
     !isReturnValue(currentEvaluationResult.value[0]) &&
+    !isBreakValue(currentEvaluationResult.value[0]) &&
+    !isContinueValue(currentEvaluationResult.value[0]) &&
     !isForkedCompletion(currentEvaluationResult.value[0]) &&
     !currentEvaluationResult.done
   ) {
@@ -139,7 +143,8 @@ export function evaluateStatements(
     if (isExecutionBoundary(value)) {
       return retainPendingStatements(result, statements.slice(next), context.value.sourceFile);
     }
-    if (isReturnValue(value) || isThrownValue(value)) return result;
+    if (isReturnValue(value) || isThrownValue(value) ||
+        isBreakValue(value) || isContinueValue(value)) return result;
     if (next === statements.length) return [Undefined, result[1]];
     return resume(evaluate(statements[next], result[1]), next + 1);
   };
@@ -169,5 +174,6 @@ export function bindNormal(
   continuation: (value: Any, context: TExecutionContext) => BranchResult
 ): BranchResult {
   return mapCompletions(result, (value, context) =>
-    isReturnValue(value) || isThrownValue(value) ? [value, context] : continuation(value, context));
+    isReturnValue(value) || isThrownValue(value) ||
+    isBreakValue(value) || isContinueValue(value) ? [value, context] : continuation(value, context));
 }
