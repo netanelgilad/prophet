@@ -32,37 +32,43 @@
   "review": "Root independently confirmed production src at 1170562 byte-matches reviewed snapshot 802d92c with 14 independent probes and typecheck green (logs /tmp/prophet-p003-snapshot2-review.log and -typecheck.log). The 13-iteration continue/normal stress is covered by the retained shared-visit regression in test/for-statement.spec.ts; the reviewer-owned probe files stay outside worker ownership.",
   "commands": [
     {
-      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 300 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/for-statement.spec.ts",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 300 /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/for-statement.spec.ts",
+      "stage": "predecessor tree (pre-implementation)",
       "exit": 1,
       "log": "/tmp/prophet-p003-red.log",
       "result": "red: 29 failed at missing ForStatement, 1 passed (pre-existing boundaries)"
     },
     {
-      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 300 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/for-statement.spec.ts",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 300 /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/for-statement.spec.ts",
+      "stage": "tested-commit tree (1170562 source bytes)",
       "exit": 0,
       "log": "/tmp/prophet-p003-green5.log",
       "result": "green: 32 passed (30 behavior/budget + 2 shared-work regressions; multiplying-paths 606ms, symbolic-exits 201ms)"
     },
     {
-      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 600 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts test/min.spec.ts test/unknown-length.spec.ts",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 600 /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts test/min.spec.ts test/unknown-length.spec.ts",
+      "stage": "draft tree (pre-resource-correction; member outcome unchanged at tested commit per affected run)",
       "exit": 1,
       "log": "/tmp/prophet-p003-green4.log",
       "result": "29 passed, 1 failed: the three-element member assertion (forward-only select-chain membership blocker, SYM-001/P005); aliasBound true and aliasBelow false verified in the same shape"
     },
     {
-      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 600 node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts test/sirv-target.spec.ts test/test262.spec.ts test/test262/runner.spec.ts",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 600 /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/loop-min.spec.ts test/sirv-target.spec.ts test/test262.spec.ts test/test262/runner.spec.ts",
+      "stage": "tested-commit tree (1170562 source bytes)",
       "exit": 1,
       "log": "/tmp/prophet-p003-affected2.log",
       "result": "591 passed, 46 skipped, 1 failed (the same known member assertion); sirv factory reaches the RegExp .test boundary beside its filesystem-throw sibling"
     },
     {
-      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 3000 node .yarn/releases/yarn-3.1.1.cjs test --runInBand",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 3000 /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand",
+      "stage": "tested-commit tree (1170562 source bytes)",
       "exit": 1,
       "log": "/tmp/prophet-p003-full2.log",
       "result": "123 suites: 3077 passed, 46 skipped, 1 failed (the same known member assertion)"
     },
     {
-      "command": "node .yarn/releases/yarn-3.1.1.cjs typecheck",
+      "command": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs typecheck",
+      "stage": "tested-commit tree (source bytes identical; later doc-only edits do not affect tsc)",
       "exit": 0,
       "log": "/tmp/prophet-p003-typecheck-final.log",
       "result": "empty output, no errors"
@@ -116,7 +122,7 @@
   },
   "residualGaps": "LANG-001 stays open: while/do-while/for-in/of, switch, labels, sequence expressions and excluded operators. LANG-003 stays open: general statement completion values still discarded. SYM-001 retains select-chain disjunctive membership (loop-min member red; P005 candidate). SYM-004 retains merge/join cost, environment-store growth, allocation, host-stack depth and continuation coalescing. Loop budgets: exactly 1024 per-path body entries; shared visits checked between walks at >=8192 with one-walk overshoot possible. test/loop-min.spec.ts is owned but unmodified; its member assertion is the one known red theorem. No gap group is closed.",
   "knownRed": "test/loop-min.spec.ts 'loop selection updates and a post-return alias retain relationships': result.member unknown (expected true). The loop value is correct; forward-only reasoning cannot refute infeasible selection-path combinations. Preserved unweakened for separately scoped P005; all other loop-min assertions pass.",
-  "hashMethod": "All hashes generated programmatically, never transcribed: sourceHashes from git show testedCommit:<path> piped to sha256; logHashes from local ignored log files. A verifier re-reads the saved evidence.json and asserts every persisted hash matches a fresh computation.",
+  "hashMethod": "All hashes generated programmatically, never transcribed: sourceHashes from git show testedCommit:<path> piped to sha256; logRecords carry explicit absolute paths with per-artifact sha256, observed exit status, and tree stage. A verifier re-reads the saved evidence.json and asserts every persisted hash matches a fresh computation. Empty stall logs hash the empty file; their exit-124 status is cited from the observed command result, not inferred from log contents.",
   "sourceHashes": {
     "src/loops/for.ts": "f4e57f31075b9de1cf3dca59b86b68baf4908ec95b0918ef6a45b9228d23df57",
     "src/ASTResolvers.ts": "68a4513f53c7f9b669edc5dd98d6fb4fbe53a92e92c538a44ba545cd21c9102b",
@@ -135,19 +141,111 @@
     "docs/wiki/for-statement.md": "10838fa7d0e15e5d8f55c8976f8513569a128f0224c975ab565cf48c3baa9961",
     "docs/wiki/loop-minimum.md": "4aabd4187687b70cba468c65f4933598f81ac2e305ac47f7a5d9d65ed9b21c68"
   },
-  "logHashes": {
-    "red-for-statement.log": "92ba5286203b2d85c40435e9aaa6004ece57ed490334d45831650e6fca01a869",
-    "green-for-statement.log": "67f8dee6fe3e5bc607f3e91844e0653c02129408a0263e694f1c121c3df59086",
-    "green-loop-min.log": "af7f56a29c577d613db64e21d93adb382e16aca5295e9c11beb5f63f4533e653",
-    "affected-suites.log": "2af27c80f268bcbf6082a2df70b2c4a1a1aacffde8b859ecdd849733be3be6db",
-    "full-suite.log": "64c1a3db4dd572c2c23c636bcafdeb0a2d8d4cf2807f30185a8941dd03dcd492",
-    "full-superseded-1d7eb3b.log": "f3924b126405935b82f0f9b633cbacbc6de3984ba3cafec6c4bdcc9be70b5e1c",
-    "typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "skip-inventory.json": "3f229873f0c1370a90b2595175c01a432a0d5bbd00ab8646406c78c4ac0c7474",
-    "stress-repro-exit124.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "stress-scaling-visit-cap.log": "e78a37d9e3a5c4e029e40e40cc7b044f1a3b13e35d267b2848041c632ce1128c",
-    "stress-join-stall-exit124.log": "94bca857f20c29c638b26b4a16ac0f6baa8aaec001c0b6197459f2afcc30e9f7",
-    "review-snapshot2-14probes.log": "007f7094b5195e79872f905965963920df099b5e2b68b900bffa51346530bf70",
-    "review-snapshot1-shared-budget-exit124.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  "logRecords": {
+    "red-for-statement": {
+      "path": "/tmp/prophet-p003-red.log",
+      "sha256": "92ba5286203b2d85c40435e9aaa6004ece57ed490334d45831650e6fca01a869",
+      "exit": 1,
+      "stage": "predecessor tree (pre-implementation)",
+      "result": "29 failed at missing ForStatement with native oracles passing; 1 pre-existing boundary pass"
+    },
+    "green-for-statement-30-draft": {
+      "path": "/tmp/prophet-p003-green3.log",
+      "sha256": "0bf860b9cf01c91557aba56056173e2968bd1ee7f657a765707111dfd85362c7",
+      "exit": 0,
+      "stage": "draft tree (post-transition-fix, pre-resource-correction)",
+      "result": "30 passed"
+    },
+    "green-for-statement-32-tested": {
+      "path": "/tmp/prophet-p003-green5.log",
+      "sha256": "67f8dee6fe3e5bc607f3e91844e0653c02129408a0263e694f1c121c3df59086",
+      "exit": 0,
+      "stage": "tested-commit tree (1170562 source bytes)",
+      "result": "32 passed, incl. both shared-work regressions"
+    },
+    "green-loop-min-draft": {
+      "path": "/tmp/prophet-p003-green4.log",
+      "sha256": "af7f56a29c577d613db64e21d93adb382e16aca5295e9c11beb5f63f4533e653",
+      "exit": 1,
+      "stage": "draft tree (member outcome confirmed identical at tested commit)",
+      "result": "29 passed, 1 failed (member blocker)"
+    },
+    "affected-suites-tested": {
+      "path": "/tmp/prophet-p003-affected2.log",
+      "sha256": "2af27c80f268bcbf6082a2df70b2c4a1a1aacffde8b859ecdd849733be3be6db",
+      "exit": 1,
+      "stage": "tested-commit tree",
+      "result": "591 passed, 46 skipped, 1 known member failure"
+    },
+    "full-suite-tested": {
+      "path": "/tmp/prophet-p003-full2.log",
+      "sha256": "64c1a3db4dd572c2c23c636bcafdeb0a2d8d4cf2807f30185a8941dd03dcd492",
+      "exit": 1,
+      "stage": "tested-commit tree",
+      "result": "3077 passed, 46 skipped, 1 known member failure"
+    },
+    "full-superseded-1d7eb3b": {
+      "path": "/tmp/prophet-p003-full.log",
+      "sha256": "f3924b126405935b82f0f9b633cbacbc6de3984ba3cafec6c4bdcc9be70b5e1c",
+      "exit": 1,
+      "stage": "predecessor commit 1d7eb3b (superseded, not validation of tested commit)",
+      "result": "3075 passed, 46 skipped, 1 known member failure"
+    },
+    "typecheck-tested": {
+      "path": "/tmp/prophet-p003-typecheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "stage": "tested-commit tree",
+      "result": "no errors"
+    },
+    "skip-inventory": {
+      "path": "/tmp/prophet-p003-skip.json",
+      "sha256": "3f229873f0c1370a90b2595175c01a432a0d5bbd00ab8646406c78c4ac0c7474",
+      "exit": 0,
+      "stage": "tested-commit tree",
+      "result": "286 active files, 46 skipped, all documented"
+    },
+    "stress-repro-pre-fix-exit124": {
+      "path": "/tmp/prophet-p003-stress.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 124,
+      "stage": "predecessor tree (body-entry-only shared counter)",
+      "result": "empty log; exit 124 observed in the tool result for the 13-iteration doubling probe (external 120s timeout): inconclusive performance evidence, not a wrong answer"
+    },
+    "stress-visit-cap-13iter-pass": {
+      "path": "/tmp/prophet-p003-stress3.log",
+      "sha256": "94bca857f20c29c638b26b4a16ac0f6baa8aaec001c0b6197459f2afcc30e9f7",
+      "exit": 0,
+      "stage": "draft tree (visit-counted shared cap with batch stop, pre-join)",
+      "result": "13-iteration doubling reaches the shared cap in 618ms as a ForkedCompletion; passing retained cap evidence, kept separate from the stall record"
+    },
+    "stress-scaling-visit-cap": {
+      "path": "/tmp/prophet-p003-scale.log",
+      "sha256": "e78a37d9e3a5c4e029e40e40cc7b044f1a3b13e35d267b2848041c632ce1128c",
+      "exit": 0,
+      "stage": "draft tree (visit-counted shared cap, pre-join)",
+      "result": "bounds 8/9/10 complete in 784/1481/1291ms"
+    },
+    "join-drive-stall-exit124": {
+      "path": "/tmp/prophet-p003-join.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 124,
+      "stage": "draft tree (optional continue/normal join under test)",
+      "result": "empty log; exit 124 observed in the tool result for the join-drive probe (external 100s timeout): inconclusive performance evidence for the removed join, not counted as cap evidence; only the join edits were removed per scope decision"
+    },
+    "review-snapshot2-14probes": {
+      "path": "/tmp/prophet-p003-snapshot2-review.log",
+      "sha256": "007f7094b5195e79872f905965963920df099b5e2b68b900bffa51346530bf70",
+      "exit": 0,
+      "stage": "root independent review (production src at 1170562 byte-matches reviewed 802d92c)",
+      "result": "14 independent probes and typecheck green"
+    },
+    "review-snapshot1-shared-budget-exit124": {
+      "path": "/tmp/prophet-p003-snapshot1-shared-budget.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 124,
+      "stage": "root independent review finding (pre-correction driver)",
+      "result": "external 60s timeout killed the run with no result: inconclusive performance evidence that motivated the visit-counted cap"
+    }
   }
 }
