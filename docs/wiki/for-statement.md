@@ -43,10 +43,10 @@ Semantic traps, each with pinned Node 24.21.0 evidence behind it:
   through the shared heap helpers, never through an object's initial property
   table.
 - Bounded unrolling proves order bounds from executed comparisons
-  (`minimum(d) <= d[j]` for every member) but cannot prove disjunctive
-  membership (`m === d[0] || ...`) without refuting infeasible
-  selection-path combinations. That precision belongs to separately scoped
-  selection work, not to solver expansion here.
+  (`minimum(d) <= d[j]` for every member); disjunctive membership
+  (`m === d[0] || ...`) is now proved by the separately scoped P005
+  selection-membership refinement (infeasible-path refutation within an
+  explicit leaf bound), with over-cap selections remaining unknown.
 
 Limits: ordinary `for` only; while/do-while/for-in/of, labels, switch,
 sequence expressions, compound assignment and completion values remain gaps.
@@ -69,6 +69,7 @@ and suppressing trailing statements) and omitted tests decided as false.
 Three spec premises were repaired against pinned Node (comma-operator tests
 rewritten without sequence expressions, out-of-scope reads assert
 ReferenceError rather than undefined, loop updates must advance the induction
-variable). The loop-minimum `member` assertion exceeds forward-only
-select-chain reasoning and stays a documented unknown; see
+variable). The loop-minimum `member` assertion once exceeded forward-only
+select-chain reasoning; P005 now proves it through bounded infeasible-path
+refutation, with over-cap selections remaining unknown; see
 [the proof record](loop-minimum.md).

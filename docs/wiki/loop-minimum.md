@@ -49,16 +49,17 @@ empty arrays. The returned value is asserted distinctly (NaN, undefined,
 +/-Infinity, +/-0) so NaN and undefined cannot be interchanged. This is the
 loop's actual selection behavior, not `Math.min`.
 
-Known residual: the three-element `member` assertion
-(`m === d[0] || m === d[1] || m === d[2]`) remains unknown. The loop value is
-correct (a nested conditional selection of the inputs), and the same case
-proves its alias bound (`alias <= d[0]` true) and strict comparison
-(`d[0] < alias` false). Membership needs refutation of infeasible
-selection-path combinations, which forward-only strict-equality reasoning
-does not perform; that precision belongs to separately scoped selection work
-(P005 candidate) under SYM-001, not to solver expansion here. A deliberately
-wrong reducer still proves its own concrete membership, so the residual is
-specific to symbolic selection chains.
+Resolved residual (P005): the three-element `member` assertion
+(`m === d[0] || m === d[1] || m === d[2]`) now proves true. The loop value is
+a nested conditional selection of the inputs, and the same case proves its
+alias bound (`alias <= d[0]` true) and strict comparison (`d[0] < alias`
+false). Membership is proved by bounded refutation of infeasible
+selection-path combinations under SYM-001: a branch survives only while some
+syntactic sub-leaf contradicts no assumed equality about the same selection
+(4 leaves, depth 16, 8 priors, non-choice leaves/candidates only, no
+reentrant new exploration). A deliberately wrong reducer still proves its own
+concrete membership, so the work was specific to symbolic selection chains.
+Over-cap selections remain unknown.
 
 Limits: the symbolic domain is ten independent `Math.random` symbols in
 `[0, 1)` plus a three-symbol membership case; broader arbitrary finite symbolic

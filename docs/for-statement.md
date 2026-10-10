@@ -71,6 +71,6 @@ retain one exit leaf per explored iteration, so the shared cap fires on
 traversal growth; merges, joins, allocation and host-stack depth stay
 separate residuals under SYM-004, as does coalescing same-phase
 continuations. Disjunctive membership over a loop-carried selection chain
-(`m === d[0] || ...`) needs infeasible-path refutation the forward-only
-reasoner does not perform; it stays unknown under SYM-001 for separately
-scoped selection-precision work, not solver expansion here.
+(`m === d[0] || ...`) is now proved by the separately scoped P005
+selection-membership refinement (infeasible-path refutation within an
+explicit leaf bound); over-cap selections remain unknown under SYM-001.
