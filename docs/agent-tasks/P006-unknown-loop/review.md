@@ -21,3 +21,35 @@ Review will independently check inductive soundness, progress and loop exit,
 state/effect dependencies, representation changes, invalid variants and exact
 evidence. All solver code receives full review. A green example or bounded
 unrolling does not prove the unknown-length theorem.
+
+## Phase A review and B1 dispatch
+
+Handoff `0f891185bb348f09614067ab63fba9f7c20229e7` changes only the owned
+design, evidence and new spec (654 lines); no production change. Root read all
+three, verified every artifact/log SHA256 against local bytes, and independently
+reran native controls plus the three focused red probes using pinned Node and
+the existing Yarn/Jest command with a 70s external timeout. Log:
+`/tmp/prophet-p006-root-phase-a.log`; exit1, 2 passes/3 intended failures,
+14 filtered tests, 5.46s. Failures reproduce concrete-key rejection, body budget
+and the existing custom-indexed-read guard bypass. Root did not rerun the costly
+inconclusive arbitrary-array timeout or claim full-suite success.
+
+The design correctly separates initialization, arbitrary transition, candidate
+refinement, progress/coverage and exit, and calls out the concrete-index/region
+representation prerequisite. It is an outline, not an implemented proof.
+Worker self-corrected a catch/assertion hazard before handoff and independently
+found the lookup guard bypass; these are not reviewer-discovered escaped defects.
+
+Root's correction batch: native edge cases need VM/native comparison; the positive
+domain needs default uint32 lengths with nonconstant elements; invalid-loop specs
+must distinguish bounded fallback from completed unknown values; abrupt-leaf
+assertions need actual throw/normal contents. Choose loop-level entry at current
+state so pre-loop effects run once. Detailed ownership and requirements are in
+[phase-b.md](phase-b.md). These refinements do not weaken the required minimum
+theorem. No correctness trust or concurrency gate is increased.
+
+B1 started in the same Atlas thread, turn `01a1294b-d77b-74f1-9542-666b47cb4755`,
+with explicit `gpt-6-sol`/high. It owns the representation prerequisite only and
+must stop for source review before the loop verifier. The final milestone still
+requires full suite/typecheck, gap reconciliation and exact-head CI. Red design
+specs remain on the worker branch and are not published as working support.
