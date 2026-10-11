@@ -53,3 +53,34 @@ with explicit `gpt-6-sol`/high. It owns the representation prerequisite only and
 must stop for source review before the loop verifier. The final milestone still
 requires full suite/typecheck, gap reconciliation and exact-head CI. Red design
 specs remain on the worker branch and are not published as working support.
+
+## B1 first source review: changes requested
+
+Source `effcdd7a85bcbc9eb06f66d87a03cbf833b7e729`, evidence `3eb9e95`.
+Root reviewed all changed source/spec lines and docs; verified artifact hashes
+against git-show of the exact source and all recorded log hashes. Worker reports
+109 focused passes, typecheck0, two Phase A representation passes and the expected
+over-budget loop red. No B2 or full-suite success is claimed.
+
+Independent reviewer source snapshot `0a2431e` is byte-identical in src and adds
+14 root probes. Pinned Node/Yarn/Jest run with60s external timeout returns
+11pass/3fail in3.231s; full log `/tmp/prophet-p006-b1-handoff-review-final.log`.
+An earlier combined run at `afb0b5e` passed all14 worker tests and11 root tests,
+with two root failures (27 total); the extra concrete-region probe was then added.
+Reviewer-only commits must never be integrated as worker implementation.
+
+Findings: inherited custom read hooks are missed (soundness); affine slice-index
+aliasing stops (required precision prerequisite); the symbolic-endpoint budget
+also suppresses existing concrete-region facts (precision regression). The worker's
+budget test needs an eligible within-cap control. Corrections and narrowly expanded
+prototype-hook ownership are in [b1-corrections.md](b1-corrections.md).
+
+Root draft snapshot `2d65416` additionally exposed branch-cache leakage. Sol
+independently fixed its branch refinements and related membership mutation before
+handoff; both root cache probes now pass. Attribute this as overlapping draft
+detection/self-correction, not a delivered cache defect. The corpus, provenance
+and source-bound evidence are useful, but independent review remains necessary.
+No first-review acceptance, trust increase or concurrency increase.
+
+Correction turn `01a12962-2df1-72e2-bd1b-5118ac210132` runs in the same Atlas
+gpt-6-sol/high thread. B1 remains unaccepted; B2 remains gated on its review.
