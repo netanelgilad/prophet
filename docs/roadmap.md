@@ -190,19 +190,31 @@ Both Muse threads are archived; one active worker/full review remains the policy
 The user's Oct10 instruction is to wait through future provider limits under
 active supervision, without duplicate prompts or model rotation.
 
-The next user-selected reasoning milestone is **unknown-length loop summaries**.
-[P006](agent-tasks/P006-unknown-loop/task.md) starts Oct11 with a separate Atlas
-Codex `gpt-6-sol` high trial and a design/red-spec gate. No new proof is claimed
-yet; sirv RegExp.test remains the next application blocker. Derive
-and validate a fact like “best is a selected element of the visited prefix and
-is <= every element of that prefix.” Check initialization, both update paths,
-exit and progress, including current bindings/heap dependencies. Finite unrolling
-cannot publish that universal fact. Nonempty dense finite-number arrays are an
-initial proof domain, not a permanent VM restriction; NaN, empty/sparse arrays,
-mutation/effects and broader termination strategies remain explicit work under
-SYM-003/LANG-001. Include maximum and incorrect-reducer countercontrols before
-calling this reusable inference. The existing recursive summary does not already
-cover this loop case.
+**Unknown-length loop milestone (P006):** the separately calibrated Atlas Codex
+`gpt-6-sol` high worker implemented a verified loop transformation, reviewed at
+source0785ba6. [Specs](../test/unknown-length-loop.spec.ts) prove minimum/maximum
+bounds and selected-element knowledge for nonempty immutable dense finite-number
+arrays across the default uint32 length domain. The VM checks the real base,
+an arbitrary body/update transition, exact integer progress and exit, retaining
+only verified candidate facts. It preserves prior output, observable counters,
+unchanged bindings and private proof caches. No reducer name/source recognition
+or enumeration of possible lengths is involved.
+
+The first domain is a function-local loop with `i=1`, `i<a.length`, exact unit
+successor and at most one numeric carry initialized from `a[0]`. Top-level loops,
+other guards/initialization, multiple carries, calls, abrupt/effectful bodies,
+NaN, empty/sparse arrays and mutation use existing ordinary execution or explicit
+boundaries. These are open SYM-003/LANG-001 work, not JavaScript restrictions.
+See [the proof boundary](for-statement.md#p006-bounded-unknown-length-verifier),
+[wiki](wiki/unknown-length-loops.md) and [review](agent-tasks/P006-unknown-loop/review.md).
+The source passes126 suites/3156 tests/46 unchanged skips and typecheck;24
+independent root probes plus54 feature checks pass together. Full review and
+one worker remain the calibration policy.
+
+**Next application increment:** return to unchanged sirv's reached RegExp.test
+boundary and scope the smallest shared string/RegExp behavior it needs, with
+whole Test262 cases and Node comparisons. Broader loop inference remains a
+separate reasoning track; it must not displace the real-application/CLI goal.
 
 Import success is not completed server setup or request analysis. Do not rewrite
 package code or equate retained handlers with analyzed requests.

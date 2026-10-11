@@ -1,0 +1,89 @@
+{
+  "phase": "B1 \u2014 representation checkpoint only",
+  "sourceRevision": "effcdd7a85bcbc9eb06f66d87a03cbf833b7e729",
+  "phaseARevision": "0f891185bb348f09614067ab63fba9f7c20229e7",
+  "worktree": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop",
+  "branch": "agent/p006-unknown-loop",
+  "nodeBinary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "nodeVersion": "v24.21.0",
+  "artifacts": [
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/src/ASTResolvers.ts",
+      "sha256": "3c9244ae73c4cf5f786bec5118156e5960a61f0cdab496788092df92d193c9e5"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/src/array/symbolic.ts",
+      "sha256": "f029fe064ab5686bdbcb24f68458abdfe97e3890e737fde4401410bce3b2392e"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/src/symbolic/index.ts",
+      "sha256": "1ef0eff96d6a5bfd45acc254a05a6b46cd753d7c2a9c3be15b6b92dedc6df983"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/src/symbolic/model.ts",
+      "sha256": "2b06cf80108a21cce33754cc89e7df9e02a170fa236452f23c43d7cc411173be"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/test/symbolic-array-index.spec.ts",
+      "sha256": "66d58797d17fb42cb6ab7ea929f1297b487fb5cb255bb650f8712bb6ef0dbfb3"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/test/unknown-length-loop.spec.ts",
+      "sha256": "594f21b886a0783793ba344862635216fce23e78054e2b541a201bf5192b86fc"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/agent-tasks/P006-unknown-loop/design.md",
+      "sha256": "28c9e741f7787053fe302d512eca8b55e6c11aff0e972a53206986b71e56b40f"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/for-statement.md",
+      "sha256": "225b3fedf00e651df164bb51c99403f8c00ff9b3f8e34272f987c0a08dea0a07"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/implementation-gaps.md",
+      "sha256": "8c85fedd48ef6302dbac1369cfe945606874cbe41d771c76849d18246f52cd38"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/wiki/unknown-length-loops.md",
+      "sha256": "cd08bfb180bc6d9de8bc05b7489df130e384432196c2b960c035019b3fa7a411"
+    }
+  ],
+  "runs": [
+    {
+      "name": "focused index/quantified/recursive/existing-loop regressions",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 90s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/symbolic-array-index.spec.ts test/symbolic-arrays.spec.ts test/quantified-facts.spec.ts test/unknown-length.spec.ts test/loop-min.spec.ts test/symbolic-selection-membership.spec.ts test/for-statement.spec.ts > /Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/agent-tasks/P006-unknown-loop/p006-b1-focused.log 2>&1",
+      "exitCode": 0,
+      "log": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/agent-tasks/P006-unknown-loop/p006-b1-focused.log",
+        "sha256": "3590d1d157f561ba8439fe24de33e2410b1cbc0c241b0e7a2d4003a4a4788118"
+      },
+      "observation": "7 suites, 109 tests passed"
+    },
+    {
+      "name": "typecheck",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 60s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs typecheck > /Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/agent-tasks/P006-unknown-loop/p006-b1-typecheck.log 2>&1",
+      "exitCode": 0,
+      "log": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/agent-tasks/P006-unknown-loop/p006-b1-typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "observation": "passed; empty output"
+    },
+    {
+      "name": "Phase A representation/loop split probes",
+      "command": "PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node timeout 45s /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/unknown-length-loop.spec.ts --testNamePattern='guarded symbolic index|custom indexed property lookup|1025-or-1026' > /Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/agent-tasks/P006-unknown-loop/p006-b1-phasea-probes.log 2>&1",
+      "exitCode": 1,
+      "log": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p006-unknown-loop/docs/agent-tasks/P006-unknown-loop/p006-b1-phasea-probes.log",
+        "sha256": "80facd08119aac4a3376da5b6e468a6078a62725324891e6165df67f60322571"
+      },
+      "observation": "2 passed (index and custom lookup); 1 intentionally red (1025/1026 loop induction absent); 16 skipped by pattern filter"
+    }
+  ],
+  "notes": [
+    "No B2 loop summary source was changed; the Phase A loop specs remain intentionally red.",
+    "The three focused Phase A probes are a selected pattern; its skipped count does not represent repository skip inventory.",
+    "No full suite or complete gap/skip audit is claimed at B1. Full acceptance remains a later gate.",
+    "Changed paths are limited to B1 source, new index specs, assigned design/boundary/wiki docs and this evidence."
+  ]
+}

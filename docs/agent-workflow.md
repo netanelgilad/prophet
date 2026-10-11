@@ -59,6 +59,15 @@ needs a wider semantic change, return the smallest blocker and a proposed split.
 Do not grow ownership or hide the problem by narrowing inputs. Corrections go
 back to the worker with a reproducible counterexample and updated task version.
 
+For inference over mutable state, include both changed and unchanged bindings,
+reordered readonly/mutable aliases, a late index-dependent deviation, observable
+exit counters and caller-cache isolation in the initial acceptance matrix.
+P006 showed that a valid happy-path theorem can still lose existing precision
+by choosing the wrong binding or replacing an untouched value. Validate trusted
+intrinsic behavior by its actual function identity as well as container identity;
+in-place hook mutation is a separate regression case. Reconcile the cumulative
+base-to-handoff diff, including older generated artifacts, before publication.
+
 ## Worker procedure and evidence
 
 1. Read AGENTS, this playbook, the task and linked wiki/boundary pages. Verify cwd,

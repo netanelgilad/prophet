@@ -1,4 +1,4 @@
-# P006 review — in progress
+# P006 review — accepted in the documented proof domain
 
 2026-10-11: user asked to trial Codex Sol on unknown-length loop inference.
 Live Atlas catalog and built-in agents both expose `gpt-6-sol`, not Sol 6.1.
@@ -141,3 +141,51 @@ thread/model/worktree. The worker confirmed no replacement full run had started.
 The computed-key regression and scan-limit improvements are self-detected before
 handoff; do not attribute them to independent root discovery. B2 remains under
 review and final verification remains outstanding.
+
+## Final source acceptance
+
+Accepted source `0785ba6a92be69fd38118c3712f5fb514cc375e3`; worker evidence
+`502b9002cef6601b55fb90f4979b761afe52a45e`. Root reviewed both correction commits,
+including the verified identity-transition case. Review-only sourceec92ba1 is
+byte-identical in src;24 independent probes plus54 worker feature checks pass
+together:78pass,exit0,21.602s. Log `/tmp/prophet-p006-b2-r1-review.log`.
+The worker's exact-source full run passes126 suites/3156 tests/46 unchanged
+skips,366.025s;157 focused tests and typecheck also pass. Root verified all23
+artifact/log SHA256 records and the source tree against actual committed blobs
+and local logs. No implementation patch was supplied by the orchestrator.
+
+Root independently reran all four documented scans:566 guard hits,23 assertion
+hits,one skip site,1282 documentation hits. The generated286-file active
+selection and46 skipped paths reconcile with the backlog; no new gap closure
+or full conformance claim. Source-bound scan metadata is retained locally at
+`/tmp/prophet-p006-root-audit.json`. The stable SYM-002/003/004 entries retain
+lookup, proof-domain and resource limits, including preparatory/store costs.
+
+Integration takes the reviewed net worker diff, with generated logs excluded;
+source/tests remain byte-identical to0785ba6. Six earlier B1 logs were still
+tracked in the worker history. The earlier cleanup named only three newer logs;
+root had missed the older six, and that narrow instruction did not require
+preserving them in the published tree. Root excludes those artifacts while
+retaining their original local paths/hash evidence. The worker metadata's
+tracked-log note describes its worktree, not the integrated publication.
+Reviewer-only commits and probes are not integrated; equivalent regressions
+live in the worker's owned feature specs. Unrelated website files are preserved.
+
+Model assessment: useful implementation and self-correction capability, with
+two B1 source review corrections and one B2 correction batch. The worker also
+found/fixed the full-suite computed-key regression and constant-carry edge case.
+Independent review caught lookup and alias/precision defects; evidence required
+curation. Zero clean-first-review streak; one worker and full solver review
+remain. The playbook/wiki now require unchanged-state and reordered-alias
+controls alongside positive induction, counter, cache and late-branch checks.
+
+The worker has stopped cleanly. Archival is recorded below after the accepted
+knowledge is saved. Publication must use a linear integration commit and green
+`test`/`type-check` checks on that exact candidate before pushing master; no
+force push or protection change is authorized. The next application task is
+the existing sirv RegExp.test boundary, not an expansion into unrelated policy.
+
+Atlas archival succeeded at `2026-10-11T06:12:07.766Z` and was independently
+verified through the project thread list (idle, same archivedAt). No P006 worker
+remains active and no unattended wake-up is assumed. Accepted source, exact
+evidence and integration/publication status remain distinct.

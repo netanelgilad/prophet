@@ -19,7 +19,7 @@ assign a numerical reliability probability from a few tasks.
 | Same Muse model, shared equality/selection inference | P005 source e18d18e;43 independent probes plus26 existing choice tests; full124 suites/3102pass/46skip and typecheck0 | Accepted in f6da7af after candidate-order/resource refinements and one handoff metadata repair. Zero clean first-review streak; full solver review always required. |
 | `opencode/longcat-2.5-preview-free`, proof-spec design | P004 corrected spec accepted for draft staging; provider interrupted final metadata handoff, which root curated | One reviewed spec artifact, zero clean first-review acceptances, no VM implementation evidence. Full review retained. |
 | Other free catalog models | No Prophet evidence | Uncalibrated; no launch by automatic rotation. |
-| Atlas Codex `gpt-6-sol`, high, unknown-length loop inference | P006 B1 symbolic-index source4432217 accepted:18 independent root +21 worker index checks pass, worker116 focused/typecheck0; two source correction rounds and evidence-log cleanup | B2 loop verifier active; no loop theorem accepted. Zero clean first-review streak; full semantic/spec/evidence review and one worker total. |
+| Atlas Codex `gpt-6-sol`, high, unknown-length loop inference | P006 source0785ba6 accepted:24 independent root +54 feature checks;126 suites/3156pass/46skip and typecheck0; exact evidence hashes verified | Two B1 source correction rounds, one B2 alias/precision correction batch and evidence curation. Useful self-correction; zero clean-first-review streak. Full semantic/spec/evidence review and one worker total remain. |
 
 Current provider/client at verification: OpenCode 1.18.21; both pilot identities
 explicitly select build/high. Exact downstream backend versions are unknown.

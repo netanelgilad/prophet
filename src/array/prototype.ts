@@ -14,6 +14,19 @@ import { slice } from './slice';
 
 let prototype: ArrayValue | undefined;
 let constructor: FunctionBinding | undefined;
+const defaultIndexedRead = () => undefined;
+const defaultIndexedLookup = {
+  read: defaultIndexedRead,
+  write() { return arrayBoundary('Array.prototype mutation'); }
+};
+
+// Both identities are trust premises. A caller can replace the hook object
+// or mutate its read function in place without changing the object identity.
+export function hasDefaultArrayPrototypeIndexedLookup(value: Any): boolean {
+  return value === getArrayPrototype() &&
+    (value as ArrayValue).propertyAccess === defaultIndexedLookup &&
+    defaultIndexedLookup.read === defaultIndexedRead;
+}
 
 export function arrayBoundary(detail: string): never {
   throw new UnsupportedAnalysisError('Array analysis is not yet supported: ' + detail);
@@ -45,7 +58,7 @@ export function getArrayPrototype(): ArrayValue {
   prototype = markUnsupportedBoundaryObject(ESArray([], 'elements', getObjectPrototype()));
   Object.assign(prototype, { unmodeledPropertyReads: deferred,
     unmodeledOwnPropertyInspection: 'Array.prototype descriptors',
-    propertyAccess: { read() { return undefined; }, write() { return arrayBoundary('Array.prototype mutation'); } } });
+    propertyAccess: defaultIndexedLookup });
   Object.assign(prototype.properties, {
     push: method('push', 1, function*(self, args, context) { return push(self, args, context); }),
     reverse: method('reverse', 0, function*(self, args, context) {

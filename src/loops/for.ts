@@ -17,6 +17,7 @@ import {
   Any, TESBoolean, Undefined, isReturnValue, isThrownValue, isBreakValue, isContinueValue
 } from "../types";
 import { tuple } from "@deaven/tuple";
+import { trySummarizeUnknownLengthLoop } from "./unknown-length-summary";
 
 // Bounded ordinary ForStatement following the ECMA ForStatement evaluation,
 // ForBodyEvaluation, CreatePerIterationEnvironment and LoopContinues
@@ -242,6 +243,14 @@ export function evaluateForStatement(ast: ESTree.ForStatement, context: TExecuti
     sharedSteps++;
     if (frontier.kind === "done") return [frontier, false];
     if (frontier.kind === "active") {
+      if (frontier.phase === "test" &&
+          frontier.context.value.loopBudget &&
+          frontier.context.value.loopBudget.remaining === maximumForIterations) {
+        const summarized = trySummarizeUnknownLengthLoop(ast, frontier.context,
+          copyIterationEnvironment);
+        if (summarized) return [{ kind: "done", result: tuple(
+          Undefined, setEnvironment(summarized, outer)) }, true];
+      }
       return [expand(evaluatePhase(frontier.phase, frontier.context), frontier.phase), true];
     }
     const [consequent, advancedConsequent] = advanceOne(frontier.consequent);

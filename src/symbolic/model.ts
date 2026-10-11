@@ -19,6 +19,10 @@ export type Expression =
   | { kind: "truthy"; operand: Any }
   | SelectExpression
   | { kind: "binary"; operator: string; left: Any; right: Any }
+  // Position provenance is distinct from the element's numeric value. Two
+  // positions may contain the same number; equal positions in one immutable
+  // sequence yield the same value when presence was verified at the read.
+  | { kind: "indexed-element"; sequence: object; index: TESNumber; offset: number }
   | { kind: "string-slice"; operand: Any; start: TESNumber; end?: TESNumber }
   | { kind: "unary"; operator: string; operand: Any };
 
@@ -31,11 +35,10 @@ export type OrderFact = {
 
 // Regions refer to an immutable collection snapshot. Their half-open offsets
 // let facts about a collection also apply to reads from one of its subregions.
-export type CollectionRegion = {
-  id: object;
-  start: number;
-  end?: number;
-};
+export type CollectionEndpoint = number | { base: TESNumber; offset: number };
+export type CollectionRegion =
+  | { id: object; start: CollectionEndpoint; end?: CollectionEndpoint }
+  | { id: object; index: CollectionEndpoint };
 
 // All entries in Knowledge hold simultaneously. A vocabulary of small facts,
 // rather than a variant for every possible combination of known properties.

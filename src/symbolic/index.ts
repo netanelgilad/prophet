@@ -14,6 +14,7 @@ export type OrderFact = Model.OrderFact;
 export type SelectExpression = Model.SelectExpression;
 export type TChoice = Model.TChoice;
 export type CollectionRegion = Model.CollectionRegion;
+export type CollectionEndpoint = Model.CollectionEndpoint;
 
 type SymbolicValue = { type?: string } & WithValue<any>;
 export type Bound = { value: number; inclusive: boolean };
@@ -89,9 +90,236 @@ function truthIn(condition: TESBoolean, knowledge: Knowledge): boolean | undefin
   return undefined;
 }
 
-function regionContains(outer: CollectionRegion, inner: CollectionRegion): boolean {
-  return outer.id === inner.id && inner.start >= outer.start &&
-    (outer.end === undefined || (inner.end !== undefined && inner.end <= outer.end));
+// Endpoint checks cannot ask the general comparison solver: that solver
+// instantiates quantified region facts and would allow the very fact being
+// checked to justify its own region inclusion. Keep a separate bounded graph
+// of only primitive numeric facts and literals. Unknown/over-cap means no
+// derived region fact, never a false proof.
+const maxEndpointFacts = 128;
+const maxEndpointVisits = 128;
+const maxAffineDepth = 8;
+
+function endpointParts(endpoint: CollectionEndpoint): { base: TESNumber; offset: number } | undefined {
+  if (typeof endpoint === "number") return Number.isSafeInteger(endpoint)
+    ? { base: ESNumber(endpoint), offset: 0 } : undefined;
+  return Number.isSafeInteger(endpoint.offset) ? endpoint : undefined;
+}
+
+function numericFacts(values: TESNumber[], knowledge: Knowledge): {
+  orders: OrderFact[]; integers: TESNumber[]
+} | undefined {
+  const facts: OrderFact[] = [];
+  const integers: TESNumber[] = [];
+  const seenFacts = new Set<Fact>();
+  const seenValues = new Set<TESNumber>();
+  const pending = values.slice();
+  const add = (fact: Fact) => {
+    if (seenFacts.has(fact)) return;
+    seenFacts.add(fact);
+    if (seenFacts.size > maxEndpointFacts) return;
+    if (fact.kind === "order") {
+      facts.push(fact);
+      pending.push(fact.left, fact.right);
+    } else if (fact.kind === "integer" || fact.kind === "finite" || fact.kind === "notNaN") {
+      pending.push(fact.subject);
+      if (fact.kind === "integer") integers.push(fact.subject);
+    }
+  };
+  if (knowledge.length > maxEndpointFacts) return undefined;
+  for (const fact of knowledge) {
+    if (fact.kind === "order" || fact.kind === "integer" ||
+        fact.kind === "finite" || fact.kind === "notNaN") add(fact);
+  }
+  while (pending.length && seenFacts.size <= maxEndpointFacts && seenValues.size <= maxEndpointVisits) {
+    const current = pending.pop()!;
+    if (seenValues.has(current)) continue;
+    seenValues.add(current);
+    if ((current.knowledge || []).length > maxEndpointFacts) return undefined;
+    const expression = current.expression;
+    if (expression && expression.kind === "binary" &&
+        (expression.operator === "+" || expression.operator === "-") &&
+        isESNumber(expression.left) && isESNumber(expression.right)) {
+      pending.push(expression.left, expression.right);
+    }
+    (current.knowledge || []).forEach(fact => {
+      if (fact.kind === "order" || fact.kind === "integer" ||
+          fact.kind === "finite" || fact.kind === "notNaN") add(fact);
+    });
+  }
+  return seenFacts.size > maxEndpointFacts || seenValues.size > maxEndpointVisits || pending.length ? undefined :
+    { orders: facts, integers };
+}
+
+function directSafeBounds(value: TESNumber, facts: OrderFact[]):
+  { lower: number; upper: number } | undefined {
+  if (typeof value.value === "number") return Number.isSafeInteger(value.value)
+    ? { lower: value.value, upper: value.value } : undefined;
+  let lower = -Infinity, upper = Infinity;
+  for (const fact of facts) {
+    if (sameNumber(fact.right, value) && typeof fact.left.value === "number") {
+      lower = Math.max(lower, fact.left.value);
+    }
+    if (sameNumber(fact.left, value) && typeof fact.right.value === "number") {
+      upper = Math.min(upper, fact.right.value);
+    }
+  }
+  return Number.isSafeInteger(lower) && Number.isSafeInteger(upper) && lower <= upper
+    ? { lower, upper } : undefined;
+}
+
+function normalizeIntegerEndpoint(value: TESNumber, offset: number,
+  facts: { orders: OrderFact[]; integers: TESNumber[] }, depth = 0):
+  { base: TESNumber; offset: number } | undefined {
+  if (depth > maxAffineDepth || !Number.isSafeInteger(offset)) return undefined;
+  const expression = value.expression;
+  if (expression && expression.kind === "binary" && depth < maxAffineDepth &&
+      (expression.operator === "+" || expression.operator === "-") &&
+      isESNumber(expression.left) && isESNumber(expression.right)) {
+    const left = expression.left, right = expression.right;
+    const rightLiteral = typeof right.value === "number" && Number.isSafeInteger(right.value);
+    const leftLiteral = typeof left.value === "number" && Number.isSafeInteger(left.value);
+    const variable = rightLiteral ? left : expression.operator === "+" && leftLiteral ? right : undefined;
+    const constant = rightLiteral ? right.value! : leftLiteral ? left.value! : undefined;
+    if (variable && constant !== undefined) {
+      const delta = expression.operator === "-" ? -constant : constant;
+      const operandBounds = directSafeBounds(variable, facts.orders);
+      if (!operandBounds || !Number.isSafeInteger(operandBounds.lower + delta) ||
+          !Number.isSafeInteger(operandBounds.upper + delta)) return undefined;
+      const nextOffset = offset + delta;
+      const normalized = normalizeIntegerEndpoint(variable, nextOffset, facts, depth + 1);
+      if (!normalized) return undefined;
+      // All operands and every intermediate result must be exact integers.
+      const bounds = directSafeBounds(normalized.base, facts.orders);
+      if (!bounds || !Number.isSafeInteger(bounds.lower + normalized.offset) ||
+          !Number.isSafeInteger(bounds.upper + normalized.offset)) return undefined;
+      return normalized;
+    }
+  }
+  const integer = typeof value.value === "number" ? Number.isSafeInteger(value.value) :
+    facts.integers.some(subject => sameNumber(subject, value));
+  if (!integer) return undefined;
+  if (offset !== 0) {
+    const bounds = directSafeBounds(value, facts.orders);
+    if (!bounds || !Number.isSafeInteger(bounds.lower + offset) ||
+        !Number.isSafeInteger(bounds.upper + offset)) return undefined;
+  }
+  return { base: value, offset };
+}
+
+// Safe, bounded integer arithmetic only. This never treats a general binary
+// Number expression as algebraically exact under IEEE-754 rounding.
+export function exactIntegerEndpoint(value: TESNumber, knowledge: Knowledge = []):
+  { base: TESNumber; offset: number } | undefined {
+  const facts = numericFacts([value], knowledge);
+  return facts && normalizeIntegerEndpoint(value, 0, facts);
+}
+
+function primitiveOrder(left: TESNumber, right: TESNumber, strict: boolean,
+  facts: OrderFact[]): boolean {
+  if (typeof left.value === "number" && typeof right.value === "number") {
+    return strict ? left.value < right.value : left.value <= right.value;
+  }
+  const numbers: TESNumber[] = [left, right];
+  const add = (number: TESNumber) => {
+    if (!numbers.some(existing => sameNumber(existing, number))) numbers.push(number);
+  };
+  facts.forEach(fact => { add(fact.left); add(fact.right); });
+  const queue = [{ number: left, strict: false }];
+  const visited: Array<{ number: TESNumber; strict: boolean }> = [];
+  while (queue.length && visited.length < maxEndpointVisits) {
+    const current = queue.shift()!;
+    if (visited.some(entry => sameNumber(entry.number, current.number) &&
+      entry.strict === current.strict)) continue;
+    visited.push(current);
+    if (sameNumber(current.number, right) && (!strict || current.strict)) return true;
+    for (const fact of facts) {
+      if (sameNumber(fact.left, current.number)) {
+        queue.push({ number: fact.right, strict: current.strict || fact.strict });
+      }
+    }
+    if (typeof current.number.value === "number") {
+      for (const number of numbers) {
+        if (typeof number.value === "number" && current.number.value <= number.value) {
+          queue.push({ number, strict: current.strict || current.number.value < number.value });
+        }
+      }
+    }
+  }
+  return false;
+}
+
+export function proveEndpointOrder(left: CollectionEndpoint, right: CollectionEndpoint,
+  strict: boolean, knowledge: Knowledge = []): boolean {
+  const rawA = endpointParts(left), rawB = endpointParts(right);
+  if (!rawA || !rawB) return false;
+  // Existing concrete regions need no symbolic fact graph or its budget.
+  if (typeof rawA.base.value === "number" && typeof rawB.base.value === "number") {
+    const a = rawA.base.value + rawA.offset, b = rawB.base.value + rawB.offset;
+    return Number.isSafeInteger(a) && Number.isSafeInteger(b) &&
+      (strict ? a < b : a <= b);
+  }
+  const facts = numericFacts([rawA.base, rawB.base], knowledge);
+  if (!facts) return false;
+  const a = normalizeIntegerEndpoint(rawA.base, rawA.offset, facts);
+  const b = normalizeIntegerEndpoint(rawB.base, rawB.offset, facts);
+  if (!a || !b) return false;
+  if (a.offset <= b.offset && primitiveOrder(a.base, b.base,
+    strict && a.offset === b.offset, facts.orders)) return true;
+  // Concrete bounds may settle a shifted endpoint without reasoning about a
+  // general subtraction expression. Restrict this to direct literal bounds.
+  const upper = facts.orders.filter(fact => sameNumber(fact.left, a.base) &&
+    typeof fact.right.value === "number").map(fact => fact.right.value!);
+  const lower = facts.orders.filter(fact => sameNumber(fact.right, b.base) &&
+    typeof fact.left.value === "number").map(fact => fact.left.value!);
+  if (typeof a.base.value === "number") upper.push(a.base.value);
+  if (typeof b.base.value === "number") lower.push(b.base.value);
+  if (!upper.length || !lower.length) return false;
+  const high = Math.min(...upper) + a.offset;
+  const low = Math.max(...lower) + b.offset;
+  return Number.isSafeInteger(high) && Number.isSafeInteger(low) &&
+    (strict ? high < low : high <= low);
+}
+
+function regionContains(outer: CollectionRegion, inner: CollectionRegion,
+  knowledge: Knowledge): boolean {
+  if (outer.id !== inner.id) return false;
+  if ("index" in outer) return "index" in inner &&
+    proveEndpointOrder(outer.index, inner.index, false, knowledge) &&
+    proveEndpointOrder(inner.index, outer.index, false, knowledge);
+  if ("index" in inner) return proveEndpointOrder(outer.start, inner.index, false, knowledge) &&
+    (outer.end === undefined || proveEndpointOrder(inner.index, outer.end, true, knowledge));
+  return proveEndpointOrder(outer.start, inner.start, false, knowledge) &&
+    (outer.end === undefined || (inner.end !== undefined &&
+      proveEndpointOrder(inner.end, outer.end, false, knowledge)));
+}
+
+function sameEndpoint(left: CollectionEndpoint, right: CollectionEndpoint): boolean {
+  return typeof left === "number" || typeof right === "number"
+    ? typeof left === "number" && typeof right === "number" && left === right
+    : left.offset === right.offset && sameNumber(left.base, right.base);
+}
+
+function sameRegion(left: CollectionRegion, right: CollectionRegion): boolean {
+  if (left.id !== right.id) return false;
+  if ("index" in left || "index" in right) return "index" in left &&
+    "index" in right && sameEndpoint(left.index, right.index);
+  return sameEndpoint(left.start, right.start) &&
+    (left.end === undefined || right.end === undefined
+      ? left.end === right.end : sameEndpoint(left.end, right.end));
+}
+
+function indexedElement(value: TESNumber): Extract<Expression, { kind: "indexed-element" }> | undefined {
+  const expression = value.expression;
+  return expression && expression.kind === "indexed-element" ? expression : undefined;
+}
+
+function sameIndexedPosition(left: TESNumber, right: TESNumber, knowledge: Knowledge): boolean {
+  const a = indexedElement(left), b = indexedElement(right);
+  return !!a && !!b && a.sequence === b.sequence &&
+    proveEndpointOrder({ base: a.index, offset: a.offset },
+      { base: b.index, offset: b.offset }, false, knowledge) &&
+    proveEndpointOrder({ base: b.index, offset: b.offset },
+      { base: a.index, offset: a.offset }, false, knowledge);
 }
 
 // Facts refer to value identities and may form a graph (including their subject).
@@ -104,6 +332,20 @@ function collectFacts(values: Any[], knowledge: Knowledge): Fact[] {
     if (seenValues.has(value)) return;
     seenValues.add(value);
     (metadata(value).knowledge || []).forEach(addFact);
+    if (isESNumber(value)) {
+      const indexed = indexedElement(value);
+      if (indexed) addValue(indexed.index);
+    }
+  };
+  const addEndpoint = (endpoint: CollectionEndpoint) => {
+    if (typeof endpoint !== "number") addValue(endpoint.base);
+  };
+  const addRegion = (region: CollectionRegion) => {
+    if ("index" in region) addEndpoint(region.index);
+    else {
+      addEndpoint(region.start);
+      if (region.end !== undefined) addEndpoint(region.end);
+    }
   };
   const addFact = (fact: Fact) => {
     if (seenFacts.has(fact)) return;
@@ -114,8 +356,13 @@ function collectFacts(values: Any[], knowledge: Knowledge): Fact[] {
       addValue(fact.right);
     } else if (fact.kind === "finite" || fact.kind === "notNaN" || fact.kind === "integer") {
       addValue(fact.subject);
-    } else if (fact.kind === "member") addValue(fact.element);
-    else if (fact.kind === "every-element-order") addValue(fact.bound);
+    } else if (fact.kind === "member") {
+      addValue(fact.element);
+      addRegion(fact.collection);
+    } else if (fact.kind === "every-element-order") {
+      addValue(fact.bound);
+      addRegion(fact.collection);
+    }
   };
   values.forEach(addValue);
   knowledge.forEach(addFact);
@@ -123,8 +370,18 @@ function collectFacts(values: Any[], knowledge: Knowledge): Fact[] {
   // empty. Instantiate it only for an actual member of the same snapshot.
   const members = result.filter((fact): fact is Extract<Fact, { kind: "member" }> => fact.kind === "member");
   const universal = result.filter((fact): fact is Extract<Fact, { kind: "every-element-order" }> => fact.kind === "every-element-order");
-  universal.forEach(fact => members.forEach(member => {
-    if (regionContains(fact.collection, member.collection)) {
+  // Capping only the new symbolic-endpoint cross product preserves the
+  // existing concrete-region behavior while keeping arbitrary-index queries
+  // independent of the array's length range.
+  let symbolicPairs = 0;
+  for (const fact of universal) for (const member of members) {
+    const symbolic = "index" in fact.collection || "index" in member.collection ||
+      ("start" in fact.collection && (typeof fact.collection.start !== "number" ||
+        fact.collection.end !== undefined && typeof fact.collection.end !== "number")) ||
+      ("start" in member.collection && (typeof member.collection.start !== "number" ||
+        member.collection.end !== undefined && typeof member.collection.end !== "number"));
+    if (symbolic && ++symbolicPairs > maxEndpointFacts) return result;
+    if (regionContains(fact.collection, member.collection, result)) {
       result.push({
         kind: "order",
         left: fact.direction === "lower" ? fact.bound : member.element,
@@ -132,7 +389,7 @@ function collectFacts(values: Any[], knowledge: Knowledge): Fact[] {
         strict: false
       });
     }
-  }));
+  }
   return result;
 }
 
@@ -231,8 +488,7 @@ function sameFact(left: Fact, right: Fact): boolean {
   }
   if ("subject" in left && "subject" in right) return sameNumber(left.subject, right.subject);
   if ("collection" in left && "collection" in right) {
-    if (left.collection.id !== right.collection.id || left.collection.start !== right.collection.start ||
-        left.collection.end !== right.collection.end) return false;
+    if (!sameRegion(left.collection, right.collection)) return false;
     if (left.kind === "member" && right.kind === "member") return sameNumber(left.element, right.element);
     if (left.kind === "every-element-order" && right.kind === "every-element-order") {
       return left.direction === right.direction && sameNumber(left.bound, right.bound);
@@ -475,7 +731,18 @@ function resolveComparison(left: TESNumber, right: TESNumber, operator: NumberOp
   if (operator === ">" || operator === ">=") return resolveComparison(right, left, operator === ">" ? "<" : "<=", knowledge);
   if ((typeof left.value === "number" && Number.isNaN(left.value)) || (typeof right.value === "number" && Number.isNaN(right.value))) return false;
   if (typeof left.value === "number" && typeof right.value === "number") return operator === "<" ? left.value < right.value : left.value <= right.value;
+  if (left.expression && left.expression.kind === "binary" ||
+      right.expression && right.expression.kind === "binary") {
+    const a = exactIntegerEndpoint(left, knowledge), b = exactIntegerEndpoint(right, knowledge);
+    if (a && b && sameNumber(a.base, b.base)) {
+      return operator === "<" ? a.offset < b.offset : a.offset <= b.offset;
+    }
+  }
   if (sameNumber(left, right)) return operator === "<" ? false : notNaN(left, knowledge) ? true : undefined;
+  if (sameIndexedPosition(left, right, knowledge)) {
+    return operator === "<" ? false :
+      notNaN(left, knowledge) && notNaN(right, knowledge) ? true : undefined;
+  }
   // Resolve from accumulated order facts before opening choices, to keep
   // recursive selections a shared graph rather than an exponential tree.
   if (hasOrder(left, right, operator === "<", knowledge)) return true;
@@ -572,6 +839,9 @@ function resolveEquality(left: Any, right: Any, knowledge: Knowledge): boolean |
   if (isESNumber(left) && isESNumber(right)) {
     if (typeof left.value === "number" && typeof right.value === "number") return left.value === right.value;
     if (sameNumber(left, right)) return notNaN(left, knowledge) ? true : undefined;
+    if (sameIndexedPosition(left, right, knowledge)) {
+      return notNaN(left, knowledge) && notNaN(right, knowledge) ? true : undefined;
+    }
     if (hasOrder(left, right, true, knowledge) || hasOrder(right, left, true, knowledge)) return false;
     if (hasOrder(left, right, false, knowledge) && hasOrder(right, left, false, knowledge)) return true;
     return undefined;

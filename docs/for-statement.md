@@ -75,3 +75,40 @@ continuations. Disjunctive membership over a loop-carried selection chain
 selection-membership refinement (infeasible-path refutation within an
 explicit leaf bound); the tested five-leaf order remains unknown under
 SYM-001.
+
+## P006 representation checkpoint
+
+Symbolic dense numeric arrays now support a guarded integer index read and
+regions ending at the actual snapshot length. Bounded exact integer offsets
+relate `slice(c)[i]` to `a[i+c]` only when operands and intermediate results
+stay within safe integer bounds; the index must still be proved present. Repeated reads retain position
+identity across slices, and region facts apply only after the index is proved
+inside the region. Custom or unmodeled lookup and unproved presence stop at an
+analysis boundary. See the [index specs](../test/symbolic-array-index.spec.ts)
+and [P006 design](agent-tasks/P006-unknown-loop/design.md).
+
+## P006 bounded unknown-length verifier
+
+At the first reached test of a function-local loop, after the real initializer
+and per-iteration copy, the driver may verify a dense finite numeric array
+loop whose header is
+`i < a.length`, whose index starts at one, and whose candidate carried value
+is the real cached `a[0]`. A private VM run checks the actual test, arbitrary
+body, lexical copy and update, all pre-existing binding writes, exact integer
+`i' = i + 1`, and the false exit at `i = length`. Candidate prefix order,
+membership, finite and range facts are removed until all remaining facts are
+inductive. Readonly aliases remain unchanged, and a verified identity
+transition preserves the actual initialized binding. One failed candidate
+does not suppress a later eligible binding. Only then does the driver publish
+the final carried value and observable index binding. The full uint32 unknown-length range needs no length
+enumeration. The [loop specs](../test/unknown-length-loop.spec.ts) include
+finite nonconstant elements, dual reducers and countermodels.
+
+This proof is limited to one carried value, a pure straight-line/conditional
+body without calls or abrupt completion, an immutable snapshot and a provable
+exact safe-integer successor. Other forms run through ordinary bounded
+execution from the reached state, preserving prior effects and any unfinished
+boundary. The proof attempt has private array-read maps, heap, environments and
+evaluation budget; failed attempts publish none of those changes. Top-level
+loops are currently in this fallback domain. Existing
+recursive function summaries and their cache are separate and unchanged.

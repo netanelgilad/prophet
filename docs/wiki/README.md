@@ -17,6 +17,7 @@ not add fields to Prophet's runtime output.
 - [Bounded for loops](for-statement.md): lexical iteration cells, abrupt completions and explicit work limits.
 - [Loop minimum proof](loop-minimum.md): ten-input bounds and bounded selected-value membership.
 - [Selection membership](selection-membership.md): prior equalities, candidate order and NaN-safe inference limits.
+- [Unknown-length loops](unknown-length-loops.md): guarded symbolic indices, verified prefix facts, private proof state and alias-safe carry selection.
 - [Package candidates](package-candidates.md): pinned read-only scouting beyond sirv.
 - [Task ledger](../agent-tasks/README.md): actual prompts, evidence and review outcomes.
 - [Runtime contract](../symbolic-runtime.md), [roadmap](../roadmap.md),

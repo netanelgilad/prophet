@@ -30,7 +30,8 @@ import { choiceOf } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
 import { getProperties, getArrayElements, ownPropertyPresence, writeArrayElements,
   writeProperty, isArrayIndex } from "./execution-context/Heap";
-import { getSymbolicArrayShape, readSymbolicIndex } from "./array/symbolic";
+import { getSymbolicArrayShape, readSymbolicIndex,
+  assertSymbolicIndexedLookup, symbolicIndexPresence } from "./array/symbolic";
 import { summarizeCall } from "./Function/summaries";
 import { assignBinding, bindingReference, readBinding, hasBinding, initializeBinding } from "./execution-context/bindings";
 import { initializeBindingPattern } from "./Function/binding-patterns";
@@ -134,17 +135,36 @@ export function propertyName(key: Any): string {
 // each normal continuation rather than joining references with selectValue.
 function withMemberReference(
   ast: ESTree.MemberExpression, context: TExecutionContext,
-  continuation: (object: Any, name: string, context: TExecutionContext) => BranchResult
+  continuation: (object: Any, name: string, context: TExecutionContext) => BranchResult,
+  symbolicRead?: (object: Any, index: TESNumber, context: TExecutionContext) => BranchResult
 ): BranchResult {
   return bindNormal(evaluate(ast.object, context), (object, afterObject) =>
     ast.computed
-      ? bindNormal(evaluate(ast.property, afterObject), (key, afterKey) =>
-        continuation(object, propertyName(key), afterKey))
+      ? bindNormal(evaluate(ast.property, afterObject), (key, afterKey) => {
+        if (symbolicRead && isESNumber(key) && key.value === undefined &&
+            (getSymbolicArrayShape(object, afterKey) || choiceOf(object))) {
+          return symbolicRead(object, key, afterKey);
+        }
+        return continuation(object, propertyName(key), afterKey);
+      })
       : continuation(object, unsafeCast<ESTree.Identifier>(ast.property).name, afterObject));
 }
 
 export const MemberExpressionResolver: ASTResolver<ESTree.MemberExpression> = (ast, context) =>
-  withMemberReference(ast, context, readMember);
+  withMemberReference(ast, context, readMember, readSymbolicMember);
+
+function readSymbolicMember(object: Any, index: TESNumber,
+  context: TExecutionContext): BranchResult {
+  const choice = choiceOf(object);
+  if (choice) return evaluateBranches(choice.condition, context,
+    branch => readSymbolicMember(choice.consequent, index, branch),
+    branch => readSymbolicMember(choice.alternate, index, branch));
+  if (!getSymbolicArrayShape(object, context)) {
+    throw new UnsupportedAnalysisError("Symbolic computed keys require a verified dense array receiver");
+  }
+  if (context.value.validateRead) context.value.validateRead(object, "<symbolic-index>", context);
+  return tuple(readSymbolicIndex(object, index, context)!, context);
+}
 
 export function readMember(object: Any, name: string, context: TExecutionContext): BranchResult {
   const choice = choiceOf(object);
@@ -153,7 +173,10 @@ export function readMember(object: Any, name: string, context: TExecutionContext
     branch => readMember(choice.alternate, name, branch));
   if (context.value.validateRead) context.value.validateRead(object, name, context);
   if (isArrayIndex(name) && getSymbolicArrayShape(object, context)) {
-    return tuple(readSymbolicIndex(object, Number(name), context)!, context);
+    assertSymbolicIndexedLookup(object, name, context);
+    if (symbolicIndexPresence(object, Number(name), context) !== false) {
+      return tuple(readSymbolicIndex(object, Number(name), context)!, context);
+    }
   }
   const properties = getProperties(unsafeCast<WithProperties>(object), context);
   assert(properties, "Cannot read a property of null or undefined");
@@ -172,7 +195,9 @@ export function readMember(object: Any, name: string, context: TExecutionContext
       type: "function", id: property, properties: {}, function: property
     }, branch) : tuple(property, branch);
   }, branch => {
-    if (isArray(object) && isArrayIndex(name) && getArrayElements(object as TArray<any>, branch) === undefined) {
+    if (isArray(object) && isArrayIndex(name) &&
+        getArrayElements(object as TArray<any>, branch) === undefined &&
+        !getSymbolicArrayShape(object, branch)) {
       throw new Error("Indexed reads require known element positions or a symbolic dense array");
     }
     if (isArray(object) && name === "toString") {
