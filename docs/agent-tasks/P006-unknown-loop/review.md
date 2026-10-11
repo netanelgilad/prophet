@@ -130,3 +130,14 @@ reproductions and boundary-documentation corrections are in
 [b2-corrections.md](b2-corrections.md). Root adjusted preliminary top-level
 probes to the first function-local domain and requires that limit be explicit.
 No B2 acceptance or trust/concurrency increase is recorded from passing probes.
+
+The worker's first full run at752358a found one existing computed-key boundary
+regression:125 suites pass/1fail;3150 tests pass/46skip/1fail,358.939s. Sol
+independently corrected the resolver and added scan limits in f412b49, with154
+focused passes. Before a duplicate full run, root interrupted only to deliver
+the already reproduced alias corrections in one batch; all worker edits were
+preserved. Correction turn `01a12989-0823-7fd1-a46d-79978379fba4` uses the same
+thread/model/worktree. The worker confirmed no replacement full run had started.
+The computed-key regression and scan-limit improvements are self-detected before
+handoff; do not attribute them to independent root discovery. B2 remains under
+review and final verification remains outstanding.
