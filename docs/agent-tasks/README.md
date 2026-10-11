@@ -19,7 +19,7 @@ increase or first-review acceptance streak.
 | [P003](P003-for-statement/task.md) | Shared ForStatement at totalist and bounded loop-min proof | Accepted and integrated in master merge `f6da7af`; thread archived Oct10 | 14 independent probes; combined P005 suite fully green; full semantic review/corrections recorded |
 | [P004](P004-loop-min-specs/task.md) | Loop-min proof-spec design; LongCat pilot | Reviewed specs from [PR70](https://github.com/netanelgilad/prophet/pull/70) landed unchanged in `f6da7af`; thread remains archived | All9 loop-min tests pass with P003/P005; spec-only LongCat evidence remains distinct from Muse implementation |
 | [P005](P005-selection-membership/task.md) | Generic finite-selection membership precision | Accepted source `e18d18e`, metadata `d1d788c`, integrated in `f6da7af`; Muse thread archived Oct10 | 43 independent probes plus26 existing choice checks pass; full124 suites/3102pass/46skip and typecheck0; full solver review retained |
-| [P006](P006-unknown-loop/task.md) | Verified unknown-length loop summaries | Phase A reviewed at0f89118; B1 symbolic index/region prerequisite active | Sol high separate pilot; root reproduced three red probes; full source review before loop verifier |
+| [P006](P006-unknown-loop/task.md) | Verified unknown-length loop summaries | B1 source4432217 accepted after review; B2 loop verifier active | Sol high;39 combined review/index checks pass; two source corrections plus evidence-log cleanup; no loop theorem accepted yet |
 
 P001–P005 are accepted in their recorded scope and their Atlas threads are
 archived. P003/P005 complete the bounded loop-min milestone; P006 is the sole worker.

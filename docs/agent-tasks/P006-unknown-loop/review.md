@@ -84,3 +84,31 @@ No first-review acceptance, trust increase or concurrency increase.
 
 Correction turn `01a12962-2df1-72e2-bd1b-5118ac210132` runs in the same Atlas
 gpt-6-sol/high thread. B1 remains unaccepted; B2 remains gated on its review.
+
+## B1 accepted source; B2 active
+
+Corrected source88bc034 fixes the original batch; its artifact/log hashes verify
+and worker115 focused tests/typecheck pass. Root added affine-rounding and
+in-place hook controls, then ran review-only snapshot6168e08:37pass/1fail
+(18 root +20 worker), 3.73s. Remaining flaw: trusted hook-object identity survives
+an in-place replacement of its read function. This was returned as the second
+source correction; see [the exact case](b1-hook-correction.md).
+
+Final B1 source `443221795a551eb9e0fe01e4e4954e9e95ca3403` validates the original
+read function as well as the hook object. Root reviewed the entire correction,
+verified all source/log hashes in e3800ba's evidence, and independently reran
+18 root +21 worker cases at review-only snapshot34bafb4 (byte-identical src):
+**39pass**, exit0, 3.021s, log `/tmp/prophet-p006-b1-r2-review.log`.
+Worker116 focused regression passes and typecheck0 are source-bound. B1 source
+is accepted in its documented representation domain; the full milestone is not.
+No loop theorem or full-suite pass is claimed from these focused runs.
+
+Evidence commit e3800ba accidentally force-added three ignored generated logs.
+Root requires tracking cleanup while retaining local files/hashes. This is an
+evidence handoff defect, separate from the two source correction rounds. Full
+semantic review and one worker remain; no clean-first-review streak is earned.
+
+B2 is authorized by [b2-authorization.md](b2-authorization.md), turn
+`01a12973-477a-7fb3-8666-843f5290d35a`, same model/thread/worktree. The verifier must
+derive current-state invariants and preserve real state/effects; final acceptance
+still requires full tests/typecheck, gap/skip audit and exact-head CI.
