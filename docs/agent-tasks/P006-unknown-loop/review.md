@@ -112,3 +112,21 @@ B2 is authorized by [b2-authorization.md](b2-authorization.md), turn
 `01a12973-477a-7fb3-8666-843f5290d35a`, same model/thread/worktree. The verifier must
 derive current-state invariants and preserve real state/effects; final acceptance
 still requires full tests/typecheck, gap/skip audit and exact-head CI.
+
+## B2 first source review
+
+Source752358a implements the reached-loop verifier. Root read every production
+line, confirmed review-only snapshot330322b has byte-identical src, and ran six
+independent loop probes:4pass/2fail,exit1,19.557s. Separate run of the18 root
+index probes and28 worker loop specs:46pass,exit0,16.992s. Logs are
+`/tmp/prophet-p006-b2-review.log` and
+`/tmp/prophet-p006-b2-index-loop-review.log`.
+
+The core unknown-length proof, external counter, private indexed cache,
+pre/post output, late deviation and range-invalidating arithmetic controls pass.
+The two failures concern candidate alias selection and needless loss of an
+unchanged binding's identity; neither is a demonstrated false proof. Detailed
+reproductions and boundary-documentation corrections are in
+[b2-corrections.md](b2-corrections.md). Root adjusted preliminary top-level
+probes to the first function-local domain and requires that limit be explicit.
+No B2 acceptance or trust/concurrency increase is recorded from passing probes.
