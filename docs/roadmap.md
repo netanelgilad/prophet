@@ -190,7 +190,10 @@ Both Muse threads are archived; one active worker/full review remains the policy
 The user's Oct10 instruction is to wait through future provider limits under
 active supervision, without duplicate prompts or model rotation.
 
-The subsequent reasoning milestone is **unknown-length loop summaries**. Derive
+The next user-selected reasoning milestone is **unknown-length loop summaries**.
+[P006](agent-tasks/P006-unknown-loop/task.md) starts Oct11 with a separate Atlas
+Codex `gpt-6-sol` high trial and a design/red-spec gate. No new proof is claimed
+yet; sirv RegExp.test remains the next application blocker. Derive
 and validate a fact like “best is a selected element of the visited prefix and
 is <= every element of that prefix.” Check initialization, both update paths,
 exit and progress, including current bindings/heap dependencies. Finite unrolling

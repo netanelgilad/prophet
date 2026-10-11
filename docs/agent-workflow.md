@@ -36,6 +36,12 @@ the candidate is useful; do not install/run arbitrary package lifecycle hooks.
 
 ## Task contract
 
+On 2026-10-11 the user explicitly requested a Codex Sol trial on unknown-length
+loops. P006 uses the catalog's exact `gpt-6-sol` at high reasoning (no Sol 6.1
+entry was available). This separately authorized trial is not an automatic paid
+quota fallback. It begins with design/red-spec review before production changes,
+retains one active worker and full solver review, and has its own trust record.
+
 Each task lives in `docs/agent-tasks/<ID>-<name>/task.md` and specifies:
 
 - Intended observable behavior and its link to the target or conformance goal.

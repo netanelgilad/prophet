@@ -19,10 +19,18 @@ assign a numerical reliability probability from a few tasks.
 | Same Muse model, shared equality/selection inference | P005 source e18d18e;43 independent probes plus26 existing choice tests; full124 suites/3102pass/46skip and typecheck0 | Accepted in f6da7af after candidate-order/resource refinements and one handoff metadata repair. Zero clean first-review streak; full solver review always required. |
 | `opencode/longcat-2.5-preview-free`, proof-spec design | P004 corrected spec accepted for draft staging; provider interrupted final metadata handoff, which root curated | One reviewed spec artifact, zero clean first-review acceptances, no VM implementation evidence. Full review retained. |
 | Other free catalog models | No Prophet evidence | Uncalibrated; no launch by automatic rotation. |
+| Atlas Codex `gpt-6-sol`, high, unknown-length loop inference | P006 design/spec pilot started Oct11 at user request; no accepted result yet | Uncalibrated; separate from Muse. Design gate then full semantic/spec/evidence review; one worker total. |
 
 Current provider/client at verification: OpenCode 1.18.21; both pilot identities
 explicitly select build/high. Exact downstream backend versions are unknown.
 Current concurrency remains **one active worker total**, not one per model.
+
+Oct11: user separately requested a Codex Sol trial, superseding the free-only
+selection restriction for this explicit pilot. Atlas Codex catalog version
+`0.162.0-alpha.17.2` exposes `gpt-6-sol`, not a Sol 6.1 entry; runtime verified
+that exact model with high reasoning. Client version is not a model-weight
+version. P006 starts at a design/red-spec gate; no success or increased trust
+is inferred from dispatch.
 
 Oct10 update: P003 recovered, completed scoped review and was archived. P005
 completed in a separate Muse build/high thread for generic selection reasoning,

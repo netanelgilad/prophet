@@ -19,16 +19,19 @@ increase or first-review acceptance streak.
 | [P003](P003-for-statement/task.md) | Shared ForStatement at totalist and bounded loop-min proof | Accepted and integrated in master merge `f6da7af`; thread archived Oct10 | 14 independent probes; combined P005 suite fully green; full semantic review/corrections recorded |
 | [P004](P004-loop-min-specs/task.md) | Loop-min proof-spec design; LongCat pilot | Reviewed specs from [PR70](https://github.com/netanelgilad/prophet/pull/70) landed unchanged in `f6da7af`; thread remains archived | All9 loop-min tests pass with P003/P005; spec-only LongCat evidence remains distinct from Muse implementation |
 | [P005](P005-selection-membership/task.md) | Generic finite-selection membership precision | Accepted source `e18d18e`, metadata `d1d788c`, integrated in `f6da7af`; Muse thread archived Oct10 | 43 independent probes plus26 existing choice checks pass; full124 suites/3102pass/46skip and typecheck0; full solver review retained |
+| [P006](P006-unknown-loop/task.md) | Verified unknown-length loop summaries | Codex `gpt-6-sol` high design/red-spec phase active Oct11 | Separate uncalibrated pilot; production changes require root design review |
 
-All five tasks are accepted in their recorded scope and their Atlas threads are
-archived. P003/P005 complete the bounded loop-min milestone; no worker is active.
+P001–P005 are accepted in their recorded scope and their Atlas threads are
+archived. P003/P005 complete the bounded loop-min milestone; P006 is the sole worker.
 LongCat recovery is not claimed. PR70's spec-only branch is superseded by the
 combined master integration, preserving every reviewed assertion.
 
 Next application candidate: the reached sirv RegExp.test boundary. The separate
 reasoning milestone is verified unknown-length loop summaries. Explicit initial
 environments and immutable larger-package scouting remain roadmap work. Scope
-the next task from the actual integrated result. The user asks for supervised
+the next task from the actual integrated result. On Oct11 the user prioritized
+unknown-length loops and a Codex Sol trial; P006 checks its design before source
+implementation. The user asks for supervised
 waiting/sleep through future limits; no model rotation is queued. Atlas completion
 does not automatically wake the orchestrator; no unattended review is configured.
 See [P005 review](P005-selection-membership/review.md) for source equivalence,

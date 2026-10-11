@@ -21,6 +21,9 @@ provider rate limits and reset times. Muse remains the preferred calibrated work
 other free models may be piloted in separate threads/worktrees with separate
 [trust records](docs/agent-models.md), following the user's 2026-10-08 update.
 Keep one active worker total until review gates permit more; no paid fallback.
+The user's 2026-10-11 request separately authorizes a Codex Sol pilot for
+unknown-length loops: catalog model `gpt-6-sol`, high reasoning, with its own
+trust record and a design/spec review before implementation (P006).
 The user's 2026-10-10 instruction is to stay active and wait/sleep through limits
 with the assigned worker until recovery; do not end a task merely because of
 quota or duplicate an already active retry.
