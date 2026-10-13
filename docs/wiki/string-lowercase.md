@@ -1,6 +1,6 @@
 # Bounded ASCII lowercase
 
-P009 worker verification is provisional pending independent Astra/high review.
+Independent Astra/high accepts corrected P009 source c52c3f4. [Publication review](../agent-tasks/P009-ascii-lowercase/publication-review.md) records the stale checkpoint and evidence-label corrections; exact-head publication gates are tracked in the draft PR/Atlas.
 [Evidence](../agent-tasks/P009-ascii-lowercase/evidence.json) binds exact frozen
 source, commands, logs and hashes; tests do not confer model trust.
 
