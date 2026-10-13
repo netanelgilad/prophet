@@ -1,6 +1,6 @@
 # Bounded generic UTF-16 lastIndexOf
 
-P010 worker handoff; independent Astra/high review pending. Frozen source and
+Independent Astra/high accepts P010 source fcb650f and its evidence. [Publication review](../agent-tasks/P010-string-lastindexof/publication-review.md) records retained probes and publication gates. Frozen source and
 exact runs/hashes are identified in [evidence](../agent-tasks/P010-string-lastindexof/evidence.json).
 
 The key ordering rule is RequireObjectCoercible, receiver ToString, search
