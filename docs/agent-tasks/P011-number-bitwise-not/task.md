@@ -19,3 +19,18 @@ Whole complete unmodified Test262 bitwise-not files and relevant conversion case
 PinnedNode /tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node, PROPHET_NODE_BINARY; existing linked deps only, no installs. Existing pinnedNode .yarn/releases/yarn-3.1.1.cjs Jest/typecheck. Check discovery early; production helper never test.ts. All affected predecessor/operator/conversion suites pass before one source/spec/doc freeze. Commit source then full regression with external900s cap (P010416s), typecheck, complete guard/assertion/skip/boundary/checkpoint/diff/provenance audit and complete historical46-skip inventory. Generate hashes directly from files/git show, recompute all, exact commands/cwd/status/source/exit/timeouts/log paths/counts. Explicit prefreeze vs committed metadata, including untracked specs; never trust filename prefixes. Evidence-only commit after frozen validation, then one complete handoff and stop for independent exact-source review. Preserve every failed run and attribution. Root owns stacked draft and exact-head CI.
 
 No pushes/merges/releases/main/Atlas/other-worktree/dependency changes, subagents, model/account/subscription changes, paidAPI/credentials/access expansion or Notion writes. Primary48%remaining at23:11:51UTC, account-wide not a task allowance. Keep workload bounded, preserve review headroom, report real provider/scope blocks rather than rotate. No further feature in this thread. Read AGENTS/workflow/runtime, P007-P010 wiki/review lessons and actual conversions/operator dispatch. Primary: https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-bitwise-not-operator ; https://tc39.es/ecma262/multipage/abstract-operations.html#sec-toint32 .
+
+
+## Writer implementation checkpoint (2026-10-14)
+
+The bounded feature uses an effectful unary map, explicit arithmetic int32
+conversion/complement, and the shared ordinaryNumberHint continuation with a
+P011 primitive finish. A reached BigInt literal-marker guard prevents Cherow's
+Number-valued field from fabricating Number semantics; no BigInt representation
+or parser overhaul is included. [Boundary](../../number-bitwise-not.md),
+[upstream dispositions](upstream-candidates.md) and
+[wiki](../../wiki/number-bitwise-not.md) preserve the exact domain/residuals.
+The unchanged consumer reaches substring callee lookup, idx still 5, with every
+FS history retained. Source/spec/docs are frozen once after affected checks;
+full suite/typecheck/audit and source-bound evidence follow in an evidence-only
+commit. Independent Astra/high review is pending; writer stops at handoff.

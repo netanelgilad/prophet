@@ -161,13 +161,12 @@ for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.l
 });
 
 test("native next unary boundary operand control",()=>withModuleFixture(`let trace="";function operand(){trace="reached";return 5;}module.exports=~operand()===-6 && trace==="reached";`,file=>expect(nodeModuleObservation(file)).toEqual({kind:"return",value:{type:"boolean",value:true}})));
-test("next unary boundary retains reached operand effects and sibling",()=>{
+// P011 migration: the operand now completes through shared Number-domain ~.
+test("supported unary keeps operand effects, cleanup and sibling correlation",()=>{
   const result=run(`let trace="";let caught=false;let cleaned=false;function operand(){trace="reached";return 5;}
-    if(selected){try{const n=~operand();trace="wrong";}catch(e){caught=true;}finally{cleaned=true;}}else trace="sibling";`,{selected:ESBoolean()});
-  const all=leaves(result);expect(all).toHaveLength(2);
-  const stop=all.find(([v])=>v.type==="ExecutionBoundary");expect(stop[0]).toMatchObject({kind:"unsupported",message:"Unary operator resolver for ~ hasn't been implemented yet"});
-  expect(stop[1].value.scope.trace).toMatchObject({value:"reached"});expect(stop[1].value.scope.caught).toMatchObject({value:false});expect(stop[1].value.scope.cleaned).toMatchObject({value:false});
-  expect(all.find(([v])=>v===Undefined)[1].value.scope.trace).toMatchObject({value:"sibling"});
+    if(selected){try{const n=~operand();trace=trace+n;}catch(e){caught=true;}finally{cleaned=true;}}else trace="sibling";
+    const valid=selected?trace==="reached-6"&&!caught&&cleaned:trace==="sibling"&&!caught&&!cleaned;`,{selected:ESBoolean()});
+  expect(result[0]).toBe(Undefined);expect(result[1].value.scope.valid).toMatchObject({value:true});
 });
 
 test("comparison budget retains position effects and completed alternative",()=>{

@@ -26,19 +26,25 @@ export function toNumber(value: Any, context: TExecutionContext): BranchResult {
         if (!isUndefined(selected) && !isESNull(selected)) {
           throw new Error("Symbol.toPrimitive numeric conversion is not yet supported");
         }
-        return ordinaryToNumber(input, final, 0);
+        return ordinaryNumberHint(input, final, toNumber);
       }));
     throw new Error("ToNumber is not yet modeled for this value kind");
   });
 }
 
-function ordinaryToNumber(object: Any, context: TExecutionContext, index: number): BranchResult {
+// Reuse the observable number-hint lookup/call order while leaving primitive
+// admission to the caller. ToNumeric consumers must not send late BigInt or
+// unsupported primitive kinds through ToNumber's legacy finish.
+export function ordinaryNumberHint(
+  object: Any, context: TExecutionContext,
+  finish: (primitive: Any, context: TExecutionContext) => BranchResult, index = 0
+): BranchResult {
   if (index === 2) return [ThrownValue(createError("TypeError", ESString("Cannot convert object to primitive value"))), context];
   return bindNormal(readMember(object, ["valueOf", "toString"][index], context), (method, afterRead) =>
     withValue(method, afterRead, (callee, branch) => {
-      if (!(callee as { function?: object }).function) return ordinaryToNumber(object, branch, index + 1);
+      if (!(callee as { function?: object }).function) return ordinaryNumberHint(object, branch, finish, index + 1);
       return bindNormal(invoke(callee, [], branch, object), (result, afterCall) =>
         withValue(result, afterCall, (primitive, after) => isObjectValue(primitive)
-          ? ordinaryToNumber(object, after, index + 1) : toNumber(primitive, after)));
+          ? ordinaryNumberHint(object, after, finish, index + 1) : finish(primitive, after)));
     }));
 }

@@ -36,3 +36,5 @@ Agents own their task article; the orchestrator curates this index and resolves
 contradictions during review. Unknown facts stay labeled unknown. Never persist
 credentials or private provider payloads. Claims from a worker are provisional
 until review is recorded; a model-generated article is not independent evidence.
+
+- [Number-domain unary bitwise NOT](number-bitwise-not.md): late ToNumeric admission, signed32 conversion, callee-before-argument frontier; P011 review pending.
