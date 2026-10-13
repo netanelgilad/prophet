@@ -1,7 +1,7 @@
 # Complete pinned String.trim candidate inventory
 
 Test262 revision `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`;
-128 complete unmodified files, 41 active / 87 inactive. Pinned Node 24.21.0
+128 complete unmodified files, 40 active / 88 inactive. Pinned Node 24.21.0
 passes every file in strict and sloppy mode (256 variants), with original
 sta/assert/include harness files. The exact native results and source hashes
 are bound in evidence.json. No upstream file or dependency was edited.
