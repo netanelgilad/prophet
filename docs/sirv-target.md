@@ -28,13 +28,13 @@ factory with a directory evaluates two regular-expression literals and appends
  `.test` inside the walk callback. Both flagless filters now run through the
  [bounded generic matcher](regexp-literals.md#bounded-regexpprototypetest-p007)
  on the unchanged filename. Header preparation reaches mrmime.lookup's
- `('' + extn).trim()` through the shared bounded String.trim intrinsic, then
- stops at String.prototype.toLowerCase lookup in the same unchanged expression.
+ `('' + extn).trim()` through the shared bounded String.trim intrinsic, and bounded ASCII `.toLowerCase()`; it then
+ stops at String.prototype.lastIndexOf lookup with `tmp === "hello.txt"`.
  The actual CLI JSON graph retains this stopped leaf with its source frame and
  prior directory effects beside the EMFILE filesystem throw (descriptor
  availability remains symbolic). No package source rewrite is introduced. The shared partial-intrinsic
  lookup guard prevents a legacy noncallable assertion from dropping that sibling;
- own replacements still use normal lookup. Case conversion, lastIndexOf,
+ own replacements still use normal lookup. Full Unicode case conversion, lastIndexOf,
  substring, later Stats/Date metadata and streams remain separate work. The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity

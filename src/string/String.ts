@@ -20,6 +20,7 @@ import { toString } from "../conversion/toString";
 import { concat } from "./concat";
 import { stringSlice } from "./slice";
 import { stringTrim } from "./trim";
+import { stringToLowerCase } from "./toLowerCase";
 import { markPartialIntrinsic } from "../execution-context/Heap";
 import { markUnsupportedBoundaryObject } from "../execution-context/analysis-failure";
 
@@ -45,7 +46,7 @@ const deferredPrototypeNames = ["anchor", "at", "big", "blink", "bold", "charAt"
   "repeat", "replace", "replaceAll", "search", "small", "split", "strike",
   "sub", "substr", "substring", "sup", "startsWith", "toWellFormed",
   "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase",
-  "toLocaleUpperCase", "toLowerCase", "toUpperCase"];
+  "toLocaleUpperCase", "toUpperCase"];
 export function getStringPrototype(): TESObject {
   if (!stringPrototype) {
     const prototype: TESObject & { stringData: true } = markPartialIntrinsic({
@@ -57,6 +58,14 @@ export function getStringPrototype(): TESObject {
       ...ESBuiltinFunction(stringTrim),
       properties: { length: ESNumber(0), name: ESString("trim") },
       unknownProperties: "String.trim metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.toLowerCase = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringToLowerCase),
+      properties: { length: ESNumber(0), name: ESString("toLowerCase") },
+      unknownProperties: "String.toLowerCase metadata",
       modeledInheritedProperties: ["call", "prototype"],
       unmodeledPropertyReads: ["caller", "arguments"],
       unmodeledPropertyWrites: ["length", "name"]
