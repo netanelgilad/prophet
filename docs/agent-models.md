@@ -20,6 +20,7 @@ assign a numerical reliability probability from a few tasks.
 | `opencode/longcat-2.5-preview-free`, proof-spec design | P004 corrected spec accepted for draft staging; provider interrupted final metadata handoff, which root curated | One reviewed spec artifact, zero clean first-review acceptances, no VM implementation evidence. Full review retained. |
 | Other free catalog models | No Prophet evidence | Uncalibrated; no launch by automatic rotation. |
 | Atlas Codex `gpt-6-sol`, high, unknown-length loop inference | P006 source0785ba6 accepted:24 independent root +54 feature checks;126 suites/3156pass/46skip and typecheck0; exact evidence hashes verified | Two B1 source correction rounds, one B2 alias/precision correction batch and evidence curation. Useful self-correction; zero clean-first-review streak. Full semantic/spec/evidence review and one worker total remain. |
+| Atlas Codex `gpt-6-astra`, ultra implementation/high independent review, bounded RegExp intrinsic | P007 sourcee13d6c1:127 suites/3285passes/46skips/typecheck0;35 independent probes,17,472 matching comparisons,655,360 BMP comparisons and208 interpreted literal controls | Accepted locally after explicit deferred-coercion guards and a100% module rename for Jest discovery. Earlier rejection/not-ready verdicts retained with source binding and disclosed-case attribution. One implementation writer/full semantic review retained; no concurrency promotion. |
 
 Current provider/client at verification: OpenCode 1.18.21; both pilot identities
 explicitly select build/high. Exact downstream backend versions are unknown.
@@ -51,3 +52,5 @@ escaped regressions and review effort for each family. Rate limits are capacity
 failures, not evidence of low intelligence. Spec-only/red-probe acceptance does
 not qualify a worker for less-reviewed solver or state implementation. All core
 VM changes retain full semantic review regardless of pilot success.
+
+Oct13 overnight request: use existing Atlas capacity for bounded independently reviewed draft PRs; no merges/releases or paid API/access expansion. Latest owner conversation criticized P006 quota cost and favored one capable Astra implementer. P007 used Astra/ultra; subsequent turns normally use high unless a specific hard issue warrants more. Recheck actual quota before substantial work and preserve review capacity. No model/account rotation or trust transfer.

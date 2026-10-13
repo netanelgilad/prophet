@@ -1,0 +1,106 @@
+{
+  "source": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+  "workerHead": "ab33877a87d660292469bdd95ad724a73838680d",
+  "verifiedHashReferences": 83,
+  "evidenceSha256": "f78b5125759310913753dc4fc76bb886436a0f7f9e2466bf27ae1bdd9486d822",
+  "finalRunResults": [
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/final-focused.log",
+      "exitCode": 0,
+      "counts": {
+        "Test Suites": {
+          "passed": 5,
+          "total": 5
+        },
+        "Tests": {
+          "skipped": 46,
+          "passed": 741,
+          "total": 787
+        },
+        "Snapshots": {
+          "total": 0
+        }
+      }
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/native-upstream.json",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/typecheck.log",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/full-suite.log",
+      "exitCode": 0,
+      "counts": {
+        "Test Suites": {
+          "passed": 127,
+          "total": 127
+        },
+        "Tests": {
+          "skipped": 46,
+          "passed": 3285,
+          "total": 3331
+        },
+        "Snapshots": {
+          "total": 0
+        }
+      }
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/inventory.json",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/audit-guards.log",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/audit-asserts.log",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/audit-skips.log",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/audit-docs.log",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/audit-worktree-diff.log",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/audit-cumulative-diff.log",
+      "exitCode": 0,
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "log": "logs/p007/audit-diff-check.log",
+      "exitCode": 0,
+      "counts": {}
+    }
+  ]
+}
