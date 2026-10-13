@@ -1,0 +1,496 @@
+{
+  "kind": "independent-p007-review",
+  "verdict": "reject",
+  "findingCount": 1,
+  "sourceCommit": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+  "baseCommit": "3377cfe2c8791d2113f0f6e03f331c785df2200b",
+  "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+  "branch": "review/p007-regexp-test",
+  "generatedAtUtc": "2026-10-13T19:55:59.152199+00:00",
+  "reviewer": "independent Codex session; no external model call/account switch/delegation",
+  "node": {
+    "binary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    "version": "v24.21.0"
+  },
+  "sourceFiles": [
+    {
+      "file": "docs/agent-tasks/P007-regexp-test/task.md",
+      "sha256": "e0b84566b6ede8025242891b20003a19cd2bcf3b7a807f39f571c675bdd54c75"
+    },
+    {
+      "file": "docs/implementation-gaps.md",
+      "sha256": "771ffa300e47b9bde567b34fe70f26db8bbcc7bfa9d461022b982d280d2abd72"
+    },
+    {
+      "file": "docs/regexp-literals.md",
+      "sha256": "f998c7bb6783aae9bde00c1c1a6dfcf56792a975cbd88d8fa7b5bdae8392a74b"
+    },
+    {
+      "file": "docs/sirv-target.md",
+      "sha256": "526ac5caf235d05e41dfda14e0fac59e535e0f7ade898ad6f697663d62f7ce3e"
+    },
+    {
+      "file": "docs/wiki/README.md",
+      "sha256": "1eeb915f6357a264d3a60dda2d355f6888fedfa2aded5f345a8308af55bc70c1"
+    },
+    {
+      "file": "docs/wiki/regexp-test.md",
+      "sha256": "385613cab45f86d71e79d0567177ffe2726d1e009e32d85bfe576840db36b01a"
+    },
+    {
+      "file": "src/ASTResolvers.ts",
+      "sha256": "5794c875f3da2166446fafa7f6fc80b5fdbec4de5658ec9df27db9cd13e3862c"
+    },
+    {
+      "file": "src/regexp/RegExp.ts",
+      "sha256": "8fe599a8647a383b494249977b44abdc0ee13293dd48a224e2ceff472c562dd9"
+    },
+    {
+      "file": "src/regexp/matcher.ts",
+      "sha256": "e70bd541c3f946fcce7f5c5b4b3b4ba8d04f5341e1695930ba719afbe3a61aa1"
+    },
+    {
+      "file": "src/regexp/test.ts",
+      "sha256": "b162d178c52ecba07f95d7bfe15a247db46a612f9a00f537f1b5cffae008abd2"
+    },
+    {
+      "file": "test/regexp-test.spec.ts",
+      "sha256": "0df62e0e616b4352cf0e36fc7112959e225016cb2616ce23ad4169a5ef8c9ece"
+    },
+    {
+      "file": "test/sirv-target.spec.ts",
+      "sha256": "ecac5a4c046b2d8beb248d31e9e5e19e8460ac19110b93609b692d9351bbd74e"
+    },
+    {
+      "file": "test/test262.spec.ts",
+      "sha256": "32de30b21624a24fef5fa4692985fd21a0dbe706c6d281a9273216e842831358"
+    },
+    {
+      "file": "test/test262/README.md",
+      "sha256": "ca0996918a1e345ad7ab8ddf32bf64d9c23eb441d573299f2d296da0aeb63870"
+    }
+  ],
+  "findings": [
+    {
+      "id": "independent-p007-F1",
+      "priority": "P1",
+      "location": "src/regexp/test.ts:26-32 (callers at 40 and 55)",
+      "summary": "Unclassified deferred array/function coercions discard normal completion siblings",
+      "regressions": 4,
+      "nativeControls": "all four return true on Node24.21.0",
+      "attribution": "Added after seeing worker spec-only 4b36d385; disclosed overlapping regression, not blinded discovery"
+    }
+  ],
+  "counts": {
+    "finalIndependent": {
+      "passed": 29,
+      "failed": 4,
+      "skipped": 0
+    },
+    "affectedSuites": {
+      "passedSuites": 4,
+      "passed": 725,
+      "historicalSkipped": 46
+    },
+    "runner": {
+      "passed": 12
+    },
+    "matcherMatrix": {
+      "patterns": 208,
+      "inputs": 84,
+      "comparisons": 17472,
+      "interpretedComparisons": 208
+    },
+    "bmpComparisons": 655360,
+    "newWholeUpstreamFiles": 15,
+    "nativeUpstreamVariants": 30,
+    "allUpstreamBytesVerified": true
+  },
+  "runs": [
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p007-independent-review.spec.ts"
+      ],
+      "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+      "exitCode": 0,
+      "seconds": 40.85670709609985,
+      "source": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "name": "holdouts",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-holdouts.log",
+      "logSha256": "354532658ca7dcaede237469eae004582b7b28f16d7ba2178060185579ee3f26",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "externalTimeoutSeconds": 120
+    },
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/regexp-literals.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts"
+      ],
+      "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+      "exitCode": 0,
+      "seconds": 33.44502401351929,
+      "source": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "name": "selected",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-selected.log",
+      "logSha256": "72307ac6cdf8ea0e05721390bf6cfe59b97a88dbbdfb6b656cfc8fec9e256123",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "externalTimeoutSeconds": 180
+    },
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+      "exitCode": 0,
+      "seconds": 15.799885749816895,
+      "source": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "name": "typecheck",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-typecheck.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "externalTimeoutSeconds": 180
+    },
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/test262/runner.spec.ts"
+      ],
+      "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+      "exitCode": 0,
+      "seconds": 5.524470090866089,
+      "source": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "name": "runner",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-runner.log",
+      "logSha256": "8dcc65fb61437956cf1c1e61d841ad9fbf1ead803118112fd4c2db07a317d1bd",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "externalTimeoutSeconds": 60
+    },
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p007-independent-review.spec.ts",
+        "--testNamePattern=deferred coercion"
+      ],
+      "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+      "exitCode": 1,
+      "seconds": 4.8507959842681885,
+      "source": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "name": "deferred-coercion",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-deferred-coercion.log",
+      "logSha256": "4d67f01b4d9e7cae354664a9e43f4f96e42478271fdbe2d67bdda96594ed80e7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "externalTimeoutSeconds": 60
+    },
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p007-independent-review.spec.ts"
+      ],
+      "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+      "exitCode": 1,
+      "seconds": 13.101907014846802,
+      "source": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "reviewSpecSha256": "ba75ba59898efc0bbf6a077f548fc4b6cd2fe596b061b696f4e85774ef79bb2a",
+      "externalTimeoutSeconds": 120,
+      "name": "final-holdouts",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-final-holdouts.log",
+      "logSha256": "3f7abc571684df8d929fc7a18184ef729dc30baffc1f5a10446d816e9543bf15",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      }
+    },
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+      "exitCode": 0,
+      "seconds": 9.079485893249512,
+      "source": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "reviewSpecSha256": "ba75ba59898efc0bbf6a077f548fc4b6cd2fe596b061b696f4e85774ef79bb2a",
+      "externalTimeoutSeconds": 120,
+      "name": "final-typecheck",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-final-typecheck.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      }
+    }
+  ],
+  "audits": [
+    {
+      "command": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-0.log",
+      "sha256": "e4f54f3c0362253dabe3423485cb2b318d11d13828dd46c40ed296baa6e01305"
+    },
+    {
+      "command": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-1.log",
+      "sha256": "cae2d7d4dc556318e98ec8466a79f0367e0594f67e27834bdbef2915f82041ca"
+    },
+    {
+      "command": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-2.log",
+      "sha256": "91733357d425dd15cba84a84644677618e6e48c6c777c474b6a44dcae3207d62"
+    },
+    {
+      "command": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "exitCode": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-3.log",
+      "sha256": "d05f0a30c7b4753f30b930948688e0690b39c247f602dc76ee6875395f775dd6"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "3377cfe2c8791d2113f0f6e03f331c785df2200b",
+        "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+        "--",
+        "src",
+        "test",
+        "README.md",
+        "docs",
+        "AGENTS.md"
+      ],
+      "exitCode": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-4.log",
+      "sha256": "05efd9e18511d9f8b8986e011e5def4d76ad6aa1d50ab40f3cc30bf8172e403c"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-5.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-0.log",
+      "sha256": "e4f54f3c0362253dabe3423485cb2b318d11d13828dd46c40ed296baa6e01305",
+      "bytes": 63639
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-1.log",
+      "sha256": "cae2d7d4dc556318e98ec8466a79f0367e0594f67e27834bdbef2915f82041ca",
+      "bytes": 2401
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-2.log",
+      "sha256": "91733357d425dd15cba84a84644677618e6e48c6c777c474b6a44dcae3207d62",
+      "bytes": 55
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-3.log",
+      "sha256": "d05f0a30c7b4753f30b930948688e0690b39c247f602dc76ee6875395f775dd6",
+      "bytes": 244088
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-4.log",
+      "sha256": "05efd9e18511d9f8b8986e011e5def4d76ad6aa1d50ab40f3cc30bf8172e403c",
+      "bytes": 82450
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit-5.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-audit.status.json",
+      "sha256": "f1a514c96663ae1377cabb3f9a6cdbcecd8d01ad56b41a3fa07e27ae5c4ab60c",
+      "bytes": 2347
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-deferred-coercion.log",
+      "sha256": "4d67f01b4d9e7cae354664a9e43f4f96e42478271fdbe2d67bdda96594ed80e7",
+      "bytes": 23172
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-deferred-coercion.status.json",
+      "sha256": "2450b0e02df59ad8853d6ab1a9a0bb7e49206b6a692b24aac84c6e21f122413b",
+      "bytes": 442
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-final-holdouts.log",
+      "sha256": "3f7abc571684df8d929fc7a18184ef729dc30baffc1f5a10446d816e9543bf15",
+      "bytes": 25250
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-final-holdouts.status.json",
+      "sha256": "664a241e9278ab02f66d6daa1bd6b5877adc965bed095cb8ce928ba13fe900db",
+      "bytes": 522
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-final-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-final-typecheck.status.json",
+      "sha256": "cf5be6bb746a18294dbc812edc79f224979b533a78d17f2cd7ed3543957b0bb1",
+      "bytes": 463
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-holdouts.log",
+      "sha256": "354532658ca7dcaede237469eae004582b7b28f16d7ba2178060185579ee3f26",
+      "bytes": 2538
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-holdouts.status.json",
+      "sha256": "1ba87f460eb585e3ae1315fc97d8bbe3c4f6300d81fb1ecdb2f89ead829a02d5",
+      "bytes": 398
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-runner.log",
+      "sha256": "8dcc65fb61437956cf1c1e61d841ad9fbf1ead803118112fd4c2db07a317d1bd",
+      "bytes": 1378
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-runner.status.json",
+      "sha256": "27aee73722a0a0a2f57dd9d9d46519b35c506d311eb58ef2f2f95117db23c3bf",
+      "bytes": 389
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-selected.log",
+      "sha256": "72307ac6cdf8ea0e05721390bf6cfe59b97a88dbbdfb6b656cfc8fec9e256123",
+      "bytes": 575
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-selected.status.json",
+      "sha256": "464ef523c5b2f810f4cb76b4253077acf9a21e84524c0eca9d1c1b279b3c6f81",
+      "bytes": 482
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-skip-reconciliation.json",
+      "sha256": "9d7da5a4b4aab537acaedd74f8be63628bdf548c10abfb239cfc96bcc6f9f933",
+      "bytes": 185
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-skips.json",
+      "sha256": "cca408dd55a71501c682510cd41c44a4c0e04106a61c623b8fbcf17ceeab2c0a",
+      "bytes": 5118
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-source-manifest.json",
+      "sha256": "1da37d1bf45370c8088638cb02197aacab58237870191aa84639fd3e7fe22f84",
+      "bytes": 1808
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-typecheck.status.json",
+      "sha256": "8c00283e38ec6f3fdc0649de827a7ae093b3083290ab10e457ae4a648077373d",
+      "bytes": 341
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-upstream-content.log",
+      "sha256": "4f40b72c30dad0b9dc4d61d539fd7b1d732a7e48a4aa9fd265bcce3018c942e2",
+      "bytes": 10225
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-upstream-verification.json",
+      "sha256": "f4fb552fb27c36a9e04777d7727716a637f8daf12d32d05ef2800b37eb9f2196",
+      "bytes": 6056
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/logs/independent-p007-upstream.json",
+      "sha256": "62165b91c5275a3040ad76a3652e0e94c5f64daa341dd1c25b3d6ff33a293708",
+      "bytes": 2447
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/test/p007-independent-review.spec.ts",
+      "sha256": "ba75ba59898efc0bbf6a077f548fc4b6cd2fe596b061b696f4e85774ef79bb2a",
+      "bytes": 14273
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/docs/agent-tasks/P007-regexp-test/independent-review-task.md",
+      "sha256": "f440c0a8809b6eb4c57aad9295b172a02abd96eb522afb6511bc5af668c71854",
+      "bytes": 3235
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test/docs/agent-tasks/P007-regexp-test/independent-review.md",
+      "sha256": "22af7fa4a11ae81719f94bc95a87e91f7007d0208a42cb4122bbafcfa7ff7bec",
+      "bytes": 12342
+    }
+  ],
+  "workerFullRegression": {
+    "verified": false,
+    "reason": "Not delivered before rejection; no passing full-suite claim made and no redundant full suite launched."
+  },
+  "laterWorkerRefsObserved": [
+    "4b36d385ebcc21a9a9c7070ab0938832ca16ebf6",
+    "6bae07c599c6a80d4cb199bf6e3e92fa9bb77cf9"
+  ],
+  "scopeNote": "Later worker revisions are not applied or accepted. Final source and test hashes are bound to the requested frozen candidate. Initial run predates four disclosed regression probes; final-holdouts and final-typecheck bind the final review spec."
+}
