@@ -1096,3 +1096,39 @@ to typed boundary, preserving the message constraint and adding prefix/sibling
 checks. Other layouts remain unchanged, and no descriptor support or skip is
 introduced (OBJ-001/REPORT-001/TEST-002). The superseded one-failure run is retained
 separately from the final corrected-source validation.
+
+
+## P009 reconciliation — 2026-10-14
+
+The [bounded ASCII lowercase contract](symbolic-strings.md#bounded-ascii-stringprototypetolowercase-p009)
+and [source-bound evidence](agent-tasks/P009-ascii-lowercase/evidence.json)
+record worker verification pending independent Astra/high review. No ID closes.
+
+- LIB-001/002, OBJ-001/003: shared lowercase supports ordinary string-hint
+  conversion and current heap/prototype state. Its metadata follows P008;
+  unknown reads, inspection and name/length writes stay typed. All 52 String
+  prototype own names remain accounted for (eight modeled, 44 deferred).
+  Arrays/functions, customized exotics, wrappers, public symbols/hooks,
+  descriptors/getters, partial-host/cyclic-prototype paths and broader builtins
+  stay open. Their shared legacy checkpoint behavior is not repaired here.
+- STRING-001, SYM-001, LEGACY-002: ASCII is checked, never assumed. Non-ASCII
+  (including unchanged units, context, expansion and surrogates), open symbolic
+  converted strings/numbers and legacy chunks stop after reached conversion
+  effects. Finite choices preserve correlations, unknown results and siblings.
+  Unicode/locale casing and lastIndexOf/substring are deferred independently.
+- STRING-001, SYM-004, SECURITY-002, REPORT-001: length cap 65,536 is checked
+  before scans/copies/output allocation; two bounded scans and bounded output
+  do not bound coercion, prototype traversal, symbolic frontiers, embedding,
+  parser or CLI graphs. Successful host allocation is still assumed. A budget
+  stop is unfinished analysis, never a catchable guest allocation failure.
+- FS-001, TARGET-002, REPORT-001: unchanged sirv/mrmime CLI reaches lastIndexOf,
+  with lowercase tmp, source frames and enumeration return/EMFILE throw histories
+  retained. No FS/resource alternative is narrowed, no public gap prose added,
+  and no completed headers/factory/server/request result is claimed.
+- TEST-001/002/003: ten complete files add 20 variants (351 files / 693 variants
+  total); all 27 lowercase candidates and 54 pinned native variants are recorded.
+  A11's direct metadata `.hasOwnProperty` remains inactive whole after a failed
+  development selection; no weak oracle or new skip. All documented guard,
+  assertion, skip, boundary-doc and diff scans plus the complete historical
+  46-file inventory are reconciled and retained in ignored hashed evidence.
+  Source audits do not establish full language/Node coverage.

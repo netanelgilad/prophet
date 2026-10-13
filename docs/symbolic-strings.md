@@ -142,15 +142,15 @@ controls, branch correlations and mandatory unknowns, normal/throw/stopped
 siblings, current prototype state, snapshots and externally timed large inputs.
 Forty complete unmodified Test262 files add 80 variants; the
 [whole candidate inventory](agent-tasks/P008-string-trim/upstream-candidates.md)
-records all 128 pinned trim files. The unchanged sirv factory now passes trim
-and reaches toLowerCase; its CLI graph retains the EMFILE sibling. That lookup is classified by the partial String surface described below,
-without implementing case conversion or claiming factory completion. See LIB-001/002, OBJ-001/003, STRING-001, SYM-001/004, LEGACY-002,
+records all 128 pinned trim files. At P008 the unchanged sirv factory passed trim and reached deferred toLowerCase;
+P009 below advances that boundary to lastIndexOf, retaining EMFILE. Neither
+checkpoint establishes factory completion. See LIB-001/002, OBJ-001/003, STRING-001, SYM-001/004, LEGACY-002,
 REPORT-001, TEST-001/002/003 and TARGET-002 in the backlog.
 
 
 ### Truthful partial String surface (P008 correction 1)
 
-The String prototype is a closed standard surface with seven modeled own names
+At P008 the String prototype was a closed standard surface with seven modeled own names
 and 45 deferred string-keyed names, checked against all 52 native own names in
 Node 24.21.0. The deferred list includes modern methods, Annex B HTML helpers and
 trim aliases. Direct `String.prototype.split`/`substr` are deferred; the existing
@@ -192,3 +192,51 @@ in the [specs](../test/string-trim.spec.ts), not presented as hidden holdouts.
 [Correction contract](agent-tasks/P008-string-trim/correction-1.md) and
 [correction evidence](agent-tasks/P008-string-trim/correction-1-evidence.json)
 are separate from the original failed full-suite handoff.
+
+
+## Bounded ASCII String.prototype.toLowerCase (P009)
+
+The shared inherited nonconstructible intrinsic follows
+[RequireObjectCoercible, ToString, then default case conversion](https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.tolowercase)
+for the bounded ASCII subset: U+0041–U+005A map to U+0061–U+007A; all other
+ASCII units are preserved. No native casing, package recognition, locale
+operation or source rewrite is used. This adds the eighth modeled own name;
+44 deferred names and all 52 pinned native String prototype names remain
+accounted for. lastIndexOf/substring and other deferred reads/presence remain
+typed boundaries rather than false absence.
+
+Concrete strings, finite choices, booleans, numbers and ordinary borrowed
+receivers use P008's shared interpreted conversion/branch/heap machinery.
+Null/undefined produce guest TypeError. Arguments evaluate before invocation,
+although the intrinsic ignores their values. Conversion order, throws, external
+console effects, conversion-time prototype mutation, captured aliases and prior
+heap snapshots are covered in [specs](../test/string-lowercase.spec.ts).
+Conditional values retain correlations; results that depend on an open choice
+remain unknown. Metadata name/length/call/prototype and inspection/mutation
+follow trim's conservative typed patterns; direct inherited metadata methods
+such as `.hasOwnProperty` remain excluded (borrow Object.prototype's method
+instead for supported inspection).
+
+After reached conversion, concrete length >65,536 units gives a budget leaf
+before scans/copies/output allocation. At or below the cap, an admission scan
+rejects every non-ASCII unit before constructing output, then a second scan
+builds at most 65,536 one-unit entries and joins at most 65,536 output units.
+This bounds only this algorithm (two linear scans and bounded allocation), not
+coercion runtime, prototype depth, parser/embedding allocations, branch volume,
+VM/CLI resources or V8 memory failures. Allocation success stays STRING-001.
+Open symbolic converted strings/numbers, legacy chunk strings and all non-ASCII
+text—including unchanged non-ASCII, context-sensitive sigma, expansion, astral
+pairs and lone surrogates—stop explicitly after prior conversion effects.
+Arrays/functions, including customized converters, and nonnull own/inherited
+Symbol.toPrimitive hooks stop before unsupported conversion, as in P008.
+Shared wrappers, descriptors/getters, partial-host and cyclic-prototype guards
+remain residuals; not all those shared failures are typed.
+
+Ten complete unmodified Test262 files add 20 variants; the complete 27-file
+candidate inventory and independent pinned Node 54-variant run are recorded
+with [P009 evidence](agent-tasks/P009-ascii-lowercase/evidence.json). No full
+Unicode conformance or unrestricted-string lowercase theorem is claimed.
+The unchanged mrmime lookup retains `tmp = "hello.txt"` and reaches lastIndexOf.
+Actual sirv CLI stdout is still the direct roots/nodes graph, with source frames,
+filesystem enumeration return/throw histories and EMFILE preserved. Headers,
+factory return, server setup and request behavior remain uncompleted.

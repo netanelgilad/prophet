@@ -13,6 +13,18 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // Complete ASCII lowercase, generic conversion, abrupt completion and metadata cases.
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T3.js",
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T4.js",
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T5.js",
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T10.js",
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T11.js",
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T12.js",
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T13.js",
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A6.js",
+  "built-ins/String/prototype/toLowerCase/S15.5.4.16_A7.js",
+  "built-ins/String/prototype/toLowerCase/this-value-not-obj-coercible.js",
+
   // Complete modern trim whitespace, generic receiver and ordered conversion cases.
   "built-ins/String/prototype/trim/15.5.4.20-0-1.js",
   "built-ins/String/prototype/trim/15.5.4.20-0-2.js",
