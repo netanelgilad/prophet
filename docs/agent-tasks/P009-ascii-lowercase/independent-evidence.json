@@ -1,0 +1,713 @@
+{
+  "schemaVersion": 1,
+  "review": "P009 independent semantic acceptance",
+  "verdict": {
+    "requestedSource": "semantic accept; publication gate reject due stale predecessor test",
+    "correctedSource": "c52c3f4e4f7c15fda4038f630fc9cb35b1bf63d6",
+    "correctedVerdict": "accept semantics and source validation; evidence label and root publication gates remain"
+  },
+  "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+  "base": "fc7d503882dcf63d10d8277b21f46314b2ce379c",
+  "reviewStartHead": "39f0c1c66378b1ff314feb26f1f8739924c9a018",
+  "branch": "review/p009-ascii-lowercase",
+  "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+  "sourceBinding": {
+    "allTrackedSourceAndTestFilesCompared": 295,
+    "sourceHashes": {
+      "docs/agent-models.md": "77ec0a3f55ff0ce19d108b2415c8bc0c7d27c6b8cf35f1f3bb2ac3349662764c",
+      "docs/agent-tasks/P009-ascii-lowercase/implementation.md": "86a5e41b4eb2a53d239e5f5239db288b1afab0665a1f82156a6676c4079b1fb0",
+      "docs/agent-tasks/P009-ascii-lowercase/task.md": "30a804ddf0ca945e5ab77590f63111a968683e0a5872fd9523f3a4b4bd9099d6",
+      "docs/agent-tasks/P009-ascii-lowercase/upstream-candidates.md": "0d01b8eb373f2b601b8fbba09f9f78dca312bcbb7a2f23a93c80236daf568c21",
+      "docs/agent-tasks/README.md": "f25801e94bbb1305fe2005b32a3f29fc374e6de403a0703ab690f37720635692",
+      "docs/implementation-gaps.md": "6c956db5c1a5689b489976f2a1319d8f4abd852aaea1ebb60e2fce0ecf8fbbc5",
+      "docs/sirv-target.md": "3050b2a8c9bd1bd9d0ac1f6a64c40de7d7fdda885ac0a777810fe83bf4ed15e4",
+      "docs/symbolic-strings.md": "21132783aceaff9f210056fbed1fe89ea71efbf7f11d3924b54462cce207b7e2",
+      "docs/wiki/README.md": "807388a120bf9b142e47302b8b59041f7fa7cd0ccca8aa325bdddaff30d50919",
+      "docs/wiki/string-lowercase.md": "1f2de771724a36d20b930657b0e421a1b951078d53774de6d197fe2db2d43a1f",
+      "src/string/String.ts": "533783b577eb58c5cb109400516a80f2645026e46823ca0fe861205e13b01712",
+      "src/string/toLowerCase.ts": "7affb10ec4dca7d0714647f214d5b3eea26b09d0c82ea9e80c03e176bacdc14d",
+      "test/sirv-target.spec.ts": "072947fce934706c9013c2623a342377c9c03480f48c52a84551182bc1a2d0f7",
+      "test/string-lowercase.spec.ts": "7a95fabe636d6033e2890a18a6bc5b14250bd530b3812438b1990920d1a3ff5e",
+      "test/string-trim.spec.ts": "3284f3573ef74295a93e53c000bef6c5e864050093306f1551160260eed91a48",
+      "test/test262.spec.ts": "b8ce37b16fba679d08e97c0c8fb32c44128cbe98d187855d2e7252e979cff7c6",
+      "test/test262/README.md": "4c9261da558d382f7c8b46a812c60adf6567fa173b425620f460dd8546651df0"
+    },
+    "existingTrackedSourceAndTestChangesByReviewer": false
+  },
+  "probe": {
+    "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/test/p009-independent-review.spec.ts",
+    "sha256": "ba8017a9e7bfa0fefc4a03fe74195c7d77d66266d6f10114d9610bb806939e12",
+    "passed": 28,
+    "ASCIIpairs": 16384,
+    "mixedStrings": 131
+  },
+  "report": {
+    "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/docs/agent-tasks/P009-ascii-lowercase/independent-review.md",
+    "sha256": "812bd330147340aa99aea9ab8e71eaded1f6880a238fc80fb6971efb7fba0a91"
+  },
+  "verificationCommands": [
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p009-independent-review.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "timeoutSeconds": 180,
+      "exit": 1,
+      "seconds": 22.9740469455719,
+      "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "probeSha256": "ac1a8ce88d242c8588d05b9fc6502122a6af036e220f7de3a51dafb38a6269a8",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/probes-1.log",
+      "logSha256": "885a549f09d13f1fabd4135d052abb40d8426ec6b75b21d98e793a7688466b49"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p009-independent-review.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "timeoutSeconds": 180,
+      "exit": 1,
+      "seconds": 16.65693497657776,
+      "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "probeSha256": "6526c399c349d06391d3654de094e4abd096a66c767f2b20537de7945e2151d2",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/probes-2.log",
+      "logSha256": "762d2396755e50d72c92372070d206f5e62499e7744a58b5c9e171714881db67"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "timeoutSeconds": 120,
+      "exit": 0,
+      "seconds": 7.630502223968506,
+      "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "probeSha256": "6526c399c349d06391d3654de094e4abd096a66c767f2b20537de7945e2151d2",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/typecheck.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p009-independent-review.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "timeoutSeconds": 180,
+      "exit": 0,
+      "seconds": 14.168201208114624,
+      "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "probeSha256": "ba8017a9e7bfa0fefc4a03fe74195c7d77d66266d6f10114d9610bb806939e12",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/probes-final.log",
+      "logSha256": "cef4028e14d0e199d1853f5043cac4aa536b2b1cc894249a2a017ff8b002abfd"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "timeoutSeconds": 120,
+      "exit": 0,
+      "seconds": 7.089801073074341,
+      "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "probeSha256": "ba8017a9e7bfa0fefc4a03fe74195c7d77d66266d6f10114d9610bb806939e12",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/typecheck-final.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-lowercase.spec.ts",
+        "test/string-trim.spec.ts",
+        "test/p008-independent-review.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "timeoutSeconds": 240,
+      "exit": 0,
+      "seconds": 49.507227182388306,
+      "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/affected.log",
+      "logSha256": "6409d5333197ec91cdde8a8b0c13006cd8df5a345dba1d6f17458c5bf5c1cc58"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p008-independent-correction.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "timeoutSeconds": 120,
+      "exit": 1,
+      "seconds": 8.122179746627808,
+      "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/frozen-predecessor-check.log",
+      "logSha256": "acec261d224060353b309f9a72c9e9c6fbc26d6077ec49b24e796dc0786262a3",
+      "interpretation": "Expected reproduction of writer-disclosed stale lowercase deferred-member assertion at requested frozen source, not a new semantic defect"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "logs/p009-independent/inventory.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "timeoutSeconds": 120,
+      "exit": 0,
+      "seconds": 13.54417085647583,
+      "source": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "probeSha256": "ba8017a9e7bfa0fefc4a03fe74195c7d77d66266d6f10114d9610bb806939e12",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/inventory.log",
+      "logSha256": "23952a6ad3a43f29299b9f1421eca8278739922e7f9699b736d2156038b591ae"
+    },
+    {
+      "argv": [
+        "python3",
+        "logs/p009-independent/verify-upstream.py"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "exit": 0,
+      "timeoutSeconds": 120,
+      "seconds": 3.969904899597168,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/upstream-verification.log",
+      "logSha256": "ea4dd6154906ab88fa2a5ae73f781bef428cc0af7374caa5451dab00fecdb95d",
+      "scriptSha256": "7b5bc79de4a97a26eb5a35999df295207fe3834d3a6e3e9d8201e61f29ced54d"
+    },
+    {
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/audit-0.log",
+      "logSha256": "34e92f4c0ff35f45b400f7cbabcd3a531909a9d7e2f617637580b5e534048e1b",
+      "lines": 591
+    },
+    {
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/audit-1.log",
+      "logSha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19",
+      "lines": 23
+    },
+    {
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/audit-2.log",
+      "logSha256": "debc6eec6180056587088d2ab08609264739d5c0b731959549903d25a813c42a",
+      "lines": 1
+    },
+    {
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/audit-3.log",
+      "logSha256": "ac509989de3747cc949ad854f1a772e35184282a462c5ba923398b0cd282f359",
+      "lines": 1579
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "fc7d503882dcf63d10d8277b21f46314b2ce379c",
+        "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+        "--",
+        "src",
+        "test",
+        "README.md",
+        "docs",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/audit-4.log",
+      "logSha256": "c9ae1bfed1565d1b7ccd8c67bfb991c62e475f62e268e7fe7c1bdf6642b74cd1",
+      "lines": 797
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+        "--",
+        "src",
+        "test",
+        "README.md",
+        "docs",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/audit-5.log",
+      "logSha256": "eea5056d0e105649a7b8e2446e29beae2bb0dd1ccccb6cd61f5987834b453871",
+      "lines": 13
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/audit-6.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lines": 0
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/cli.stdout.json",
+      "sha256": "da39d0bf7b019ae23f770ec0771c0a2a687344aee362cda54a0604d456890fd8",
+      "bytes": 1264632
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/cli.stderr.log",
+      "sha256": "dc96d046f7deb4523a73c745dc75774f0c248c8d82b0cf34957794abbd18ecd5",
+      "bytes": 59
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/inventory.cjs",
+      "sha256": "8f6466f4715c23f01588228b0f7991dc021de20faf38489b2d2cd5af13d81d10",
+      "bytes": 2436
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/verify-upstream.py",
+      "sha256": "7b5bc79de4a97a26eb5a35999df295207fe3834d3a6e3e9d8201e61f29ced54d",
+      "bytes": 810
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/build-evidence.py",
+      "sha256": "158501c4758e5fa197e5ec12518524c4fb95035fae867778ab328a48c820fde3",
+      "bytes": 4846
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/verify-writer.py",
+      "sha256": "04fd5ff89aea4143bc90bb98d7c617f66694e8b6361fa4a27297dedc01454c50",
+      "bytes": 3681
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/writer-evidence-reviewed.json",
+      "sha256": "dc0a07e3b655b008293ff4ebe663eeab0a599d2958f37560a4a501044ca3daa6",
+      "bytes": 57412
+    }
+  ],
+  "actualCli": {
+    "argv": [
+      "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+      "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/bin/prophet.js",
+      "--",
+      "entry.cjs"
+    ],
+    "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/sirv-fixture",
+    "env": {
+      "NODE_OPTIONS": "",
+      "NODE_PATH": ""
+    },
+    "timeoutMilliseconds": 60000,
+    "exit": 2,
+    "stdout": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/cli.stdout.json",
+    "stderr": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/cli.stderr.log",
+    "assertions": "direct roots/nodes, lastIndexOf boundary, retained tmp hello.txt, EMFILE sibling, per-leaf readdirSync call and return/throw histories"
+  },
+  "upstream": {
+    "commit": "47bf9d1db9f6e7632120ac1b1946ad092e6c214e",
+    "verifiedOfficialWholeFiles": 27,
+    "nativeVariantsPassed": 54,
+    "activeFiles": 351,
+    "activeVariants": 693,
+    "addedFiles": [
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T3.js",
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T4.js",
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T5.js",
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T10.js",
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T11.js",
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T12.js",
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T13.js",
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A6.js",
+      "built-ins/String/prototype/toLowerCase/S15.5.4.16_A7.js",
+      "built-ins/String/prototype/toLowerCase/this-value-not-obj-coercible.js"
+    ],
+    "removedFiles": [],
+    "historicalSkippedFiles": 46,
+    "completeInventory": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/inventory.log"
+  },
+  "reviewerFalseAlarms": [
+    {
+      "run": "probes-1",
+      "cause": "Wrong console-model fixture field .console instead of .module; corrected reviewer harness only."
+    },
+    {
+      "run": "probes-2",
+      "cause": "Expected three leaves after catch; actual caught/normal paths correctly join. Final assertion verifies conditional correlation."
+    }
+  ],
+  "disclosedOverlap": "Read delivered specs before independent authorship; matrix categories overlap writer/P008. A11 and development corrections pre-disclosed. No hidden defect attributed.",
+  "writerEvidenceVerification": {
+    "argv": [
+      "python3",
+      "logs/p009-independent/verify-writer.py"
+    ],
+    "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase",
+    "exit": 0,
+    "timeoutSeconds": 120,
+    "seconds": 13.240203142166138,
+    "log": "/Users/netanelgilad/development/prophet-worktrees/review-p009-ascii-lowercase/logs/p009-independent/writer-verification.log",
+    "logSha256": "10525009daa33842323f398546dd2a67f2309feccc2cea6fe4475b5f291338a8",
+    "scriptSha256": "04fd5ff89aea4143bc90bb98d7c617f66694e8b6361fa4a27297dedc01454c50",
+    "verification": {
+      "evidencePath": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/docs/agent-tasks/P009-ascii-lowercase/evidence.json",
+      "evidenceSha256": "dc0a07e3b655b008293ff4ebe663eeab0a599d2958f37560a4a501044ca3daa6",
+      "initialSource": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+      "initialFullSuiteExit": 1,
+      "initialFullSuiteTests": {
+        "failed": 1,
+        "skipped": 46,
+        "passed": 3756,
+        "total": 3803
+      },
+      "finalSource": "c52c3f4e4f7c15fda4038f630fc9cb35b1bf63d6",
+      "finalFullSuiteExit": 0,
+      "finalFullSuiteTests": {
+        "skipped": 46,
+        "passed": 3757,
+        "total": 3803
+      },
+      "finalFocusedTests": {
+        "skipped": 46,
+        "passed": 1025,
+        "total": 1071
+      },
+      "sourceSnapshotSha256": "af5a0f0ef76604751aa7cac68204022324f2f51028eec1e54b0cddc79c4cfe77",
+      "sourceFilesCompared": 295,
+      "individualHashesVerified": 146,
+      "productionDiffEmpty": true,
+      "correctionFilesReviewed": [
+        "docs/agent-tasks/P009-ascii-lowercase/implementation.md",
+        "docs/wiki/string-lowercase.md",
+        "test/p008-independent-correction.spec.ts"
+      ],
+      "reviewWorktreeDifferencesFromFinalSource": [
+        "test/p008-independent-correction.spec.ts"
+      ],
+      "commands": {
+        "native-red": {
+          "command": [
+            "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+            "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/.yarn/releases/yarn-3.1.1.cjs",
+            "test",
+            "--runInBand",
+            "test/string-lowercase.spec.ts",
+            "-t",
+            "native"
+          ],
+          "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+          "env": {
+            "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+          },
+          "capSeconds": 180,
+          "exit": 0,
+          "seconds": 12.284578084945679,
+          "revision": "40ed41dee63194525412c7bbfd73f0457b50ec1e",
+          "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/native-red.log",
+          "logSha256": "04c6e22a66bc01fc7a62a0187be19a52fcf0db62b12c08305c9fbf7f9af276c8",
+          "suites": {
+            "passed": 1,
+            "total": 1
+          },
+          "tests": {
+            "skipped": 181,
+            "passed": 12,
+            "total": 193
+          },
+          "snapshotNote": "Development run: uncommitted evolving specs; revision identifies inherited HEAD, not an exact frozen spec snapshot"
+        },
+        "red": {
+          "command": [
+            "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+            "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/.yarn/releases/yarn-3.1.1.cjs",
+            "test",
+            "--runInBand",
+            "test/string-lowercase.spec.ts",
+            "test/test262.spec.ts"
+          ],
+          "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+          "env": {
+            "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+          },
+          "capSeconds": 180,
+          "exit": 1,
+          "seconds": 12.308013200759888,
+          "revision": "40ed41dee63194525412c7bbfd73f0457b50ec1e",
+          "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/red.log",
+          "logSha256": "8c574c4883070aa7e43b52d269faccda95f586c09b7f940117d80f59fca0948a",
+          "suites": {
+            "failed": 2,
+            "total": 2
+          },
+          "tests": {
+            "failed": 192,
+            "skipped": 46,
+            "passed": 696,
+            "total": 934
+          },
+          "snapshotNote": "Development run: uncommitted evolving specs; revision identifies inherited HEAD, not an exact frozen spec snapshot"
+        },
+        "first-frozen-focused": {
+          "command": [
+            "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+            "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/.yarn/releases/yarn-3.1.1.cjs",
+            "test",
+            "--runInBand",
+            "test/string-lowercase.spec.ts",
+            "test/string-trim.spec.ts",
+            "test/sirv-target.spec.ts",
+            "test/test262.spec.ts",
+            "test/test262/runner.spec.ts"
+          ],
+          "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+          "env": {
+            "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+          },
+          "capSeconds": 180,
+          "exit": 0,
+          "seconds": 31.24082612991333,
+          "revision": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+          "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-focused.log",
+          "logSha256": "5fdb4c3c2ac9809c41a9e9d7c7a2406aaabe3ab4b28de279ea8de17337de9d07",
+          "suites": {
+            "passed": 5,
+            "total": 5
+          },
+          "tests": {
+            "skipped": 46,
+            "passed": 998,
+            "total": 1044
+          },
+          "snapshotNote": "Frozen source/spec/docs at recorded revision"
+        },
+        "first-frozen-full-suite": {
+          "command": [
+            "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+            "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/.yarn/releases/yarn-3.1.1.cjs",
+            "test",
+            "--runInBand"
+          ],
+          "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+          "env": {
+            "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+          },
+          "capSeconds": 900,
+          "exit": 1,
+          "seconds": 415.4290540218353,
+          "revision": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+          "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-full-suite.log",
+          "logSha256": "3c7c814f9803dfb3837235024554ac87e9df7ccddc939bff9ace53b54883d8fc",
+          "suites": {
+            "failed": 1,
+            "passed": 131,
+            "total": 132
+          },
+          "tests": {
+            "failed": 1,
+            "skipped": 46,
+            "passed": 3756,
+            "total": 3803
+          },
+          "snapshotNote": "Frozen source/spec/docs at recorded revision"
+        },
+        "first-frozen-typecheck": {
+          "command": [
+            "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+            "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/.yarn/releases/yarn-3.1.1.cjs",
+            "typecheck"
+          ],
+          "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+          "env": {
+            "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+          },
+          "capSeconds": 180,
+          "exit": 0,
+          "seconds": 9.257071018218994,
+          "revision": "5b5727af7b7dc5cfff277eb8f0ccf63df0290516",
+          "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-typecheck.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "snapshotNote": "Frozen source/spec/docs at recorded revision"
+        },
+        "final-focused": {
+          "command": [
+            "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+            "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/.yarn/releases/yarn-3.1.1.cjs",
+            "test",
+            "--runInBand",
+            "test/string-lowercase.spec.ts",
+            "test/string-trim.spec.ts",
+            "test/sirv-target.spec.ts",
+            "test/test262.spec.ts",
+            "test/test262/runner.spec.ts",
+            "test/p008-independent-correction.spec.ts"
+          ],
+          "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+          "env": {
+            "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+          },
+          "capSeconds": 180,
+          "exit": 0,
+          "seconds": 38.192007064819336,
+          "revision": "c52c3f4e4f7c15fda4038f630fc9cb35b1bf63d6",
+          "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-focused.log",
+          "logSha256": "2a7372c9a0df83ad49c6e998d3b271193da939d7c3951a2da81d50ed6f72bf96",
+          "suites": {
+            "passed": 6,
+            "total": 6
+          },
+          "tests": {
+            "skipped": 46,
+            "passed": 1025,
+            "total": 1071
+          },
+          "snapshotNote": "Frozen source/spec/docs at recorded revision"
+        },
+        "final-full-suite": {
+          "command": [
+            "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+            "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/.yarn/releases/yarn-3.1.1.cjs",
+            "test",
+            "--runInBand"
+          ],
+          "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+          "env": {
+            "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+          },
+          "capSeconds": 900,
+          "exit": 0,
+          "seconds": 376.54741191864014,
+          "revision": "c52c3f4e4f7c15fda4038f630fc9cb35b1bf63d6",
+          "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-full-suite.log",
+          "logSha256": "117dc1bf633f9af3ed488c3ea2c2434f5caa6d47377874f3b3a503452868d327",
+          "suites": {
+            "passed": 132,
+            "total": 132
+          },
+          "tests": {
+            "skipped": 46,
+            "passed": 3757,
+            "total": 3803
+          },
+          "snapshotNote": "Frozen source/spec/docs at recorded revision"
+        },
+        "final-typecheck": {
+          "command": [
+            "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+            "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/.yarn/releases/yarn-3.1.1.cjs",
+            "typecheck"
+          ],
+          "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+          "env": {
+            "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+          },
+          "capSeconds": 180,
+          "exit": 0,
+          "seconds": 10.819783926010132,
+          "revision": "c52c3f4e4f7c15fda4038f630fc9cb35b1bf63d6",
+          "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-typecheck.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "snapshotNote": "Frozen source/spec/docs at recorded revision"
+        }
+      },
+      "preFreezeRecordsAreNotExactSource": true
+    }
+  },
+  "remainingGates": [
+    "R1: relabel writer commands.final-development as a prefreeze working-tree run; preserve revision/log/hash and revalidate evidence",
+    "Root stacking/draft PR and exact-head CI",
+    "Renewed acceptance for any changed implementation/spec source"
+  ],
+  "findings": [
+    {
+      "id": "R1",
+      "scope": "writer evidence attribution only",
+      "pointer": "commands.final-development.snapshotNote",
+      "actual": "Frozen source/spec/docs at recorded revision",
+      "expected": "Development run: uncommitted evolving specs; revision identifies inherited HEAD, not an exact frozen spec snapshot",
+      "sourceRevision": "40ed41dee63194525412c7bbfd73f0457b50ec1e",
+      "newIndependentFinding": true,
+      "productionRepairRequested": false
+    }
+  ],
+  "fullSuiteRerunByReviewer": false,
+  "externalValidationScripts": "Ignored local scripts are hashed artifacts; all validation subprocesses use explicit cwd. Native helper argv and controls are retained in the final probe source."
+}
