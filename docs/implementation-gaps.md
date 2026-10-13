@@ -825,7 +825,7 @@ boundaries below; no gap group closes from this loop family.
 
 | ID / status / kind | Current boundary and evidence | Closure criterion |
 | --- | --- | --- |
-| LANG-001 — open — unsupported | The [AST resolver table](../src/ASTResolvers.ts) is a subset: while/do-while/for-in/of loops, switch, labels, classes/super, modules, await/yield, sequence expressions, call/array spread, and other unregistered nodes have no evaluator. Ordinary `for(init; test; update)` with absent clauses and unlabeled break/continue is supported with per-iteration lexical environments; see [loop boundaries](for-statement.md). P006 adds a narrowly guarded unknown-length numeric loop proof using this existing syntax; other symbolic loops retain ordinary bounded execution. Compound/destructured assignment, member updates and nonnumeric updates are also rejected. The [operator tables](../src/operators.ts) omit bitwise/shift/exponentiation, `in` and `delete`; parser acceptance alone is not execution support. | Add reusable evaluation/completion rules per syntax/operator, preserving evaluation order, errors, state and symbolic forks; activate complete relevant Test262 cases. Split this inventory as individual capabilities land. |
+| LANG-001 — open — unsupported | The [AST resolver table](../src/ASTResolvers.ts) is a subset: while/do-while/for-in/of loops, switch, labels, classes/super, modules, await/yield, sequence expressions, call/array spread, and other unregistered nodes have no evaluator. Ordinary `for(init; test; update)` with absent clauses and unlabeled break/continue is supported with per-iteration lexical environments; see [loop boundaries](for-statement.md). P006 adds a narrowly guarded unknown-length numeric loop proof using this existing syntax; other symbolic loops retain ordinary bounded execution. Compound/destructured assignment, member updates and nonnumeric updates are also rejected. The [operator tables](../src/operators.ts) support bounded Number-domain unary `~` (P011), but omit other bitwise/shift/exponentiation, `in` and `delete`; parser acceptance alone is not execution support. | Add reusable evaluation/completion rules per syntax/operator, preserving evaluation order, errors, state and symbolic forks; activate complete relevant Test262 cases. Split this inventory as individual capabilities land. |
 | LANG-002 — open — unsupported/testing | [Declaration instantiation](../src/Function/instantiate.ts) and the [parser supplement](../src/parseECMACompliant.ts) cover selected early errors, not all global declarations or Annex B sloppy block/statement functions. Cherow 1.5.4 syntax/early-error coverage is incomplete. Raw astral quoted values and escaped physical U+2028/U+2029 continuations are now corrected with source spelling/locations and adjacent escapes preserved. Valid physical backslash-CRLF continuations and ordinary physical U+2028/U+2029 text in quoted strings still reject before AST creation; [string specs](../test/string-literals.spec.ts) preserve both gaps. Failed parsing with backslash-CRLF stops analysis conservatively. For ordinary LS/PS, only the pinned unterminated-string diagnostic at that exact code unit becomes an analysis gap; invalid Unicode-escape errors retain SyntaxError. Neither guard certifies the whole source valid. Complete line-continuation-single.js/double.js and the JSON-superset line-separator.js/paragraph-separator.js remain inactive, not trimmed; see the [Test262 record](../test/test262/README.md). Historical parse negatives below remain unassessed activation debt, not evidence that executing async functions/classes is required. | Validate early errors before effects, strict/sloppy and block/global differences, valid source acceptance and Annex B behavior with complete cases. Fix CRLF continuation and ordinary LS/PS lexing, then activate the complete upstream files. Keep unsupported newer grammar and runtime support distinct. |
 | LANG-003 — open — legacy/unsupported | JavaScript errors are not uniformly interpreted completions. [Member reads and calls](../src/ASTResolvers.ts), [heap writes](../src/execution-context/Heap.ts), and [construction](../src/Function/construct.ts) still use host assertions for some nullish access/noncallable/nonconstructor paths; invalid array-length assignment is likewise an analysis assertion. General statement completion values are discarded by [evaluateStatements](../src/evaluate.ts), affecting eval results. Unlabeled break/continue are now interpreted abrupt completions with audited merging, sequencing, generator-bridge, catch/finally and function/program-boundary composition; see [loop boundaries](for-statement.md). | Replace each applicable host assertion with the correct catchable language completion; test left-to-right effects and mixed normal/throw paths. Implement normal/empty statement completion values and eval propagation, without making internal analysis failures catchable. |
 | LANG-004 — open — unsupported | [Parameter initialization](../src/Function/parameters.ts) supports identifier/default parameters. Object declaration patterns now support shared name collection, renaming, defaults, nesting and ordered shared reads; see [binding coverage](object-bindings.md). Array/rest patterns, destructuring parameter invocation, catch and assignment patterns remain gaps. Primitive boxing and general/unknown computed keys reject; inferred initializer function names remain guarded by unmodeled name reads. Implicit mapped/unmapped `arguments` objects are represented by an unsupported binding, including lexical arrow capture and aliases. Explicit parameters named `arguments` are supported. See [arguments boundaries](../test/arguments-boundaries.spec.ts) and [default parameters](../test/default-parameters.spec.ts). | Model each binding pattern, mapped/unmapped argument object, aliasing and descriptors; preserve TDZ, defaults, eval, body separation, and symbolic effects in complete tests. |
@@ -1171,3 +1171,42 @@ this partial increment. No stable group closes on one intrinsic.
   guard/assertion/skip/doc/diff scans and installed/candidate/active/historical
   inventories are source-bound in evidence. All 46 historical skipped files keep
   their exact names, bytes and metadata. Audit counts do not imply full JS/Node coverage.
+
+
+## P011 Number-domain unary bitwise NOT
+
+Worker validation; independent Astra/high exact-source review remains pending.
+[Boundary](number-bitwise-not.md), [specs](../test/bitwise-not.spec.ts),
+[upstream](agent-tasks/P011-number-bitwise-not/upstream-candidates.md).
+
+- LANG-001, LIB-002, OBJ-001/003: shared effectful unary dispatch adds only `~`.
+  Number-hint ordinary conversion reads current heap/prototypes, preserves calls,
+  mutations, forks and genuine throws; a finish continuation keeps late BigInt,
+  Symbol and other unsupported primitives out of legacy ToNumber. Existing +/−,
+  typeof/void/! and effectful binary paths retain behavior. Arrays/functions,
+  customized exotics, wrappers, descriptors/accessors/proxies and symbol hooks
+  remain unsupported. Undefined/null symbol hooks are absent; null itself is valid
+  numeric input. Partial-host/cyclic inherited lookups retain legacy checkpoints
+  and can lose siblings (LANG-003, REPORT-001). No group is closed.
+- LANG-002, LIB-001/002: Cherow's BigInt literal marker exposes an unrelated
+  Number-valued field. Reached literal evaluation rejects the marker explicitly;
+  no BigInt syntax/representation, primitive wrapper or public Symbol model is
+  added. Whole BigInt files remain inactive, with exact observed VM blockers.
+- SYM-001/004: all concrete IEEE Numbers truncate/wrap/signed-complement;
+  finite choices retain conditions, but open Numbers and open/legacy strings stop
+  typed, preserving reached effects without guessed integer/proof. A 65,536-unit
+  numeric-string cap precedes parsing/scanning, including late-returned primitives.
+  Below/at/above, mixed unsupported/budget/throw/supported branches are specs.
+  Constant bounded numeric mapping does not bound user coercion/prototype work,
+  branch volume, parser/embedding/heap allocation, or graph serialization. General
+  termination/resource limits remain open; successful allocation is not proved.
+- FS-001, TARGET-002, REPORT-001: unchanged sirv/mrmime passes !~idx then stops at
+  substring callee lookup, retaining tmp=hello.txt and idx=5 (argument ++idx has
+  not run), CallExpression frames and every prior FS history beside EMFILE. No
+  substring/other bitwise/server/headers feature is bundled. Factory and request
+  coverage, callback exploration and resumption remain the unchanged goal.
+- TEST-001/002/003: nine complete bitwise-not files add 18 variants, including
+  Number-hint conversion and ToInt32 cases. All 16 files/32 variants are native
+  checked and tried whole in the VM; seven incompatible files remain inactive.
+  No active predecessor is removed or upstream source modified. All 46 historical
+  skipped files remain; full inventories/audit evidence are recorded separately.

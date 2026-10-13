@@ -77,15 +77,15 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
   // Both flagless filters execute on the unmodified filename. The next
-  // reached gap is mrmime.lookup's unary ~ after lastIndexOf returns unit index 5, before substring or headers.
+  // reached gap is substring property lookup after !~idx selects its alternate; idx is still 5 because the callee read precedes ++idx.
   // The filesystem failure sibling must survive that stop.
-  expect(result.diagnostic).toBe("Unary operator resolver for ~ hasn't been implemented yet");
+  expect(result.diagnostic).toBe("String.prototype.substring is not yet supported");
   expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
   expect(isForkedCompletion(result.completion)).toBe(true);
   const boundaries = executionBoundaries(result.completion as Any);
   expect(boundaries).toHaveLength(1);
   expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "Unary operator resolver for ~ hasn't been implemented yet" });
+    message: "String.prototype.substring is not yet supported" });
   const forked = result.completion as ForkedCompletion;
   const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
     leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
@@ -113,7 +113,7 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   }
   expect(effectPaths(stopped[1].value.effects).some(path => path.events.some(event =>
     event.call.operation === "fs.readdirSync"))).toBe(true);
-  expect(boundaries[0].frames.some(frame => frame.node.type === "UnaryExpression" && (frame.node as any).operator === "~")).toBe(true);
+  expect(boundaries[0].frames.some(frame => frame.node.type === "CallExpression" && (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "substring")).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -186,7 +186,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
     });
   expect(child.error).toBeUndefined();
   expect(child.status).toBe(2);
-  expect(child.stderr).toBe("prophet: Unary operator resolver for ~ hasn't been implemented yet\n");
+  expect(child.stderr).toBe("prophet: String.prototype.substring is not yet supported\n");
   const graph = JSON.parse(child.stdout);
   expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
   const nodes = new Map<string, any>(graph.nodes.map((node: any) => [node.id, node]));
@@ -204,7 +204,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
   expect(field(field(field(field(failed, "value"), "properties"), "code"), "value")).toBe("EMFILE");
   const boundary = values.find(value => field(value, "type") === "ExecutionBoundary");
   expect(field(boundary, "kind")).toBe("unsupported");
-  expect(field(boundary, "message")).toBe("Unary operator resolver for ~ hasn't been implemented yet");
+  expect(field(boundary, "message")).toBe("String.prototype.substring is not yet supported");
   const stopped = leaves.find(leaf => field(field(leaf, "0"), "type") === "ExecutionBoundary");
   expect(field(field(stopped, "1"), "sourceFile")).toMatch(/mrmime\/index\.js$/);
   // Inspect the public environment records, not the private flattened scope view.

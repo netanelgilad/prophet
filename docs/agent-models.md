@@ -71,3 +71,11 @@ No subagents, model/account rotation, paid API or access expansion. Account-wide
 quota at dispatch was owner-reported 52% remaining at22:19UTC, not a measured
 task allowance; no live quota measurement or provider limit error is inferred.
 See [P010 evidence](agent-tasks/P010-string-lastindexof/evidence.json).
+
+
+P011 separately owner-authorizes sole `gpt-6.1-sol`/high Number-domain unary ~
+implementation writer in the assigned worktree/account. Full independent
+`gpt-6-astra`/high exact-source review is pending, with no trust/concurrency
+promotion. No subagents, model/account rotation, paid API, credentials/access,
+Atlas or Notion writes were used. Owner-reported account-wide 48% remaining at
+23:11UTC is capacity context, not a task allowance or live measurement.
