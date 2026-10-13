@@ -202,14 +202,16 @@ test("input conversion may mutate lastIndex before its current value is read", (
     module.exports = r.test(input) && order === "i" && r.lastIndex === 12;`).loaded).toMatchObject({ value: true });
 });
 
-test("trim's deferred intrinsic lookup preserves branches and honors own replacements", () => {
-  const [result] = evaluateCode('if (selected) { const text = " a ".trim(); } else { const done = true; }',
+test("trim's supported branch retains its result, effects and own replacements", () => {
+  const [result, after] = evaluateCode(`let effects = ""; let text;
+    if (selected) { effects = "trimmed"; text = " a ".trim(); }
+    else { effects = "sibling"; text = "b"; }
+    const proof = selected ? text === "a" && effects === "trimmed" : text === "b" && effects === "sibling";
+    const uncertain = text === "a";`,
     setVariablesInScope(nodeInitialExecutionContext, { selected: ESBoolean() }));
-  expect(isForkedCompletion(result)).toBe(true);
-  if (!isForkedCompletion(result)) throw new Error("expected fork");
-  expect(result.consequent[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "String.prototype.trim is not yet supported" });
-  expect(result.alternate[0]).toBe(Undefined);
+  expect(result).toBe(Undefined);
+  expect(after.value.scope.proof).toMatchObject({ value: true });
+  expect((after.value.scope.uncertain as any).value).toBeUndefined();
   expect(compareModule('"use strict"; String.prototype.trim = function() { return "custom"; }; module.exports = " a ".trim() === "custom";').loaded)
     .toMatchObject({ value: true });
 });

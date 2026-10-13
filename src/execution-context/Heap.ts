@@ -4,6 +4,7 @@ import { TArray } from "../array/Array";
 import { ExecutionContext, TExecutionContext } from "./ExecutionContext";
 import assert from "assert";
 import { PropertyKeys, appendPropertyKey, isArrayIndex } from "./PropertyKeys";
+import { markUnsupportedBoundaryObject, unsupportedPropertyError } from "./analysis-failure";
 export { isArrayIndex } from "./PropertyKeys";
 
 export type HeapEntry = {
@@ -17,6 +18,29 @@ export type HeapEntry = {
 };
 
 export type Heap = Map<object, HeapEntry>;
+
+// A closed intrinsic can have known standard own names whose values are not
+// implemented yet. Keep that knowledge private, separate from guest properties
+// and mutable heap presence. A current own replacement can implement such a name.
+// Lazy initialization permits intrinsic registration during module cycles.
+var partialIntrinsics: WeakMap<object, { label: string; deferred: ReadonlySet<string> }> | undefined;
+export function markPartialIntrinsic<T extends WithProperties>(
+  value: T, label: string, deferred: ReadonlyArray<string>
+): T {
+  if (!partialIntrinsics) partialIntrinsics = new WeakMap();
+  partialIntrinsics.set(value, { label, deferred: new Set(deferred) });
+  return markUnsupportedBoundaryObject(value);
+}
+
+// Call only on an absent-own branch. Testing before the presence split would
+// discard the usable side of a conditional replacement. Low-level heap presence
+// describes modeled storage, not completeness of an intrinsic's JS surface.
+export function assertModeledOwnAbsence(value: WithProperties, name: string): void {
+  const partial = partialIntrinsics && partialIntrinsics.get(value);
+  if (partial && partial.deferred.has(name)) {
+    throw unsupportedPropertyError(value, `${partial.label}.${name} is not yet supported`);
+  }
+}
 
 export function getProperties(value: WithProperties, context: TExecutionContext): { [name: string]: Any } {
   const entry = context.value.heap && context.value.heap.get(value);

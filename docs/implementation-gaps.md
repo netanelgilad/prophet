@@ -1048,3 +1048,43 @@ source and declared limits. No stable ID is closed or removed.
   variants. No new skip/todo site; the complete 46-file historical inventory is
   unchanged. Full documented guard/assertion/skip/docs scans are saved with
   hashes; a scan is not a complete language/host conformance audit.
+
+
+## P008 correction 1 reconciliation
+
+[Correction contract](agent-tasks/P008-string-trim/correction-1.md) authorizes the
+superseded P007 test update and truthful partial String surface. The original
+[evidence](agent-tasks/P008-string-trim/evidence.json), full-suite failure and
+unapplied historical proposal remain preserved. New exact-source runs belong to
+[correction evidence](agent-tasks/P008-string-trim/correction-1-evidence.json).
+No gap ID is closed; no source/dependency fixtures or P007 production changed.
+
+- LIB-001/002, OBJ-001/003: the declared String prototype has seven modeled and
+  45 deferred own string names, native-checked against Node 24.21.0's complete
+  52-name surface (including aliases and Annex B). Generic private registration
+  and shared absent-own guards stop unsupported reads/hasOwnProperty instead of
+  false absence. Current own replacements/explicit undefined and conditional
+  installed sides remain precise; ordinary absent names stay absent. The old
+  one-name AST check is removed. No additional String API is implemented.
+- OBJ-001/LANG-006/REPORT-001: existing enumeration/own-key guards now produce
+  typed leaves for String.prototype and trim metadata. Object.keys and spread
+  retain prefix/coercion effects and completed siblings. Name/length remain
+  known own fields, call is inherited, prototype absent, and unknown metadata
+  reads/name-length writes stop. Full descriptors/getters, missing Object APIs,
+  Function APIs and other String method metadata remain separate/legacy gaps.
+- LANG-001/LEGACY-002/URL-001: `in` remains a pre-existing unsupported operator;
+  the claimed false result was not confirmed by root. Raw heap presence and
+  internal hasProperty are not upgraded to full JS descriptor/HasProperty
+  semantics. URL's existing charCodeAt mutation assumption is unchanged; it
+  must not be cited as proof that the native method is absent. Primitive-own
+  legacy split/substr remain separate from deferred prototype borrowing.
+- STRING-001/SYM-001/004/SECURITY-002: the trim algorithm, cap, open-input and
+  coercion exclusions remain unchanged. Prototype/method replacement proof
+  domains are bounded by existing shared heap/branch limits. Private intrinsic
+  registration is not serialized resumption or public schema expansion.
+- TEST-001/002/003: no active Test262 selection or historical skip changed.
+  Complete scans/inventory are rerun. New native/red/symbolic cases are disclosed
+  regressions for root-reproduced concerns, not hidden independent evidence.
+  The sole authorized P007 test change replaces its obsolete trim rejection with
+  actual result/effect/correlation checks and retains the original native trim
+  replacement assertion verbatim. All unrelated P007 expectations stay intact.
