@@ -19,7 +19,7 @@ function native(body: string, input: any = null): any {
   const child = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath,
     ["-e", 'if (process.version !== "v24.21.0") throw Error(process.version);' +
       'const input = JSON.parse(process.argv[1]);' + body, JSON.stringify(input)],
-    { cwd: "/Users/netanelgilad/development/prophet-worktrees/review-p007-regexp-test",
+    { cwd: join(__dirname, ".."),
       encoding: "utf8", timeout: 15000, maxBuffer: 16 * 1024 * 1024,
       env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" } });
   expect(child.error).toBeUndefined();
