@@ -66,3 +66,34 @@ own-inspection repair, not an additional production feature. All production
 bytes remain identical to `93dcdbd`; a new spec/docs source commit precedes the
 final full-suite rerun. The earlier failed correction run stays separately in
 `logs/p008-correction-1/`; final logs use `logs/p008-correction-1-final/`.
+
+## Final frozen validation
+
+Final source/spec revision is `06eefd516e65bbc5d02b6bf94ddbed383f59c8d7`.
+Production bytes are identical to correction implementation `93dcdbd`; only the
+String inspection checkpoint and its documentation changed between those commits.
+All final checks use native pinned Node v24.21.0 and the assigned worktree:
+
+- Full suite: 129 suites passed; 3476 tests passed, 46 unchanged skips, 3522 total.
+  Jest time 382.043 seconds; external elapsed 384.24 seconds, within the 900-second
+  cap. Exit 0, no timeout.
+- Focused validation: 10 suites passed; 1017 tests passed, 46 unchanged skips.
+- Typecheck: exit 0 (7.35 seconds).
+- Discovery: 129 suites, no production files discovered. Guard/assertion/skip/docs
+  scans, scope checks and diff checks pass. Complete inventory retains 341 active
+  Test262 files / 673 variants and all 46 historical skipped files; no correction
+  adds or changes a Test262 case. All 128 complete trim candidates / 256 native
+  variants pass in pinned Node.
+- Recomputed hashes verify 54 correction artifacts, 13 changed source/spec/doc
+  files, upstream file inventories, and all 40 original handoff artifacts.
+
+[Correction evidence](correction-1-evidence.json) binds exact commands, environment,
+log paths, exits, timings and hashes to the tested revision. Both earlier failed
+full runs remain unchanged and explicitly recorded. This final documentation and
+manifest are committed separately from source/specs; no runtime or spec bytes
+change after validation. Unchanged sirv/actual CLI still stops at the typed
+toLowerCase boundary while retaining the filesystem alternatives. Remaining String
+APIs, descriptors and the unconfirmed/pre-existing `in` issue stay deferred.
+
+Complete local handoff; frozen for independent strong review. Nothing is pushed,
+merged or released.

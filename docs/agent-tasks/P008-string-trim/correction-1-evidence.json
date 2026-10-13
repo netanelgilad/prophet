@@ -1,0 +1,935 @@
+{
+  "task": "P008 correction 1: truthful partial String surface and superseded checkpoint",
+  "generatedAtUTC": "2026-10-13T21:14:28.153897+00:00",
+  "status": "complete local correction handoff; source/spec frozen; independent strong review pending",
+  "workdir": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+  "branch": "agent/p008-string-trim",
+  "parent": "cb2c0da6707ae0e4999712eda886f5819cc48947",
+  "testedSourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+  "originalSource": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+  "originalEvidence": {
+    "path": "docs/agent-tasks/P008-string-trim/evidence.json",
+    "sha256": "93451da2fa2ea60071aec3c8b6eb6341deceb92c180b3278d60cecbbc1292e54",
+    "all40OriginalArtifactsStillMatch": true,
+    "originalFullSuite": "128 suites passed / 1 failed; 3448 tests passed / 1 failed / 46 skipped; retained unchanged"
+  },
+  "authorization": "Root correction-1.md explicitly authorizes the sole stale P007 checkpoint update and minimal shared partial-intrinsic read/presence/inspection guards. No further approval is missing for these repairs.",
+  "sourceTrees": {
+    "src": "3ba57e5f089858c1e9cc9602bb99b4f4bab605eb",
+    "test": "4e58abc1a2970701e3082b001f895f81641cd908"
+  },
+  "sourceFilesSha256": {
+    "docs/agent-tasks/P008-string-trim/correction-1-implementation.md": "eb8e9f1ece815f4cbb730aa48db08e0c8007a35c757d19b469e993996e8eed1f",
+    "docs/agent-tasks/P008-string-trim/correction-1.md": "a91366b38a4441adbdebca23018963d20060bd68fe467dfff78a5dc530a7a989",
+    "docs/implementation-gaps.md": "ce7e3cd6e7996cfe3e2fb34fa0a73b9988d4591b50e1765e2da5fbf37c6ce5a1",
+    "docs/sirv-target.md": "151a7e9e5ec1158e9d25d1a00d82b76573c3f7ee6153f7fcdb16c2354c76ce26",
+    "docs/symbolic-strings.md": "32132dfef0f10e9b7b7eb4feb6731a3ee4c242450d8496d5ba7dabf2b799e15d",
+    "docs/wiki/string-trim.md": "a47b28210e59d5f7fe8b78d39f4630e478068c6edffea1f309d3992e17cc663f",
+    "src/ASTResolvers.ts": "a0e35dc4b91101926648ad06801ae388add68902f111789872039ed5d126d75b",
+    "src/Object/prototype.ts": "93f5cfeedf13f4d8c3c2536fadb7d53fb5b6d23c9fbe4c933eaea6231f30cfd9",
+    "src/execution-context/Heap.ts": "ddb5abf00a6a587aacac3b27aaf907a676a1338a3dd70e3cce67cb40edb6cd9e",
+    "src/string/String.ts": "7bed473549a7e90fa5056da622a73711aa8e9bd14a40dd0b3ab90b4ff18970fc",
+    "test/object-spread.spec.ts": "c9f4af55d9e8d8d7c77394040060a98ae0d9165d14f003012f230744310d4290",
+    "test/regexp-test.spec.ts": "fdc7fb75cd8204757e4c4726fc40705966bc189113b38cf1671f2da22de722e1",
+    "test/string-trim.spec.ts": "398ab8b5fc16a8a1c73690783a1d042d793d3e6560792f75dc8cb10280769906"
+  },
+  "evidenceOnlyCommit": "A separate subsequent commit adds this manifest and the final handoff result. No runtime/spec bytes change; its commit ID is reported in the final handoff, not embedded recursively.",
+  "validation": [
+    {
+      "name": "discovery",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 2.4357779026031494,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-discovery.log",
+      "sha256": "fac678ff7fef25d420b16399b12766ebfefb2abbf02a9354da5328362eb9c22b"
+    },
+    {
+      "name": "focused",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-trim.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/prototype-state.spec.ts",
+        "test/string-concat.spec.ts",
+        "test/symbolic-strings.spec.ts",
+        "test/node-host-boundaries.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 37.4511501789093,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-focused.log",
+      "sha256": "2a147156769c94d7b48e9929a26bd23eaff8b0f5c9ab8f1ea6b6c6a3f7e7fba3"
+    },
+    {
+      "name": "full-suite",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 900,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 384.244854927063,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-full-suite.log",
+      "sha256": "0e5422f740ca5490ffa26c59dbbd2e418ea1fcbd2d44793d8145344148fcb82c"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 7.347364902496338,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "summaries": {
+    "focused": [
+      "Test Suites: 10 passed, 10 total",
+      "Tests:       46 skipped, 1017 passed, 1063 total",
+      "Snapshots:   0 total",
+      "Time:        35.718s"
+    ],
+    "fullSuite": [
+      "Test Suites: 129 passed, 129 total",
+      "Tests:       46 skipped, 3476 passed, 3522 total",
+      "Snapshots:   0 total",
+      "Time:        382.043s"
+    ]
+  },
+  "audits": [
+    {
+      "name": "owned-check",
+      "command": [
+        "python3",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/ownership.py"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.564568042755127,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-owned-check.log",
+      "sha256": "ff35f8f979c8382f640be2ea56ebdd42db7ab798b03c9e9bd70572f9b75626f6"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.16936588287353516,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-guards.log",
+      "sha256": "04bd6481066542d1726f7067518b7cb2e11fcda739e751c9bb88566e830c1653"
+    },
+    {
+      "name": "assertions",
+      "command": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.17767095565795898,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-assertions.log",
+      "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+    },
+    {
+      "name": "skip-sites",
+      "command": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.3165428638458252,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-skip-sites.log",
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac"
+    },
+    {
+      "name": "boundary-docs",
+      "command": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.39131999015808105,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-boundary-docs.log",
+      "sha256": "5d52b48c998c7407afed2b634ca17f42a15c670138b44cf9142b7e7ff9fc2544"
+    },
+    {
+      "name": "inventory",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/inventory.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 1.0128991603851318,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-inventory.log",
+      "sha256": "55f03530faa7e6afcbcfdab292845d13d4f7a4e77d8d38b92bcd6887abf196f5"
+    },
+    {
+      "name": "upstream-native",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/upstream-native.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.8097929954528809,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-upstream-native.log",
+      "sha256": "c6c7e79060dca0ea2c1f4e6896ebf8e127b079d3af6748b8c3008aa07040fc75"
+    },
+    {
+      "name": "source-diff",
+      "command": [
+        "git",
+        "diff",
+        "cb2c0da",
+        "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+        "--",
+        "src",
+        "test",
+        "README.md",
+        "docs",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.19010210037231445,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-source-diff.log",
+      "sha256": "f7d06d3ae82ef56d72ad57932bc306efef55fe4591d248456fe53cddc98c9332"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "cb2c0da",
+        "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.06933307647705078,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "protected-diff",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "cb2c0da",
+        "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+        "--",
+        "src/regexp",
+        "test/p007-independent-review.spec.ts",
+        "test/fixtures",
+        "package.json",
+        "yarn.lock",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.05973196029663086,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-protected-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "nativeControls": {
+    "runtime": "Node v24.21.0 native darwin-arm64, pinned PROPHET_NODE_BINARY and PATH in final checks",
+    "redControls": 7,
+    "newStandardOwnNameInventory": 52,
+    "deferredReadAndPresenceNames": 45,
+    "unchangedWholeTrimTest262Files": 128,
+    "wholeNativeVariants": 256,
+    "nativeCandidateFailures": 0
+  },
+  "corpus": {
+    "activeFiles": 341,
+    "activeVariants": 673,
+    "newCorrectionFiles": 0,
+    "skippedFiles": 46,
+    "allSkippedFilenamesAndMetadataRecorded": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-inventory.log",
+    "baselineSkippedIdentical": true,
+    "noNewSkipSites": true,
+    "discoveredSuites": 129,
+    "productionDiscovered": false
+  },
+  "redEvidence": {
+    "productionRevision": "cb2c0da6707ae0e4999712eda886f5819cc48947",
+    "savedSpecDiff": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red-specs.diff",
+    "runs": [
+      {
+        "name": "native-red",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "test/string-trim.spec.ts",
+          "-t",
+          "native partial|native known"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "source": "cb2c0da production + saved red-specs.diff",
+        "exit": 0,
+        "seconds": 6.005795955657959,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/native-red.log",
+        "sha256": "40e20a124c115f057b31752994a09cc66ad9b09347fee7ee95259e4c69370645"
+      },
+      {
+        "name": "red",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "test/string-trim.spec.ts",
+          "test/regexp-test.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "source": "cb2c0da production + saved red-specs.diff",
+        "exit": 1,
+        "seconds": 17.359336853027344,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red.log",
+        "sha256": "846510f767d358a2a728590fff6bd127881c85f2d9544d29b164f7ecd9ec6e3d"
+      }
+    ],
+    "result": "7 native controls passed before production edits; correction red run had 16 failures and 155 passes across two suites. Failures are false absence or legacy metadata inspection errors. The authorized P007 test now passes existing trim behavior; it is a superseded checkpoint, not a new implementation defect.",
+    "additionalFinalSpecs": "Native complete own-name inventory, every deferred read/presence pair and metadata guards were added and passed before source freeze."
+  },
+  "implementation": [
+    "Generic private partial-intrinsic registration records seven modeled and 45 deferred String prototype own string names; no new public graph fields.",
+    "Shared member reads and hasOwnProperty guard deferred names only on the absent-storage branch, retaining current/conditional replacements and explicit undefined. Ordinary objects and unrelated absent names retain precise true/false behavior.",
+    "String prototype/trim metadata are marked for existing typed enumeration guards; Object.keys/spread and metadata limits retain effects and completed siblings. Known name/length/call/nonconstruction remain usable.",
+    "The sole superseded P007 rejection test now asserts trimmed result/effects/correlation. Its original native trim replacement assertion is preserved byte-for-byte; every other P007 test line is unchanged."
+  ],
+  "firstCorrectionValidation": {
+    "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+    "runs": [
+      {
+        "name": "discovery",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--listTests",
+          "--runInBand"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "environment": {
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+        },
+        "timeoutSeconds": 60,
+        "timedOut": false,
+        "exit": 0,
+        "seconds": 3.411402940750122,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-discovery.log",
+        "sha256": "31fc11627cad48d8ba17c45cd6b60f6cb8fe8b6781906766c8a27b339e03090c"
+      },
+      {
+        "name": "focused",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "test/string-trim.spec.ts",
+          "test/regexp-test.spec.ts",
+          "test/sirv-target.spec.ts",
+          "test/prototype-state.spec.ts",
+          "test/string-concat.spec.ts",
+          "test/symbolic-strings.spec.ts",
+          "test/node-host-boundaries.spec.ts",
+          "test/test262.spec.ts",
+          "test/test262/runner.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "environment": {
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+        },
+        "timeoutSeconds": 180,
+        "timedOut": false,
+        "exit": 0,
+        "seconds": 33.96004319190979,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-focused.log",
+        "sha256": "2e1e43ec271d3a57af78e18bcb495190accf6bb28d162a388349170db9fcc10f"
+      },
+      {
+        "name": "full-suite",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "environment": {
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+        },
+        "timeoutSeconds": 900,
+        "timedOut": false,
+        "exit": 1,
+        "seconds": 367.93983721733093,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-full-suite.log",
+        "sha256": "f85e9bfa033442e72bdce83e53d4007335fc70aa57c7662182fc40d2f62e6ec4"
+      },
+      {
+        "name": "typecheck",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "environment": {
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+        },
+        "timeoutSeconds": 180,
+        "timedOut": false,
+        "exit": 0,
+        "seconds": 6.031111001968384,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "audits": [
+      {
+        "name": "owned-check",
+        "command": [
+          "python3",
+          "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/ownership.py"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.3832211494445801,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-owned-check.log",
+        "sha256": "62ef110f6719958126b1882fc79769d3ecc1448aabd0af36a9b81b8338459d47"
+      },
+      {
+        "name": "guards",
+        "command": [
+          "rg",
+          "-n",
+          "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+          "src",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.18357276916503906,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-guards.log",
+        "sha256": "1dc0c55e23a9ab9f264614b774e5035d90fea9787ebc45197fee0aa828e3f43b"
+      },
+      {
+        "name": "assertions",
+        "command": [
+          "rg",
+          "-n",
+          "assert\\(|unimplemented\\(",
+          "src",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.17515897750854492,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-assertions.log",
+        "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+      },
+      {
+        "name": "skip-sites",
+        "command": [
+          "rg",
+          "-n",
+          "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+          "test",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.16012907028198242,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-skip-sites.log",
+        "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac"
+      },
+      {
+        "name": "boundary-docs",
+        "command": [
+          "rg",
+          "-n",
+          "gap|unsupported|assum|remain|limit|not yet|not modeled",
+          "README.md",
+          "docs",
+          "test/commonjs/README.md",
+          "test/test262/README.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.1666419506072998,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-boundary-docs.log",
+        "sha256": "3e8c4304c140b97006626ecef03e499ec70eba6aea1eb42124941234e471994e"
+      },
+      {
+        "name": "inventory",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/inventory.cjs"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.5803430080413818,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-inventory.log",
+        "sha256": "55f03530faa7e6afcbcfdab292845d13d4f7a4e77d8d38b92bcd6887abf196f5"
+      },
+      {
+        "name": "upstream-native",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/upstream-native.cjs"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.7459278106689453,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-upstream-native.log",
+        "sha256": "c6c7e79060dca0ea2c1f4e6896ebf8e127b079d3af6748b8c3008aa07040fc75"
+      },
+      {
+        "name": "source-diff",
+        "command": [
+          "git",
+          "diff",
+          "cb2c0da",
+          "93dcdbd49ed850f7a35d921853cd021988b69588",
+          "--",
+          "src",
+          "test",
+          "README.md",
+          "docs",
+          "AGENTS.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.1848280429840088,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-source-diff.log",
+        "sha256": "d3fa9eec78691f33c6b4f6dec6c74a037963f8df75456df23bbf32eb01947dde"
+      },
+      {
+        "name": "diff-check",
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "cb2c0da",
+          "93dcdbd49ed850f7a35d921853cd021988b69588"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.06646490097045898,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-diff-check.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "protected-diff",
+        "command": [
+          "git",
+          "diff",
+          "--exit-code",
+          "cb2c0da",
+          "93dcdbd49ed850f7a35d921853cd021988b69588",
+          "--",
+          "src/regexp",
+          "test/p007-independent-review.spec.ts",
+          "test/fixtures",
+          "package.json",
+          "yarn.lock",
+          "AGENTS.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "93dcdbd49ed850f7a35d921853cd021988b69588",
+        "exit": 0,
+        "seconds": 0.06670188903808594,
+        "timeoutSeconds": 60,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-protected-diff.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "result": "128 suites passed / 1 failed; 3475 tests passed / 1 failed / 46 skipped; 365.663 Jest seconds; typecheck exit 0. Sole failure was String.prototype in the legacy object-spread inspection table expecting a host throw instead of the authorized typed boundary.",
+    "repair": "Only that String inspection checkpoint was migrated to typed-boundary/message/prefix/sibling assertions. All seven other legacy layout entries and assertions remain unchanged. Production tree is identical between 93dcdbd and final 06eefd5.",
+    "failurePreserved": true
+  },
+  "application": "Unchanged sirv/mrmime reaches typed toLowerCase boundary and retains EMFILE/source frames/directory effects in runtime and actual CLI graph. No other String API or factory/server completion is claimed.",
+  "scopeChecks": {
+    "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+    "authorizedP007CheckpointOnly": true,
+    "nativeTrimReplacementAssertionUnchanged": true,
+    "P007ProductionIndependentProbesFixturesDependenciesUnchanged": true,
+    "trimAlgorithmUnchanged": true,
+    "Test262SelectionUnchanged": true,
+    "originalEvidenceAndAll40ArtifactsUnchanged": true,
+    "OnlyStringInspectionCheckpointMigrated": true,
+    "ProductionBytesUnchangedSince93dcdbd": true
+  },
+  "residuals": [
+    "All deferred String APIs, descriptors/getters, missing Object/Function APIs and older String method metadata remain separate.",
+    "Open symbolic/legacy-chunk trim inputs, array/function receivers, exotic primitive hooks and successful-allocation assumptions remain unchanged.",
+    "Private intrinsic registration is not a graph resumption model. Low-level heap presence and legacy internal hasProperty host mutation checks (including URL charCodeAt) are not upgraded to complete JS HasProperty semantics.",
+    "The in operator remains a pre-existing LANG-001 unsupported operator; root did not confirm the reported false in result. No implementation or new compliance claim is made.",
+    "The 65536-unit trim cap and external timeout do not bound arbitrary coercion, prototype depth, symbolic frontier size, parser/input allocation or serialization."
+  ],
+  "gapIds": [
+    "LIB-001",
+    "LIB-002",
+    "OBJ-001",
+    "OBJ-003",
+    "LANG-001",
+    "LANG-006",
+    "LEGACY-002",
+    "URL-001",
+    "REPORT-001",
+    "STRING-001",
+    "SYM-001",
+    "SYM-004",
+    "SECURITY-002",
+    "TEST-001",
+    "TEST-002",
+    "TEST-003"
+  ],
+  "reviewAttribution": "Root independently reproduced the three false absence observations and two metadata enumeration failures from parent-disclosed input. These writer regression specs are disclosed, not hidden independent probes or evidence of all-compliance.",
+  "operations": "Sole implementation writer; no subagents, model/account switching, paid APIs, credentials/access expansion, dependency changes, push, merge or release.",
+  "artifacts": {
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/audit.py": {
+      "sha256": "1baa21a7ed08d48fe3aaa53fc709e828e14cae1e4d32398088a9f540fd13e3de",
+      "bytes": 1844
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/development-runs.json": {
+      "sha256": "d69f94b7d1bf7a09de023920c395bf11e64042f3436efee4f95ddcc096a0d78b",
+      "bytes": 1397
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/development-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/development.log": {
+      "sha256": "591a5f34786b5d0c66b2f8fb304bc8cff08aae2847cb3ff89ea8c876b988714c",
+      "bytes": 787
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/evidence.py": {
+      "sha256": "e5ffc4681d7809747813d42cb96737a5736c97d7b6bc18dc928f8450cc3d63f4",
+      "bytes": 7245
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-assertions.log": {
+      "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19",
+      "bytes": 2402
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-audit.json": {
+      "sha256": "0987b2b9eda189e8785034f93c6498ee6f04f67fe6117ff853a10e19a92cfd59",
+      "bytes": 6647
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-boundary-docs.log": {
+      "sha256": "3e8c4304c140b97006626ecef03e499ec70eba6aea1eb42124941234e471994e",
+      "bytes": 268615
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-diff-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-discovery.log": {
+      "sha256": "31fc11627cad48d8ba17c45cd6b60f6cb8fe8b6781906766c8a27b339e03090c",
+      "bytes": 13441
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-focused.log": {
+      "sha256": "2e1e43ec271d3a57af78e18bcb495190accf6bb28d162a388349170db9fcc10f",
+      "bytes": 896
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-full-suite.log": {
+      "sha256": "f85e9bfa033442e72bdce83e53d4007335fc70aa57c7662182fc40d2f62e6ec4",
+      "bytes": 7066
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-guards.log": {
+      "sha256": "1dc0c55e23a9ab9f264614b774e5035d90fea9787ebc45197fee0aa828e3f43b",
+      "bytes": 64510
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-inventory.log": {
+      "sha256": "55f03530faa7e6afcbcfdab292845d13d4f7a4e77d8d38b92bcd6887abf196f5",
+      "bytes": 250392
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-owned-check.log": {
+      "sha256": "62ef110f6719958126b1882fc79769d3ecc1448aabd0af36a9b81b8338459d47",
+      "bytes": 353
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-protected-diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-skip-sites.log": {
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac",
+      "bytes": 55
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-source-diff.log": {
+      "sha256": "d3fa9eec78691f33c6b4f6dec6c74a037963f8df75456df23bbf32eb01947dde",
+      "bytes": 38045
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-upstream-native.log": {
+      "sha256": "c6c7e79060dca0ea2c1f4e6896ebf8e127b079d3af6748b8c3008aa07040fc75",
+      "bytes": 34625
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-validation.json": {
+      "sha256": "859aab595690da75eacb97bb4940ca539c6e263bac4637d6f18880f61c77db38",
+      "bytes": 3791
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/inspection-checkpoint-development.log": {
+      "sha256": "ce90c4f4ca7545f610903ce4a76f40ec7767dadbdf01c7fe9a10897e3a1a4f9d",
+      "bytes": 436
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/inventory.cjs": {
+      "sha256": "7ba0481ce587d03281eb9cbbc34aca8a3f0ff6055d941f6e6c215b7f9b603812",
+      "bytes": 2045
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/native-red.log": {
+      "sha256": "40e20a124c115f057b31752994a09cc66ad9b09347fee7ee95259e4c69370645",
+      "bytes": 861
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/ownership.py": {
+      "sha256": "23c4cc42464eeceb9e3fccef3b3a7ebdd4bcf7da415cb6fa6027bf1b7bdae901",
+      "bytes": 1439
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red-runs.json": {
+      "sha256": "6528ccdc7357d634ac521bb7b9bfbf5477cfacb66491a381431897cae8f09452",
+      "bytes": 1349
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red-specs.diff": {
+      "sha256": "85b0067fefb2a8f91dda3fb603520a071cb80066a645a99473d814f547d8441d",
+      "bytes": 8615
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red.log": {
+      "sha256": "846510f767d358a2a728590fff6bd127881c85f2d9544d29b164f7ecd9ec6e3d",
+      "bytes": 35990
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/surface-inventory-development.log": {
+      "sha256": "83b2bfd4603f498b88a7168cf85b6f96b35630c1a30fcf4987821e627fe0b4e2",
+      "bytes": 4692
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/upstream-native.cjs": {
+      "sha256": "598017869e8958529e34bdd8912c31f6d60f3b1f28acb61e821e937e06a5c003",
+      "bytes": 1038
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/validate.py": {
+      "sha256": "1a0a3b63fc3cc5d3019f7a40e395c8475dd82e8c29dfd657f21d26038db58d78",
+      "bytes": 1874
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/audit.py": {
+      "sha256": "2cd803028d55cf8e7df080a12a8853dcf2de103f7d8563c8efc690e8c4d28855",
+      "bytes": 1874
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/evidence.py": {
+      "sha256": "add47f850bb42eef8e9200e12d2c5823266c9caa2916b0ae35c8cb8874e48229",
+      "bytes": 8320
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-assertions.log": {
+      "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19",
+      "bytes": 2402
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-audit.json": {
+      "sha256": "236c76caf38c62f657d2d04bed23196198bea38dff0fca82495bae4a9bd6846c",
+      "bytes": 6725
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-boundary-docs.log": {
+      "sha256": "5d52b48c998c7407afed2b634ca17f42a15c670138b44cf9142b7e7ff9fc2544",
+      "bytes": 269239
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-diff-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-discovery.log": {
+      "sha256": "fac678ff7fef25d420b16399b12766ebfefb2abbf02a9354da5328362eb9c22b",
+      "bytes": 13441
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-focused.log": {
+      "sha256": "2a147156769c94d7b48e9929a26bd23eaff8b0f5c9ab8f1ea6b6c6a3f7e7fba3",
+      "bytes": 951
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-full-suite.log": {
+      "sha256": "0e5422f740ca5490ffa26c59dbbd2e418ea1fcbd2d44793d8145344148fcb82c",
+      "bytes": 5472
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-guards.log": {
+      "sha256": "04bd6481066542d1726f7067518b7cb2e11fcda739e751c9bb88566e830c1653",
+      "bytes": 64510
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-inventory.log": {
+      "sha256": "55f03530faa7e6afcbcfdab292845d13d4f7a4e77d8d38b92bcd6887abf196f5",
+      "bytes": 250392
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-owned-check.log": {
+      "sha256": "ff35f8f979c8382f640be2ea56ebdd42db7ab798b03c9e9bd70572f9b75626f6",
+      "bytes": 451
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-protected-diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-skip-sites.log": {
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac",
+      "bytes": 55
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-source-diff.log": {
+      "sha256": "f7d06d3ae82ef56d72ad57932bc306efef55fe4591d248456fe53cddc98c9332",
+      "bytes": 42915
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-upstream-native.log": {
+      "sha256": "c6c7e79060dca0ea2c1f4e6896ebf8e127b079d3af6748b8c3008aa07040fc75",
+      "bytes": 34625
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-validation.json": {
+      "sha256": "0e8db9e9b069a6d9775926498dda0b21b0fcdefe3e7be85ec9eabfe0981f2782",
+      "bytes": 3849
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/inventory.cjs": {
+      "sha256": "795abbb599505069373a8532663c4f472a9ec4e796b49ba8e97bbe9903eb1e1b",
+      "bytes": 2051
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/ownership.py": {
+      "sha256": "3930926e99f20471412765da36231c6324a07dde35a1ed9f99e91ebeb9c54192",
+      "bytes": 2052
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/upstream-native.cjs": {
+      "sha256": "598017869e8958529e34bdd8912c31f6d60f3b1f28acb61e821e937e06a5c003",
+      "bytes": 1038
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/validate.py": {
+      "sha256": "1120db0242d6f6cf0cdc7545dd82280d7f001213774fb675a5337fe025348822",
+      "bytes": 1915
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/verify-evidence.py": {
+      "sha256": "4fa9f85da4619d0ba1bed59b733027d884622a00cc3e04804ba79cd98a40ca7d",
+      "bytes": 1984
+    }
+  },
+  "hashVerification": "Every hash is generated from file bytes or git show of the tested source. All command-log/source/artifact hashes and prior handoff hashes are independently recomputed before final evidence commit."
+}
