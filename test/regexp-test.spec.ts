@@ -1,11 +1,14 @@
 import { evaluateCode, isExecutionBoundary, isForkedCompletion, nodeInitialExecutionContext } from "../src";
+import { spawnSync } from "child_process";
+import { ESObject } from "../src/Object";
+import { toPrimitiveSymbol } from "../src/Object/wellKnownSymbols";
 import { ESBoolean } from "../src/boolean/ESBoolean";
 import { ESString } from "../src/string/String";
 import { ESNumber, Undefined, WithProperties } from "../src/types";
 import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
 import { getProperties } from "../src/execution-context/Heap";
 import { resolveBoolean } from "../src/symbolic";
-import { compareModule, nodeModuleObservation, withModuleFixture } from "./commonjs/oracle";
+import { assertPinnedNode, compareModule, nodeModuleObservation, withModuleFixture } from "./commonjs/oracle";
 import { createRegExpLiteral } from "../src/regexp/RegExp";
 
 // These expressions are complete native/VM controls; no oracle result feeds the VM.
@@ -67,12 +70,14 @@ test("finite input/receiver/index choices preserve correlations and snapshots", 
   const [, before] = evaluateCode('const r = /a/; const alias = r;',
     setVariablesInScope(nodeInitialExecutionContext, { selected: ESBoolean() }));
   const [completion, after] = evaluateCode(`r.lastIndex = selected ? {valueOf() { return 7; }} : -2;
-    const input = selected ? "a" : "b"; const answer = alias.test(input);
+    const index = r.lastIndex; const input = selected ? "a" : "b"; const answer = alias.test(input);
+    const stateProof = index === r.lastIndex;
     const proof = selected ? answer : !answer; const uncertain = answer;
     const re = selected ? /a/ : /b/; const correlated = re.test(input);`, before);
   expect(completion).toBe(Undefined);
   expect(resolveBoolean(after.value.scope.proof as any, after.value.knowledge)).toBe(true);
   expect(resolveBoolean(after.value.scope.correlated as any, after.value.knowledge)).toBe(true);
+  expect(resolveBoolean(after.value.scope.stateProof as any, after.value.knowledge)).toBe(true);
   expect(resolveBoolean(after.value.scope.uncertain as any, after.value.knowledge)).toBeUndefined();
   expect(getProperties(before.value.scope.r as WithProperties, before).lastIndex).toMatchObject({ value: 0 });
 });
@@ -87,7 +92,7 @@ test("open numeric lastIndex is coerced but need not be concretized without g/y"
 
 for (const expression of [
   '/a/g.test("a")', '/a/y.test("a")', '/a/i.test("a")', '/a/m.test("a")', '/a/s.test("a")', '/a/u.test("a")',
-  '/(?=a)a/.test("a")', '/(a)\\1/.test("aa")', '/\\bword/.test("word")', '/\\cA/.test("a")', '/\\q/.test("q")',
+  '/(?=a)a/.test("a")', '/a|(?=b)/.test("a")', '/(a)\\1/.test("aa")', '/\\bword/.test("word")', '/\\cA/.test("a")', '/\\q/.test("q")',
   '/a/.test(open)', '/a/.test.call({exec() { return {}; }}, "a")',
   'r.exec = function() {}', 'r.test = function() {}'
 ]) test(`unsupported operation keeps effects and completed siblings: ${expression}`, () => {
@@ -124,7 +129,7 @@ for (const [label, source, input] of [
   ["source", "a".repeat(513), "a"],
   ["depth", "(".repeat(33) + "a" + ")".repeat(33), "a"],
   ["repetition", "a{1000000000}", "a"],
-  ["empty expansion", "(?:(?:){128}){128}", ""],
+  ["empty expansion", "(?:(?:(?:){128}){128}){128}", ""],
   ["states", "(?:abcdefghij){128}", "a"],
   ["input", "a", "a".repeat(4097)],
   ["work", "a{128}b", "a".repeat(4096)]
@@ -138,4 +143,107 @@ for (const [label, source, input] of [
   expect(after.value.scope.effects).toMatchObject({ value: "converted" });
   expect(after.value.scope.caught).toMatchObject({ value: false });
   expect(getProperties(r, after).lastIndex).toMatchObject({ value: 17 });
+});
+
+
+// Deterministic cross-product controls catch interactions between nullable loops,
+// anchors, alternatives, ranges and suffixes. The native child only computes an
+// independent reference matrix; every actual value below is interpreted source.
+test("deterministic matching matrix agrees with pinned Node", () => {
+  assertPinnedNode();
+  const patterns = ["a", "^a", "a$", "a|ab", "ab|a", "(?:)", "^$", "^..$", ".*b",
+    "a*ab", "(a+)+b", "(a|aa)*b", "(?:a?|b)*c", "(?:^|a)*b$", "(?:$|a)*", "(?:a|){2,4}b",
+    "(ab|a){0,3}?b$", "(a{0,2}){2}", "[a-c-]+", "[^a-c]+", "[-a]+", "[a-]+", "[a^]+",
+    "[\\D0]+", "[^\\D]+", "[\\S\\s]", "[]", "[^]", "[\\uD800-\\uDFFF]+", "a{0}", "[\\0]",
+    "[\\x00-\\x20]", "[\\b]", "a{128}$"];
+  const inputs = ["", "a", "b", "aa", "ab", "ba", "aab", "aaab", "abc", "c", "-", "^",
+    "0", "12", " ", "\n", "a\n", "\r\n", "\u2028", "\0", "\b", "😀", "\uD800", "a".repeat(8)];
+  const child = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath, ["-e", `
+    if (process.version !== "v24.21.0") throw new Error("wrong native version");
+    const [patterns, inputs] = JSON.parse(process.argv[1]);
+    process.stdout.write(JSON.stringify(patterns.map(p => inputs.map(s => new RegExp(p).test(s)))));
+  `, JSON.stringify([patterns, inputs])], { encoding: "utf8", timeout: 10000,
+    env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" } });
+  expect(child.error).toBeUndefined(); expect(child.status).toBe(0); expect(child.stderr).toBe("");
+  const expected = JSON.parse(child.stdout);
+  patterns.forEach((pattern, p) => inputs.forEach((input, i) => {
+    const [completion, after] = evaluateCode(`const answer = /${pattern}/.test(input);`,
+      setVariablesInScope(nodeInitialExecutionContext, { input: ESString(input) }));
+    expect(completion).toBe(Undefined);
+    expect({ pattern, input, answer: (after.value.scope.answer as any).value })
+      .toEqual({ pattern, input, answer: expected[p][i] });
+  }));
+});
+
+for (const flag of ["g", "y"]) test(`${flag} boundary occurs after both conversions without reset`, () => {
+  const [completion, after] = evaluateCode(`const r = /a/${flag}; let order = "";
+    const marker = {valueOf() { order = order + "i"; return 8; }}; r.lastIndex = marker;
+    const input = {toString() { order = order + "s"; return "a"; }}; r.test(input);`, nodeInitialExecutionContext);
+  expect(completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported" });
+  expect(after.value.scope.order).toMatchObject({ value: "si" });
+  expect(getProperties(after.value.scope.r as WithProperties, after).lastIndex).toBe(after.value.scope.marker);
+});
+
+for (const field of ["input", "index"]) test(`custom primitive hook in ${field} remains a typed boundary`, () => {
+  const hooked = ESObject();
+  Object.assign(hooked, { wellKnownSymbols: new Map([[toPrimitiveSymbol, ESNumber(1)]]) });
+  const inherited = Object.assign(ESObject(), { prototype: hooked, modeledPrototype: true });
+  const [completion] = evaluateCode('const r = /a/; r.lastIndex = index; r.test(input);',
+    setVariablesInScope(nodeInitialExecutionContext, {
+      input: field === "input" ? inherited : ESString("a"), index: field === "index" ? inherited : ESNumber(0)
+    }));
+  expect(completion).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+    message: "RegExp.test is not yet supported: custom Symbol.toPrimitive conversion" });
+});
+
+test("input conversion may mutate lastIndex before its current value is read", () => {
+  expect(compareModule(`let order = ""; const r = /a/; r.lastIndex = 4;
+    const input = {toString() { r.lastIndex = {valueOf() { order = order + "i"; r.lastIndex = 12; return 9; }}; return "a"; }};
+    module.exports = r.test(input) && order === "i" && r.lastIndex === 12;`).loaded).toMatchObject({ value: true });
+});
+
+test("trim's deferred intrinsic lookup preserves branches and honors own replacements", () => {
+  const [result] = evaluateCode('if (selected) { const text = " a ".trim(); } else { const done = true; }',
+    setVariablesInScope(nodeInitialExecutionContext, { selected: ESBoolean() }));
+  expect(isForkedCompletion(result)).toBe(true);
+  if (!isForkedCompletion(result)) throw new Error("expected fork");
+  expect(result.consequent[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+    message: "String.prototype.trim is not yet supported" });
+  expect(result.alternate[0]).toBe(Undefined);
+  expect(compareModule('"use strict"; String.prototype.trim = function() { return "custom"; }; module.exports = " a ".trim() === "custom";').loaded)
+    .toMatchObject({ value: true });
+});
+
+
+test("nested ambiguous repetition is finite VM work even on a long nonmatch", () => {
+  const [completion, after] = evaluateCode('const answer = /^(a+)+b$/.test(input);',
+    setVariablesInScope(nodeInitialExecutionContext, { input: ESString("a".repeat(4096)) }));
+  expect(completion).toBe(Undefined);
+  expect(after.value.scope.answer).toMatchObject({ value: false });
+});
+
+
+test("conditional lastIndex throws preserve the normal matching sibling", () => {
+  const [completion, after] = evaluateCode(`const r = /a/; let count = 0; let caught = false; let answer = false;
+    r.lastIndex = selected ? {valueOf() { count = count + 1; throw "index"; }} : 9;
+    try { answer = r.test("a"); } catch (e) { caught = e === "index"; }
+    const proof = selected ? caught && count === 1 && !answer : !caught && count === 0 && answer;`,
+    setVariablesInScope(nodeInitialExecutionContext, { selected: ESBoolean() }));
+  expect(completion).toBe(Undefined);
+  expect(resolveBoolean(after.value.scope.proof as any, after.value.knowledge)).toBe(true);
+});
+
+
+test("budget exhaustion after a finite input fork keeps the normal sibling", () => {
+  const [result] = evaluateCode(`let effects = ""; const r = /a/; r.lastIndex = 7;
+    const input = {toString() { effects = "converted"; return selected ? oversized : "a"; }};
+    try { r.test(input); effects = "done"; } catch (e) { effects = "caught"; }`,
+    setVariablesInScope(nodeInitialExecutionContext, { selected: ESBoolean(), oversized: ESString("a".repeat(4097)) }));
+  expect(isForkedCompletion(result)).toBe(true);
+  if (!isForkedCompletion(result)) throw new Error("expected fork");
+  expect(result.consequent[0]).toMatchObject({ type: "ExecutionBoundary", kind: "budget" });
+  expect(result.consequent[1].value.scope.effects).toMatchObject({ value: "converted" });
+  expect(getProperties(result.consequent[1].value.scope.r as WithProperties, result.consequent[1]).lastIndex).toMatchObject({ value: 7 });
+  expect(result.alternate[0]).toBe(Undefined);
+  expect(result.alternate[1].value.scope.effects).toMatchObject({ value: "done" });
 });

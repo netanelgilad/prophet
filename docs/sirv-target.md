@@ -25,9 +25,16 @@ factory with a directory evaluates two regular-expression literals and appends
  shared bounded Array.forEach operation with zero visits. Totalist's ordinary
  `for` loop then walks the directory entries through the shared bounded
  ForStatement operation, and the factory reaches sirv's ignore-filter RegExp
- `.test` inside the walk callback: that RegExp instance API is an explicit
- unsupported boundary beside a sibling filesystem throw. The retained state
- contains both regex identities. Import success is not server startup or
+ `.test` inside the walk callback. Both flagless filters now run through the
+ [bounded generic matcher](regexp-literals.md#bounded-regexpprototypetest-p007)
+ on the unchanged filename. Header preparation reaches mrmime.lookup's
+ `('' + extn).trim()` and stops at the typed String.prototype.trim boundary.
+ The actual CLI JSON graph retains this stopped leaf with its source frame and
+ prior directory effects beside the EMFILE filesystem throw (descriptor
+ availability remains symbolic). No trim implementation or source rewrite was
+ introduced; the narrow generic lookup guard prevents a legacy noncallable
+ assertion from dropping that sibling. The retained state contains the regex
+ identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity
 and provide shared bounded directory enumeration, without pretending the factory
 has reached those later operations. A nonempty custom ignores list would next

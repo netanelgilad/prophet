@@ -2,7 +2,7 @@
 
 import { unsupportedPropertyError, UnsupportedAnalysisError } from "./execution-context/analysis-failure";
 
-import { ESString, TESString } from "./string/String";
+import { ESString, TESString, getStringPrototype } from "./string/String";
 import {
   WithProperties, isFunction, Any, Undefined, FunctionBinding, isThrownValue,
   isReturnValue, isBreakValue, isContinueValue, ReturnValue, ThrownValue, BreakValue, ContinueValue,
@@ -202,6 +202,12 @@ export function readMember(object: Any, name: string, context: TExecutionContext
     }
     if (isArray(object) && name === "toString") {
       throw new Error("Default array string conversion is not yet supported");
+    }
+    // A reached missing intrinsic is an analysis gap, not ordinary undefined.
+    // Keep this lookup stop typed so earlier filesystem outcomes survive. Own
+    // replacements still use the ordinary branch above; trim semantics are deferred.
+    if (object === getStringPrototype() && name === "trim") {
+      throw new UnsupportedAnalysisError("String.prototype.trim is not yet supported");
     }
     const prototype = prototypeOf(object);
     return isESNull(prototype) ? tuple(Undefined, branch) : readMember(prototype, name, branch);
