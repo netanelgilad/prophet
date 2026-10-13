@@ -2,7 +2,7 @@
 
 import { unsupportedPropertyError, UnsupportedAnalysisError } from "./execution-context/analysis-failure";
 
-import { ESString, TESString, getStringPrototype } from "./string/String";
+import { ESString, TESString } from "./string/String";
 import {
   WithProperties, isFunction, Any, Undefined, FunctionBinding, isThrownValue,
   isReturnValue, isBreakValue, isContinueValue, ReturnValue, ThrownValue, BreakValue, ContinueValue,
@@ -28,7 +28,7 @@ import { unimplemented } from "@deaven/unimplemented";
 import { Array as ESArray, TArray } from "./array/Array";
 import { choiceOf } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
-import { getProperties, getArrayElements, ownPropertyPresence, writeArrayElements,
+import { getProperties, getArrayElements, ownPropertyPresence, assertModeledOwnAbsence, writeArrayElements,
   writeProperty, isArrayIndex } from "./execution-context/Heap";
 import { getSymbolicArrayShape, readSymbolicIndex,
   assertSymbolicIndexedLookup, symbolicIndexPresence } from "./array/symbolic";
@@ -195,6 +195,7 @@ export function readMember(object: Any, name: string, context: TExecutionContext
       type: "function", id: property, properties: {}, function: property
     }, branch) : tuple(property, branch);
   }, branch => {
+    assertModeledOwnAbsence(object as WithProperties, name);
     if (isArray(object) && isArrayIndex(name) &&
         getArrayElements(object as TArray<any>, branch) === undefined &&
         !getSymbolicArrayShape(object, branch)) {
@@ -202,12 +203,6 @@ export function readMember(object: Any, name: string, context: TExecutionContext
     }
     if (isArray(object) && name === "toString") {
       throw new Error("Default array string conversion is not yet supported");
-    }
-    // A reached missing intrinsic is an analysis gap, not ordinary undefined.
-    // Keep this lookup stop typed so earlier filesystem outcomes survive. Own
-    // replacements still use the ordinary branch above; case conversion is deferred.
-    if (object === getStringPrototype() && name === "toLowerCase") {
-      throw new UnsupportedAnalysisError("String.prototype.toLowerCase is not yet supported");
     }
     const prototype = prototypeOf(object);
     return isESNull(prototype) ? tuple(Undefined, branch) : readMember(prototype, name, branch);

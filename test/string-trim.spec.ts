@@ -168,3 +168,138 @@ test("customized arrays/functions remain explicit before coercion, beside a norm
     expect(completion.alternate[1].value.scope.trace).toMatchObject({value: "sibling"});
   }
 });
+
+// Correction 1: root disclosed three false absence observations and two legacy
+// enumeration failures. These are local regressions, not hidden review probes.
+const partialSurfaceControls = [
+  'typeof String.prototype.trimEnd === "function"',
+  'typeof "x".padStart === "function"',
+  'Object.prototype.hasOwnProperty.call(String.prototype, "trimEnd")',
+  'Object.keys(String.prototype.trim).length === 0',
+  'Object.keys(String.prototype).length === 0',
+  'typeof String.prototype.trimLeft === "function" && typeof String.prototype.trimRight === "function"',
+];
+partialSurfaceControls.forEach((expression, i) => {
+  test(`native partial String surface control ${i}`, () => withModuleFixture(`module.exports = ${expression};`, file => {
+    expect(nodeModuleObservation(file)).toEqual({kind: "return", value: {type: "boolean", value: true}});
+  }));
+  for (const reverse of [false, true]) test(`partial String boundary ${i} keeps both branch orders (${reverse})`, () => {
+    const [completion] = run(`let trace = ""; let caught = false; let fallback = false;
+      try { if (${reverse ? "!selected" : "selected"}) {
+        trace = "prefix"; const observed = ${expression}; if (!observed) fallback = true;
+        trace = "incorrectly completed";
+      } else trace = "sibling"; } catch(e) {caught = true;} finally {trace = trace + "!";}`, {selected: ESBoolean()});
+    expect(isForkedCompletion(completion)).toBe(true);
+    if (!isForkedCompletion(completion)) throw new Error("expected fork");
+    const leaves = [completion.consequent, completion.alternate];
+    const stopped = leaves.find(leaf => (leaf[0] as any).type === "ExecutionBoundary")!;
+    const normal = leaves.find(leaf => leaf[0] === Undefined)!;
+    expect(stopped).toBeDefined(); expect(normal).toBeDefined();
+    expect(stopped[0]).toMatchObject({type: "ExecutionBoundary", kind: "unsupported"});
+    expect(stopped[1].value.scope.trace).toMatchObject({value: "prefix"});
+    expect(stopped[1].value.scope.caught).toMatchObject({value: false});
+    expect(stopped[1].value.scope.fallback).toMatchObject({value: false});
+    expect(normal[1].value.scope.trace).toMatchObject({value: "sibling!"});
+  });
+});
+
+test("deferred presence preserves key coercion and its normal/throwing siblings", () => {
+  const [completion] = run(`let trace = ""; let caught;
+    const key = {toString() {trace = "converted"; if(selected) return "trimEnd"; throw "key";}};
+    try { const answer = Object.prototype.hasOwnProperty.call(String.prototype, key); trace = "wrong"; }
+    catch(e) {caught = e; trace = trace + "caught";}`, {selected: ESBoolean()});
+  expect(isForkedCompletion(completion)).toBe(true);
+  if (!isForkedCompletion(completion)) throw new Error("expected fork");
+  expect(completion.consequent[0]).toMatchObject({type: "ExecutionBoundary", kind: "unsupported"});
+  expect(completion.consequent[1].value.scope.trace).toMatchObject({value: "converted"});
+  expect(completion.alternate[0]).toBe(Undefined);
+  expect(completion.alternate[1].value.scope.caught).toMatchObject({value: "key"});
+  expect(completion.alternate[1].value.scope.trace).toMatchObject({value: "convertedcaught"});
+});
+
+for (const operation of ['typeof "x".trimEnd', 'Object.prototype.hasOwnProperty.call(String.prototype, "trimEnd")']) {
+  test(`conditional replacement is usable only on its installed path: ${operation}`, () => {
+    const [completion] = run(`let trace = "";
+      if(selected) String.prototype.trimEnd = function() {"use strict"; return "custom";};
+      const observed = ${operation}; trace = "observed";
+      const answer = "x".trimEnd();`, {selected: ESBoolean()});
+    expect(isForkedCompletion(completion)).toBe(true);
+    if (!isForkedCompletion(completion)) throw new Error("expected fork");
+    expect(completion.consequent[0]).toBe(Undefined);
+    expect(completion.consequent[1].value.scope.answer).toMatchObject({value: "custom"});
+    expect(completion.alternate[0]).toMatchObject({type: "ExecutionBoundary", kind: "unsupported"});
+    expect(completion.alternate[1].value.scope.trace).toMatchObject({value: ""});
+  });
+}
+
+const preciseSurface = `const own = Object.prototype.hasOwnProperty;
+  String.prototype.trimEnd = undefined;
+  String.prototype.padStart = function() {"use strict"; return "custom";};
+  const ordinary = {trimEnd: undefined};
+  module.exports = String.prototype.trimEnd === undefined && own.call(String.prototype, "trimEnd")
+    && " x ".trim() === "x" && "x".padStart() === "custom"
+    && own.call(String.prototype, "trim") && own.call(String.prototype, "length")
+    && own.call(String.prototype.trim, "name") && own.call(String.prototype.trim, "length")
+    && !own.call(String.prototype.trim, "prototype") && !own.call(String.prototype.trim, "call")
+    && own.call(ordinary, "trimEnd") && !own.call({}, "trimEnd")
+    && ({}).trimEnd === undefined && String.prototype.notAStandardStringProperty === undefined
+    && !own.call(String.prototype, "notAStandardStringProperty")
+    && String.prototype.constructor === String && String.prototype.length === 0
+    && Object.prototype.toString.call(String.prototype) === "[object String]"
+    && String.prototype.trim.call(String.prototype) === "";`;
+test("native known fields/replacements/ordinary negative controls", () => withModuleFixture(preciseSurface, file => {
+  expect(nodeModuleObservation(file)).toEqual({kind: "return", value: {type: "boolean", value: true}});
+}));
+test("known fields/replacements/ordinary negative controls remain precise", () => {
+  expect(compareModule(preciseSurface).loaded).toMatchObject({value: true});
+});
+
+test("available own-inspection syntax stops at the typed String metadata boundary", () => {
+  for (const expression of ['({...String.prototype})', '({...String.prototype.trim})']) {
+    const [completion] = run(`let trace = "";
+      if(selected) {trace = "prefix"; const copy = ${expression}; trace = "wrong";} else trace = "sibling";`, {selected: ESBoolean()});
+    expect(isForkedCompletion(completion)).toBe(true);
+    if (!isForkedCompletion(completion)) throw new Error("expected fork");
+    expect(completion.consequent[0]).toMatchObject({type: "ExecutionBoundary", kind: "unsupported"});
+    expect(completion.consequent[1].value.scope.trace).toMatchObject({value: "prefix"});
+    expect(completion.alternate[1].value.scope.trace).toMatchObject({value: "sibling"});
+  }
+});
+
+// A native enumeration checks that the declared standard string-keyed surface
+// is complete for the pinned runtime, independently of the implementation list.
+const deferredStringNames = ["anchor", "at", "big", "blink", "bold", "charAt", "charCodeAt",
+  "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed", "includes", "indexOf",
+  "isWellFormed", "italics", "lastIndexOf", "link", "localeCompare", "match", "matchAll",
+  "normalize", "padEnd", "padStart", "repeat", "replace", "replaceAll", "search", "small",
+  "split", "strike", "sub", "substr", "substring", "sup", "startsWith", "toWellFormed",
+  "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase", "toLocaleUpperCase",
+  "toLowerCase", "toUpperCase"];
+test("native pinned String prototype own-name inventory", () => {
+  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "valueOf"]).sort();
+  withModuleFixture(`module.exports = Object.getOwnPropertyNames(String.prototype).sort().join("|") === ${JSON.stringify(names.join("|"))};`, file => {
+    expect(nodeModuleObservation(file)).toEqual({kind: "return", value: {type: "boolean", value: true}});
+  });
+});
+test("every deferred own name stops reads and presence without guessing absence", () => {
+  for (const name of deferredStringNames) {
+    for (const expression of [`String.prototype[${JSON.stringify(name)}]`,
+      `Object.prototype.hasOwnProperty.call(String.prototype, ${JSON.stringify(name)})`]) {
+      const [completion, after] = run(`let trace = "prefix"; const observation = ${expression}; trace = "wrong";`);
+      expect(completion).toMatchObject({type: "ExecutionBoundary", kind: "unsupported",
+        message: `String.prototype.${name} is not yet supported`});
+      expect(after.value.scope.trace).toMatchObject({value: "prefix"});
+    }
+  }
+});
+test("trim metadata guards retain state beside completed siblings", () => {
+  for (const operation of ['const observed = typeof String.prototype.trim.bind;', 'String.prototype.trim.name = "other";']) {
+    const [completion] = run(`let trace = "";
+      if(selected) {trace = "prefix"; ${operation} trace = "wrong";} else trace = "sibling";`, {selected: ESBoolean()});
+    expect(isForkedCompletion(completion)).toBe(true);
+    if (!isForkedCompletion(completion)) throw new Error("expected fork");
+    expect(completion.consequent[0]).toMatchObject({type: "ExecutionBoundary", kind: "unsupported"});
+    expect(completion.consequent[1].value.scope.trace).toMatchObject({value: "prefix"});
+    expect(completion.alternate[1].value.scope.trace).toMatchObject({value: "sibling"});
+  }
+});
