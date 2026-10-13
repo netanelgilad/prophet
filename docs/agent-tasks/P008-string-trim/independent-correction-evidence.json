@@ -1,0 +1,3200 @@
+{
+  "task": "P008 independent correction review",
+  "generatedAtUTC": "2026-10-13T21:20:29.923990+00:00",
+  "verdict": "accept exact worker source within declared bounded domain; root integration gates remain",
+  "acceptedWorkerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+  "workerEvidenceCommit": "e3191d073fdc28d125d19bb269ef25315f8fef0c",
+  "workerEvidenceSha256": "238f26f46b2f674a7732310bc60821f5ab0c311b4b11a9d8072a56f60a69a8e1",
+  "effectiveBaseline": "750b5c690d97dd63ca304713805c59a360b748a0",
+  "contentComparison": "git diff 750b5c6..06eefd5 (two-dot)",
+  "correctionComparison": "git diff cb2c0da..06eefd5 (two-dot)",
+  "mergeBase": "8a2b976fff5d03589660f1fc344c4549d3c01771",
+  "workerCorrectionParent": "93dcdbd49ed850f7a35d921853cd021988b69588",
+  "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+  "branch": "review/p008-string-trim",
+  "reviewSourceBeforeArtifacts": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+  "pretestSourceVerification": {
+    "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+    "reviewHead": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+    "runtimeTree": "3ba57e5f089858c1e9cc9602bb99b4f4bab605eb",
+    "workerTestTree": "4e58abc1a2970701e3082b001f895f81641cd908",
+    "reviewTestTree": "70d2e2069e6b05a5c45222ad65e9a6d10a0a5580",
+    "testTreeDifference": "Retained independent P008 spec plus test262 README count correction absent from review ancestry; every worker TypeScript file matches.",
+    "files": [
+      {
+        "path": "src/ASTResolvers.ts",
+        "workerSha256": "a0e35dc4b91101926648ad06801ae388add68902f111789872039ed5d126d75b",
+        "checkoutSha256": "a0e35dc4b91101926648ad06801ae388add68902f111789872039ed5d126d75b",
+        "equal": true
+      },
+      {
+        "path": "src/Function/Function.ts",
+        "workerSha256": "82cb455d150f925e9da6e36c8b96fe2a5d9b133653c824161927e49827e3d00a",
+        "checkoutSha256": "82cb455d150f925e9da6e36c8b96fe2a5d9b133653c824161927e49827e3d00a",
+        "equal": true
+      },
+      {
+        "path": "src/Function/binding-patterns.ts",
+        "workerSha256": "bd02ba41d8bb1f4b176c3b3a457b1b23e260569780bfc34f304ab00ca28ab5d8",
+        "checkoutSha256": "bd02ba41d8bb1f4b176c3b3a457b1b23e260569780bfc34f304ab00ca28ab5d8",
+        "equal": true
+      },
+      {
+        "path": "src/Function/call.ts",
+        "workerSha256": "2bd469a8d31897624de081ffcf6f288e31b3338da2797021429f3b71d12c1eac",
+        "checkoutSha256": "2bd469a8d31897624de081ffcf6f288e31b3338da2797021429f3b71d12c1eac",
+        "equal": true
+      },
+      {
+        "path": "src/Function/construct.ts",
+        "workerSha256": "a739c97c20237693eea29feb4c0fb4239f024b00ab822683db7ecba74385ec6a",
+        "checkoutSha256": "a739c97c20237693eea29feb4c0fb4239f024b00ab822683db7ecba74385ec6a",
+        "equal": true
+      },
+      {
+        "path": "src/Function/definition.ts",
+        "workerSha256": "6bd151cba300057a4bbdbead571b626d624d863f639722c457bc4efd551086d4",
+        "checkoutSha256": "6bd151cba300057a4bbdbead571b626d624d863f639722c457bc4efd551086d4",
+        "equal": true
+      },
+      {
+        "path": "src/Function/instanceof.ts",
+        "workerSha256": "111150c11ac62bbeb80d46032b1db3e3442d6fecdf302b3b2c6acc243f1a12b7",
+        "checkoutSha256": "111150c11ac62bbeb80d46032b1db3e3442d6fecdf302b3b2c6acc243f1a12b7",
+        "equal": true
+      },
+      {
+        "path": "src/Function/instantiate.ts",
+        "workerSha256": "01750980d73c9ba6879ec173721e0d600a861e3a340a84218aea08222d36fe4a",
+        "checkoutSha256": "01750980d73c9ba6879ec173721e0d600a861e3a340a84218aea08222d36fe4a",
+        "equal": true
+      },
+      {
+        "path": "src/Function/parameters.ts",
+        "workerSha256": "61060d0904c5ac828f9e21cc9d9b9e8c5b35fe07ad71a030b581f7e4ad0267ef",
+        "checkoutSha256": "61060d0904c5ac828f9e21cc9d9b9e8c5b35fe07ad71a030b581f7e4ad0267ef",
+        "equal": true
+      },
+      {
+        "path": "src/Function/prototype.ts",
+        "workerSha256": "a9f09ce76865be4c1c10c228ba741f0e971cadc76463792e092d2c6a222552c9",
+        "checkoutSha256": "a9f09ce76865be4c1c10c228ba741f0e971cadc76463792e092d2c6a222552c9",
+        "equal": true
+      },
+      {
+        "path": "src/Function/summaries.ts",
+        "workerSha256": "da36c932a357673159915a56c3f60bae4991b1f58ca5108235c3c395a4a130b8",
+        "checkoutSha256": "da36c932a357673159915a56c3f60bae4991b1f58ca5108235c3c395a4a130b8",
+        "equal": true
+      },
+      {
+        "path": "src/Object.ts",
+        "workerSha256": "4d82b8b1298ad0e382553a4e423597d94e5b615c8d41e73a079cb305d7240687",
+        "checkoutSha256": "4d82b8b1298ad0e382553a4e423597d94e5b615c8d41e73a079cb305d7240687",
+        "equal": true
+      },
+      {
+        "path": "src/Object/ObjectConstructor.ts",
+        "workerSha256": "e852566f64783dc7864acc78a79352a99b461d3446a59112349a54f219dbd92d",
+        "checkoutSha256": "e852566f64783dc7864acc78a79352a99b461d3446a59112349a54f219dbd92d",
+        "equal": true
+      },
+      {
+        "path": "src/Object/enumeration.ts",
+        "workerSha256": "0c6e8e05b14b61f547261cf38ff01ac206a1b1f89388da3481e53f35dd8802a1",
+        "checkoutSha256": "0c6e8e05b14b61f547261cf38ff01ac206a1b1f89388da3481e53f35dd8802a1",
+        "equal": true
+      },
+      {
+        "path": "src/Object/prototype.ts",
+        "workerSha256": "93f5cfeedf13f4d8c3c2536fadb7d53fb5b6d23c9fbe4c933eaea6231f30cfd9",
+        "checkoutSha256": "93f5cfeedf13f4d8c3c2536fadb7d53fb5b6d23c9fbe4c933eaea6231f30cfd9",
+        "equal": true
+      },
+      {
+        "path": "src/Object/wellKnownSymbols.ts",
+        "workerSha256": "33f7db84da5cba8f25196a4fa2b7c5ee23c1ac2710a6153334f56f12a92f64e9",
+        "checkoutSha256": "33f7db84da5cba8f25196a4fa2b7c5ee23c1ac2710a6153334f56f12a92f64e9",
+        "equal": true
+      },
+      {
+        "path": "src/array/Array.ts",
+        "workerSha256": "4cd6086202df292e388f7860f6da096256b3e81a2ef43ac09416661b7b356d22",
+        "checkoutSha256": "4cd6086202df292e388f7860f6da096256b3e81a2ef43ac09416661b7b356d22",
+        "equal": true
+      },
+      {
+        "path": "src/array/concat.ts",
+        "workerSha256": "1076a81cd723c651aee220bb84f189780145c5027d5b34e465c18d36a0112cdd",
+        "checkoutSha256": "1076a81cd723c651aee220bb84f189780145c5027d5b34e465c18d36a0112cdd",
+        "equal": true
+      },
+      {
+        "path": "src/array/forEach.ts",
+        "workerSha256": "0ed99417dc03939bd50bb8af4cce4e35fc61d4352b0bfe74d9088a5a65ad1717",
+        "checkoutSha256": "0ed99417dc03939bd50bb8af4cce4e35fc61d4352b0bfe74d9088a5a65ad1717",
+        "equal": true
+      },
+      {
+        "path": "src/array/inherited-elements.ts",
+        "workerSha256": "6903f596cebab57c052b65d9fe0a18e9260de4f2369ecda4dd49c7257b0f6eb4",
+        "checkoutSha256": "6903f596cebab57c052b65d9fe0a18e9260de4f2369ecda4dd49c7257b0f6eb4",
+        "equal": true
+      },
+      {
+        "path": "src/array/join.ts",
+        "workerSha256": "c961475e550c0a0c8d09ee9db5dca9924859eb53feb6e42419d20aed8ff01cb2",
+        "checkoutSha256": "c961475e550c0a0c8d09ee9db5dca9924859eb53feb6e42419d20aed8ff01cb2",
+        "equal": true
+      },
+      {
+        "path": "src/array/prototype.ts",
+        "workerSha256": "4f0d1dd3ca7c90aaa912d4e13978f4e9580c446567c4ea0b822ad0269c8cbbe4",
+        "checkoutSha256": "4f0d1dd3ca7c90aaa912d4e13978f4e9580c446567c4ea0b822ad0269c8cbbe4",
+        "equal": true
+      },
+      {
+        "path": "src/array/push.ts",
+        "workerSha256": "107ae24628cb6633927d1ef2735f8b8d58f5e2fb7a2722e9c4b9616b981affc0",
+        "checkoutSha256": "107ae24628cb6633927d1ef2735f8b8d58f5e2fb7a2722e9c4b9616b981affc0",
+        "equal": true
+      },
+      {
+        "path": "src/array/reverse.ts",
+        "workerSha256": "052510a8fd06ca10dc6a5d4f6650c5541291e6f29fac69494e515584ecf65f80",
+        "checkoutSha256": "052510a8fd06ca10dc6a5d4f6650c5541291e6f29fac69494e515584ecf65f80",
+        "equal": true
+      },
+      {
+        "path": "src/array/slice.ts",
+        "workerSha256": "c22138454973cfed05f82a93d6118db63037ee1709d1acd3e6df84a324743f62",
+        "checkoutSha256": "c22138454973cfed05f82a93d6118db63037ee1709d1acd3e6df84a324743f62",
+        "equal": true
+      },
+      {
+        "path": "src/array/symbolic.ts",
+        "workerSha256": "cd528e2958d5754b49496f8108a3464c18b6d6efafb949407303fbcbc75b171c",
+        "checkoutSha256": "cd528e2958d5754b49496f8108a3464c18b6d6efafb949407303fbcbc75b171c",
+        "equal": true
+      },
+      {
+        "path": "src/boolean/ESBoolean.ts",
+        "workerSha256": "7311c8742ce26a2efd07f54e655894c289ee115f48a5c2f11f1b70acdfdbb1ba",
+        "checkoutSha256": "7311c8742ce26a2efd07f54e655894c289ee115f48a5c2f11f1b70acdfdbb1ba",
+        "equal": true
+      },
+      {
+        "path": "src/cli/arguments.ts",
+        "workerSha256": "9752daf9fab42c8bb01fb2ffe5b2e521ca49fd6bb1f6e2d07d64cdade716c7ab",
+        "checkoutSha256": "9752daf9fab42c8bb01fb2ffe5b2e521ca49fd6bb1f6e2d07d64cdade716c7ab",
+        "equal": true
+      },
+      {
+        "path": "src/cli/filesystem-capture.ts",
+        "workerSha256": "b0bb6bcb64694e31e4762ff2bb500477435d3b98586a3cc2a54c17a114a7a314",
+        "checkoutSha256": "b0bb6bcb64694e31e4762ff2bb500477435d3b98586a3cc2a54c17a114a7a314",
+        "equal": true
+      },
+      {
+        "path": "src/cli/graph.ts",
+        "workerSha256": "7a7a93c075d8a8f4af5da464f5f5eadc57a5dae58d3adb2a6ba35a2d549bcd80",
+        "checkoutSha256": "7a7a93c075d8a8f4af5da464f5f5eadc57a5dae58d3adb2a6ba35a2d549bcd80",
+        "equal": true
+      },
+      {
+        "path": "src/cli/main.ts",
+        "workerSha256": "2f98dff33f7ce76b3d4cf282199e2d10cc40ca532cbd5864b4d59e1eb82829ed",
+        "checkoutSha256": "2f98dff33f7ce76b3d4cf282199e2d10cc40ca532cbd5864b4d59e1eb82829ed",
+        "equal": true
+      },
+      {
+        "path": "src/cli/runtime.ts",
+        "workerSha256": "1feb01e6e909a5aa905192cd3f8b6e1ef4efa5fa28b855a74cf0c273c489ddb9",
+        "checkoutSha256": "1feb01e6e909a5aa905192cd3f8b6e1ef4efa5fa28b855a74cf0c273c489ddb9",
+        "equal": true
+      },
+      {
+        "path": "src/cli/source-capture.ts",
+        "workerSha256": "bb4f6a5d3ecb75cde0acab24f95e505887104b2c83162c2192543448daea8c93",
+        "checkoutSha256": "bb4f6a5d3ecb75cde0acab24f95e505887104b2c83162c2192543448daea8c93",
+        "equal": true
+      },
+      {
+        "path": "src/conversion/toNumber.ts",
+        "workerSha256": "40ecda125fb01384ac52b9a77a5e274f1d85a57716bcd84a6af45e498cc17102",
+        "checkoutSha256": "40ecda125fb01384ac52b9a77a5e274f1d85a57716bcd84a6af45e498cc17102",
+        "equal": true
+      },
+      {
+        "path": "src/conversion/toString.ts",
+        "workerSha256": "e50906dacc3bfd1215345e122a6a69d8bbe1d3d2a5da12fc3e057016e90f9cb7",
+        "checkoutSha256": "e50906dacc3bfd1215345e122a6a69d8bbe1d3d2a5da12fc3e057016e90f9cb7",
+        "equal": true
+      },
+      {
+        "path": "src/effects/index.ts",
+        "workerSha256": "cfc229fdc884f10b7c26876ff50103a725262661c465ba46d4bd5c074cd4813d",
+        "checkoutSha256": "cfc229fdc884f10b7c26876ff50103a725262661c465ba46d4bd5c074cd4813d",
+        "equal": true
+      },
+      {
+        "path": "src/effects/model.ts",
+        "workerSha256": "f067ff769d58c45095e8cce4b62b0d56b0d153bcf18d93e850a51dd2bec26fb7",
+        "checkoutSha256": "f067ff769d58c45095e8cce4b62b0d56b0d153bcf18d93e850a51dd2bec26fb7",
+        "equal": true
+      },
+      {
+        "path": "src/effects/trace.ts",
+        "workerSha256": "3088a12f16b6d2d1cc77d26971d817a9883fbfe012ba151c87ffd78e97befa7e",
+        "checkoutSha256": "3088a12f16b6d2d1cc77d26971d817a9883fbfe012ba151c87ffd78e97befa7e",
+        "equal": true
+      },
+      {
+        "path": "src/error/Error.ts",
+        "workerSha256": "b15a730a29382d326bf646510d75d4ef8ea3793496275d79add78e819b24e604",
+        "checkoutSha256": "b15a730a29382d326bf646510d75d4ef8ea3793496275d79add78e819b24e604",
+        "equal": true
+      },
+      {
+        "path": "src/error/SyntaxError.ts",
+        "workerSha256": "397e645f7c2abe1c7221e4d6e58defd358a286705fbb6c3ff130cc35f2a7c972",
+        "checkoutSha256": "397e645f7c2abe1c7221e4d6e58defd358a286705fbb6c3ff130cc35f2a7c972",
+        "equal": true
+      },
+      {
+        "path": "src/eval/eval.ts",
+        "workerSha256": "2f2f923662a2c1e8ad8a8afe10296c94483f16b55b302bc5224f522e80e3d656",
+        "checkoutSha256": "2f2f923662a2c1e8ad8a8afe10296c94483f16b55b302bc5224f522e80e3d656",
+        "equal": true
+      },
+      {
+        "path": "src/evaluate.ts",
+        "workerSha256": "81690e34392af683de16add7ba540797d6f537c4dd278e27ab883a54601a8eaf",
+        "checkoutSha256": "81690e34392af683de16add7ba540797d6f537c4dd278e27ab883a54601a8eaf",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/Completion.ts",
+        "workerSha256": "bd4dd0354b49bfd9a0c580d92ed274c68e26fc377fa03dd9ce842021b94525f4",
+        "checkoutSha256": "bd4dd0354b49bfd9a0c580d92ed274c68e26fc377fa03dd9ce842021b94525f4",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/ESInitialGlobal.ts",
+        "workerSha256": "dd272b361e04160a087948cd3f5107bf15aa6923f9dc8245d1e61dacb43bae07",
+        "checkoutSha256": "dd272b361e04160a087948cd3f5107bf15aa6923f9dc8245d1e61dacb43bae07",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/ExecutionContext.ts",
+        "workerSha256": "5c7e53c1a252fed5d0cd4663d1cf2ccbe4e65e86d4d876378f0f021036dc0b43",
+        "checkoutSha256": "5c7e53c1a252fed5d0cd4663d1cf2ccbe4e65e86d4d876378f0f021036dc0b43",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/Heap.ts",
+        "workerSha256": "ddb5abf00a6a587aacac3b27aaf907a676a1338a3dd70e3cce67cb40edb6cd9e",
+        "checkoutSha256": "ddb5abf00a6a587aacac3b27aaf907a676a1338a3dd70e3cce67cb40edb6cd9e",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/PropertyKeys.ts",
+        "workerSha256": "2f15e47725b9af5cf7e44b4ecbdbb6b5f10a6487023da8fd27b880635009c227",
+        "checkoutSha256": "2f15e47725b9af5cf7e44b4ecbdbb6b5f10a6487023da8fd27b880635009c227",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/analysis-failure.ts",
+        "workerSha256": "d993668552d69748107c9b05ef4734357ec68a06c2688fd15fd4f8d5a9e39758",
+        "checkoutSha256": "d993668552d69748107c9b05ef4734357ec68a06c2688fd15fd4f8d5a9e39758",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/bindings.ts",
+        "workerSha256": "986fa6834b4f193e3006835d279a41a34714b85218537c9fc0eec195f8b29bff",
+        "checkoutSha256": "986fa6834b4f193e3006835d279a41a34714b85218537c9fc0eec195f8b29bff",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/branches.ts",
+        "workerSha256": "aa46e9920ecb5674d06a22a05e7bb46d54af7f73e86910394df3e62552c1d2d3",
+        "checkoutSha256": "aa46e9920ecb5674d06a22a05e7bb46d54af7f73e86910394df3e62552c1d2d3",
+        "equal": true
+      },
+      {
+        "path": "src/execution-context/nodeInitialExecutionContext.ts",
+        "workerSha256": "cdcf1df858c38a4e5344f098fb09a82c7e42713f2ebbc95263c20072fd460543",
+        "checkoutSha256": "cdcf1df858c38a4e5344f098fb09a82c7e42713f2ebbc95263c20072fd460543",
+        "equal": true
+      },
+      {
+        "path": "src/external-events.ts",
+        "workerSha256": "d0e3eabd25aae3ca37d59376ae39e82e3e2a50ae41fa757a6cfeadf2015f3849",
+        "checkoutSha256": "d0e3eabd25aae3ca37d59376ae39e82e3e2a50ae41fa757a6cfeadf2015f3849",
+        "equal": true
+      },
+      {
+        "path": "src/index.ts",
+        "workerSha256": "9e6031471c5a7ae358052380b70e197936ce1ce5abac8e13e252b475c8d428d5",
+        "checkoutSha256": "9e6031471c5a7ae358052380b70e197936ce1ce5abac8e13e252b475c8d428d5",
+        "equal": true
+      },
+      {
+        "path": "src/jobs.ts",
+        "workerSha256": "4379a68af7e8f34c9a005a2d5806983b1c7db5950e550416b04b466ba8c18885",
+        "checkoutSha256": "4379a68af7e8f34c9a005a2d5806983b1c7db5950e550416b04b466ba8c18885",
+        "equal": true
+      },
+      {
+        "path": "src/loops/for.ts",
+        "workerSha256": "23e4ae8f0b64af77f56b05daed88ed6843ec275afa90aac7225f1fb02fd8a67f",
+        "checkoutSha256": "23e4ae8f0b64af77f56b05daed88ed6843ec275afa90aac7225f1fb02fd8a67f",
+        "equal": true
+      },
+      {
+        "path": "src/loops/unknown-length-summary.ts",
+        "workerSha256": "dc6702829461aae75aeaf7251f4d18010024d089a2986d63d419f113f2701294",
+        "checkoutSha256": "dc6702829461aae75aeaf7251f4d18010024d089a2986d63d419f113f2701294",
+        "equal": true
+      },
+      {
+        "path": "src/math/Math.ts",
+        "workerSha256": "c668b8817f2ac1debbfcf4aa5f70ae2bec8d7c72dd3046dbd9dec5f52dff68c3",
+        "checkoutSha256": "c668b8817f2ac1debbfcf4aa5f70ae2bec8d7c72dd3046dbd9dec5f52dff68c3",
+        "equal": true
+      },
+      {
+        "path": "src/math/round.ts",
+        "workerSha256": "4568a0c975a47d95a7787d6a5baccf166d9627c9bd8dbf5c9859d1fc1cdc808c",
+        "checkoutSha256": "4568a0c975a47d95a7787d6a5baccf166d9627c9bd8dbf5c9859d1fc1cdc808c",
+        "equal": true
+      },
+      {
+        "path": "src/node-builtin-modules/NodeBuiltInModules.ts",
+        "workerSha256": "6503ce08d5037bd072410bad9831d845f7ae9e868294131b2d9303f9c43e91bd",
+        "checkoutSha256": "6503ce08d5037bd072410bad9831d845f7ae9e868294131b2d9303f9c43e91bd",
+        "equal": true
+      },
+      {
+        "path": "src/node-builtin-modules/vm.ts",
+        "workerSha256": "4d99b87775ca28d91cf4eff3c3f7e644ca2f6a77fcd5cbf770b9c9a1e472e120",
+        "checkoutSha256": "4d99b87775ca28d91cf4eff3c3f7e644ca2f6a77fcd5cbf770b9c9a1e472e120",
+        "equal": true
+      },
+      {
+        "path": "src/node/arguments.ts",
+        "workerSha256": "ef8effcc46de116a8690cc1ab12e2c97f5354476565a2673a83ac9801b593b25",
+        "checkoutSha256": "ef8effcc46de116a8690cc1ab12e2c97f5354476565a2673a83ac9801b593b25",
+        "equal": true
+      },
+      {
+        "path": "src/node/bind.ts",
+        "workerSha256": "e8fd0322836bf5714fc1971dca385289777d62c038062f2158b281eeb6e2f795",
+        "checkoutSha256": "e8fd0322836bf5714fc1971dca385289777d62c038062f2158b281eeb6e2f795",
+        "equal": true
+      },
+      {
+        "path": "src/node/buffer.ts",
+        "workerSha256": "25e0c35793b7ac969a2725a99866a5e2a210c991d2d2f27ee84f51ed0f121739",
+        "checkoutSha256": "25e0c35793b7ac969a2725a99866a5e2a210c991d2d2f27ee84f51ed0f121739",
+        "equal": true
+      },
+      {
+        "path": "src/node/console.ts",
+        "workerSha256": "a3aea16259a9b3554fbc3312918b372e4c08acf5866ee75a0d13fb6bdedc43e2",
+        "checkoutSha256": "a3aea16259a9b3554fbc3312918b372e4c08acf5866ee75a0d13fb6bdedc43e2",
+        "equal": true
+      },
+      {
+        "path": "src/node/events.ts",
+        "workerSha256": "af7c72869fb61a3f59583406db59091b0874e119cd056f0dccaff4ecf9b53a23",
+        "checkoutSha256": "af7c72869fb61a3f59583406db59091b0874e119cd056f0dccaff4ecf9b53a23",
+        "equal": true
+      },
+      {
+        "path": "src/node/filesystem.ts",
+        "workerSha256": "8b9e3d1fc2f38098ba3bad46ab8e606f84913bc75f4afade6455e3ea31a49f97",
+        "checkoutSha256": "8b9e3d1fc2f38098ba3bad46ab8e606f84913bc75f4afade6455e3ea31a49f97",
+        "equal": true
+      },
+      {
+        "path": "src/node/http-body.ts",
+        "workerSha256": "1186f2a027f6e3c39b4e2b25838cdf73cd163285fda76f9a9cb2d128ae604ad3",
+        "checkoutSha256": "1186f2a027f6e3c39b4e2b25838cdf73cd163285fda76f9a9cb2d128ae604ad3",
+        "equal": true
+      },
+      {
+        "path": "src/node/http-headers.ts",
+        "workerSha256": "77a6de3ae09b01c1024e5b63c97832f0654318040b272466d9357762c46c4b49",
+        "checkoutSha256": "77a6de3ae09b01c1024e5b63c97832f0654318040b272466d9357762c46c4b49",
+        "equal": true
+      },
+      {
+        "path": "src/node/http-status-codes.ts",
+        "workerSha256": "381c3d6857d5197dd42d62e15226924479bd68e6b53f4e95805a506a85354170",
+        "checkoutSha256": "381c3d6857d5197dd42d62e15226924479bd68e6b53f4e95805a506a85354170",
+        "equal": true
+      },
+      {
+        "path": "src/node/http.ts",
+        "workerSha256": "e7968acb31adb2543a3bad2519f47ee4e76a9bc9793ab87818fe71c625d1354d",
+        "checkoutSha256": "e7968acb31adb2543a3bad2519f47ee4e76a9bc9793ab87818fe71c625d1354d",
+        "equal": true
+      },
+      {
+        "path": "src/node/opaque.ts",
+        "workerSha256": "5564a29181cc2c21a6c60f77132fe1b89b38d0015ce6b54e47758408e66b78e4",
+        "checkoutSha256": "5564a29181cc2c21a6c60f77132fe1b89b38d0015ce6b54e47758408e66b78e4",
+        "equal": true
+      },
+      {
+        "path": "src/node/path.ts",
+        "workerSha256": "1e95a6b09c94b2afc7d648c81464c6cf4a4b609fe0c4635aa04a6ddd01c2517d",
+        "checkoutSha256": "1e95a6b09c94b2afc7d648c81464c6cf4a4b609fe0c4635aa04a6ddd01c2517d",
+        "equal": true
+      },
+      {
+        "path": "src/node/process.ts",
+        "workerSha256": "25fbee1f548d71cdbd432ffc712292de1671a9ccf3f402ec2259cbb6b24c7f18",
+        "checkoutSha256": "25fbee1f548d71cdbd432ffc712292de1671a9ccf3f402ec2259cbb6b24c7f18",
+        "equal": true
+      },
+      {
+        "path": "src/node/url.ts",
+        "workerSha256": "a8c461f9c44d61d08df99082ee17289e959318998c3f51900c0d1dceac7ff25a",
+        "checkoutSha256": "a8c461f9c44d61d08df99082ee17289e959318998c3f51900c0d1dceac7ff25a",
+        "equal": true
+      },
+      {
+        "path": "src/node/warnings.ts",
+        "workerSha256": "190c987a943645810791610cb393df58194b2b94fd8f4a363381e0670e96b377",
+        "checkoutSha256": "190c987a943645810791610cb393df58194b2b94fd8f4a363381e0670e96b377",
+        "equal": true
+      },
+      {
+        "path": "src/number/Number.ts",
+        "workerSha256": "ea8ce9a31a370d929167545ecdb1b166a6e329491372d1e5ef150ab080cb1763",
+        "checkoutSha256": "ea8ce9a31a370d929167545ecdb1b166a6e329491372d1e5ef150ab080cb1763",
+        "equal": true
+      },
+      {
+        "path": "src/number/symbolic.ts",
+        "workerSha256": "cffffb63691a6d28deef90cd32e6b0afd4af3d4e863acdd3662638703f6a5adb",
+        "checkoutSha256": "cffffb63691a6d28deef90cd32e6b0afd4af3d4e863acdd3662638703f6a5adb",
+        "equal": true
+      },
+      {
+        "path": "src/operators.ts",
+        "workerSha256": "3ec1fe55ec9a39d2f421c9206e8ba9766aa24e14c24403354b567ebe320522ae",
+        "checkoutSha256": "3ec1fe55ec9a39d2f421c9206e8ba9766aa24e14c24403354b567ebe320522ae",
+        "equal": true
+      },
+      {
+        "path": "src/parseECMACompliant.ts",
+        "workerSha256": "872939d349c512616ec9d44bdea3d6a640a37f7fc8b9b9d511d91b6b64c27632",
+        "checkoutSha256": "872939d349c512616ec9d44bdea3d6a640a37f7fc8b9b9d511d91b6b64c27632",
+        "equal": true
+      },
+      {
+        "path": "src/regexp/RegExp.ts",
+        "workerSha256": "4fded6740cb3f7f73bc4b688b812d877448bcdf6b0e22eebdb2c09d127815665",
+        "checkoutSha256": "4fded6740cb3f7f73bc4b688b812d877448bcdf6b0e22eebdb2c09d127815665",
+        "equal": true
+      },
+      {
+        "path": "src/regexp/intrinsic.ts",
+        "workerSha256": "4b031a60ddcf95f942c9067b4aadd7386e936788638b3bc359a535bb6227ada6",
+        "checkoutSha256": "4b031a60ddcf95f942c9067b4aadd7386e936788638b3bc359a535bb6227ada6",
+        "equal": true
+      },
+      {
+        "path": "src/regexp/matcher.ts",
+        "workerSha256": "e70bd541c3f946fcce7f5c5b4b3b4ba8d04f5341e1695930ba719afbe3a61aa1",
+        "checkoutSha256": "e70bd541c3f946fcce7f5c5b4b3b4ba8d04f5341e1695930ba719afbe3a61aa1",
+        "equal": true
+      },
+      {
+        "path": "src/require/builtin-names.ts",
+        "workerSha256": "e8f8f5ab727b07064862da34126224e876222a1d62fba33d51d6555a88638160",
+        "checkoutSha256": "e8f8f5ab727b07064862da34126224e876222a1d62fba33d51d6555a88638160",
+        "equal": true
+      },
+      {
+        "path": "src/require/commonjs.ts",
+        "workerSha256": "782507c444e832462de9ac0e68a952771a91b4d7fd370b7d607950261fc78a80",
+        "checkoutSha256": "782507c444e832462de9ac0e68a952771a91b4d7fd370b7d607950261fc78a80",
+        "equal": true
+      },
+      {
+        "path": "src/require/json.ts",
+        "workerSha256": "de364b993143f2c4e41205c718a37b3d182e9ae075952e52fd16aea70e03e6e3",
+        "checkoutSha256": "de364b993143f2c4e41205c718a37b3d182e9ae075952e52fd16aea70e03e6e3",
+        "equal": true
+      },
+      {
+        "path": "src/require/loader.ts",
+        "workerSha256": "3420eef2f8c3e39a1c8e6f05e2d65d6d2f25cd8572325d74f28edab015314a03",
+        "checkoutSha256": "3420eef2f8c3e39a1c8e6f05e2d65d6d2f25cd8572325d74f28edab015314a03",
+        "equal": true
+      },
+      {
+        "path": "src/require/package-config.ts",
+        "workerSha256": "84ba2d19d096d85f3ca8583c1a37d49399c6860d61b7e2436cd9ee7d8bfedd19",
+        "checkoutSha256": "84ba2d19d096d85f3ca8583c1a37d49399c6860d61b7e2436cd9ee7d8bfedd19",
+        "equal": true
+      },
+      {
+        "path": "src/require/package-exports.ts",
+        "workerSha256": "3c0c4cd683abeb182c0404515ad66bacf5b05a294bb835ab2cddb62eeda5393a",
+        "checkoutSha256": "3c0c4cd683abeb182c0404515ad66bacf5b05a294bb835ab2cddb62eeda5393a",
+        "equal": true
+      },
+      {
+        "path": "src/require/require.ts",
+        "workerSha256": "63d6a48ab983b9d346e9fcef8bd7af87713b277b105955b6c9b14ab733dc5fe2",
+        "checkoutSha256": "63d6a48ab983b9d346e9fcef8bd7af87713b277b105955b6c9b14ab733dc5fe2",
+        "equal": true
+      },
+      {
+        "path": "src/require/resolution.ts",
+        "workerSha256": "bd560b77d9df7e4638d932a48b515c022eaa0bf9f2a30ac3cff799002e349b8f",
+        "checkoutSha256": "bd560b77d9df7e4638d932a48b515c022eaa0bf9f2a30ac3cff799002e349b8f",
+        "equal": true
+      },
+      {
+        "path": "src/string/String.ts",
+        "workerSha256": "7bed473549a7e90fa5056da622a73711aa8e9bd14a40dd0b3ab90b4ff18970fc",
+        "checkoutSha256": "7bed473549a7e90fa5056da622a73711aa8e9bd14a40dd0b3ab90b4ff18970fc",
+        "equal": true
+      },
+      {
+        "path": "src/string/concat.ts",
+        "workerSha256": "6f885f0909c0f26fb381d4c6e2030768b23d0d7a7ce83ead8d893cdd9ca532da",
+        "checkoutSha256": "6f885f0909c0f26fb381d4c6e2030768b23d0d7a7ce83ead8d893cdd9ca532da",
+        "equal": true
+      },
+      {
+        "path": "src/string/slice.ts",
+        "workerSha256": "2aa133f1c344aeb7ff7a39f1fa76d1bc89f72fca1cf4ec590a93379a767a71b3",
+        "checkoutSha256": "2aa133f1c344aeb7ff7a39f1fa76d1bc89f72fca1cf4ec590a93379a767a71b3",
+        "equal": true
+      },
+      {
+        "path": "src/string/split.ts",
+        "workerSha256": "b3752ffd6e44a1ee514ede8ccecc459fef0e35a924faefa03bc9f71ead225e3a",
+        "checkoutSha256": "b3752ffd6e44a1ee514ede8ccecc459fef0e35a924faefa03bc9f71ead225e3a",
+        "equal": true
+      },
+      {
+        "path": "src/string/substr.ts",
+        "workerSha256": "50980cf012150d1350242f0a7992f7d7a17c94a96fbafec52ca832badc84e7a7",
+        "checkoutSha256": "50980cf012150d1350242f0a7992f7d7a17c94a96fbafec52ca832badc84e7a7",
+        "equal": true
+      },
+      {
+        "path": "src/string/trim.ts",
+        "workerSha256": "8444a5650d7483541e391c500d752994822d04e6dd77c3822021f3ffe730be86",
+        "checkoutSha256": "8444a5650d7483541e391c500d752994822d04e6dd77c3822021f3ffe730be86",
+        "equal": true
+      },
+      {
+        "path": "src/symbolic/arithmetic.ts",
+        "workerSha256": "000bb811bb1494f477ab55e66fd1a2908940f2990319a87a34ea84a47fc074d1",
+        "checkoutSha256": "000bb811bb1494f477ab55e66fd1a2908940f2990319a87a34ea84a47fc074d1",
+        "equal": true
+      },
+      {
+        "path": "src/symbolic/index.ts",
+        "workerSha256": "7dffad0a241a49088d614110b00041c9f9a1a5c8ba0412ddb262b1e236b8bd34",
+        "checkoutSha256": "7dffad0a241a49088d614110b00041c9f9a1a5c8ba0412ddb262b1e236b8bd34",
+        "equal": true
+      },
+      {
+        "path": "src/symbolic/model.ts",
+        "workerSha256": "2b06cf80108a21cce33754cc89e7df9e02a170fa236452f23c43d7cc411173be",
+        "checkoutSha256": "2b06cf80108a21cce33754cc89e7df9e02a170fa236452f23c43d7cc411173be",
+        "equal": true
+      },
+      {
+        "path": "src/types.ts",
+        "workerSha256": "1541ffad93e58bce732bbd5edfa126592c2c1a81ab5b6acc1fef5d2bac20a485",
+        "checkoutSha256": "1541ffad93e58bce732bbd5edfa126592c2c1a81ab5b6acc1fef5d2bac20a485",
+        "equal": true
+      },
+      {
+        "path": "src/window/prompt.ts",
+        "workerSha256": "a53d5962702ff6057487dfedc523c1ca9503377b38a8a811a7fd03649eef00f0",
+        "checkoutSha256": "a53d5962702ff6057487dfedc523c1ca9503377b38a8a811a7fd03649eef00f0",
+        "equal": true
+      },
+      {
+        "path": "test/analysis-failure-context.spec.ts",
+        "workerSha256": "c3eea17cd1f14232e71c13033899bc711a3ac76f7c6d517d123129d22e93f324",
+        "checkoutSha256": "c3eea17cd1f14232e71c13033899bc711a3ac76f7c6d517d123129d22e93f324",
+        "equal": true
+      },
+      {
+        "path": "test/arguments-boundaries.spec.ts",
+        "workerSha256": "b9f4c9ac9f63b62e4ee7850938e3290cc56d9c19bd28335d36c25f1bb22c4c02",
+        "checkoutSha256": "b9f4c9ac9f63b62e4ee7850938e3290cc56d9c19bd28335d36c25f1bb22c4c02",
+        "equal": true
+      },
+      {
+        "path": "test/arithmetic-bounds.spec.ts",
+        "workerSha256": "5fa45d88f59036df2aa27281963aec7884343a396b3633c6e0f59ed158efe51f",
+        "checkoutSha256": "5fa45d88f59036df2aa27281963aec7884343a396b3633c6e0f59ed158efe51f",
+        "equal": true
+      },
+      {
+        "path": "test/arithmetic-soundness.spec.ts",
+        "workerSha256": "353dc61a6cbf0d6362b74826988ab6eb99560fb2355fd71d586cc28dd9330602",
+        "checkoutSha256": "353dc61a6cbf0d6362b74826988ab6eb99560fb2355fd71d586cc28dd9330602",
+        "equal": true
+      },
+      {
+        "path": "test/array-concat.spec.ts",
+        "workerSha256": "b74a0305e591233ac74e6088a73e3206b2017fc98d16bcbcb98c66287aba4f36",
+        "checkoutSha256": "b74a0305e591233ac74e6088a73e3206b2017fc98d16bcbcb98c66287aba4f36",
+        "equal": true
+      },
+      {
+        "path": "test/array-foreach.spec.ts",
+        "workerSha256": "892819a4a7236d53cf9980d61117f707d1e5de22daa53f1f1ce561bbc70b0567",
+        "checkoutSha256": "892819a4a7236d53cf9980d61117f707d1e5de22daa53f1f1ce561bbc70b0567",
+        "equal": true
+      },
+      {
+        "path": "test/array-push.spec.ts",
+        "workerSha256": "6d87f7b6d282f7a3d3e86c5f605c2b81b619cbfc57ba7734ca31717e061d3fcf",
+        "checkoutSha256": "6d87f7b6d282f7a3d3e86c5f605c2b81b619cbfc57ba7734ca31717e061d3fcf",
+        "equal": true
+      },
+      {
+        "path": "test/arrays.spec.ts",
+        "workerSha256": "b6159320b22c660a926e85d23e8eb6ce5b1ba5ec7ef3686b19110c67e8231eb2",
+        "checkoutSha256": "b6159320b22c660a926e85d23e8eb6ce5b1ba5ec7ef3686b19110c67e8231eb2",
+        "equal": true
+      },
+      {
+        "path": "test/arrow-functions.spec.ts",
+        "workerSha256": "1b51a271b4cb562fabf6bd85f913dee1c84cb23de2fe659545824161042f019c",
+        "checkoutSha256": "1b51a271b4cb562fabf6bd85f913dee1c84cb23de2fe659545824161042f019c",
+        "equal": true
+      },
+      {
+        "path": "test/branch-state.spec.ts",
+        "workerSha256": "feeac17e9d0cc9a4003125c92a4c2f68903ad20dde3363563463d2a97a97c477",
+        "checkoutSha256": "feeac17e9d0cc9a4003125c92a4c2f68903ad20dde3363563463d2a97a97c477",
+        "equal": true
+      },
+      {
+        "path": "test/cli-arguments.spec.ts",
+        "workerSha256": "8beceb84dec85abc3a49fff9b2d6a8fd4337cbe08605ce509649bcefc89df639",
+        "checkoutSha256": "8beceb84dec85abc3a49fff9b2d6a8fd4337cbe08605ce509649bcefc89df639",
+        "equal": true
+      },
+      {
+        "path": "test/cli-filesystem.spec.ts",
+        "workerSha256": "28596ea36a7b516dff43f90dd56015d44eda71be1f2dc1e53797ab56c469e5a4",
+        "checkoutSha256": "28596ea36a7b516dff43f90dd56015d44eda71be1f2dc1e53797ab56c469e5a4",
+        "equal": true
+      },
+      {
+        "path": "test/cli-graph.spec.ts",
+        "workerSha256": "87b67fa35116418938b3bf78c04aff491d8d6ab81a0aea29627bd3d5d375b372",
+        "checkoutSha256": "87b67fa35116418938b3bf78c04aff491d8d6ab81a0aea29627bd3d5d375b372",
+        "equal": true
+      },
+      {
+        "path": "test/cli-imports.spec.ts",
+        "workerSha256": "2573eb84f8ac2f596cbf337e618ce255f808bf79c5a49413d848d456b4d34291",
+        "checkoutSha256": "2573eb84f8ac2f596cbf337e618ce255f808bf79c5a49413d848d456b4d34291",
+        "equal": true
+      },
+      {
+        "path": "test/cli-incoming-events.spec.ts",
+        "workerSha256": "ca1ab74768ee6484ebd244637d3b6f742d7a40913ce2099a1afe9c7f255745fa",
+        "checkoutSha256": "ca1ab74768ee6484ebd244637d3b6f742d7a40913ce2099a1afe9c7f255745fa",
+        "equal": true
+      },
+      {
+        "path": "test/cli-node-environment.spec.ts",
+        "workerSha256": "22c2ed632e1c0963a052e1998e7af1a69b8390cd1809d9bfd17354c785eaebe8",
+        "checkoutSha256": "22c2ed632e1c0963a052e1998e7af1a69b8390cd1809d9bfd17354c785eaebe8",
+        "equal": true
+      },
+      {
+        "path": "test/cli-runtime.spec.ts",
+        "workerSha256": "0a8300a3e5c6593eb7d71d5134a9d10e844ef153acb6a264471bbb9ec044bd33",
+        "checkoutSha256": "0a8300a3e5c6593eb7d71d5134a9d10e844ef153acb6a264471bbb9ec044bd33",
+        "equal": true
+      },
+      {
+        "path": "test/cli-source-capture.spec.ts",
+        "workerSha256": "993969f7ef6296ef3b512d447c0914dba041a74c58f625c6b4bff260169dc9c7",
+        "checkoutSha256": "993969f7ef6296ef3b512d447c0914dba041a74c58f625c6b4bff260169dc9c7",
+        "equal": true
+      },
+      {
+        "path": "test/cli.spec.ts",
+        "workerSha256": "fb928a359f0cee028d9086f32d4caa483ef9147fe9cc129a8ab50917b781e7fb",
+        "checkoutSha256": "fb928a359f0cee028d9086f32d4caa483ef9147fe9cc129a8ab50917b781e7fb",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-builtins.spec.ts",
+        "workerSha256": "2ceabf6f8075816c7f0289faa525b92bff226757a5acf3ade2f1c00ff5f41cb1",
+        "checkoutSha256": "2ceabf6f8075816c7f0289faa525b92bff226757a5acf3ade2f1c00ff5f41cb1",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-compat.spec.ts",
+        "workerSha256": "4898756eb67627d0053c341d630f4a976146eb85f9f381a3f136e6b8c3358e88",
+        "checkoutSha256": "4898756eb67627d0053c341d630f4a976146eb85f9f381a3f136e6b8c3358e88",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-loader-compat.spec.ts",
+        "workerSha256": "c242e33509119a29b2f309f52faf60401dc050e442cb50de0166c4c836816b7a",
+        "checkoutSha256": "c242e33509119a29b2f309f52faf60401dc050e442cb50de0166c4c836816b7a",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-loader-symbolic.spec.ts",
+        "workerSha256": "4aa83fa86cdf461ff85e944f0ba610a927059748ef6256e4a7611ad01bd99701",
+        "checkoutSha256": "4aa83fa86cdf461ff85e944f0ba610a927059748ef6256e4a7611ad01bd99701",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-package-config.spec.ts",
+        "workerSha256": "21b58c0dbbcae72c1f01a22f48eb572ba895255179e0d7d58632e7efb57bb4ef",
+        "checkoutSha256": "21b58c0dbbcae72c1f01a22f48eb572ba895255179e0d7d58632e7efb57bb4ef",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-package-exports.spec.ts",
+        "workerSha256": "e3c05eca7b21b5f28fc44fc26cecaed64de82a7930508556fdcad9b6b8060a87",
+        "checkoutSha256": "e3c05eca7b21b5f28fc44fc26cecaed64de82a7930508556fdcad9b6b8060a87",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-package-resolution.spec.ts",
+        "workerSha256": "8daf4be17ba3697be6ba287b7a0253cefea2f3bc3293a2342cb0328085486829",
+        "checkoutSha256": "8daf4be17ba3697be6ba287b7a0253cefea2f3bc3293a2342cb0328085486829",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-package-symbolic.spec.ts",
+        "workerSha256": "34288a630b86c9d4aa311a5459d89d0626ce7724fc37a5a6af006715f89a70fa",
+        "checkoutSha256": "34288a630b86c9d4aa311a5459d89d0626ce7724fc37a5a6af006715f89a70fa",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-resolution-compat.spec.ts",
+        "workerSha256": "c94d334ebc187265ed0a11750ad929f5aa8002fe7d74cc746c446c83a9c7bab4",
+        "checkoutSha256": "c94d334ebc187265ed0a11750ad929f5aa8002fe7d74cc746c446c83a9c7bab4",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-resolution-symbolic.spec.ts",
+        "workerSha256": "33e8253a1ba235a6a7624873a6b2415e08db15df6d72b75f48a5b128a01bfe21",
+        "checkoutSha256": "33e8253a1ba235a6a7624873a6b2415e08db15df6d72b75f48a5b128a01bfe21",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs-symbolic.spec.ts",
+        "workerSha256": "a83ff6ee343fc2962c817f42a647f2a8dc0df07fcd7e5e0626a598e0de24b3e7",
+        "checkoutSha256": "a83ff6ee343fc2962c817f42a647f2a8dc0df07fcd7e5e0626a598e0de24b3e7",
+        "equal": true
+      },
+      {
+        "path": "test/commonjs/oracle.ts",
+        "workerSha256": "dad80b107da1e6ab614553e6ed0e78e36fa471394247fda7ea9d6caa11c4ced8",
+        "checkoutSha256": "dad80b107da1e6ab614553e6ed0e78e36fa471394247fda7ea9d6caa11c4ced8",
+        "equal": true
+      },
+      {
+        "path": "test/compound-guards.spec.ts",
+        "workerSha256": "35057557b4b5902a281f482001cbfa5ed58e58c51dffe014510d30959e58f789",
+        "checkoutSha256": "35057557b4b5902a281f482001cbfa5ed58e58c51dffe014510d30959e58f789",
+        "equal": true
+      },
+      {
+        "path": "test/concrete-semantics.spec.ts",
+        "workerSha256": "27147b6c91ae397dec155c48246589734be7dc1bd65bfab20aab1a6153162039",
+        "checkoutSha256": "27147b6c91ae397dec155c48246589734be7dc1bd65bfab20aab1a6153162039",
+        "equal": true
+      },
+      {
+        "path": "test/control-flow.spec.ts",
+        "workerSha256": "380bb4c6c246a37944390447dd00be34a1dd3bfe65f6121f57af312b3a1cc28b",
+        "checkoutSha256": "380bb4c6c246a37944390447dd00be34a1dd3bfe65f6121f57af312b3a1cc28b",
+        "equal": true
+      },
+      {
+        "path": "test/default-parameters.spec.ts",
+        "workerSha256": "233337a0b16b4b6fe1b55d39b59883366c7a10683003c692ba0c67d73788d2ee",
+        "checkoutSha256": "233337a0b16b4b6fe1b55d39b59883366c7a10683003c692ba0c67d73788d2ee",
+        "equal": true
+      },
+      {
+        "path": "test/discount-server.spec.ts",
+        "workerSha256": "8ef8ab8de7b1a9bbecbee3241bf81f876d3cae8e1906b377a6f5585335732568",
+        "checkoutSha256": "8ef8ab8de7b1a9bbecbee3241bf81f876d3cae8e1906b377a6f5585335732568",
+        "equal": true
+      },
+      {
+        "path": "test/error-construction.spec.ts",
+        "workerSha256": "ac54622008809d2eddef2677e0a7d45b32244ca5c95745ae28cdd674ebadaaa4",
+        "checkoutSha256": "ac54622008809d2eddef2677e0a7d45b32244ca5c95745ae28cdd674ebadaaa4",
+        "equal": true
+      },
+      {
+        "path": "test/errors.spec.ts",
+        "workerSha256": "62c059e7d820cdeda02adb2f663ae838bbbed2d6846a8b6848ccf2e4cada6e27",
+        "checkoutSha256": "62c059e7d820cdeda02adb2f663ae838bbbed2d6846a8b6848ccf2e4cada6e27",
+        "equal": true
+      },
+      {
+        "path": "test/eval-environments.spec.ts",
+        "workerSha256": "483701dc8530c62c42bdb4468e234e13f672830c0cfe9bb81796613c01a24c20",
+        "checkoutSha256": "483701dc8530c62c42bdb4468e234e13f672830c0cfe9bb81796613c01a24c20",
+        "equal": true
+      },
+      {
+        "path": "test/evaluation-sequences.spec.ts",
+        "workerSha256": "bb5709893278774d5c6ed713ce608aeef0efd24d44924610f91d1659d36844a6",
+        "checkoutSha256": "bb5709893278774d5c6ed713ce608aeef0efd24d44924610f91d1659d36844a6",
+        "equal": true
+      },
+      {
+        "path": "test/exception-boundaries.spec.ts",
+        "workerSha256": "69cf2c17e279800765f93a0ee158ffa57bb79d2a0739d358f5d303cd67f99d50",
+        "checkoutSha256": "69cf2c17e279800765f93a0ee158ffa57bb79d2a0739d358f5d303cd67f99d50",
+        "equal": true
+      },
+      {
+        "path": "test/execution-boundaries.spec.ts",
+        "workerSha256": "95c6025a4748fa9d0858c0970cb20eff968dc792979c1409f2a4da93353536f8",
+        "checkoutSha256": "95c6025a4748fa9d0858c0970cb20eff968dc792979c1409f2a4da93353536f8",
+        "equal": true
+      },
+      {
+        "path": "test/external-event-sequences.spec.ts",
+        "workerSha256": "0471fd34267b725c7ba60934cf1ff95e67ccf84bee2758589657b76220bed3fc",
+        "checkoutSha256": "0471fd34267b725c7ba60934cf1ff95e67ccf84bee2758589657b76220bed3fc",
+        "equal": true
+      },
+      {
+        "path": "test/external-events.spec.ts",
+        "workerSha256": "43c8bfbc0d7f840929b5bfb8a8439f469dded4813e3cb1cd7c7a8a2979b68d61",
+        "checkoutSha256": "43c8bfbc0d7f840929b5bfb8a8439f469dded4813e3cb1cd7c7a8a2979b68d61",
+        "equal": true
+      },
+      {
+        "path": "test/filesystem-capture.spec.ts",
+        "workerSha256": "9f510061027252adbc6ed05482e9b6ebf2d32163b69b32bc18459a2f68c8f84b",
+        "checkoutSha256": "9f510061027252adbc6ed05482e9b6ebf2d32163b69b32bc18459a2f68c8f84b",
+        "equal": true
+      },
+      {
+        "path": "test/filesystem-enumeration-capture.spec.ts",
+        "workerSha256": "0439f07312f0d6607df2a34a82119f9f5b46e3853c49751aa2795cbe38250012",
+        "checkoutSha256": "0439f07312f0d6607df2a34a82119f9f5b46e3853c49751aa2795cbe38250012",
+        "equal": true
+      },
+      {
+        "path": "test/filesystem-failures.spec.ts",
+        "workerSha256": "aeb6c33beb47b8a1754359a4e4fd779092b232b3d5f635098cbb6409aa9e1fc1",
+        "checkoutSha256": "aeb6c33beb47b8a1754359a4e4fd779092b232b3d5f635098cbb6409aa9e1fc1",
+        "equal": true
+      },
+      {
+        "path": "test/filesystem-state.spec.ts",
+        "workerSha256": "78addacb8022db090d77749a3fc858a36de6e6ebbaf2def8459c09a6b135a7e3",
+        "checkoutSha256": "78addacb8022db090d77749a3fc858a36de6e6ebbaf2def8459c09a6b135a7e3",
+        "equal": true
+      },
+      {
+        "path": "test/fixtures/mrmime-2.0.1/package/index.d.ts",
+        "workerSha256": "369052a48d896f6da8f051051a547790c09c46b8b1e4fff1cf8fcf066daab7da",
+        "checkoutSha256": "369052a48d896f6da8f051051a547790c09c46b8b1e4fff1cf8fcf066daab7da",
+        "equal": true
+      },
+      {
+        "path": "test/fixtures/polka-url-1.0.0-next.29/package/index.d.ts",
+        "workerSha256": "73523d538ca7a2a3adf40ca029f196d2332862ec616a972ebfb66d23c259c0d1",
+        "checkoutSha256": "73523d538ca7a2a3adf40ca029f196d2332862ec616a972ebfb66d23c259c0d1",
+        "equal": true
+      },
+      {
+        "path": "test/fixtures/sirv-3.0.2/package/index.d.ts",
+        "workerSha256": "d6178e0ea8afbf02a236966bd0d99eed2646599482249e6ba281d16e6fb185d0",
+        "checkoutSha256": "d6178e0ea8afbf02a236966bd0d99eed2646599482249e6ba281d16e6fb185d0",
+        "equal": true
+      },
+      {
+        "path": "test/fixtures/tiny-invariant-1.3.3/package/dist/esm/tiny-invariant.d.ts",
+        "workerSha256": "b8903e4347ba78328892f8c30b45a8a0071e06c7bae0b0a621035fbf36f75bcb",
+        "checkoutSha256": "b8903e4347ba78328892f8c30b45a8a0071e06c7bae0b0a621035fbf36f75bcb",
+        "equal": true
+      },
+      {
+        "path": "test/fixtures/tiny-invariant-1.3.3/package/dist/tiny-invariant.d.ts",
+        "workerSha256": "b8903e4347ba78328892f8c30b45a8a0071e06c7bae0b0a621035fbf36f75bcb",
+        "checkoutSha256": "b8903e4347ba78328892f8c30b45a8a0071e06c7bae0b0a621035fbf36f75bcb",
+        "equal": true
+      },
+      {
+        "path": "test/fixtures/tiny-invariant-1.3.3/package/src/tiny-invariant.ts",
+        "workerSha256": "911035a470f1f122d8e85c256db984e682ec7b4782c8c56a1335e4f666e52446",
+        "checkoutSha256": "911035a470f1f122d8e85c256db984e682ec7b4782c8c56a1335e4f666e52446",
+        "equal": true
+      },
+      {
+        "path": "test/fixtures/totalist-3.0.1/package/index.d.ts",
+        "workerSha256": "9f78bd6e43202253f0af72af9978cda3399b5a1ae9cd28593976f42cf6a1f4ee",
+        "checkoutSha256": "9f78bd6e43202253f0af72af9978cda3399b5a1ae9cd28593976f42cf6a1f4ee",
+        "equal": true
+      },
+      {
+        "path": "test/fixtures/totalist-3.0.1/package/sync/index.d.ts",
+        "workerSha256": "4cdaa2f28b917cc3fb61454657fed974968a66557ef23c2858997565d3b9559c",
+        "checkoutSha256": "4cdaa2f28b917cc3fb61454657fed974968a66557ef23c2858997565d3b9559c",
+        "equal": true
+      },
+      {
+        "path": "test/for-statement.spec.ts",
+        "workerSha256": "6fc9008fce6003ceac6e7580b5b410c3bc49ac47b616edd1508d27dd386be08e",
+        "checkoutSha256": "6fc9008fce6003ceac6e7580b5b410c3bc49ac47b616edd1508d27dd386be08e",
+        "equal": true
+      },
+      {
+        "path": "test/function-early-errors.spec.ts",
+        "workerSha256": "5e710d0e4257b888bdd39cb9bf004f787ff8b954ebbc9c7045ba4ca7bf70bee8",
+        "checkoutSha256": "5e710d0e4257b888bdd39cb9bf004f787ff8b954ebbc9c7045ba4ca7bf70bee8",
+        "equal": true
+      },
+      {
+        "path": "test/function-kind-gaps.spec.ts",
+        "workerSha256": "c865f24e233f55995c2e261ff2d2a63e1719cccab569ce3b7fc3dbfea7c70830",
+        "checkoutSha256": "c865f24e233f55995c2e261ff2d2a63e1719cccab569ce3b7fc3dbfea7c70830",
+        "equal": true
+      },
+      {
+        "path": "test/function-parameters-metadata.spec.ts",
+        "workerSha256": "e123089b74a201543844fccf80c03a01536628c04258e9730e2dcf80087fbc71",
+        "checkoutSha256": "e123089b74a201543844fccf80c03a01536628c04258e9730e2dcf80087fbc71",
+        "equal": true
+      },
+      {
+        "path": "test/host-effects.spec.ts",
+        "workerSha256": "7ef03e905c7bc5299a5d3c0ba80790659d5b534bc2f607b2fdd226f0eaf9e298",
+        "checkoutSha256": "7ef03e905c7bc5299a5d3c0ba80790659d5b534bc2f607b2fdd226f0eaf9e298",
+        "equal": true
+      },
+      {
+        "path": "test/host-slots-graph.spec.ts",
+        "workerSha256": "b1da2a416af6d5a1c4ac9ca5cd96f892b1b2a91515bbee0d519029b6912a01d9",
+        "checkoutSha256": "b1da2a416af6d5a1c4ac9ca5cd96f892b1b2a91515bbee0d519029b6912a01d9",
+        "equal": true
+      },
+      {
+        "path": "test/instanceof-internal.spec.ts",
+        "workerSha256": "cfd9e10d9be5a5b13e2cf8ce0ed108cc999eeb5af861ad69b8a57a86f8ca0cd4",
+        "checkoutSha256": "cfd9e10d9be5a5b13e2cf8ce0ed108cc999eeb5af861ad69b8a57a86f8ca0cd4",
+        "equal": true
+      },
+      {
+        "path": "test/instanceof.spec.ts",
+        "workerSha256": "ee9ab6ed3a46f459cf98f01b957955c71ab2cd48084e8c682b689500914fb818",
+        "checkoutSha256": "ee9ab6ed3a46f459cf98f01b957955c71ab2cd48084e8c682b689500914fb818",
+        "equal": true
+      },
+      {
+        "path": "test/jobs.spec.ts",
+        "workerSha256": "c47b5e95817921e38b95efdeb09e13d34f60a0957530342b861020174dd3d203",
+        "checkoutSha256": "c47b5e95817921e38b95efdeb09e13d34f60a0957530342b861020174dd3d203",
+        "equal": true
+      },
+      {
+        "path": "test/legacy-intrinsic-boundaries.spec.ts",
+        "workerSha256": "8e90f09cf1672f4210281c0ed20034826dbf03ec2ed66718f7e5541fbe4e1eca",
+        "checkoutSha256": "8e90f09cf1672f4210281c0ed20034826dbf03ec2ed66718f7e5541fbe4e1eca",
+        "equal": true
+      },
+      {
+        "path": "test/lexical-boundaries.spec.ts",
+        "workerSha256": "6ad465b5602d4aa76048ca36885751cea81b447e57728cad911cd85d247e7fa4",
+        "checkoutSha256": "6ad465b5602d4aa76048ca36885751cea81b447e57728cad911cd85d247e7fa4",
+        "equal": true
+      },
+      {
+        "path": "test/lexical-completions.spec.ts",
+        "workerSha256": "409ab8f6cda1540f8da05d66ef0ca16617de69843d478b522e864a7cc1e2adf7",
+        "checkoutSha256": "409ab8f6cda1540f8da05d66ef0ca16617de69843d478b522e864a7cc1e2adf7",
+        "equal": true
+      },
+      {
+        "path": "test/lexical-environments.spec.ts",
+        "workerSha256": "e57104951f56f5cc7bc7a53c40815cad9c8cecf4ad42233cbd09690626db6ddc",
+        "checkoutSha256": "e57104951f56f5cc7bc7a53c40815cad9c8cecf4ad42233cbd09690626db6ddc",
+        "equal": true
+      },
+      {
+        "path": "test/loop-min.spec.ts",
+        "workerSha256": "c8ea4affb8fa1a1f2714393f1ae70eec307128a7bf1b2a6b8e9857afe0b52b13",
+        "checkoutSha256": "c8ea4affb8fa1a1f2714393f1ae70eec307128a7bf1b2a6b8e9857afe0b52b13",
+        "equal": true
+      },
+      {
+        "path": "test/min.spec.ts",
+        "workerSha256": "3c3c51acfa0b8054a96a510a170e8159c836e70e966bf79c35c801bb6f60f815",
+        "checkoutSha256": "3c3c51acfa0b8054a96a510a170e8159c836e70e966bf79c35c801bb6f60f815",
+        "equal": true
+      },
+      {
+        "path": "test/node-buffer.spec.ts",
+        "workerSha256": "561a16e035c6b01ab735fe5d0664f97e0f406adf06c26c9220625083d3d26278",
+        "checkoutSha256": "561a16e035c6b01ab735fe5d0664f97e0f406adf06c26c9220625083d3d26278",
+        "equal": true
+      },
+      {
+        "path": "test/node-console.spec.ts",
+        "workerSha256": "f5b680b2a3e402fbbcb80b75df7a2468e6a49256669b772f42df227223118342",
+        "checkoutSha256": "f5b680b2a3e402fbbcb80b75df7a2468e6a49256669b772f42df227223118342",
+        "equal": true
+      },
+      {
+        "path": "test/node-events.spec.ts",
+        "workerSha256": "42e4368f41af2499d7175485a6c9bd29400e1f9e3e2f7f4201b7ce42509c5c8a",
+        "checkoutSha256": "42e4368f41af2499d7175485a6c9bd29400e1f9e3e2f7f4201b7ce42509c5c8a",
+        "equal": true
+      },
+      {
+        "path": "test/node-filesystem-failures-reference.spec.ts",
+        "workerSha256": "1920c07b6780805557ce5519102c0dd69a87f506fa5f18b145af78ad73a5ad72",
+        "checkoutSha256": "1920c07b6780805557ce5519102c0dd69a87f506fa5f18b145af78ad73a5ad72",
+        "equal": true
+      },
+      {
+        "path": "test/node-filesystem-readdir.spec.ts",
+        "workerSha256": "fcd904873e60f671e203f6ce670c5cbc34ad323911c87862a498269e5f04d227",
+        "checkoutSha256": "fcd904873e60f671e203f6ce670c5cbc34ad323911c87862a498269e5f04d227",
+        "equal": true
+      },
+      {
+        "path": "test/node-filesystem.spec.ts",
+        "workerSha256": "3ec068e9889617818b284c559754ebbf61b4a908b2221d7626d0ed13730e507b",
+        "checkoutSha256": "3ec068e9889617818b284c559754ebbf61b4a908b2221d7626d0ed13730e507b",
+        "equal": true
+      },
+      {
+        "path": "test/node-host-boundaries.spec.ts",
+        "workerSha256": "4f966db11562eabc37613d8299e7807edadf6525a4f11b3a1c390be3659d084d",
+        "checkoutSha256": "4f966db11562eabc37613d8299e7807edadf6525a4f11b3a1c390be3659d084d",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-bind-reference.spec.ts",
+        "workerSha256": "b643aadd46804839feeebe0f797d7224dbe2ba4f6d1ec602dc973181a9891bf4",
+        "checkoutSha256": "b643aadd46804839feeebe0f797d7224dbe2ba4f6d1ec602dc973181a9891bf4",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-binding.spec.ts",
+        "workerSha256": "01a2b9ad206099533ed8a2092ec725cf73b707d1fcfcb263bdf239e5e40f2d1c",
+        "checkoutSha256": "01a2b9ad206099533ed8a2092ec725cf73b707d1fcfcb263bdf239e5e40f2d1c",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-events.spec.ts",
+        "workerSha256": "0252359bbd53446dd9043e9d490e3b053c4e9654198044a18aa6fbf02f4f4374",
+        "checkoutSha256": "0252359bbd53446dd9043e9d490e3b053c4e9654198044a18aa6fbf02f4f4374",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-headers.spec.ts",
+        "workerSha256": "1084ffbed38caa4a4a184d90d267b0eb1e1f40ee63072c828df7c796191ace2b",
+        "checkoutSha256": "1084ffbed38caa4a4a184d90d267b0eb1e1f40ee63072c828df7c796191ace2b",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-lifecycle-reference.spec.ts",
+        "workerSha256": "585e656fd0a0e3b3c834818c0ba38405f402334bbcf48c76a54868dda3c41649",
+        "checkoutSha256": "585e656fd0a0e3b3c834818c0ba38405f402334bbcf48c76a54868dda3c41649",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-lifecycle.spec.ts",
+        "workerSha256": "ddc96defbdff471c5b212e0d8a88e59a317ad169f17d439168714ed4c9b4130a",
+        "checkoutSha256": "ddc96defbdff471c5b212e0d8a88e59a317ad169f17d439168714ed4c9b4130a",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-listen.spec.ts",
+        "workerSha256": "70990c4ec6692145e0c3d6002698bf9fdadc52f78967561821dce791076c093a",
+        "checkoutSha256": "70990c4ec6692145e0c3d6002698bf9fdadc52f78967561821dce791076c093a",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-server.spec.ts",
+        "workerSha256": "14f7f7b7b75f1934524b6845cae9446de1403e581fa81f9f065f2ddcf5820904",
+        "checkoutSha256": "14f7f7b7b75f1934524b6845cae9446de1403e581fa81f9f065f2ddcf5820904",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-startup.spec.ts",
+        "workerSha256": "91120c88d2414152c68146b3ab8063286cdbbfea92ed94fc475b5d116e793b14",
+        "checkoutSha256": "91120c88d2414152c68146b3ab8063286cdbbfea92ed94fc475b5d116e793b14",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-status-codes.spec.ts",
+        "workerSha256": "d90b33fed2de43e14b57231673429895bab4e8697ceb47963cd5016fc2c14eeb",
+        "checkoutSha256": "d90b33fed2de43e14b57231673429895bab4e8697ceb47963cd5016fc2c14eeb",
+        "equal": true
+      },
+      {
+        "path": "test/node-http-write.spec.ts",
+        "workerSha256": "cf7d401ef28dd392a173f79811b0ca51482a7ad4baaa955a6601db9e84248808",
+        "checkoutSha256": "cf7d401ef28dd392a173f79811b0ca51482a7ad4baaa955a6601db9e84248808",
+        "equal": true
+      },
+      {
+        "path": "test/node-incoming-events-reference.spec.ts",
+        "workerSha256": "9b40d9fa3852e44ab8789092cf2ced1b6bf0e3b194e5213d86740af3135f1fad",
+        "checkoutSha256": "9b40d9fa3852e44ab8789092cf2ced1b6bf0e3b194e5213d86740af3135f1fad",
+        "equal": true
+      },
+      {
+        "path": "test/node-opaque-builtins.spec.ts",
+        "workerSha256": "077190b0935b39473e77c07566906a308404d316365e3705e2c4e0dcbd941351",
+        "checkoutSha256": "077190b0935b39473e77c07566906a308404d316365e3705e2c4e0dcbd941351",
+        "equal": true
+      },
+      {
+        "path": "test/node-path-parse.spec.ts",
+        "workerSha256": "3c2d14d288877edfaee277041ac6ecca648ca0c77a93c57b37daedb22301b457",
+        "checkoutSha256": "3c2d14d288877edfaee277041ac6ecca648ca0c77a93c57b37daedb22301b457",
+        "equal": true
+      },
+      {
+        "path": "test/node-path-resolve.spec.ts",
+        "workerSha256": "9f9232e2a0a7762845961aaad48dd256df5177663d1ea246c1a2d45dbb6e6c32",
+        "checkoutSha256": "9f9232e2a0a7762845961aaad48dd256df5177663d1ea246c1a2d45dbb6e6c32",
+        "equal": true
+      },
+      {
+        "path": "test/node-path.spec.ts",
+        "workerSha256": "125d6d83a0b4aeac079549e118acec7533d5b5188854a2bd7034ccdd2ac86d02",
+        "checkoutSha256": "125d6d83a0b4aeac079549e118acec7533d5b5188854a2bd7034ccdd2ac86d02",
+        "equal": true
+      },
+      {
+        "path": "test/node-process-environment.spec.ts",
+        "workerSha256": "8e55c5eb16c791e4e04cfbaf1f0f5f4d55b0a7444e32f64441a72a35265c7a31",
+        "checkoutSha256": "8e55c5eb16c791e4e04cfbaf1f0f5f4d55b0a7444e32f64441a72a35265c7a31",
+        "equal": true
+      },
+      {
+        "path": "test/node-process-path-integration.spec.ts",
+        "workerSha256": "b8e488c2304d223787c378332887d5d57845ef2ff5cfa2ac779361b92e5d72e9",
+        "checkoutSha256": "b8e488c2304d223787c378332887d5d57845ef2ff5cfa2ac779361b92e5d72e9",
+        "equal": true
+      },
+      {
+        "path": "test/node-startup-reference.spec.ts",
+        "workerSha256": "c9acd8b331a0771dabffbb9d298982d8913f3565facc6f4e47811dd3bc0deb70",
+        "checkoutSha256": "c9acd8b331a0771dabffbb9d298982d8913f3565facc6f4e47811dd3bc0deb70",
+        "equal": true
+      },
+      {
+        "path": "test/node-tcp-bind.spec.ts",
+        "workerSha256": "fbc629cc1d66df7e7fe4598d87c9d1059ffa38d2848e9350f7af3c830516739c",
+        "checkoutSha256": "fbc629cc1d66df7e7fe4598d87c9d1059ffa38d2848e9350f7af3c830516739c",
+        "equal": true
+      },
+      {
+        "path": "test/node-url-path.spec.ts",
+        "workerSha256": "8e21e1f216bce0b289a1fc3a66b7dac19817ec2f9b867937a1eb1603cbbff63d",
+        "checkoutSha256": "8e21e1f216bce0b289a1fc3a66b7dac19817ec2f9b867937a1eb1603cbbff63d",
+        "equal": true
+      },
+      {
+        "path": "test/node-url-warning-order.spec.ts",
+        "workerSha256": "7f972c3cab68e5d16e997026e492c1b5f074201679812a313f28f69be13e2619",
+        "checkoutSha256": "7f972c3cab68e5d16e997026e492c1b5f074201679812a313f28f69be13e2619",
+        "equal": true
+      },
+      {
+        "path": "test/node-url.spec.ts",
+        "workerSha256": "3eaf7dc8a16bc38de819a21b4238c772a69357f3fa3995181103aba6bc6b5b00",
+        "checkoutSha256": "3eaf7dc8a16bc38de819a21b4238c772a69357f3fa3995181103aba6bc6b5b00",
+        "equal": true
+      },
+      {
+        "path": "test/node-warning-jobs.spec.ts",
+        "workerSha256": "b45c949bd500fb536605d84256394b6139a3f7776640d4b0c1328153fcad1fcf",
+        "checkoutSha256": "b45c949bd500fb536605d84256394b6139a3f7776640d4b0c1328153fcad1fcf",
+        "equal": true
+      },
+      {
+        "path": "test/node-warnings.spec.ts",
+        "workerSha256": "3d52cc007d5cfdf8e7ab85acd08d11a36272f040678fe9d16effacbb064b0239",
+        "checkoutSha256": "3d52cc007d5cfdf8e7ab85acd08d11a36272f040678fe9d16effacbb064b0239",
+        "equal": true
+      },
+      {
+        "path": "test/object-bindings.spec.ts",
+        "workerSha256": "d9450b916d6774306d6eebcb5b9cdfd3702d8ca55e51f32738a59062bd0b1751",
+        "checkoutSha256": "d9450b916d6774306d6eebcb5b9cdfd3702d8ca55e51f32738a59062bd0b1751",
+        "equal": true
+      },
+      {
+        "path": "test/object-spread.spec.ts",
+        "workerSha256": "c9f4af55d9e8d8d7c77394040060a98ae0d9165d14f003012f230744310d4290",
+        "checkoutSha256": "c9f4af55d9e8d8d7c77394040060a98ae0d9165d14f003012f230744310d4290",
+        "equal": true
+      },
+      {
+        "path": "test/opaque-host-functions.spec.ts",
+        "workerSha256": "4f0a13ad91522338fcd23b3c30a3c7ee60891c9c2229ebd5ac31370ec7899788",
+        "checkoutSha256": "4f0a13ad91522338fcd23b3c30a3c7ee60891c9c2229ebd5ac31370ec7899788",
+        "equal": true
+      },
+      {
+        "path": "test/p007-independent-review.spec.ts",
+        "workerSha256": "cab1761b4fed04d98e2023f929ae20ad53a8694b8f1a1134cd245398d8b0781b",
+        "checkoutSha256": "cab1761b4fed04d98e2023f929ae20ad53a8694b8f1a1134cd245398d8b0781b",
+        "equal": true
+      },
+      {
+        "path": "test/pico-static-server-analysis.spec.ts",
+        "workerSha256": "65e81273edb82a38e9a9939d14caeca99e9b1ad9e5c501f9b43c09a5a65b7441",
+        "checkoutSha256": "65e81273edb82a38e9a9939d14caeca99e9b1ad9e5c501f9b43c09a5a65b7441",
+        "equal": true
+      },
+      {
+        "path": "test/pico-static-server-reference.spec.ts",
+        "workerSha256": "67255262163057d79af9f7aba7532444fdd4beb04044f9e0de6b40a435116a38",
+        "checkoutSha256": "67255262163057d79af9f7aba7532444fdd4beb04044f9e0de6b40a435116a38",
+        "equal": true
+      },
+      {
+        "path": "test/prototype-state.spec.ts",
+        "workerSha256": "e5ab6b95993e692382512f3a4c3b3354cda25583c6ff5515a7904d521ef0cb46",
+        "checkoutSha256": "e5ab6b95993e692382512f3a4c3b3354cda25583c6ff5515a7904d521ef0cb46",
+        "equal": true
+      },
+      {
+        "path": "test/published-invariant.spec.ts",
+        "workerSha256": "368f0c61029aa098be367c6885a20d43c9dde047b4f7cff89d30da9f5fba2c88",
+        "checkoutSha256": "368f0c61029aa098be367c6885a20d43c9dde047b4f7cff89d30da9f5fba2c88",
+        "equal": true
+      },
+      {
+        "path": "test/quantified-facts.spec.ts",
+        "workerSha256": "3ab69b78626d4dfe73e23640c48cbde0e8a142008c01081459042592ff491d06",
+        "checkoutSha256": "3ab69b78626d4dfe73e23640c48cbde0e8a142008c01081459042592ff491d06",
+        "equal": true
+      },
+      {
+        "path": "test/recursion.spec.ts",
+        "workerSha256": "857e7ad4e09ecfe5f89f061e43f05b31ad419bf732b290c91a9c0b158cf90b66",
+        "checkoutSha256": "857e7ad4e09ecfe5f89f061e43f05b31ad419bf732b290c91a9c0b158cf90b66",
+        "equal": true
+      },
+      {
+        "path": "test/regexp-literals.spec.ts",
+        "workerSha256": "cb97f4e24f135d4c55d594620a64ead583c62e0a2e0c2bb413ce978531421a08",
+        "checkoutSha256": "cb97f4e24f135d4c55d594620a64ead583c62e0a2e0c2bb413ce978531421a08",
+        "equal": true
+      },
+      {
+        "path": "test/regexp-test.spec.ts",
+        "workerSha256": "fdc7fb75cd8204757e4c4726fc40705966bc189113b38cf1671f2da22de722e1",
+        "checkoutSha256": "fdc7fb75cd8204757e4c4726fc40705966bc189113b38cf1671f2da22de722e1",
+        "equal": true
+      },
+      {
+        "path": "test/sirv-target.spec.ts",
+        "workerSha256": "945f0fc8b761b193d5a3cb1bdf6ad6254a6571f1af630e0b885ed503783688eb",
+        "checkoutSha256": "945f0fc8b761b193d5a3cb1bdf6ad6254a6571f1af630e0b885ed503783688eb",
+        "equal": true
+      },
+      {
+        "path": "test/source-locations.spec.ts",
+        "workerSha256": "ea0bdcf6e6dfa5b56a1fa4614eaf0febe51c567d0884abf1aa6e93f28423c3cd",
+        "checkoutSha256": "ea0bdcf6e6dfa5b56a1fa4614eaf0febe51c567d0884abf1aa6e93f28423c3cd",
+        "equal": true
+      },
+      {
+        "path": "test/strict-directives.spec.ts",
+        "workerSha256": "37f71e7a088aae1bf979c935ff0b4e2e0ca3cf4fdaef9b5a05deb39f7f23f770",
+        "checkoutSha256": "37f71e7a088aae1bf979c935ff0b4e2e0ca3cf4fdaef9b5a05deb39f7f23f770",
+        "equal": true
+      },
+      {
+        "path": "test/string-concat.spec.ts",
+        "workerSha256": "9d7e9f74bb8585b1f11381ab206354592d2cdfe935d3243b8025703494b12b3d",
+        "checkoutSha256": "9d7e9f74bb8585b1f11381ab206354592d2cdfe935d3243b8025703494b12b3d",
+        "equal": true
+      },
+      {
+        "path": "test/string-literals.spec.ts",
+        "workerSha256": "f714c1595a46612b653055e1fe2f7fa81e7b45f284f3051ff6f3220a031ce370",
+        "checkoutSha256": "f714c1595a46612b653055e1fe2f7fa81e7b45f284f3051ff6f3220a031ce370",
+        "equal": true
+      },
+      {
+        "path": "test/string-trim.spec.ts",
+        "workerSha256": "398ab8b5fc16a8a1c73690783a1d042d793d3e6560792f75dc8cb10280769906",
+        "checkoutSha256": "398ab8b5fc16a8a1c73690783a1d042d793d3e6560792f75dc8cb10280769906",
+        "equal": true
+      },
+      {
+        "path": "test/summary-conformance.spec.ts",
+        "workerSha256": "58f9ae7d9b4011af6781e2d078ff4a1ab937549880427435a65d576acc83d4ad",
+        "checkoutSha256": "58f9ae7d9b4011af6781e2d078ff4a1ab937549880427435a65d576acc83d4ad",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-array-index.spec.ts",
+        "workerSha256": "6cb8db07bc1fd4456e6393ddb6a64cf15f1db9df147429e90e9f78c0f3255ccc",
+        "checkoutSha256": "6cb8db07bc1fd4456e6393ddb6a64cf15f1db9df147429e90e9f78c0f3255ccc",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-arrays.spec.ts",
+        "workerSha256": "07ae3fb0d1a75a6bf7e5c87df3402d785ba708b58fd9b3819da45ca6bbb1e73f",
+        "checkoutSha256": "07ae3fb0d1a75a6bf7e5c87df3402d785ba708b58fd9b3819da45ca6bbb1e73f",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-choice-equality.spec.ts",
+        "workerSha256": "901ac2d81565ca61d38b70ba5069af1207144b5468914db6c42da4d0b5fb6abc",
+        "checkoutSha256": "901ac2d81565ca61d38b70ba5069af1207144b5468914db6c42da4d0b5fb6abc",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-exceptions.spec.ts",
+        "workerSha256": "42c974f561209439c22ada2376b2a1790c1555601065d708c123c79a124da473",
+        "checkoutSha256": "42c974f561209439c22ada2376b2a1790c1555601065d708c123c79a124da473",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-numbers.spec.ts",
+        "workerSha256": "76c563fea3514e5eb1d7ce9088cd5f0c79116798af5365d0712cae9809094cea",
+        "checkoutSha256": "76c563fea3514e5eb1d7ce9088cd5f0c79116798af5365d0712cae9809094cea",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-routing.spec.ts",
+        "workerSha256": "c86f9bf981ffe3fd2c2198efafaec28432b708f99775b350acce2d62a247eba4",
+        "checkoutSha256": "c86f9bf981ffe3fd2c2198efafaec28432b708f99775b350acce2d62a247eba4",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-selection-membership.spec.ts",
+        "workerSha256": "e62a8ded67ff45fad8a1d5c446a4c9fb26fa0181d92ec4248e6936d05a7915ce",
+        "checkoutSha256": "e62a8ded67ff45fad8a1d5c446a4c9fb26fa0181d92ec4248e6936d05a7915ce",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-soundness.spec.ts",
+        "workerSha256": "8fc0289722ef3cfe186ce22992f9becf7405182055c4a94dd1d340d34c3f2879",
+        "checkoutSha256": "8fc0289722ef3cfe186ce22992f9becf7405182055c4a94dd1d340d34c3f2879",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-strings.spec.ts",
+        "workerSha256": "c56d3017867477c9b50affef11c3c11f9cc6d1c51aa57e35dc165f3889af13f3",
+        "checkoutSha256": "c56d3017867477c9b50affef11c3c11f9cc6d1c51aa57e35dc165f3889af13f3",
+        "equal": true
+      },
+      {
+        "path": "test/symbolic-values.spec.ts",
+        "workerSha256": "773cd7f29ba0635082cf463bda777197c08bd66aca9261ed16fa1347d07195b3",
+        "checkoutSha256": "773cd7f29ba0635082cf463bda777197c08bd66aca9261ed16fa1347d07195b3",
+        "equal": true
+      },
+      {
+        "path": "test/template-literals.spec.ts",
+        "workerSha256": "b0048b9c874029b252f2e62985238381bc08fc33a857e17652193c32f79ddc7d",
+        "checkoutSha256": "b0048b9c874029b252f2e62985238381bc08fc33a857e17652193c32f79ddc7d",
+        "equal": true
+      },
+      {
+        "path": "test/ternary.spec.ts",
+        "workerSha256": "12a618a07a5f4ed3893b3458a93026df07935f02fe38b8ea5c61a2bf29629b14",
+        "checkoutSha256": "12a618a07a5f4ed3893b3458a93026df07935f02fe38b8ea5c61a2bf29629b14",
+        "equal": true
+      },
+      {
+        "path": "test/test262.spec.ts",
+        "workerSha256": "b4945b3e0d2d7c085d29f51e4c9e19f682d651b8e3daa053f08c251c7be18a6e",
+        "checkoutSha256": "b4945b3e0d2d7c085d29f51e4c9e19f682d651b8e3daa053f08c251c7be18a6e",
+        "equal": true
+      },
+      {
+        "path": "test/test262/runner.spec.ts",
+        "workerSha256": "30beb3e91d69a65d34b5a918ac66c39360f1e58688c8c934b54e9b7041a1cae6",
+        "checkoutSha256": "30beb3e91d69a65d34b5a918ac66c39360f1e58688c8c934b54e9b7041a1cae6",
+        "equal": true
+      },
+      {
+        "path": "test/test262/runner.ts",
+        "workerSha256": "40b22b203abb1f5411fd8fe5c17ab739f091ab43208702d0a9eec7d523f7800b",
+        "checkoutSha256": "40b22b203abb1f5411fd8fe5c17ab739f091ab43208702d0a9eec7d523f7800b",
+        "equal": true
+      },
+      {
+        "path": "test/unknown-length-loop.spec.ts",
+        "workerSha256": "f623eeb0a6588a2ee167779d3a582c895dc5c1a2b7585d858859cf8e2b68caf5",
+        "checkoutSha256": "f623eeb0a6588a2ee167779d3a582c895dc5c1a2b7585d858859cf8e2b68caf5",
+        "equal": true
+      },
+      {
+        "path": "test/unknown-length.spec.ts",
+        "workerSha256": "6f5e3b609603af2505429797dc7464e4c8a0807a72d5b6f0d20a3edf37481645",
+        "checkoutSha256": "6f5e3b609603af2505429797dc7464e4c8a0807a72d5b6f0d20a3edf37481645",
+        "equal": true
+      }
+    ],
+    "allMatch": true,
+    "sourceAndTestDiff": "A\ttest/p008-independent-review.spec.ts\nM\ttest/test262/README.md\n"
+  },
+  "posttestVerification": {
+    "workerTypeScriptPairs": 240,
+    "allMatch": true,
+    "originalReviewArtifactsUnchanged": true,
+    "trackedSourceSpecsUnmodified": true,
+    "commandLogHashesMatched": 18
+  },
+  "runtimeSourceTree": "3ba57e5f089858c1e9cc9602bb99b4f4bab605eb",
+  "changedCorrectionFiles": [
+    {
+      "path": "docs/agent-tasks/P008-string-trim/correction-1-implementation.md",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "eb8e9f1ece815f4cbb730aa48db08e0c8007a35c757d19b469e993996e8eed1f"
+    },
+    {
+      "path": "docs/agent-tasks/P008-string-trim/correction-1.md",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "a91366b38a4441adbdebca23018963d20060bd68fe467dfff78a5dc530a7a989"
+    },
+    {
+      "path": "docs/implementation-gaps.md",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "ce7e3cd6e7996cfe3e2fb34fa0a73b9988d4591b50e1765e2da5fbf37c6ce5a1"
+    },
+    {
+      "path": "docs/sirv-target.md",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "151a7e9e5ec1158e9d25d1a00d82b76573c3f7ee6153f7fcdb16c2354c76ce26"
+    },
+    {
+      "path": "docs/symbolic-strings.md",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "32132dfef0f10e9b7b7eb4feb6731a3ee4c242450d8496d5ba7dabf2b799e15d"
+    },
+    {
+      "path": "docs/wiki/string-trim.md",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "a47b28210e59d5f7fe8b78d39f4630e478068c6edffea1f309d3992e17cc663f"
+    },
+    {
+      "path": "src/ASTResolvers.ts",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "a0e35dc4b91101926648ad06801ae388add68902f111789872039ed5d126d75b"
+    },
+    {
+      "path": "src/Object/prototype.ts",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "93f5cfeedf13f4d8c3c2536fadb7d53fb5b6d23c9fbe4c933eaea6231f30cfd9"
+    },
+    {
+      "path": "src/execution-context/Heap.ts",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "ddb5abf00a6a587aacac3b27aaf907a676a1338a3dd70e3cce67cb40edb6cd9e"
+    },
+    {
+      "path": "src/string/String.ts",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "7bed473549a7e90fa5056da622a73711aa8e9bd14a40dd0b3ab90b4ff18970fc"
+    },
+    {
+      "path": "test/object-spread.spec.ts",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "c9f4af55d9e8d8d7c77394040060a98ae0d9165d14f003012f230744310d4290"
+    },
+    {
+      "path": "test/regexp-test.spec.ts",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "fdc7fb75cd8204757e4c4726fc40705966bc189113b38cf1671f2da22de722e1"
+    },
+    {
+      "path": "test/string-trim.spec.ts",
+      "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "sha256": "398ab8b5fc16a8a1c73690783a1d042d793d3e6560792f75dc8cb10280769906"
+    }
+  ],
+  "commands": [
+    {
+      "name": "discovery",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exit": 0,
+      "seconds": 4.1385087966918945,
+      "timeoutSeconds": 240,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/discovery.log",
+      "sha256": "6f0312cacd5a6085f4ef10630b8ffa94955b8ba434085cfb570548b4ab42e18a"
+    },
+    {
+      "name": "original-26",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p008-independent-review.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exit": 1,
+      "seconds": 25.291120052337646,
+      "timeoutSeconds": 240,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/original-26.log",
+      "sha256": "0311d6cf954c41c2d34b86571e0ce45846200862eb68835427ff418897243499"
+    },
+    {
+      "name": "correction-probes",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p008-independent-correction.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exit": 1,
+      "seconds": 17.357835054397583,
+      "timeoutSeconds": 240,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/correction-probes.log",
+      "sha256": "af529109aa41d5c7c9963cca604947f072a6fe660efeac6fa9aaec73b012d936"
+    },
+    {
+      "name": "root-five",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p008-root-boundary-probes.spec.ts",
+        "--testNamePattern=typeof|hasOwnProperty|Object.keys"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exit": 0,
+      "seconds": 14.78737998008728,
+      "timeoutSeconds": 240,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/root-five.log",
+      "sha256": "5a660bc677fab246219009bab39e13140f3359e861138dceee440563ba218972"
+    },
+    {
+      "name": "affected",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-trim.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/prototype-state.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/symbolic-strings.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts",
+        "test/node-url.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exit": 0,
+      "seconds": 57.961379289627075,
+      "timeoutSeconds": 240,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/affected.log",
+      "sha256": "83f59a43549900fb636a44a5bbfc5184aba6c580e974d24415da4c7eaa45c415"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exit": 0,
+      "seconds": 16.242093086242676,
+      "timeoutSeconds": 240,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "correction-final",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p008-independent-correction.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exit": 0,
+      "seconds": 11.421514987945557,
+      "timeoutSeconds": 180,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/correction-final.log",
+      "sha256": "9021ccfa64359847f3a9bcbaece92c677585619c87a556575aac5aada75af2d9"
+    },
+    {
+      "name": "typecheck-final",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exit": 0,
+      "seconds": 10.229244947433472,
+      "timeoutSeconds": 180,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/typecheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.1340789794921875,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/guards.log",
+      "sha256": "04bd6481066542d1726f7067518b7cb2e11fcda739e751c9bb88566e830c1653"
+    },
+    {
+      "name": "assertions",
+      "command": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.074310302734375,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/assertions.log",
+      "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+    },
+    {
+      "name": "skip-sites",
+      "command": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.08786940574645996,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/skip-sites.log",
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac"
+    },
+    {
+      "name": "boundary-docs",
+      "command": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.09100532531738281,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/boundary-docs.log",
+      "sha256": "b77a8657f0b39326d8aa0a6be23248a39d1610287c9d22b1497f653bcc1a3777"
+    },
+    {
+      "name": "inventory",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/inventory.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.5476560592651367,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/inventory.log",
+      "sha256": "068cd46085d7821aec8f01be296b40c5b87e3c0500c735305a7d0fee3df195a6"
+    },
+    {
+      "name": "correction-diff",
+      "command": [
+        "git",
+        "diff",
+        "0d3b278..06eefd5",
+        "--",
+        "src",
+        "test"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.04436302185058594,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/correction-diff.log",
+      "sha256": "9c005c4ffc68ca5bf1e72bfc0728dabe9b60232531f7cf63379d162918a0e140"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "0d3b278..06eefd5"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.05006599426269531,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "protected-diff",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "0d3b278..06eefd5",
+        "--",
+        "src/types.ts",
+        "src/cli",
+        "src/regexp",
+        "src/string/trim.ts",
+        "test/p007-independent-review.spec.ts",
+        "test/fixtures",
+        "test/test262.spec.ts",
+        "test/test262/runner.ts",
+        "yarn.lock",
+        "package.json"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.037670135498046875,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/protected-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "in-deferred-source",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "0d3b278..06eefd5",
+        "--",
+        "src/operators"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "reviewSource": "463f1fc45b51dbacc376c1ea598b30558d4c71b2",
+      "exit": 0,
+      "seconds": 0.03580307960510254,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/in-deferred-source.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "worker-and-own-evidence-verification",
+      "command": [
+        "python3",
+        "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/verify-worker.py"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "workerSource": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 1.1482391357421875,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/verification.log",
+      "sha256": "fe11b258e94ac0d50cd496624438ec94415a0025bb1483029a8c18d3e1cbb2d9"
+    }
+  ],
+  "nativeEnvironment": {
+    "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    "expectedVersion": "v24.21.0",
+    "newHelperCwd": "join(__dirname, \"..\")"
+  },
+  "results": {
+    "original26": {
+      "passed": 25,
+      "failed": 1,
+      "exit": 1,
+      "disposition": "Unchanged control 9 expects extra metadata write success. Corrected declared metadata policy stops conservatively; all four original R1 guards now pass. Root must reconcile integration checkpoint, not count this run green."
+    },
+    "newInitial": {
+      "passed": 24,
+      "failed": 1,
+      "exit": 1,
+      "disposition": "Reviewer false alarm: unsupported SequenceExpression stops before RHS effects. Corrected probe uses function call; explicit earlier-boundary diagnostic retained."
+    },
+    "newFinal": {
+      "passed": 27,
+      "failed": 0,
+      "exit": 0
+    },
+    "rootDisclosed": {
+      "passed": 5,
+      "selectorExcluded": 1,
+      "exit": 0,
+      "excluded": "pre-existing unimplemented in operator, not a false Boolean finding"
+    },
+    "affected": {
+      "suites": 9,
+      "passed": 1025,
+      "historicalSkipped": 46,
+      "exit": 0
+    },
+    "independentTypecheck": {
+      "exit": 0
+    },
+    "workerFinalFullSuite": {
+      "suites": 129,
+      "passed": 3476,
+      "historicalSkipped": 46,
+      "total": 3522,
+      "exit": 0,
+      "jestSeconds": 382.043,
+      "timeoutSeconds": 900,
+      "logSha256": "0e5422f740ca5490ffa26c59dbbd2e418ea1fcbd2d44793d8145344148fcb82c"
+    },
+    "workerFinalFocused": {
+      "suites": 10,
+      "passed": 1017,
+      "historicalSkipped": 46,
+      "exit": 0
+    },
+    "workerFinalTypecheck": {
+      "exit": 0
+    },
+    "reviewerFullSuiteRun": false,
+    "reviewerFullSuiteReason": "Exact-source worker full-suite log and all recorded evidence hashes independently verified."
+  },
+  "workerVerification": {
+    "workerEvidenceCommit": "e3191d073fdc28d125d19bb269ef25315f8fef0c",
+    "workerEvidenceSha256": "238f26f46b2f674a7732310bc60821f5ab0c311b4b11a9d8072a56f60a69a8e1",
+    "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+    "checks": [
+      {
+        "kind": "source",
+        "path": "docs/agent-tasks/P008-string-trim/correction-1-implementation.md",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "docs/agent-tasks/P008-string-trim/correction-1.md",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "docs/implementation-gaps.md",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "docs/sirv-target.md",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "docs/symbolic-strings.md",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "docs/wiki/string-trim.md",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "src/ASTResolvers.ts",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "src/Object/prototype.ts",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "src/execution-context/Heap.ts",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "src/string/String.ts",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "test/object-spread.spec.ts",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "test/regexp-test.spec.ts",
+        "match": true
+      },
+      {
+        "kind": "source",
+        "path": "test/string-trim.spec.ts",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/audit.py",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/development-runs.json",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/development-typecheck.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/development.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/evidence.py",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-assertions.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-audit.json",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-boundary-docs.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-diff-check.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-discovery.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-focused.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-full-suite.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-guards.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-inventory.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-owned-check.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-protected-diff.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-skip-sites.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-source-diff.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-typecheck.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-upstream-native.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-validation.json",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/inspection-checkpoint-development.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/inventory.cjs",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/native-red.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/ownership.py",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red-runs.json",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red-specs.diff",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/surface-inventory-development.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/upstream-native.cjs",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/validate.py",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/audit.py",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/evidence.py",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-assertions.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-audit.json",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-boundary-docs.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-diff-check.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-discovery.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-focused.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-full-suite.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-guards.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-inventory.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-owned-check.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-protected-diff.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-skip-sites.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-source-diff.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-typecheck.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-upstream-native.log",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-validation.json",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/inventory.cjs",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/ownership.py",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/upstream-native.cjs",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/validate.py",
+        "match": true
+      },
+      {
+        "kind": "artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/verify-evidence.py",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-discovery.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-focused.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-full-suite.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-typecheck.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-owned-check.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-guards.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-assertions.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-skip-sites.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-boundary-docs.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-inventory.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-upstream-native.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-source-diff.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-diff-check.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-protected-diff.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/native-red.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/red.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-discovery.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-focused.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-full-suite.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-typecheck.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-owned-check.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-guards.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-assertions.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-skip-sites.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-boundary-docs.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-inventory.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-upstream-native.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-source-diff.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-diff-check.log",
+        "match": true
+      },
+      {
+        "kind": "command-log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1/final-protected-diff.log",
+        "match": true
+      },
+      {
+        "kind": "tree",
+        "path": "src",
+        "match": true
+      },
+      {
+        "kind": "tree",
+        "path": "test",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/audit.py",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/development-final.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/development-final.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/development-typecheck.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/development-typecheck.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/evidence.py",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-assertions.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-audit.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-boundary-docs.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-diff-check.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-discovery.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-focused.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-full-suite.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-guards.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-inherited-diff.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-inventory.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-ownership-audit.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-protected-diff.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-skip-sites.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-source-diff.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-typecheck.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-typecheck.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-upstream-native.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-validation.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-worker-diff.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-worker-protected-diff.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/first-implementation.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/first-implementation.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/focused-development.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/inventory-development.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/inventory.cjs",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/last-spec-development.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/native-red.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/native-red.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/proposed-stale-p007-assertion.patch",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/red.json",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/red.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/upstream-native.cjs",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/upstream-native.log",
+        "match": true
+      },
+      {
+        "kind": "original-artifact",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/validate.py",
+        "match": true
+      }
+    ],
+    "allMatch": true,
+    "sourceTypeScriptPairsRechecked": 240,
+    "nativeVariantHashesVerified": 256,
+    "corpusMetadataHashRowsVerified": 387,
+    "all46HistoricalSkipsUnchangedAndDocumented": true,
+    "original26ProbeBytesUnchanged": true,
+    "evidenceCommitRuntimeSpecDiffEmpty": true,
+    "ownCommandLogsVerified": 17,
+    "fullSuite": [
+      "Test Suites: 129 passed, 129 total",
+      "Tests:       46 skipped, 3476 passed, 3522 total",
+      "Snapshots:   0 total",
+      "Time:        382.043s"
+    ],
+    "fullSuiteExit": 0
+  },
+  "workerValidationAudit": [
+    {
+      "name": "discovery",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 2.4357779026031494,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-discovery.log",
+      "sha256": "fac678ff7fef25d420b16399b12766ebfefb2abbf02a9354da5328362eb9c22b"
+    },
+    {
+      "name": "focused",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-trim.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/prototype-state.spec.ts",
+        "test/string-concat.spec.ts",
+        "test/symbolic-strings.spec.ts",
+        "test/node-host-boundaries.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 37.4511501789093,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-focused.log",
+      "sha256": "2a147156769c94d7b48e9929a26bd23eaff8b0f5c9ab8f1ea6b6c6a3f7e7fba3"
+    },
+    {
+      "name": "full-suite",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 900,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 384.244854927063,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-full-suite.log",
+      "sha256": "0e5422f740ca5490ffa26c59dbbd2e418ea1fcbd2d44793d8145344148fcb82c"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 7.347364902496338,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "owned-check",
+      "command": [
+        "python3",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/ownership.py"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.564568042755127,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-owned-check.log",
+      "sha256": "ff35f8f979c8382f640be2ea56ebdd42db7ab798b03c9e9bd70572f9b75626f6"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.16936588287353516,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-guards.log",
+      "sha256": "04bd6481066542d1726f7067518b7cb2e11fcda739e751c9bb88566e830c1653"
+    },
+    {
+      "name": "assertions",
+      "command": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.17767095565795898,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-assertions.log",
+      "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+    },
+    {
+      "name": "skip-sites",
+      "command": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.3165428638458252,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-skip-sites.log",
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac"
+    },
+    {
+      "name": "boundary-docs",
+      "command": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.39131999015808105,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-boundary-docs.log",
+      "sha256": "5d52b48c998c7407afed2b634ca17f42a15c670138b44cf9142b7e7ff9fc2544"
+    },
+    {
+      "name": "inventory",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/inventory.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 1.0128991603851318,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-inventory.log",
+      "sha256": "55f03530faa7e6afcbcfdab292845d13d4f7a4e77d8d38b92bcd6887abf196f5"
+    },
+    {
+      "name": "upstream-native",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/upstream-native.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.8097929954528809,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-upstream-native.log",
+      "sha256": "c6c7e79060dca0ea2c1f4e6896ebf8e127b079d3af6748b8c3008aa07040fc75"
+    },
+    {
+      "name": "source-diff",
+      "command": [
+        "git",
+        "diff",
+        "cb2c0da",
+        "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+        "--",
+        "src",
+        "test",
+        "README.md",
+        "docs",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.19010210037231445,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-source-diff.log",
+      "sha256": "f7d06d3ae82ef56d72ad57932bc306efef55fe4591d248456fe53cddc98c9332"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "cb2c0da",
+        "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.06933307647705078,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "protected-diff",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "cb2c0da",
+        "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+        "--",
+        "src/regexp",
+        "test/p007-independent-review.spec.ts",
+        "test/fixtures",
+        "package.json",
+        "yarn.lock",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "seconds": 0.05973196029663086,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-protected-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "corpus": {
+    "addedCompleteFiles": 40,
+    "addedVariants": 80,
+    "activeFiles": 341,
+    "activeVariants": 673,
+    "trimCandidates": 128,
+    "inactiveTrimCandidates": 88,
+    "nativeVariantsPassed": 256,
+    "metadataHashRowsMatched": 387,
+    "historicalSkippedFilesUnchangedAndDocumented": 46
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "status": "closed",
+      "basis": "Original restricted reads/writes pass honest typed stop; new alias/branch/effect controls pass."
+    },
+    {
+      "id": "G1",
+      "status": "closed",
+      "basis": "Authorized checkpoint corrected with trim success retained; final full suite passes."
+    },
+    {
+      "id": "review-probe-integration",
+      "status": "remaining root gate",
+      "basis": "Preserved original metadata success expectation must be explicitly reconciled with authorized conservative boundary before integration."
+    }
+  ],
+  "attribution": {
+    "partialStringAbsences": "Grok disclosed, root reproduced, now independently verified corrected",
+    "ownEnumeration": "Grok/root disclosed legacy host errors; repaired to typed boundaries, not correction of invented keys",
+    "inOperator": "Unimplemented before this source; deferred LANG-001; no confirmed false Boolean",
+    "sequenceExpression": "Reviewer probe author error; retained initial failed log"
+  },
+  "reviewArtifacts": [
+    {
+      "path": "docs/agent-tasks/P008-string-trim/independent-correction-review.md",
+      "sha256": "92504348c40f3b07d46f5e233da6a043831bfd512ae56e251de4d32e81e0b44a"
+    },
+    {
+      "path": "test/p008-independent-correction.spec.ts",
+      "sha256": "10c8a845f02082b4d14fa3ae679ee9edb4283a89ffd87ad2871eba7f0197d496"
+    }
+  ],
+  "preservedOriginalArtifacts": [
+    {
+      "path": "docs/agent-tasks/P008-string-trim/independent-review.md",
+      "sha256": "e87b60f0d198ccb106c7f44afebc4e6141055fd7394c03fbd1d3a28810635d71"
+    },
+    {
+      "path": "docs/agent-tasks/P008-string-trim/independent-evidence.json",
+      "sha256": "3f1e04e2f3df460bdb278ce9c49baa46ef4c7d15ab4b215f3710a3dda0b1fa43"
+    },
+    {
+      "path": "test/p008-independent-review.spec.ts",
+      "sha256": "cc80ac4b34b1a07b071c2d641a4c403bb2f5874599996adbae089fae15cfd9c8"
+    }
+  ],
+  "rootUntrackedDiagnostic": {
+    "path": "test/p008-root-boundary-probes.spec.ts",
+    "sha256": "b61384acc11892fa093be8fbafab2af72041889efe0565d2707355ac34dec0e9",
+    "edited": false,
+    "committed": false
+  },
+  "artifacts": [
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/affected.json",
+      "bytes": 1084,
+      "sha256": "bb3c5f277857085fe87bffa5f884a1a4c83369a8cfd1c3d483cacc6c7752b48a"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/affected.log",
+      "bytes": 873,
+      "sha256": "83f59a43549900fb636a44a5bbfc5184aba6c580e974d24415da4c7eaa45c415"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/assertions.log",
+      "bytes": 2402,
+      "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/audit.py",
+      "bytes": 1916,
+      "sha256": "1fe73ce157cb08fba8e78ab4f5b479b28e25d5c5e56cf5dd50ba0a5d656b5a1f"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/boundary-docs.log",
+      "bytes": 271845,
+      "sha256": "b77a8657f0b39326d8aa0a6be23248a39d1610287c9d22b1497f653bcc1a3777"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/correction-diff.log",
+      "bytes": 23118,
+      "sha256": "9c005c4ffc68ca5bf1e72bfc0728dabe9b60232531f7cf63379d162918a0e140"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/correction-final.log",
+      "bytes": 2305,
+      "sha256": "9021ccfa64359847f3a9bcbaece92c677585619c87a556575aac5aada75af2d9"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/correction-probes.json",
+      "bytes": 855,
+      "sha256": "d56510aa73a5e864df854ba164f42f397e3b4211a0de3a8ae248a0b7550ef437"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/correction-probes.log",
+      "bytes": 9629,
+      "sha256": "af529109aa41d5c7c9963cca604947f072a6fe660efeac6fa9aaec73b012d936"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/diff-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/discovery.json",
+      "bytes": 810,
+      "sha256": "282783407a34d0428def2b2038b505ca5171bd084356366a547635dbb3396eab"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/discovery.log",
+      "bytes": 13909,
+      "sha256": "6f0312cacd5a6085f4ef10630b8ffa94955b8ba434085cfb570548b4ab42e18a"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/guards.log",
+      "bytes": 64510,
+      "sha256": "04bd6481066542d1726f7067518b7cb2e11fcda739e751c9bb88566e830c1653"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/in-deferred-source.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/inventory.log",
+      "bytes": 246922,
+      "sha256": "068cd46085d7821aec8f01be296b40c5b87e3c0500c735305a7d0fee3df195a6"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/original-26.json",
+      "bytes": 839,
+      "sha256": "7850ac61fc405cfc31458a0068e3a3e949e3294a038a14b79771a2e79286c578"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/original-26.log",
+      "bytes": 75474,
+      "sha256": "0311d6cf954c41c2d34b86571e0ce45846200862eb68835427ff418897243499"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/pretest-source-verification.json",
+      "bytes": 63243,
+      "sha256": "deb4a3ff2361b3a16d3dd2282b040a4a608d81295cf0600dc92f9b629fab4f86"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/protected-diff.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/root-five.json",
+      "bytes": 895,
+      "sha256": "90886d52c6790e96e44167671e65e836fcada97004372841f11a9cdf8f1d2055"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/root-five.log",
+      "bytes": 1052,
+      "sha256": "5a660bc677fab246219009bab39e13140f3359e861138dceee440563ba218972"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/run.py",
+      "bytes": 2076,
+      "sha256": "a6326f0e47e2ca699aaadaa99ec21bebcca3215da402bb9f0caa6a6535cc737a"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/runs.json",
+      "bytes": 14443,
+      "sha256": "96850db8b976086f55fb0120cb75d1e43a43b67ae009fdfb83eeba4868308e55"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/skip-sites.log",
+      "bytes": 55,
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/typecheck-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/typecheck.json",
+      "bytes": 777,
+      "sha256": "87a95e2c14ef8f10f8622007fddde43da4177d3de6777707555e73f6365c849c"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/verification.log",
+      "bytes": 762,
+      "sha256": "fe11b258e94ac0d50cd496624438ec94415a0025bb1483029a8c18d3e1cbb2d9"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/verify-worker.py",
+      "bytes": 4109,
+      "sha256": "f720edd39e2c2626b498e8e874587171ddc3dde1e91cd905d344e9783002710d"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/worker-evidence.json",
+      "bytes": 45854,
+      "sha256": "238f26f46b2f674a7732310bc60821f5ab0c311b4b11a9d8072a56f60a69a8e1"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/worker-validation-audit.json",
+      "bytes": 10571,
+      "sha256": "4a42f804244ed0a5344d30fdd72870bbaa2f4d87b9ffae63af48a75fc62a4118"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent-correction/worker-verification.json",
+      "bytes": 26231,
+      "sha256": "b14db03eed94cfc534cc20ddf76c25e65fd81a29cec2cb5754e92bbd23dd108c"
+    }
+  ],
+  "remainingGates": [
+    "Root stack alignment including corrected worker docs/evidence",
+    "Explicit disposition of preserved original metadata success checkpoint before integrating probes",
+    "Exact integrated diff and appropriate final integration/CI before draft PR/publication",
+    "Any later runtime/spec change requires source-bound review"
+  ],
+  "operations": {
+    "productionEdits": false,
+    "workerMainEdits": false,
+    "stackAlignment": false,
+    "agents": false,
+    "modelAccountChanges": false,
+    "paidAPIs": false,
+    "pushMergeRelease": false
+  },
+  "manifestHashNote": "This manifest intentionally does not hash itself; its bytes are fixed by the review artifact commit."
+}
