@@ -40,6 +40,20 @@ header/factory/server/request analysis. LastIndexOf/substring, Unicode/locale
 casing, Date/Stats metadata, streams and broader host/VM gaps remain separate.
 
 Only truly obsolete trim lowercase rejection and deferred-name inventory were
-updated; replacement/native controls remain. P007 matcher and independent probes
-are untouched. Boundary/backlog/candidate/wiki/model/ledger docs are updated;
+updated; replacement/native controls remain. P007 matcher and original independent probes
+are untouched. The native-discovered P008 correction probe has the exact
+obsolete lowercase checkpoint correction described below. Boundary/backlog/candidate/wiki/model/ledger docs are updated;
 no stable gap ID closes. Full review is required, irrespective of pass counts.
+
+
+The first frozen full suite at 5b5727a failed exactly one parameterized P008
+correction expectation (131 passing suites /3756 passes /46 skips /one failure):
+its supported-name list still omitted lowercase. A literal lowercase search
+missed this native-discovered loop. The task expressly permits demonstrated
+obsolete predecessor boundary corrections. The correction adds only lowercase
+to that list and asserts native/VM callable presence and actual abc output,
+preserving native inventory and all residual guards. No production byte changed.
+This missed pre-freeze assertion required an additional checkpoint/full run,
+beyond the requested single-freeze economy; the failed snapshot/log is retained
+and the final verification/evidence binds the corrected snapshot. It is a worker
+self-correction, not an independent Astra finding. Review remains pending.
