@@ -140,7 +140,7 @@ assumption (STRING-001), not a modeled V8 resource contract.
 [Local specs](../test/string-trim.spec.ts) include independent Node 24.21.0
 controls, branch correlations and mandatory unknowns, normal/throw/stopped
 siblings, current prototype state, snapshots and externally timed large inputs.
-Forty-one complete unmodified Test262 files add 82 variants; the
+Forty complete unmodified Test262 files add 80 variants; the
 [whole candidate inventory](agent-tasks/P008-string-trim/upstream-candidates.md)
 records all 128 pinned trim files. The unchanged sirv factory now passes trim
 and reaches toLowerCase; its CLI graph retains the EMFILE sibling. That lookup

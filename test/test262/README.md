@@ -360,7 +360,7 @@ skips remain unchanged. Native matching is only an independent test oracle.
 
 ### P008: shared trim
 
-Forty-one complete unmodified `built-ins/String/prototype/trim` files add 82
+Forty complete unmodified `built-ins/String/prototype/trim` files add 80
 variants, covering nullish rejection, primitive and ordinary object receivers,
 ToString/valueOf order and TypeError, inherited conversion, immutability, empty
 strings, the complete modern whitespace set, interior preservation, NUL and

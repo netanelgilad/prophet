@@ -1,0 +1,640 @@
+{
+  "task": "P008 shared String.prototype.trim",
+  "date": "2026-10-13",
+  "status": "frozen local handoff; full-suite gate blocked by one stale P007 rejection expectation; approval for the narrow test update requested",
+  "workdir": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+  "branch": "agent/p008-string-trim",
+  "requestedBase": "8a2b976fff5d03589660f1fc344c4549d3c01771",
+  "inheritedParent": "1bf4dd45d488654132b683ce83ec9f0380f006e2",
+  "testedSourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+  "inheritedCommits": [
+    {
+      "commit": "f02cc66fa4dea177317f47e98832fa8696a773e8",
+      "description": "Root task scoping; task.md existed on receipt"
+    },
+    {
+      "commit": "1bf4dd45d488654132b683ce83ec9f0380f006e2",
+      "description": "Root P007 retained probe portable cwd plus publication-review docs; unchanged by worker"
+    }
+  ],
+  "baseAuditNote": "The first protected diff against requested base exits 1 solely for the inherited P007 probe portability change. The worker-parent protected diff exits 0. No worker P007, fixture or dependency edits.",
+  "sourceTrees": {
+    "src": "f47191051f11df144efc8e017b26ebdf04c93474",
+    "test": "828350e866dc8369ab4d38e9f8293bb91155108c"
+  },
+  "sourceFilesSha256": {
+    "docs/agent-tasks/P008-string-trim/implementation.md": "3ef1532767f28a94bfe2e345177ce878fc4feddfaf2eb13bf1b400fadfaf51f8",
+    "docs/agent-tasks/P008-string-trim/upstream-candidates.md": "730566628600d393f8f3eee171a959b5140b6aceeb2bfd391f187c9d6db5ff18",
+    "docs/implementation-gaps.md": "b5141a2687a3d2959941c739d7ff63a11135ab9ada4b46abfe2b871b71b7a747",
+    "docs/sirv-target.md": "f0c5cfa07fdf3e85f14a14fa7a08a19087f2b17e58f673cacc8c090625d32899",
+    "docs/symbolic-strings.md": "862d510644c28a5359b3e45429417dd2cf98c1b982e834e882a0018846f6ced3",
+    "docs/wiki/README.md": "69d214115c8811a2ca975cb54f7df09df400df2460cc09405cdb4a532a081fba",
+    "docs/wiki/string-trim.md": "7303fe2607e1949fbdf1085089bcaaaef67374f187faf0c09c1b6b08d83cadcd",
+    "src/ASTResolvers.ts": "07e521cb7ee1461bab52635c93db3a319055ae9e2498044c909bea9c2e85675f",
+    "src/string/String.ts": "f2b09dbc81bdf176299d383e3e88ce1d31151d2df501c3f1dd24d9fad2243afa",
+    "src/string/trim.ts": "8444a5650d7483541e391c500d752994822d04e6dd77c3822021f3ffe730be86",
+    "test/sirv-target.spec.ts": "945f0fc8b761b193d5a3cb1bdf6ad6254a6571f1af630e0b885ed503783688eb",
+    "test/string-trim.spec.ts": "b1a456bf8660396c6d722ffadc06f2c47b18c214cbedc827a4ea62b689f7c63b",
+    "test/test262.spec.ts": "b4945b3e0d2d7c085d29f51e4c9e19f682d651b8e3daa053f08c251c7be18a6e",
+    "test/test262/README.md": "c2a789360b30f0a1d395c0b219b1acb29811d97e835d9d12910d3a92bb71159f"
+  },
+  "evidenceOnlyCommit": "This subsequent commit adds evidence/handoff metadata and corrects audit-derived documentation counts (40 files/80 variants, 88 inactive candidates); no runtime/spec bytes change. Its own commit id is supplied by the handoff, not self-embedded.",
+  "runtime": "Node v24.21.0 native darwin-arm64; PROPHET_NODE_BINARY and PATH pinned for all final Jest/typecheck runs",
+  "validation": [
+    {
+      "name": "discovery",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 2.4882960319519043,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-discovery.log",
+      "sha256": "78d03f07042266ccc8726b9e50dbd68aaa55371ced156ec22bb38561c13b7687"
+    },
+    {
+      "name": "focused",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-trim.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 21.40115213394165,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-focused.log",
+      "sha256": "878fff6f85f79ce6e7132970b71667fa327e4bd39dd6d87559312ccf2f9ce6a5"
+    },
+    {
+      "name": "full-suite",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 900,
+      "timedOut": false,
+      "exit": 1,
+      "seconds": 365.09401512145996,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-full-suite.log",
+      "sha256": "89c382db10ea180b40e2de917be4a20f269ce7172767cfbf887dc7747fb35153"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+      },
+      "timeoutSeconds": 180,
+      "timedOut": false,
+      "exit": 0,
+      "seconds": 8.22760820388794,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "testSummaries": {
+    "full": [
+      "Test Suites: 1 failed, 128 passed, 129 total",
+      "Tests:       1 failed, 46 skipped, 3448 passed, 3495 total",
+      "Snapshots:   0 total",
+      "Time:        362.817s"
+    ],
+    "focused": [
+      "Test Suites: 4 passed, 4 total",
+      "Tests:       46 skipped, 743 passed, 789 total",
+      "Snapshots:   0 total",
+      "Time:        19.5s"
+    ]
+  },
+  "auditCommands": [
+    {
+      "name": "guards",
+      "command": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.19519400596618652,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-guards.log",
+      "sha256": "7500685f18b4c65bd8fa638eefd0a2e51c6adc337a1dbe8f7be8fe96f5b96847"
+    },
+    {
+      "name": "assertions",
+      "command": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.1767427921295166,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-assertions.log",
+      "sha256": "cae2d7d4dc556318e98ec8466a79f0367e0594f67e27834bdbef2915f82041ca"
+    },
+    {
+      "name": "skip-sites",
+      "command": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.17308306694030762,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-skip-sites.log",
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac"
+    },
+    {
+      "name": "boundary-docs",
+      "command": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.1698930263519287,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-boundary-docs.log",
+      "sha256": "71b82928391fc44a02a343e73e21464133e0304f0454919b0ffab6d719dbc2be"
+    },
+    {
+      "name": "inventory",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/inventory.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 1.0032932758331299,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-inventory.log",
+      "sha256": "0998bbd6578c08b72c1c67cdc4543a31bc40e59a622d15ca64f07d374baabebb"
+    },
+    {
+      "name": "upstream-native",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/upstream-native.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.9209549427032471,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-upstream-native.log",
+      "sha256": "c6c7e79060dca0ea2c1f4e6896ebf8e127b079d3af6748b8c3008aa07040fc75"
+    },
+    {
+      "name": "source-diff",
+      "command": [
+        "git",
+        "diff",
+        "8a2b976",
+        "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+        "--",
+        "src",
+        "test",
+        "README.md",
+        "docs",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.17241597175598145,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-source-diff.log",
+      "sha256": "184982524d9e889569f22ed11f601103b2d7ccb9be8d2a56f286ff09a518bb08"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "8a2b976",
+        "0d3b2781147e1625d90da2db5ec6e86c58a238ff"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.06693911552429199,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "protected-diff",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "8a2b976",
+        "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+        "--",
+        "src/regexp",
+        "test/regexp-test.spec.ts",
+        "test/p007-independent-review.spec.ts",
+        "test/fixtures",
+        "package.json",
+        "yarn.lock",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 1,
+      "seconds": 0.06969594955444336,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-protected-diff.log",
+      "sha256": "be2e9e31f80da097158bf33940f44e53c7dfaf9e070d9ad64a741974309b3366"
+    }
+  ],
+  "ownershipAudit": [
+    {
+      "name": "worker-protected-diff",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "1bf4dd4",
+        "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+        "--",
+        "src/regexp",
+        "test/regexp-test.spec.ts",
+        "test/p007-independent-review.spec.ts",
+        "test/fixtures",
+        "package.json",
+        "yarn.lock",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.20066404342651367,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-worker-protected-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "worker-diff",
+      "command": [
+        "git",
+        "diff",
+        "1bf4dd4",
+        "0d3b2781147e1625d90da2db5ec6e86c58a238ff"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.18314599990844727,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-worker-diff.log",
+      "sha256": "236a776c5398dc360528020c9f479b2e58bf4fba1abfc7d8e041895f71962d94"
+    },
+    {
+      "name": "inherited-diff",
+      "command": [
+        "git",
+        "diff",
+        "8a2b976",
+        "1bf4dd4"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+      "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.15451812744140625,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-inherited-diff.log",
+      "sha256": "aa28b7ca366a156fd661896052d7d1678f4f3ab7a5b4a1968ea06c3d7466c962"
+    }
+  ],
+  "upstream": {
+    "revision": "47bf9d1db9f6e7632120ac1b1946ad092e6c214e",
+    "newWholeFiles": 40,
+    "newVariants": 80,
+    "newFiles": [
+      "built-ins/String/prototype/trim/15.5.4.20-0-1.js",
+      "built-ins/String/prototype/trim/15.5.4.20-0-2.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-1.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-2.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-3.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-4.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-5.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-7.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-8.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-1.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-3.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-6.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-9.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-11.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-28.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-29.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-38.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-39.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-40.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-41.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-42.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-43.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-44.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-47.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-50.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-1.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-2.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-3.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-4.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-5.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-6.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-7.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-8.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-9.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-10.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-11.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-12.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-13.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-14.js",
+      "built-ins/String/prototype/trim/u180e.js"
+    ],
+    "allTrimCandidates": 128,
+    "nativeCandidateVariants": 256,
+    "nativeFailures": 0,
+    "inactiveTrimCandidates": 88,
+    "activeCorpusFiles": 341,
+    "activeCorpusVariants": 673,
+    "historicalSkippedFiles": 46,
+    "skipFilenamesAndMetadataLog": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-inventory.log",
+    "noNewSkipSites": true
+  },
+  "redEvidence": {
+    "runtimeSource": "Inherited preimplementation production source; uncommitted spec additions. Development runs have no frozen source SHA and are not final-source evidence. Early log metadata abbreviates this as base 8a2b976; inherited portability/scoping commits are disclosed above.",
+    "nativeBeforeImplementation": "16 exact native controls passed; selector temporarily leaves 29 unmatched tests. This is not a new skip site.",
+    "redSummary": "3 failed suites; 108 failed, 619 passed, 46 historical skipped tests.",
+    "exceptions": "Two literal U+2028/U+2029 controls reached the parser boundary, not missing trim. Those are not semantic red evidence. Three exotic retention controls already passed at absent-trim lookup; later customized guard-placement controls test their actual exclusion.",
+    "firstImplementation": "5 failures: two separator harness cases and three next-toLowerCase-boundary assertions. Selected complete Test262 cases passed.",
+    "selfCorrections": [
+      "Escape U+2028/U+2029 in generated source without changing runtime strings or expectations.",
+      "Replace only absent-trim lookup guard with next reached absent-toLowerCase guard.",
+      "Use strict replacement-method control to avoid incidental unsupported sloppy primitive boxing.",
+      "Final audit corrected manual documentation count from 41/82 to actual 40/80; active corpus is 341/673."
+    ]
+  },
+  "supported": "Modern ES both-edge whitespace trim; concrete and finite-choice strings; borrowed primitive/ordinary object receivers; current interpreted coercion/prototype/heap/throw semantics; shared nonconstructible identity and metadata.",
+  "fullSuiteFailure": {
+    "file": "test/regexp-test.spec.ts:208",
+    "test": "trim's deferred intrinsic lookup preserves branches and honors own replacements",
+    "reason": "The P007 assertion expects trim to be unsupported. It now completes normally. User explicitly forbids editing P007 probes; no approval received at evidence generation.",
+    "proposal": "docs/agent-tasks/P008-string-trim/stale-p007-test.patch",
+    "proposalApplied": false,
+    "proposalTested": false,
+    "proposalFormat": "zero-context unified diff; git apply --unidiff-zero (approval required)",
+    "proposalSha256": "87e228622af50f59dda51ac7938d62d9ee5c910b489471d97786df5af0fa2522"
+  },
+  "applicationProgression": "Unchanged sirv/mrmime now passes trim and reaches typed toLowerCase lookup. Runtime and actual CLI graph retain EMFILE, directory effects and mrmime source frames. Provenance hashes checked in sirv specs. No completed factory/server/request claim.",
+  "resourceBoundary": "At most 65536 converted UTF-16 input units, checked before scan/copy/output allocation; external 180s focused cap includes exact-bound, over-bound and million-unit injected stress cases. Full suite has a 900s process-group cap; no timeout occurred.",
+  "residuals": [
+    "Open symbolic strings/numbers and legacy chunk-valued strings stop explicitly.",
+    "Array/function receivers including customized conversion and nonnull inherited/own Symbol.toPrimitive hooks stop.",
+    "Shared wrappers/descriptors/getters/partial-host/cyclic-prototype guards remain; some are legacy errors retaining partial checkpoints.",
+    "Allocation success, arbitrary coercion, prototype depth, branch/frontier volume, parser/embedding input and graph resources are not proved by the trim cap.",
+    "toLowerCase, lastIndexOf, substring, Stats/Date metadata, streams and factory/server completion stay separate."
+  ],
+  "residualGapIds": [
+    "LIB-001",
+    "LIB-002",
+    "OBJ-001",
+    "OBJ-003",
+    "STRING-001",
+    "SYM-001",
+    "SYM-004",
+    "LEGACY-002",
+    "REPORT-001",
+    "SECURITY-002",
+    "FS-001",
+    "TARGET-002",
+    "TEST-001",
+    "TEST-002",
+    "TEST-003"
+  ],
+  "authorization": "Sole writer; no agents, model/account changes, paid API/credential/access expansion, push/merge/release. Root owns independent review/CI/draft PR/shared ledger.",
+  "artifacts": {
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/audit.py": {
+      "sha256": "4b32455ab0f2ab2723553929dff2d78ecdd205ca950ce58aae595319d1ad5fe6",
+      "bytes": 1746
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/development-final.json": {
+      "sha256": "a9fa74a4dda7b5d4e55ff4d1ccd7bdae91d37829e296c5a6382de275eae496a8",
+      "bytes": 393
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/development-final.log": {
+      "sha256": "643d99a6a2fb96745e8412b95ca3b8225e199299ca555f624e482c33dd04b90c",
+      "bytes": 566
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/development-typecheck.json": {
+      "sha256": "ffde559b95a91bbf56df03ce3629a5023ecbdca30736d9f71befca60d9200c7d",
+      "bytes": 253
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/development-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/evidence.py": {
+      "sha256": "0d5fb7422a4d9fcfae5254e380a98a5d6cfda9d9095bf01fa84c2e9dc7c0dc48",
+      "bytes": 7941
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-assertions.log": {
+      "sha256": "cae2d7d4dc556318e98ec8466a79f0367e0594f67e27834bdbef2915f82041ca",
+      "bytes": 2401
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-audit.json": {
+      "sha256": "cdbd4f655e8530958b5cb4d4fdbe653f36b630ff9305101f4fd8d7fe70671a6d",
+      "bytes": 5904
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-boundary-docs.log": {
+      "sha256": "71b82928391fc44a02a343e73e21464133e0304f0454919b0ffab6d719dbc2be",
+      "bytes": 262524
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-diff-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-discovery.log": {
+      "sha256": "78d03f07042266ccc8726b9e50dbd68aaa55371ced156ec22bb38561c13b7687",
+      "bytes": 13441
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-focused.log": {
+      "sha256": "878fff6f85f79ce6e7132970b71667fa327e4bd39dd6d87559312ccf2f9ce6a5",
+      "bytes": 555
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-full-suite.log": {
+      "sha256": "89c382db10ea180b40e2de917be4a20f269ce7172767cfbf887dc7747fb35153",
+      "bytes": 7193
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-guards.log": {
+      "sha256": "7500685f18b4c65bd8fa638eefd0a2e51c6adc337a1dbe8f7be8fe96f5b96847",
+      "bytes": 64295
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-inherited-diff.log": {
+      "sha256": "aa28b7ca366a156fd661896052d7d1678f4f3ab7a5b4a1968ea06c3d7466c962",
+      "bytes": 6813
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-inventory.log": {
+      "sha256": "0998bbd6578c08b72c1c67cdc4543a31bc40e59a622d15ca64f07d374baabebb",
+      "bytes": 252643
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-ownership-audit.json": {
+      "sha256": "ff9a6a7df521fa0875a69da174a6ea6ca0e4415f93ab486b8f8c910676e62617",
+      "bytes": 1877
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-protected-diff.log": {
+      "sha256": "be2e9e31f80da097158bf33940f44e53c7dfaf9e070d9ad64a741974309b3366",
+      "bytes": 827
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-skip-sites.log": {
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac",
+      "bytes": 55
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-source-diff.log": {
+      "sha256": "184982524d9e889569f22ed11f601103b2d7ccb9be8d2a56f286ff09a518bb08",
+      "bytes": 63558
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-typecheck.json": {
+      "sha256": "5cd8ac7e9cd7d013c7ab67614a81fad2cfe2d3ad9a484520518cfc499d7247eb",
+      "bytes": 794
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-upstream-native.log": {
+      "sha256": "c6c7e79060dca0ea2c1f4e6896ebf8e127b079d3af6748b8c3008aa07040fc75",
+      "bytes": 34625
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-validation.json": {
+      "sha256": "03e8f8edecf8913a68f602d7ad7e8893181d86850304ed4261152555ed562c9d",
+      "bytes": 2714
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-worker-diff.log": {
+      "sha256": "236a776c5398dc360528020c9f479b2e58bf4fba1abfc7d8e041895f71962d94",
+      "bytes": 56745
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-worker-protected-diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/first-implementation.json": {
+      "sha256": "eb8a8f62c4b85a52cef467882e68c4db4f441335cc91e93d4d0a637cae9a30a7",
+      "bytes": 370
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/first-implementation.log": {
+      "sha256": "cb18bee8880c1550f65785092d782bd58f9f16a1c7fa80e270c637f0d42976e0",
+      "bytes": 5340
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/focused-development.log": {
+      "sha256": "a90f6b91e9e1c725025fe4fb4c07932da244a0af08625723519f0dc1269d2e97",
+      "bytes": 3529
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/inventory-development.json": {
+      "sha256": "a736d1b8ac6a68d3aa1f5dd91bc850b3ed99778857f00629c4c973e4dfaa8fa9",
+      "bytes": 2507
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/inventory.cjs": {
+      "sha256": "d33df5642f0339cf0cadcfc17551ccbaac737303b841405282865d56793a466e",
+      "bytes": 2032
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/last-spec-development.log": {
+      "sha256": "d7d1b17ff94810106cfcd97df9b6c61769179b8748faa754bad08942bee4303d",
+      "bytes": 2720
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/native-red.json": {
+      "sha256": "fe2a9e6fab0e0973e0c13a20aa2efc55984a4d17bc4197c063f8945c5a4fa197",
+      "bytes": 322
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/native-red.log": {
+      "sha256": "d28e21a6279dd7da19d62b4a8d98bbd8d06eded76a5ccfa637b44c4056cfbf9f",
+      "bytes": 1123
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/proposed-stale-p007-assertion.patch": {
+      "sha256": "7287c2196197396fcd71df81e6ae269815484347f2e954986a51ca9c8d05df34",
+      "bytes": 1488
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/red.json": {
+      "sha256": "75281d195b260a8fcb9206cfd2d30fe5a700f872ccace581368dac72bea2008d",
+      "bytes": 352
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/red.log": {
+      "sha256": "492450cb01e77e106d862737a9245cf1908df9f27241e2733d77ce88f7aaf500",
+      "bytes": 368911
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/upstream-native.cjs": {
+      "sha256": "598017869e8958529e34bdd8912c31f6d60f3b1f28acb61e821e937e06a5c003",
+      "bytes": 1038
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/upstream-native.log": {
+      "sha256": "c6c7e79060dca0ea2c1f4e6896ebf8e127b079d3af6748b8c3008aa07040fc75",
+      "bytes": 34625
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/validate.py": {
+      "sha256": "00cd34cda979c4d4fb9c53c02b90deae56d6340ae528704c1323eaa5062a8a36",
+      "bytes": 1657
+    }
+  },
+  "hashVerification": "All recorded command log hashes recomputed before generation; all artifact and source-file hashes generated from bytes/git show, then independently recomputed by the final manifest verification command."
+}
