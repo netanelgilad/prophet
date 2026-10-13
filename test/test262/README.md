@@ -403,3 +403,12 @@ function metadata). A11 was tried whole and fails both variants at direct
 function .hasOwnProperty, so remains inactive with its failed development log.
 No runner change, test trimming, existing baseline removal or new skip was made;
 all 46 historical skipped filenames/metadata remain identical to c06374f.
+
+
+P011 activates nine whole Number-domain bitwise-not files (18 strict/sloppy
+variants), including GetValue, ordinary number-hint conversion and ToInt32 wrap
+cases. The complete sixteen-file candidate set is native checked and VM tried
+whole; seven incompatible files remain inactive without new skip sites.
+[Exact dispositions](../../docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md)
+retain wrapper, function, shift and BigInt/parser boundaries. Existing baseline
+and all 46 historical skipped files remain. This is no full conformance claim.

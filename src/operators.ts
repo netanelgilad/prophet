@@ -13,6 +13,7 @@ import { Knowledge, choiceOf, assume, selectValue, strictEquality, negate, resol
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
 import { ArithmeticOperator, arithmeticNumber, negateNumber } from "./symbolic/arithmetic";
 import { concatenateStrings } from "./string/concat";
+import { bitwiseNot } from "./number/bitwise-not";
 import { instanceOf } from "./Function/instanceof";
 
 export type BinaryOperatorResolver = (
@@ -230,3 +231,8 @@ export const UnaryOperatorResolvers = new Map<string, UnaryOperatorResolver>([
   ["+", (arg, context) => tuple(unaryNumeric(arg, "+", context.value.knowledge || []), context)],
   ["typeof", typeOf], ["void", unaryVoid]
 ]);
+
+// Only coercing unary operations enter this effectful dispatch; existing pure
+// unary resolvers retain their tuple contract and symbolic rules.
+export const EffectfulUnaryOperatorResolvers = new Map<string,
+  (argument: Any, context: TExecutionContext) => BranchResult>([["~", bitwiseNot]]);

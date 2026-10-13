@@ -179,7 +179,7 @@ test("independent retained actual unchanged sirv CLI graph and both histories", 
     {cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
   writeFileSync(join(root,"logs/p009-independent/cli.stdout.json"),child.stdout);writeFileSync(join(root,"logs/p009-independent/cli.stderr.log"),child.stderr);
   console.log("INDEPENDENT_CLI_EXIT",child.status);
-  expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: Unary operator resolver for ~ hasn't been implemented yet\n");
+  expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.substring is not yet supported\n");
   const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);
   const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
   const field=(ref:any,key:string)=>{const pair=nodes.get(ref.ref).entries.find(([name]:[string])=>name===key);return pair&&pair[1];};
@@ -188,7 +188,7 @@ test("independent retained actual unchanged sirv CLI graph and both histories", 
   for(const leaf of all){
     const value=field(leaf,"0"),state=field(leaf,"1"),stopped=field(value,"type")==="ExecutionBoundary";
     if(stopped){
-      expect(field(value,"message")).toBe("Unary operator resolver for ~ hasn't been implemented yet");expect(field(state,"sourceFile")).toMatch(/mrmime\/index\.js$/);
+      expect(field(value,"message")).toBe("String.prototype.substring is not yet supported");expect(field(state,"sourceFile")).toMatch(/mrmime\/index\.js$/);
       const envs=nodes.get(field(state,"environments").ref).entries;let env=field(state,"environment"),tmp:any,idx:any;
       while(env&&env.ref){const record=envs.find(([key]:[any])=>key.ref===env.ref);const binding=record&&nodes.get(record[1].ref).entries.find(([name]:[string])=>name==="tmp");if(binding)tmp=field(binding[1],"value");const indexBinding=record&&nodes.get(record[1].ref).entries.find(([name]:[string])=>name==="idx");if(indexBinding)idx=field(indexBinding[1],"value");if(tmp&&idx)break;env=field(env,"parent");}
       expect(field(tmp,"value")).toBe("hello.txt");expect(field(idx,"value")).toBe(5);
