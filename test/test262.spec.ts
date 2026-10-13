@@ -13,6 +13,18 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // P010: whole UTF-16 search, generic conversion, abrupt and intrinsic cases.
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A1_T10.js",
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A1_T4.js",
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A1_T5.js",
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A1_T7.js",
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A1_T8.js",
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A4_T1.js",
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A4_T3.js",
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A6.js",
+  "built-ins/String/prototype/lastIndexOf/S15.5.4.8_A7.js",
+  "built-ins/String/prototype/lastIndexOf/this-value-not-obj-coercible.js",
+
   // Complete ASCII lowercase, generic conversion, abrupt completion and metadata cases.
   "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T3.js",
   "built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T4.js",

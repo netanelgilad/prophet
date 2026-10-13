@@ -21,6 +21,7 @@ import { concat } from "./concat";
 import { stringSlice } from "./slice";
 import { stringTrim } from "./trim";
 import { stringToLowerCase } from "./toLowerCase";
+import { stringLastIndexOf } from "./lastIndexOf";
 import { markPartialIntrinsic } from "../execution-context/Heap";
 import { markUnsupportedBoundaryObject } from "../execution-context/analysis-failure";
 
@@ -41,7 +42,7 @@ var stringPrototype: TESObject | undefined;
 // modeled. Other absent string-keyed names still use ordinary prototype lookup.
 const deferredPrototypeNames = ["anchor", "at", "big", "blink", "bold", "charAt",
   "charCodeAt", "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed",
-  "includes", "indexOf", "isWellFormed", "italics", "lastIndexOf", "link",
+  "includes", "indexOf", "isWellFormed", "italics", "link",
   "localeCompare", "match", "matchAll", "normalize", "padEnd", "padStart",
   "repeat", "replace", "replaceAll", "search", "small", "split", "strike",
   "sub", "substr", "substring", "sup", "startsWith", "toWellFormed",
@@ -66,6 +67,14 @@ export function getStringPrototype(): TESObject {
       ...ESBuiltinFunction(stringToLowerCase),
       properties: { length: ESNumber(0), name: ESString("toLowerCase") },
       unknownProperties: "String.toLowerCase metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.lastIndexOf = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringLastIndexOf),
+      properties: { length: ESNumber(1), name: ESString("lastIndexOf") },
+      unknownProperties: "String.lastIndexOf metadata",
       modeledInheritedProperties: ["call", "prototype"],
       unmodeledPropertyReads: ["caller", "arguments"],
       unmodeledPropertyWrites: ["length", "name"]

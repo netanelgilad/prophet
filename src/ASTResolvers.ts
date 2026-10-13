@@ -574,6 +574,12 @@ export const UnaryExpressionResolver: ASTResolver<ESTree.UnaryExpression> = (ast
   }
   return bindNormal(evaluate(ast.argument, context), (value, after) => {
     const resolver = UnaryOperatorResolvers.get(ast.operator);
+    // The reached mrmime frontier must retain operand effects and siblings.
+    // Classify only this missing operation; do not implement bitwise semantics
+    // or change unrelated legacy unary guards in this String increment.
+    if (!resolver && ast.operator === "~") {
+      throw new UnsupportedAnalysisError("Unary operator resolver for ~ hasn't been implemented yet");
+    }
     assert(resolver, `Unary operator resolver for ${ast.operator} hasn't been implemented yet`);
     return resolver!(value, after);
   });

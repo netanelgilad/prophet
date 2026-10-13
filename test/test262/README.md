@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **351 complete files / 693 strictness variants**,
+The active corpus contains **361 complete files / 713 strictness variants**,
 including 25 parse-negative files / 49 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -392,3 +392,14 @@ keeps the 17 inactive files and exact whole-file blockers visible. In particular
 metadata surface; a failed development selection was removed whole, with its log
 retained. No source was reduced, harness weakened or new skip added. The full
 46-file historical skip inventory remains unchanged, audited against `fc7d503`.
+
+
+P010 adds ten whole unmodified String.lastIndexOf files / 20 strict/sloppy variants:
+`S15.5.4.8_A1_T4/T5/T7/T8/T10`, `A4_T1/T3`, `A6`, `A7`, and
+`this-value-not-obj-coercible.js`. All 23 directory files / 46 native variants
+pass pinned Node 24.21.0. [The complete candidate inventory](../../docs/agent-tasks/P010-string-lastindexof/upstream-candidates.md)
+records 13 inactive files (wrappers, Array.lastIndexOf, descriptors/harness and
+function metadata). A11 was tried whole and fails both variants at direct
+function .hasOwnProperty, so remains inactive with its failed development log.
+No runner change, test trimming, existing baseline removal or new skip was made;
+all 46 historical skipped filenames/metadata remain identical to c06374f.
