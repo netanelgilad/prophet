@@ -20,6 +20,8 @@ import { toString } from "../conversion/toString";
 import { concat } from "./concat";
 import { stringSlice } from "./slice";
 import { stringTrim } from "./trim";
+import { markPartialIntrinsic } from "../execution-context/Heap";
+import { markUnsupportedBoundaryObject } from "../execution-context/analysis-failure";
 
 export type TESString = Type<"string"> &
   WithProperties<{
@@ -32,18 +34,33 @@ export type TESString = Type<"string"> &
 // Created lazily because strings, conversion, functions and the evaluator
 // depend on one another. Install the identity before creating string metadata.
 var stringPrototype: TESObject | undefined;
+// Remaining standard own string-keyed names of the pinned Node String prototype
+// (including Annex B aliases/HTML helpers). Primitive split/substr keep their
+// legacy own implementations; borrowing those methods from the prototype is not
+// modeled. Other absent string-keyed names still use ordinary prototype lookup.
+const deferredPrototypeNames = ["anchor", "at", "big", "blink", "bold", "charAt",
+  "charCodeAt", "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed",
+  "includes", "indexOf", "isWellFormed", "italics", "lastIndexOf", "link",
+  "localeCompare", "match", "matchAll", "normalize", "padEnd", "padStart",
+  "repeat", "replace", "replaceAll", "search", "small", "split", "strike",
+  "sub", "substr", "substring", "sup", "startsWith", "toWellFormed",
+  "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase",
+  "toLocaleUpperCase", "toLowerCase", "toUpperCase"];
 export function getStringPrototype(): TESObject {
   if (!stringPrototype) {
-    const prototype: TESObject & { stringData: true } = {
+    const prototype: TESObject & { stringData: true } = markPartialIntrinsic({
       ...ESObject({ length: ESNumber(0) }, "unmodeled"), stringData: true,
       unmodeledPropertyWrites: ["length"]
-    };
+    }, "String.prototype", deferredPrototypeNames);
     stringPrototype = prototype;
-    prototype.properties.trim = {
+    prototype.properties.trim = markUnsupportedBoundaryObject({
       ...ESBuiltinFunction(stringTrim),
       properties: { length: ESNumber(0), name: ESString("trim") },
+      unknownProperties: "String.trim metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
       unmodeledPropertyWrites: ["length", "name"]
-    };
+    });
     prototype.properties.concat = {
       ...ESBuiltinFunction(concat),
       properties: { length: ESNumber(1), name: ESString("concat") },

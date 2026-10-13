@@ -1,7 +1,8 @@
 # Shared bounded String.trim
 
 Worker-verified P008 source/evidence is recorded in
-[the handoff](../agent-tasks/P008-string-trim/evidence.json); independent strong
+[the original handoff](../agent-tasks/P008-string-trim/evidence.json) and
+[correction 1](../agent-tasks/P008-string-trim/correction-1-evidence.json); independent strong
 review remains pending. Do not infer approval from local tests.
 
 Use shared branch/ToString/heap machinery after RequireObjectCoercible. Wrap each
@@ -17,9 +18,18 @@ both work and output; it must follow observable conversion. Limits are analysis
 leaves, not catchable JS exceptions or a native memory-availability assertion.
 
 The unchanged mrmime expression `.trim().toLowerCase()` provides actual target
-progression. The newly reached absent method needs the narrow typed lookup stop
-or a legacy noncallable assertion drops filesystem siblings. Preserve the own
-property branch; do not implement the next API to hide the boundary.
+progression. A one-name lookup stop preserves that target's siblings but still lets other
+unimplemented String methods appear absent. Correction 1 replaces it with a
+private partial-intrinsic registry: a complete pinned standard own-name surface,
+with modeled names/ordinary missing names distinguished from deferred ones.
+Shared reads and hasOwnProperty guard only after splitting own presence. A guard
+before the split loses usable conditional replacements; no guard makes the other
+side falsely absent. Mark partial prototype/function values so existing
+Object.keys/spread guards produce typed leaves. Preserve known metadata and
+native replacement assertions while updating superseded rejection checkpoints.
+Do not use raw heap-storage absence as evidence of a complete intrinsic surface.
+The legacy internal URL mutation check remains separate; no `in` semantics were
+added. Root's reported false `in` result was not independently reproduced.
 
 Test-writing lessons: JSON.stringify leaves U+2028/U+2029 literal separators in
 source. Escape those two units for Cherow while preserving runtime strings; the

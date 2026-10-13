@@ -5,7 +5,7 @@ import { Any, ESNull, Undefined, Type, ThrownValue, WithProperties, TESBoolean, 
 import { ESString, TESString } from "../string/String";
 import { bindNormal } from "../evaluate";
 import { isObjectValue, toString, withValue } from "../conversion/toString";
-import { ownPropertyPresence } from "../execution-context/Heap";
+import { ownPropertyPresence, assertModeledOwnAbsence } from "../execution-context/Heap";
 import { createError } from "../error/Error";
 import { tuple } from "@deaven/tuple";
 import { getFunctionPrototype } from "../Function/prototype";
@@ -70,7 +70,12 @@ export function getObjectPrototype(): TESObject {
             !((self as WithProperties).modeledInheritedProperties || []).includes((name as TESString).value as string)) {
           throw unsupportedPropertyError(self, "Unmodeled host property presence");
         }
-        return [own, branch];
+        return evaluateBranches(own, branch,
+          after => [ESBoolean(true), after],
+          after => {
+            assertModeledOwnAbsence(self as WithProperties, (name as TESString).value as string);
+            return [ESBoolean(false), after];
+          });
       }));
   }) });
   return objectPrototype;

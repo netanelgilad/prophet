@@ -32,7 +32,7 @@ factory with a directory evaluates two regular-expression literals and appends
  stops at String.prototype.toLowerCase lookup in the same unchanged expression.
  The actual CLI JSON graph retains this stopped leaf with its source frame and
  prior directory effects beside the EMFILE filesystem throw (descriptor
- availability remains symbolic). No package source rewrite is introduced. The narrow generic toLowerCase
+ availability remains symbolic). No package source rewrite is introduced. The shared partial-intrinsic
  lookup guard prevents a legacy noncallable assertion from dropping that sibling;
  own replacements still use normal lookup. Case conversion, lastIndexOf,
  substring, later Stats/Date metadata and streams remain separate work. The retained state contains the regex
