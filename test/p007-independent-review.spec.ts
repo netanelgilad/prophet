@@ -10,6 +10,7 @@ import { getProperties } from "../src/execution-context/Heap";
 import { resolveBoolean } from "../src/symbolic";
 import { createRegExpLiteral } from "../src/regexp/RegExp";
 import { matches } from "../src/regexp/matcher";
+import { withValue } from "../src/conversion/toString";
 import { test262Root } from "./test262/runner";
 
 // Independent review of source82356b6. Native controls run only in a separate,
@@ -189,3 +190,42 @@ for (const expression of ['["a"]', 'function sample() {}']) for (const field of 
     expect(completion.alternate[1].value.scope.effects).toMatchObject({ value: 'before' });
   });
 }
+
+// Bounded correction review of source6bae07c: reached input effects and explicit
+// customized-receiver narrowing are separate from the four original red probes.
+test('correction guard retains input conversion effects and lastIndex aliases', () => {
+  for (const expression of ['["a"]', 'function sample() {}']) {
+    const [, before] = evaluateCode('const r = /a/; const alias = r;',
+      setVariablesInScope(nodeInitialExecutionContext, { selected: ESBoolean() }));
+    const [completion] = evaluateCode('let effects = "prefix"; const deferred = ' + expression +
+      '; const input = {toString() { effects = effects + "s"; alias.lastIndex = selected ? 7 : deferred; return "a"; }};' +
+      'try { r.test(input); effects = effects + "done"; } catch(e) { effects = "caught"; }', before);
+    expect(isForkedCompletion(completion)).toBe(true);
+    if (!isForkedCompletion(completion)) throw Error('missing correction fork');
+    expect(completion.consequent[0]).toBe(Undefined);
+    expect(completion.consequent[1].value.scope.effects).toMatchObject({ value: 'prefixsdone' });
+    expect(completion.alternate[0]).toMatchObject({ type: 'ExecutionBoundary', kind: 'unsupported',
+      message: 'RegExp.test is not yet supported: array/function primitive conversion' });
+    expect(completion.alternate[1].value.scope.effects).toMatchObject({ value: 'prefixs' });
+    const stopped = completion.alternate[1];
+    withValue(getProperties(before.value.scope.r as WithProperties, stopped).lastIndex, stopped, (value, after) => {
+      expect(value).toBe(after.value.scope.deferred);
+      return [Undefined, after];
+    });
+    expect(getProperties(before.value.scope.r as WithProperties, before).lastIndex).toMatchObject({ value: 0 });
+  }
+});
+
+test('correction explicitly stops customized array/function conversion before hooks', () => {
+  for (const expression of ['["a"]', 'function sample() {}']) for (const field of ['input', 'lastIndex']) {
+    const source = 'let effects = "prefix"; const deferred = ' + expression +
+      '; deferred.toString = function() { effects = "converted"; return "a"; };' +
+      'deferred.valueOf = function() { effects = "converted"; return 0; }; const r = /a/;' +
+      (field === 'lastIndex' ? 'r.lastIndex = deferred;' : '') +
+      'try { r.test(' + (field === 'input' ? 'deferred' : '"a"') + '); effects = "done"; } catch(e) { effects = "caught"; }';
+    const [completion, after] = evaluateCode(source, nodeInitialExecutionContext);
+    expect(completion).toMatchObject({ type: 'ExecutionBoundary', kind: 'unsupported',
+      message: 'RegExp.test is not yet supported: array/function primitive conversion' });
+    expect(after.value.scope.effects).toMatchObject({ value: 'prefix' });
+  }
+});

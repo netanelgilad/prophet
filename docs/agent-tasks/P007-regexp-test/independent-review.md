@@ -81,3 +81,44 @@ Worker full-regression evidence for the requested frozen source was not delivere
 Normative cross-checks used [RegExp.prototype.test](https://tc39.es/ecma262/multipage/text-processing.html#sec-regexp.prototype.test), [RegExpExec](https://tc39.es/ecma262/multipage/text-processing.html#sec-regexpexec) and [RegExpBuiltinExec](https://tc39.es/ecma262/multipage/text-processing.html#sec-regexpbuiltinexec), with Node24.21.0 as the concrete oracle. The completion-preservation requirement comes from this repository's runtime/state and independent-review contracts.
 
 The independent review supplied no production fix and did not modify worker/main or worker expectations. No draft PR readiness or integration claim is made by this review artifact.
+
+
+## Correction review — 2026-10-13 — source6bae07c
+
+Requested source: `6bae07c599c6a80d4cb199bf6e3e92fa9bb77cf9`; correction base: `82356b687877bdf21ebb2bccd5924f7c279bc7de`. Root applied the correction to this review tree through cherry-picks `7ccd3aebcafe21ab3ae306cb4dc7d83cc66c9f62` and `adca14d785ccb0889536feda9e223089919674ce`. I verified all 291 source, existing test/fixture and affected boundary-document files byte-for-byte against the requested source before execution, then rechecked their SHA-256 values. No production or worker spec was edited.
+
+**Exact-source gate verdict: REJECT / not ready. The coercion correction itself is accepted and closes independent-p007-F1 for source6bae07c.** A separate deterministic Jest discovery failure prevents the required full regression gate from passing. The original82356b6 rejection and `independent-evidence.json` above are preserved; their historical report/probe hashes resolve at review commit3179469. New records are in `independent-correction-evidence.json`, with a distinct `logs/independent-p007-correction-` prefix.
+
+### Bounded delta assessment
+
+The complete82356b6..6bae07c delta comprises the shared conversion helper, four worker regression cases, and three boundary/wiki/backlog documents. The new guard applies after finite-choice resolution and before array/function primitive conversion. Typed boundaries therefore carry the current branch checkpoint rather than escaping through the shared legacy converters. For a lastIndex stop, already-completed input conversion effects are retained. Primitives and ordinary objects retain their existing order, dispatch, conversion and matching behavior; no matcher, resource-budget, state schema or sirv-specific operation changed.
+
+Customized arrays/functions are intentionally excluded before either conversion hook runs. This is an explicit narrowing recorded in REGEXP-001/LIB-002 and all affected docs, not a claim that native JavaScript rejects these values. The four worker specs retain exact native true controls and the stopped/normal siblings; the independent four former red probes exercise the opposite branch orientation and now pass. Two additional review tests exercise six cases: input conversion mutates lastIndex to a deferred value while preserving its alias/prior snapshot, and customized array/function input/index receivers stop before their hooks execute. Both pass.
+
+The first new alias assertion compared an unresolved raw heap choice directly with its selected object and failed. This was a reviewer assertion error: the heap intentionally preserves the choice while branch knowledge determines its value. The refined assertion uses shared `withValue` under the stopped branch to check the selected reference. The initial log is retained, followed by the successful final rerun; this was not a production defect or a relaxed behavioral expectation. The original33 probe expectations remain unchanged.
+
+### Final source-bound checks
+
+| Check | Observed result |
+| --- | --- |
+| All original33 independent probes plus two refinements | 35 passed; 17,472 pattern/input comparisons, 208 interpreted literal controls and 655,360 BMP comparisons rerun successfully |
+| RegExp test/literal, sirv target and selected Test262 suites | 4 suites passed, 729 tests passed, 46 unchanged historical skips |
+| Typecheck with final review probes | Exit0 |
+| Actual unchanged sirv CLI factory/import checks | Passed; trim boundary and EMFILE filesystem sibling retained |
+| Completed worker full regression on exact6bae07c | Exit1; 127 suites passed, one failed; 3,285 tests passed, 46 skipped |
+| Independent default Jest discovery | Includes `src/regexp/test.ts` |
+| Independent targeted discovery-failure reproduction | Exit1, empty-suite failure |
+
+The worker's completed `logs/p007/discovery-runs.json` binds its full run to source6bae07c, the pinned Node executable, exact argv/environment, timeout900s, exit1 and duration367.057s. The full log completed normally (not a timeout). I inspected it, verified its SHA-256 against the recorded value, and copied the manifest and referenced outputs into this review tree. The full log SHA-256 is `4f9d25ab623ea4d500b5c99d377f4b5a93e1867c78f6525df2553b2f06c5c51e`. All three completed runs in that manifest had matching hashes. The worker task-folder `evidence.json` was not yet present; the completed source-bound run manifest and full log establish the failure directly. No duplicate full suite was launched.
+
+### P2 — production filename is selected as an empty Jest suite
+
+Location: `src/regexp/test.ts` (module filename, present in source6bae07c). The unchanged standard `yarn test --runInBand` discovery includes this production implementation file. Since it defines no tests, Jest fails with `Your test suite must contain at least one test.` The worker's source-bound full log identifies this as its only failing suite; independent `--listTests --runInBand` plus a targeted `src/regexp/test.ts` run reproduce it on the exact review bytes.
+
+This is a deterministic repository/test-discovery defect, not an environmental permission, Node-version, dependency, or timeout issue. Behavioral test success does not satisfy the required full-suite gate. Move the implementation outside the test naming pattern (or otherwise correct discovery) and validate the actual resulting source before any ready claim. The worker's later `e13d6c1448ee6a34db0d00d5536f1f99eb02f87c` rename commit was observed but is outside the requested source and is not applied, accepted or covered by this verdict. No source repair was made here.
+
+Final review-probe SHA-256: `8fcc4d6f8dcc2b2e108484f9c81d75484749a15b1bb626e673dd7b3ba326a7d7`.
+Final probe log SHA-256: `a21fc7e66b4b95824d75b7f18d830cbfe6b19809a0b9fb1e685be8aba137d931`.
+Correction diff SHA-256: `8f79148b5138a0eba16625dca0f1f6f140a5908decd642673bbdebcd34da4161`.
+
+Only this appended review, new correction evidence and probe refinements are committed by the reviewer. Root's pre-existing edit to `independent-review-task.md` is preserved unstaged. No push, merge, model/account change, delegation or production edit occurred. Review frozen after this bounded correction verdict.
