@@ -25,12 +25,19 @@ function typeError(context: TExecutionContext): BranchResult {
 // for custom symbol hooks (the shared numeric guard is still a legacy error).
 function withoutCustomPrimitive(value: Any, context: TExecutionContext,
   next: (value: Any, context: TExecutionContext) => BranchResult): BranchResult {
-  return withValue(value, context, (input, branch) => !isObjectValue(input) ? next(input, branch) :
+  return withValue(value, context, (input, branch) => {
+    // The shared default array/function converters still throw legacy errors.
+    // Exclude these conversion receivers explicitly, including customized ones,
+    // before starting conversion so a stopped leaf cannot discard its siblings.
+    const kind = (input as { type: string }).type;
+    if (kind === "array" || kind === "function") return regexpBoundary("array/function primitive conversion");
+    return !isObjectValue(input) ? next(input, branch) :
     bindNormal(readWellKnownSymbol(input, toPrimitiveSymbol, branch), (method, after) =>
       withValue(method, after, (hook, final) => {
         if (!isUndefined(hook) && !isESNull(hook)) return regexpBoundary("custom Symbol.toPrimitive conversion");
         return next(input, final);
-      })));
+      }));
+  });
 }
 
 function test(receiver: Any, args: Any[], context: TExecutionContext): BranchResult {
