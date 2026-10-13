@@ -14,6 +14,7 @@ not add fields to Prophet's runtime output.
 - [VM foundations](vm-foundations.md): persistence, boundaries and common traps.
 - [Bounded Array.concat](array-concat.md): current heap, holes, branches and host work limits.
 - [Bounded Array.forEach](array-foreach.md): captured length, current-state visits and flat host iteration.
+- [Bounded UTF-16 lastIndexOf](string-lastindexof.md): mandatory conversion order, independent work caps and retained unary frontier.
 - [Bounded ASCII lowercase](string-lowercase.md): conversion effects, Unicode boundaries, caps and actual lastIndexOf frontier.
 - [Shared String.trim](string-trim.md): current coercion state, UTF-16 edge whitespace and pre-scan bounds.
 - [Bounded RegExp.test](regexp-test.md): UTF-16 Boolean matching, conversion order and explicit NFA budgets.

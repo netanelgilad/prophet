@@ -77,3 +77,10 @@ A guard reached after completed branch state has joined may conservatively stop
 the joined state (for example unknown String intrinsic mutation); this increment
 does not add refinement for every such guard or recover alternatives it never
 explored. Source/stack and parser domains remain unchanged.
+
+
+P010 narrowly classifies the missing unary `~` resolver after its operand is
+evaluated. This reached mrmime frontier formerly raised a legacy assertion and
+lost the completed filesystem sibling; it now retains operand effects/current
+state and source frames beside that sibling. Other missing unary guards remain
+unchanged. No bitwise language semantics, substring or increment support is added.
