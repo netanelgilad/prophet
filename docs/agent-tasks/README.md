@@ -20,6 +20,7 @@ increase or first-review acceptance streak.
 | [P004](P004-loop-min-specs/task.md) | Loop-min proof-spec design; LongCat pilot | Reviewed specs from [PR70](https://github.com/netanelgilad/prophet/pull/70) landed unchanged in `f6da7af`; thread remains archived | All9 loop-min tests pass with P003/P005; spec-only LongCat evidence remains distinct from Muse implementation |
 | [P005](P005-selection-membership/task.md) | Generic finite-selection membership precision | Accepted source `e18d18e`, metadata `d1d788c`, integrated in `f6da7af`; Muse thread archived Oct10 | 43 independent probes plus26 existing choice checks pass; full124 suites/3102pass/46skip and typecheck0; full solver review retained |
 | [P006](P006-unknown-loop/task.md) | Verified unknown-length loop summaries | Accepted source0785ba6; Atlas thread archived Oct11; linear integration and exact-head publication gate | Sol high;78 combined review/feature checks,126 suites/3156pass/46skip/typecheck0; three source correction batches and evidence curation; full review retained |
+| [P007](P007-regexp-test/task.md) | Bounded flagless RegExp.test; unchanged sirv filename filters | Sourcee13d6c1 independently accepted; isolated draft-PR candidate, no master integration | [Full semantic review](P007-regexp-test/independent-review.md): disclosed coercion correction and Jest discovery rename verified; 127 suites/3285passes/46skips/typecheck0,35 independent probes; exact-head CI gate pending |
 
 P001–P005 are accepted in their recorded scope and their Atlas threads are
 archived. P003/P005 complete the bounded loop-min milestone; P006 completes the
@@ -27,7 +28,7 @@ documented first unknown-length loop proof domain and its thread is archived.
 LongCat recovery is not claimed. PR70's spec-only branch is superseded by the
 combined master integration, preserving every reviewed assertion.
 
-Next application candidate: the reached sirv RegExp.test boundary. The separate
+P007 advances unchanged sirv past its two filename filters to the typed String.trim boundary in mrmime, preserving the EMFILE sibling. Its branch is a draft-PR candidate; master remains P006 at3377cfe. Next application candidate after P007 acceptance: shared String.prototype.trim. The separate
 reasoning milestone is verified unknown-length loop summaries. Explicit initial
 environments and immutable larger-package scouting remain roadmap work. Scope
 the next task from the actual integrated result. On Oct11 the user prioritized
