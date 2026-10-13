@@ -101,3 +101,49 @@ even when a human could prove more about it.
 - Legacy URL parsing still assumes unchanged dynamic string intrinsics: its
   slice guard now checks the modeled intrinsic's identity. Replacing the method
   still stops URL analysis instead of discarding the replacement's effects.
+
+
+## Bounded String.prototype.trim (P008)
+
+The shared inherited, nonconstructible `trim` intrinsic implements
+[TrimString with both ends](https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.trim).
+It performs RequireObjectCoercible before ordinary string-hint conversion,
+using the existing interpreted ToString, current heap and branch completions.
+Null/undefined throw guest TypeError; conversion can mutate state or throw.
+Concrete strings, finite correlated choices, numbers, booleans, ordinary objects,
+and String.prototype's empty string value are supported. Existing strings see
+prototype replacements; captured intrinsic aliases and earlier heap snapshots
+retain their identities. Metadata values are `name: "trim"`, `length: 0`; shared
+metadata-write guards remain in force, without claiming descriptor support.
+
+The explicit modern WhiteSpace + LineTerminator table removes only edge units.
+Interior whitespace, U+0085/U+180E/U+200B, NUL, astral pairs and lone surrogates
+are preserved. No native regex matching, Unicode normalization or native trim
+backend is used. A 65,536 UTF-16-unit input cap is checked after coercion and
+before any scan/copy/output allocation. The two scans visit at most that many
+distinct units (at most input length + 1 predicate calls); the single slice's
+output is bounded by input length. Exceeding the cap is an analysis-budget leaf,
+not a guest RangeError, empty result or resource-availability proof.
+
+Open symbolic strings/numbers after ToString and legacy chunk-valued strings
+stop explicitly; no string or proof is guessed. Array/function receivers,
+including customized ones, stop before conversion because shared converters
+still have legacy failure paths. Nonnull own/inherited Symbol.toPrimitive hooks
+stop rather than invoking invented symbol semantics. Shared partial-host,
+cyclic-prototype, descriptor/getter and wrapper guards remain; legacy errors in
+those shared operations can still retain only a partial checkpoint rather than
+all siblings. This increment does not repair arbitrary coercion or bound its
+runtime, prototype depth, symbolic frontier growth, parser work or embedding
+input allocation. Successful allocation inside the admitted cap remains an
+assumption (STRING-001), not a modeled V8 resource contract.
+
+[Local specs](../test/string-trim.spec.ts) include independent Node 24.21.0
+controls, branch correlations and mandatory unknowns, normal/throw/stopped
+siblings, current prototype state, snapshots and externally timed large inputs.
+Forty-one complete unmodified Test262 files add 82 variants; the
+[whole candidate inventory](agent-tasks/P008-string-trim/upstream-candidates.md)
+records all 128 pinned trim files. The unchanged sirv factory now passes trim
+and reaches toLowerCase; its CLI graph retains the EMFILE sibling. That lookup
+alone is classified, without implementing case conversion or claiming factory
+completion. See LIB-001/002, OBJ-001/003, STRING-001, SYM-001/004, LEGACY-002,
+REPORT-001, TEST-001/002/003 and TARGET-002 in the backlog.

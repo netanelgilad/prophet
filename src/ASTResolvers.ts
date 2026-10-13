@@ -205,9 +205,9 @@ export function readMember(object: Any, name: string, context: TExecutionContext
     }
     // A reached missing intrinsic is an analysis gap, not ordinary undefined.
     // Keep this lookup stop typed so earlier filesystem outcomes survive. Own
-    // replacements still use the ordinary branch above; trim semantics are deferred.
-    if (object === getStringPrototype() && name === "trim") {
-      throw new UnsupportedAnalysisError("String.prototype.trim is not yet supported");
+    // replacements still use the ordinary branch above; case conversion is deferred.
+    if (object === getStringPrototype() && name === "toLowerCase") {
+      throw new UnsupportedAnalysisError("String.prototype.toLowerCase is not yet supported");
     }
     const prototype = prototypeOf(object);
     return isESNull(prototype) ? tuple(Undefined, branch) : readMember(prototype, name, branch);
