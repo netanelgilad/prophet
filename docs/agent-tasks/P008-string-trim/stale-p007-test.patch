@@ -1,0 +1,13 @@
+--- a/test/regexp-test.spec.ts
++++ b/test/regexp-test.spec.ts
+@@ -205,2 +205,2 @@
+-test("trim's deferred intrinsic lookup preserves branches and honors own replacements", () => {
+-  const [result] = evaluateCode('if (selected) { const text = " a ".trim(); } else { const done = true; }',
++test("toLowerCase's deferred intrinsic lookup preserves branches and honors own replacements", () => {
++  const [result] = evaluateCode('if (selected) { const text = " a ".trim().toLowerCase(); } else { const done = true; }',
+@@ -211 +211 @@
+-    message: "String.prototype.trim is not yet supported" });
++    message: "String.prototype.toLowerCase is not yet supported" });
+@@ -213 +213 @@
+-  expect(compareModule('"use strict"; String.prototype.trim = function() { return "custom"; }; module.exports = " a ".trim() === "custom";').loaded)
++  expect(compareModule('"use strict"; String.prototype.toLowerCase = function() { return "custom"; }; module.exports = " a ".trim().toLowerCase() === "custom";').loaded)

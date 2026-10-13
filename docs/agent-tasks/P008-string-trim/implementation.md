@@ -1,6 +1,6 @@
 # P008 implementation handoff scope
 
-Base `8a2b976fff5d03589660f1fc344c4549d3c01771`, isolated branch
+Requested base `8a2b976fff5d03589660f1fc344c4549d3c01771`, isolated branch
 `agent/p008-string-trim`. Sole writer; no agents, dependency/P007 implementation
 edits, model/account switching, push, merge or release. Independent strong review
 and root's exact-head CI/publication decisions follow this frozen handoff.
@@ -19,7 +19,7 @@ and root's exact-head CI/publication decisions follow this frozen handoff.
   the actual CLI reported `Value is not callable`. Afterward they retain the
   stopped mrmime source frame and prior readdir effects beside the EMFILE throw.
   No toLowerCase or later API implementation; no fixture/source rewrite.
-- Add 41 complete Test262 files (82 variants), local native/VM controls and
+- Add 40 complete Test262 files (80 variants), local native/VM controls and
   finite-choice/effect/budget/current-state specs. All 128 trim candidates have
   independent pinned Node controls, original harness files and source hashes.
 
@@ -61,3 +61,30 @@ Final source/spec/docs commit precedes full validation. A separate evidence-only
 commit binds exact commands, exits, counts, logs, source hashes, skipped inventory
 and cumulative diff. The root owns the shared ledger, review and draft PR updates;
 this worker freezes after one complete handoff.
+
+
+## Exact frozen validation result
+
+Source/spec/docs commit `0d3b2781147e1625d90da2db5ec6e86c58a238ff` has inherited
+parent `1bf4dd45d488654132b683ce83ec9f0380f006e2`. Root scoping `f02cc66` and
+P007 probe portability `1bf4dd4` were inherited, not worker changes. The protected
+path comparison against this parent is empty; the requested-base comparison
+properly shows that inherited probe correction.
+
+Final focused checks: 4 suites, 743 passed, 46 historical skips. Full suite:
+128 suites passed / 1 failed; 3448 tests passed / 1 failed / 46 skipped, 362.817
+Jest seconds (365.09 external seconds), within the 900-second cap. Typecheck
+exit 0. The only failure is `test/regexp-test.spec.ts:208`, whose P007 test still
+expects String.trim to be unsupported. Trim now completes normally, as intended.
+No runtime failure or weakened assertion is substituted for this obsolete test.
+The explicit no-P007-probe-edit instruction prevents applying its update without
+approval. The [prepared patch](stale-p007-test.patch) moves the same retained
+branch/own-replacement assertions to the actual next toLowerCase boundary.
+It is a zero-context patch (`git apply --unidiff-zero`), prepared but **not** applied or run; approval was requested, and this handoff does
+not claim a green full suite. Independent strong review/publication remains gated.
+
+The evidence-only follow-up corrects audit-derived counts to 40 new whole files /
+80 variants and 88 inactive trim candidates. The initial 41/82/87 counts were
+manual documentation errors; the source selection and all assertions are unchanged.
+Runtime/spec bytes remain frozen, and all logs (including failed development
+runs and this full-suite failure) are retained with generated hashes.

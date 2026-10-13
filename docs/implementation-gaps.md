@@ -1043,8 +1043,8 @@ source and declared limits. No stable ID is closed or removed.
   toLowerCase after trim, preserving source frames, directory effects and EMFILE.
   No filesystem outcome was selected away, and headers/factory/server/request
   execution remains unfinished. Provenance fixtures are unchanged.
-- TEST-001/002/003: 41 complete files add 82 variants. The full 128-file trim
-  candidate list records 87 inactive files and native controls for all 256
+- TEST-001/002/003: 40 complete files add 80 variants. The full 128-file trim
+  candidate list records 88 inactive files and native controls for all 256
   variants. No new skip/todo site; the complete 46-file historical inventory is
   unchanged. Full documented guard/assertion/skip/docs scans are saved with
   hashes; a scan is not a complete language/host conformance audit.
