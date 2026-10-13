@@ -1,0 +1,1036 @@
+{
+  "task": "P007",
+  "status": "frozen worker handoff; independent review pending",
+  "worktree": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+  "branch": "agent/p007-regexp-test",
+  "sourceBase": "3377cfe2c8791d2113f0f6e03f331c785df2200b",
+  "assignmentCommit": "2cd5313c626e5880d5b94feaa572f7262c7da86a",
+  "redSpecsCommit": "d9b9bc271a534b2520e10bf8f8bcee1420251c30",
+  "testedSourceCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+  "evidenceCommit": "Subsequent commit containing this file: evidence/handoff only. Exact SHA is supplied in the final response.",
+  "requestedConfiguration": {
+    "model": "gpt-6-astra",
+    "reasoning": "ultra",
+    "account": "existing session retained; no model/account rotation, spawned agents or paid API requests"
+  },
+  "node": {
+    "binary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    "sha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+    "version": "v24.21.0",
+    "versions": {
+      "node": "24.21.0",
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.5.8",
+      "simdjson": "4.6.7",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.4",
+      "tz": "2026c",
+      "undici": "7.29.1",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.53",
+      "zlib": "1.3.2.1-motley-8002e91",
+      "zstd": "1.5.7"
+    }
+  },
+  "redEvidence": [
+    {
+      "testedCommit": "d9b9bc271a534b2520e10bf8f8bcee1420251c30",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/regexp-test.spec.ts",
+        "--testNamePattern=native exact"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exitCode": 0,
+      "log": "logs/p007/native-before.log",
+      "sha256": "82b94bfe637f6a478f6137a3492da34b5306f0b6bb6bacda18033c7f6702e297",
+      "counts": {
+        "Test Suites": {
+          "passed": 1,
+          "total": 1
+        },
+        "Tests": {
+          "skipped": 54,
+          "passed": 29,
+          "total": 83
+        },
+        "Snapshots": {
+          "total": 0
+        }
+      }
+    },
+    {
+      "testedCommit": "d9b9bc271a534b2520e10bf8f8bcee1420251c30",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/regexp-test.spec.ts",
+        "test/test262.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "exitCode": 1,
+      "log": "logs/p007/red.log",
+      "sha256": "e943659a1a12e50397d1591d07bbe6ccb7499b1e0d8fb00064de849a70837615",
+      "counts": {
+        "Test Suites": {
+          "failed": 2,
+          "total": 2
+        },
+        "Tests": {
+          "failed": 43,
+          "skipped": 46,
+          "passed": 607,
+          "total": 696
+        },
+        "Snapshots": {
+          "total": 0
+        }
+      }
+    }
+  ],
+  "redFailureReview": "43 intended failures: 29 VM controls; finite choices; open numeric lastIndex; conversion fork checkpoint; seven budget probes; four upstream conversion variants. Each reached the missing test intrinsic. The 29 exact native controls passed first. The 54 native-only filtered tests are not repository skips.",
+  "redSourceHashes": [
+    {
+      "path": "test/regexp-test.spec.ts",
+      "sha256": "8839cf7fe3043a324ce17a3da9a0dd813fb830d8084cee2924d1eea638600709"
+    },
+    {
+      "path": "test/test262.spec.ts",
+      "sha256": "0a3fc9e13784ca82845770dd2a5e17cd14e8011db72bd3ea7334f99ce795dc29"
+    }
+  ],
+  "finalValidation": [
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/regexp-test.spec.ts",
+        "test/regexp-literals.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/final-focused.log",
+      "exitCode": 0,
+      "timeoutSeconds": 120,
+      "timedOut": false,
+      "durationSeconds": 26.628,
+      "sha256": "f9007593ff49cec3bdff83b81a2a509a75d559ce65e25ff5574b8620496ced49",
+      "counts": {
+        "Test Suites": {
+          "passed": 5,
+          "total": 5
+        },
+        "Tests": {
+          "skipped": 46,
+          "passed": 741,
+          "total": 787
+        },
+        "Snapshots": {
+          "total": 0
+        }
+      }
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test/logs/p007/native-upstream.cjs"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/native-upstream.json",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.196,
+      "sha256": "288fa6f485160761073402a1f1df4d959c3196661af5adb90db0a277ebfe3056",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/typecheck.log",
+      "exitCode": 0,
+      "timeoutSeconds": 120,
+      "timedOut": false,
+      "durationSeconds": 6.833,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/full-suite.log",
+      "exitCode": 0,
+      "timeoutSeconds": 900,
+      "timedOut": false,
+      "durationSeconds": 331.71,
+      "sha256": "694913cb15b9ca32a4a56bc69cfc43e3cd19fb15723d0cc98f12b17c66811cd5",
+      "counts": {
+        "Test Suites": {
+          "passed": 127,
+          "total": 127
+        },
+        "Tests": {
+          "skipped": 46,
+          "passed": 3285,
+          "total": 3331
+        },
+        "Snapshots": {
+          "total": 0
+        }
+      }
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test/logs/p007/inventory.cjs"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/inventory.json",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.758,
+      "sha256": "f641404c8fde509e902d07513204a88bd126e374edaeb17297a1bb0376ff94ab",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/audit-guards.log",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.174,
+      "sha256": "1bb19de90e7c8cdec4e988a6994cdd1aded834cc240a4559c37293729d5d484b",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/audit-asserts.log",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.142,
+      "sha256": "cae2d7d4dc556318e98ec8466a79f0367e0594f67e27834bdbef2915f82041ca",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/audit-skips.log",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.13,
+      "sha256": "91733357d425dd15cba84a84644677618e6e48c6c777c474b6a44dcae3207d62",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/audit-docs.log",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.192,
+      "sha256": "dfe023d2cc6e3f97d3f5c8ccb8d2e160d15142e91a9286e089cfddf6801f7a01",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "git",
+        "diff",
+        "--",
+        "src",
+        "test",
+        "README.md",
+        "docs",
+        "AGENTS.md"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/audit-worktree-diff.log",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.066,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "git",
+        "diff",
+        "3377cfe2c8791d2113f0f6e03f331c785df2200b..e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+        "--",
+        "src",
+        "test",
+        "README.md",
+        "docs",
+        "AGENTS.md"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/audit-cumulative-diff.log",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.185,
+      "sha256": "6a425e9ecfdc3a584e64f8fe013c41cb0a45c5d44a816e59539445d0bac6d7af",
+      "counts": {}
+    },
+    {
+      "testedCommit": "e13d6c1448ee6a34db0d00d5536f1f99eb02f87c",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "3377cfe2c8791d2113f0f6e03f331c785df2200b..e13d6c1448ee6a34db0d00d5536f1f99eb02f87c"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/audit-diff-check.log",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.067,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {}
+    }
+  ],
+  "predecessorValidation": [
+    {
+      "testedCommit": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/regexp-test.spec.ts",
+        "test/regexp-literals.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/predecessor-focused.log",
+      "exitCode": 0,
+      "timeoutSeconds": 120,
+      "timedOut": false,
+      "durationSeconds": 26.942,
+      "sha256": "12ca8af472c4f59e550a282e0e2a1732670f4fec068097c9644d463e65eca070"
+    },
+    {
+      "testedCommit": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test/logs/p007/native-upstream.cjs"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/predecessor-native-upstream.json",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.33,
+      "sha256": "288fa6f485160761073402a1f1df4d959c3196661af5adb90db0a277ebfe3056"
+    },
+    {
+      "testedCommit": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/full-suite-timeout.log",
+      "exitCode": -9,
+      "timeoutSeconds": 300,
+      "timedOut": true,
+      "durationSeconds": 300.207,
+      "sha256": "1d37263d214874ec1647cddbeca340b7070c835973308989a8bf0e5740ff4d17"
+    },
+    {
+      "testedCommit": "82356b687877bdf21ebb2bccd5924f7c279bc7de",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/full-suite-predecessor-cancelled.log",
+      "exitCode": 129,
+      "timeoutSeconds": 900,
+      "timedOut": false,
+      "durationSeconds": 309.329,
+      "sha256": "10b96f502459d34ab4d31e052da97a3e9da7ea249a1c9326be3ec890a491f2d2"
+    },
+    {
+      "testedCommit": "6bae07c599c6a80d4cb199bf6e3e92fa9bb77cf9",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/regexp-test.spec.ts",
+        "test/regexp-literals.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/pre-rename-focused.log",
+      "exitCode": 0,
+      "timeoutSeconds": 120,
+      "timedOut": false,
+      "durationSeconds": 26.777,
+      "sha256": "23d8991febe1acb178c4e6a5096659e9818d1111640dcf16ccc66893f78cd17c"
+    },
+    {
+      "testedCommit": "6bae07c599c6a80d4cb199bf6e3e92fa9bb77cf9",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test/logs/p007/native-upstream.cjs"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/pre-rename-native-upstream.json",
+      "exitCode": 0,
+      "timeoutSeconds": 60,
+      "timedOut": false,
+      "durationSeconds": 0.182,
+      "sha256": "288fa6f485160761073402a1f1df4d959c3196661af5adb90db0a277ebfe3056"
+    },
+    {
+      "testedCommit": "6bae07c599c6a80d4cb199bf6e3e92fa9bb77cf9",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "log": "logs/p007/full-suite-discovery-failure.log",
+      "exitCode": 1,
+      "timeoutSeconds": 900,
+      "timedOut": false,
+      "durationSeconds": 367.057,
+      "sha256": "4f9d25ab623ea4d500b5c99d377f4b5a93e1867c78f6525df2553b2f06c5c51e"
+    }
+  ],
+  "additionalRedEvidence": {
+    "testedCommit": "4b36d385ebcc21a9a9c7070ab0938832ca16ebf6",
+    "argv": [
+      "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+      ".yarn/releases/yarn-3.1.1.cjs",
+      "test",
+      "--runInBand",
+      "test/regexp-test.spec.ts",
+      "--testNamePattern=deferred .* conversion"
+    ],
+    "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p007-regexp-test",
+    "env": {
+      "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+    },
+    "specSha256": "5426460a3700deefc0ccca11afd961493ca69299b3e03043f4bcedf476b6d990",
+    "log": "logs/p007/deferred-conversion-red.log",
+    "exitCode": 1,
+    "counts": {
+      "Test Suites": {
+        "failed": 1,
+        "total": 1
+      },
+      "Tests": {
+        "failed": 4,
+        "skipped": 94,
+        "total": 98
+      },
+      "Snapshots": {
+        "total": 0
+      }
+    },
+    "sha256": "739e9292a7c1e2a28fbb182e91ae12477295dc06d8edc04d15affd40a7fde79c",
+    "note": "Four native controls passed, then each VM branch check failed at its legacy array/function conversion error. Fixed with explicit entry boundaries; whole final specs include all four."
+  },
+  "upstream": {
+    "revision": "47bf9d1db9f6e7632120ac1b1946ad092e6c214e",
+    "newFiles": 15,
+    "newVariants": 30,
+    "nativeHarness": [
+      {
+        "file": "sta.js",
+        "sha256": "1fd6f14ff6f11d76c651def3248c2f33dd5193ad17c43da3d748be1271a177b5"
+      },
+      {
+        "file": "assert.js",
+        "sha256": "5f848d534157828f14832efa02bcc4711ea2ae652aacfdfc715240a03da41a46"
+      }
+    ],
+    "nativeFiles": [
+      {
+        "file": "built-ins/RegExp/regexp-class-chars.js",
+        "sha256": "4eeb06eada181ce8ed6b1d88d756cd371ce7fae5a85c536de896436712d8118f",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.3_A1_T5.js",
+        "sha256": "0c207dc00ff5cabd74e4ab031188e502e5347c22452673b5812ba7106afd9633",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.7_A1_T9.js",
+        "sha256": "68dd86ebe70b7067bc2410bcd44bb332b431a07e86a8f88b6a346232d68aa0e1",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.7_A6_T2.js",
+        "sha256": "78117319003e2c3b33196af2fe654fed5196449f9814e7ce139e99bc9a8fb5b1",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.7_A2_T4.js",
+        "sha256": "b4dab821f8c8fb892b49ae7c66908f8746f58e4b1e0af215d320f34282f3d5cc",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.7_A3_T3.js",
+        "sha256": "b12ffb8e1ecc47fa519b03f27c3c35a2df51177e7fed048c5250a42658432954",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.7_A4_T8.js",
+        "sha256": "ebf8dbcd7302566481703c82d0f276d5ebf1828b8c255deb711127d62183a3ab",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.7_A5_T3.js",
+        "sha256": "ac88b1b093a4edd9d634959a12fefd2e576930a76866ccf7916b273489bbed80",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.6_A1_T1.js",
+        "sha256": "1812ea6962e4c4f957fa2bd361d4c7e907fbb78becabc93865a9a96039201e40",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.6_A2_T7.js",
+        "sha256": "13fd197d9e7c1d3589e07228eb5e372d0eda559d5f3b2eb8138b42d9be4313b4",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.13_A1_T1.js",
+        "sha256": "5b5908295aa1ca5d658df3f06f61f88368b1486dcf5edc9d0df5ab55de838b89",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.13_A2_T6.js",
+        "sha256": "368543999688d4f291b5eadd6f9ca71dccf062653516d06e70c0f976e1525c43",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/S15.10.2.8_A3_T3.js",
+        "sha256": "b13c1760f0906d8385a96226b225059caf296ff5ecafcbbd3d3e19ea8834adf5",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/prototype/test/S15.10.6.3_A1_T7.js",
+        "sha256": "38d2e3b9f429f718dbefacc5bce46fe6b79df125cfc222eb1024af39f97e5bd4",
+        "variants": 2
+      },
+      {
+        "file": "built-ins/RegExp/prototype/test/S15.10.6.3_A1_T8.js",
+        "sha256": "691573f7e22a042c51887577015b117ca241a951f5dd3b4dcae5aa2bbcfefaf4",
+        "variants": 2
+      }
+    ],
+    "activeFiles": 301,
+    "activeVariants": 593,
+    "historicalSkips": 46,
+    "skipTableMatches": true,
+    "skipsUnchangedFromBase": true,
+    "parseNegativeSkips": 34,
+    "inventoryLog": "logs/p007/inventory.json"
+  },
+  "audit": {
+    "guardMatches": 577,
+    "assertMatches": 23,
+    "skipSites": [
+      "test/test262.spec.ts:418:      test.skip(path, () => {"
+    ],
+    "protectedFilesUnchanged": [
+      "package.json",
+      "yarn.lock",
+      "node_modules",
+      "AGENTS.md"
+    ],
+    "changedFiles": [
+      {
+        "path": "docs/agent-tasks/P007-regexp-test/task.md",
+        "added": 89,
+        "deleted": 0,
+        "sha256": "e0b84566b6ede8025242891b20003a19cd2bcf3b7a807f39f571c675bdd54c75"
+      },
+      {
+        "path": "docs/implementation-gaps.md",
+        "added": 36,
+        "deleted": 2,
+        "sha256": "86d05e87dac75034f3696f27706cf1463c1909d11014e63ea1a6a852d9dc1103"
+      },
+      {
+        "path": "docs/regexp-literals.md",
+        "added": 112,
+        "deleted": 9,
+        "sha256": "629658e96573c61e4d657843b79be6a50753fc0a5da96cf9e10e5da09c5f0465"
+      },
+      {
+        "path": "docs/sirv-target.md",
+        "added": 10,
+        "deleted": 3,
+        "sha256": "526ac5caf235d05e41dfda14e0fac59e535e0f7ade898ad6f697663d62f7ce3e"
+      },
+      {
+        "path": "docs/wiki/README.md",
+        "added": 1,
+        "deleted": 0,
+        "sha256": "1eeb915f6357a264d3a60dda2d355f6888fedfa2aded5f345a8308af55bc70c1"
+      },
+      {
+        "path": "docs/wiki/regexp-test.md",
+        "added": 53,
+        "deleted": 0,
+        "sha256": "3ae1b7042c8a08feaf0e34fd0ac42ac115e8c8b8ac0a9f4eb4ad30f2cf51d379"
+      },
+      {
+        "path": "src/ASTResolvers.ts",
+        "added": 7,
+        "deleted": 1,
+        "sha256": "5794c875f3da2166446fafa7f6fc80b5fdbec4de5658ec9df27db9cd13e3862c"
+      },
+      {
+        "path": "src/regexp/RegExp.ts",
+        "added": 16,
+        "deleted": 4,
+        "sha256": "4fded6740cb3f7f73bc4b688b812d877448bcdf6b0e22eebdb2c09d127815665"
+      },
+      {
+        "path": "src/regexp/intrinsic.ts",
+        "added": 90,
+        "deleted": 0,
+        "sha256": "4b031a60ddcf95f942c9067b4aadd7386e936788638b3bc359a535bb6227ada6"
+      },
+      {
+        "path": "src/regexp/matcher.ts",
+        "added": 216,
+        "deleted": 0,
+        "sha256": "e70bd541c3f946fcce7f5c5b4b3b4ba8d04f5341e1695930ba719afbe3a61aa1"
+      },
+      {
+        "path": "test/regexp-test.spec.ts",
+        "added": 272,
+        "deleted": 0,
+        "sha256": "5426460a3700deefc0ccca11afd961493ca69299b3e03043f4bcedf476b6d990"
+      },
+      {
+        "path": "test/sirv-target.spec.ts",
+        "added": 51,
+        "deleted": 11,
+        "sha256": "ecac5a4c046b2d8beb248d31e9e5e19e8460ac19110b93609b692d9351bbd74e"
+      },
+      {
+        "path": "test/test262.spec.ts",
+        "added": 17,
+        "deleted": 0,
+        "sha256": "32de30b21624a24fef5fa4692985fd21a0dbe706c6d281a9273216e842831358"
+      },
+      {
+        "path": "test/test262/README.md",
+        "added": 11,
+        "deleted": 0,
+        "sha256": "ca0996918a1e345ad7ab8ddf32bf64d9c23eb441d573299f2d296da0aeb63870"
+      }
+    ],
+    "noGapClosed": true,
+    "reconciledGapIDs": [
+      "REGEXP-001",
+      "LIB-001",
+      "LIB-002",
+      "OBJ-001",
+      "LANG-003",
+      "FS-001",
+      "TARGET-002",
+      "SYM-001",
+      "SYM-004",
+      "STRING-001",
+      "SECURITY-002",
+      "REPORT-001",
+      "TEST-001",
+      "TEST-002",
+      "TEST-003"
+    ]
+  },
+  "domain": {
+    "flags": "empty only",
+    "units": "UTF-16",
+    "backend": "explicit epsilon NFA, no native matching",
+    "sourceUnits": 512,
+    "nesting": 32,
+    "finiteRepetition": 128,
+    "compiledStates": 1024,
+    "inputUnits": 4096,
+    "chargedVisits": 200000,
+    "knownChoices": "shared branches over receiver/input/index; open numeric index conversion allowed because flagless local index is ignored",
+    "boundary": "all flags, open strings, array/function primitive conversion, custom exec/symbol conversion, lookaround/backreferences/named groups/legacy escapes; budgets never return false",
+    "residualResources": "Cherow native compilation, general coercion/allocation, total symbolic branch/heap growth and graph/acquisition work are outside matcher caps"
+  },
+  "application": {
+    "fixture": "unchanged sirv 3.0.2, mrmime 2.0.1, totalist 3.0.1, @polka/url 1.0.0-next.29",
+    "progression": "both default filename filters -> sirv.toHeaders -> mrmime.lookup -> String.prototype.trim typed unsupported leaf",
+    "sibling": "EMFILE scandir guest throw; prior fs.readdirSync effects retained",
+    "cli": "real subprocess exit 2; direct roots/nodes JSON with partial ForkedCompletion",
+    "notEstablished": "completed headers, factory, server startup or requests"
+  },
+  "selfCorrectionsBeforeHandoff": [
+    "The complete suite on 6bae07c passed all 3285 behavioral tests but failed discovery because src/regexp/test.ts was treated as an empty test suite. Renamed it to intrinsic.ts and updated its import with no behavior change; final revision received full validation again.",
+    "First empty-repetition fixture stayed below 200000 compiler visits. Enlarged to three nested repetitions to exercise exhaustion; no valid outcome was changed.",
+    "Sirv frame assertion initially expected MemberExpression; shared member calls annotate CallExpression. Corrected to actual trim callee; diagnostic, mrmime source and EMFILE sibling asserted.",
+    "Eager method metadata exposed an import-cycle hazard in a new test import. Intrinsic initialization is now lazy.",
+    "Native matrix with 128-character ambiguous nonmatches hit its 10-second timeout. Used short native cross-product inputs (816 exact pairs) and separate 4096-unit VM ambiguity/budget probes. Timeout never supplied a matching result.",
+    "Own replacement trim control initially hit pre-existing sloppy primitive receiver boxing. Declared its source strict; no boxing implementation or weaker assertion.",
+    "Predecessor full suite hit the external 300-second limit after 97 passes; a second predecessor run was intentionally stopped after spotting missing typed boundaries for array/function primitive conversion. Four native-checked red controls reproduced legacy failures. New explicit conversion-domain boundaries retain siblings. Final source received a fresh full run with 900 seconds."
+  ],
+  "developmentLogCaveat": "Intermediate diagnostic logs are not final-source evidence. Revision binding is asserted only for red commit and finalValidation runs.",
+  "artifacts": [
+    {
+      "path": "logs/p007/audit-asserts.log",
+      "sha256": "cae2d7d4dc556318e98ec8466a79f0367e0594f67e27834bdbef2915f82041ca",
+      "bytes": 2401
+    },
+    {
+      "path": "logs/p007/audit-cumulative-diff.log",
+      "sha256": "6a425e9ecfdc3a584e64f8fe013c41cb0a45c5d44a816e59539445d0bac6d7af",
+      "bytes": 85408
+    },
+    {
+      "path": "logs/p007/audit-diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/p007/audit-docs.log",
+      "sha256": "dfe023d2cc6e3f97d3f5c8ccb8d2e160d15142e91a9286e089cfddf6801f7a01",
+      "bytes": 244104
+    },
+    {
+      "path": "logs/p007/audit-guards.log",
+      "sha256": "1bb19de90e7c8cdec4e988a6994cdd1aded834cc240a4559c37293729d5d484b",
+      "bytes": 63659
+    },
+    {
+      "path": "logs/p007/audit-skips.log",
+      "sha256": "91733357d425dd15cba84a84644677618e6e48c6c777c474b6a44dcae3207d62",
+      "bytes": 55
+    },
+    {
+      "path": "logs/p007/audit-worktree-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/p007/deferred-conversion-green.log",
+      "sha256": "52f05461f34a20d43657bcc11fd8864a06ecdaabddc779d1b2bf20a78690eaa6",
+      "bytes": 737
+    },
+    {
+      "path": "logs/p007/deferred-conversion-red.log",
+      "sha256": "739e9292a7c1e2a28fbb182e91ae12477295dc06d8edc04d15affd40a7fde79c",
+      "bytes": 23037
+    },
+    {
+      "path": "logs/p007/development-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/p007/discovery-runs.json",
+      "sha256": "33f5f21119a9ddcda745ce6291f17ae849d91ee4c2d508a884e085b169cc6f3c",
+      "bytes": 2230
+    },
+    {
+      "path": "logs/p007/final-focused.log",
+      "sha256": "f9007593ff49cec3bdff83b81a2a509a75d559ce65e25ff5574b8620496ced49",
+      "bytes": 631
+    },
+    {
+      "path": "logs/p007/final-runs.json",
+      "sha256": "ea3d0eac0d388aeee2262c5eedc934271fa40903fa301961e16a472dcfd98228",
+      "bytes": 8153
+    },
+    {
+      "path": "logs/p007/focused-corrected.log",
+      "sha256": "040e640e604e1557e29b51c3ab9461da09adc5572a88a913fede282adc33a034",
+      "bytes": 5472
+    },
+    {
+      "path": "logs/p007/focused-development.log",
+      "sha256": "190c01827b7b1458663b6f67362745adb964335480f37acf84629cb75f3ca3de",
+      "bytes": 5807
+    },
+    {
+      "path": "logs/p007/full-suite-discovery-failure.log",
+      "sha256": "4f9d25ab623ea4d500b5c99d377f4b5a93e1867c78f6525df2553b2f06c5c51e",
+      "bytes": 6358
+    },
+    {
+      "path": "logs/p007/full-suite-predecessor-cancelled.log",
+      "sha256": "10b96f502459d34ab4d31e052da97a3e9da7ea249a1c9326be3ec890a491f2d2",
+      "bytes": 3781
+    },
+    {
+      "path": "logs/p007/full-suite-timeout.log",
+      "sha256": "1d37263d214874ec1647cddbeca340b7070c835973308989a8bf0e5740ff4d17",
+      "bytes": 3814
+    },
+    {
+      "path": "logs/p007/full-suite.log",
+      "sha256": "694913cb15b9ca32a4a56bc69cfc43e3cd19fb15723d0cc98f12b17c66811cd5",
+      "bytes": 5079
+    },
+    {
+      "path": "logs/p007/handoff.py",
+      "sha256": "bb8647f313a743825cd8b9106839f9399ceda9d61139611b0997d407f9911bc1",
+      "bytes": 15854
+    },
+    {
+      "path": "logs/p007/initial-implementation.log",
+      "sha256": "4d1479c3eb13aed855cbf58bba989cdedc5b3c52aee330edf19063e5a4dcf722",
+      "bytes": 2412
+    },
+    {
+      "path": "logs/p007/initial-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/p007/inventory.cjs",
+      "sha256": "1b9e2631ce24c2b429c8319aeaccaf3595f66c1d77e8ce035978ffd97c33a0bc",
+      "bytes": 2197
+    },
+    {
+      "path": "logs/p007/inventory.json",
+      "sha256": "f641404c8fde509e902d07513204a88bd126e374edaeb17297a1bb0376ff94ab",
+      "bytes": 80390
+    },
+    {
+      "path": "logs/p007/matrix.log",
+      "sha256": "fca1e2ed03f396ede675cd0b1d1e0f0be5b91b6e25eb32b5d382bdf68bc8408c",
+      "bytes": 1622
+    },
+    {
+      "path": "logs/p007/native-before.log",
+      "sha256": "82b94bfe637f6a478f6137a3492da34b5306f0b6bb6bacda18033c7f6702e297",
+      "bytes": 1535
+    },
+    {
+      "path": "logs/p007/native-upstream.cjs",
+      "sha256": "4992ac510a5a538b5a9897f40b027797e5596e206cacfa33dd1a04048b1edaf1",
+      "bytes": 1401
+    },
+    {
+      "path": "logs/p007/native-upstream.json",
+      "sha256": "288fa6f485160761073402a1f1df4d959c3196661af5adb90db0a277ebfe3056",
+      "bytes": 3624
+    },
+    {
+      "path": "logs/p007/pre-rename-focused.log",
+      "sha256": "23d8991febe1acb178c4e6a5096659e9818d1111640dcf16ccc66893f78cd17c",
+      "bytes": 631
+    },
+    {
+      "path": "logs/p007/pre-rename-native-upstream.json",
+      "sha256": "288fa6f485160761073402a1f1df4d959c3196661af5adb90db0a277ebfe3056",
+      "bytes": 3624
+    },
+    {
+      "path": "logs/p007/precommit-focused.log",
+      "sha256": "96613c9eb50ba3e5d829ea921e33e6d4cec36ed3fe0db7a0ef76a404adec703b",
+      "bytes": 459
+    },
+    {
+      "path": "logs/p007/predecessor-focused.log",
+      "sha256": "12ca8af472c4f59e550a282e0e2a1732670f4fec068097c9644d463e65eca070",
+      "bytes": 631
+    },
+    {
+      "path": "logs/p007/predecessor-native-upstream.json",
+      "sha256": "288fa6f485160761073402a1f1df4d959c3196661af5adb90db0a277ebfe3056",
+      "bytes": 3624
+    },
+    {
+      "path": "logs/p007/predecessor-runs.json",
+      "sha256": "56ffd7ee0e7e30a25d5a686e0910f71593b3dbcc0f4184e2550bbf6189dd7a8a",
+      "bytes": 2904
+    },
+    {
+      "path": "logs/p007/progression.log",
+      "sha256": "4c1c21d4184391de1517b98a70ab93bdbe96d4cf003ddf28492bf80b1803728f",
+      "bytes": 1224
+    },
+    {
+      "path": "logs/p007/red.log",
+      "sha256": "e943659a1a12e50397d1591d07bbe6ccb7499b1e0d8fb00064de849a70837615",
+      "bytes": 187553
+    },
+    {
+      "path": "logs/p007/sirv-next-boundary-red.log",
+      "sha256": "f25e0c06b416d8316cec0f0c9acf583e70174ab87d289a5a455127bdb7936b92",
+      "bytes": 2369
+    },
+    {
+      "path": "logs/p007/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/p007/validate.py",
+      "sha256": "3e20dfab77460f6aa7642127df7e845d250ffd200af2f7b8087c00289c13420c",
+      "bytes": 2531
+    }
+  ],
+  "hashPolicy": "SHA256 generated from file bytes and git show blobs; every recorded log/artifact/source hash revalidated. evidence.json itself is hashed in handoff.md and the final response."
+}
