@@ -247,3 +247,26 @@ test("budget exhaustion after a finite input fork keeps the normal sibling", () 
   expect(result.alternate[0]).toBe(Undefined);
   expect(result.alternate[1].value.scope.effects).toMatchObject({ value: "done" });
 });
+
+
+for (const field of ["input", "index"]) for (const expression of ['["a"]', 'function sample() {}']) {
+  test(`deferred ${field} conversion keeps siblings: ${expression}`, () => {
+    const native = field === "input" ? `module.exports = /a/.test(${expression});` :
+      `const r = /a/; r.lastIndex = ${expression}; module.exports = r.test("a");`;
+    withModuleFixture(native, file => expect(nodeModuleObservation(file))
+      .toEqual({ kind: "return", value: { type: "boolean", value: true } }));
+    const [result] = evaluateCode(`const r = /a/; let effects = "before";
+      const candidate = selected ? ${expression} : "a";
+      r.lastIndex = ${field === "index" ? "candidate" : "7"};
+      try { r.test(${field === "input" ? "candidate" : '"a"'}); effects = "done"; }
+      catch (e) { effects = "caught"; }`,
+      setVariablesInScope(nodeInitialExecutionContext, { selected: ESBoolean() }));
+    expect(isForkedCompletion(result)).toBe(true);
+    if (!isForkedCompletion(result)) throw new Error("expected fork");
+    expect(result.consequent[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+      message: "RegExp.test is not yet supported: array/function primitive conversion" });
+    expect(result.consequent[1].value.scope.effects).toMatchObject({ value: "before" });
+    expect(result.alternate[0]).toBe(Undefined);
+    expect(result.alternate[1].value.scope.effects).toMatchObject({ value: "done" });
+  });
+}
