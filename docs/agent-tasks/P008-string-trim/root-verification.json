@@ -1,0 +1,36 @@
+{
+  "source": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+  "workerHead": "e3191d073fdc28d125d19bb269ef25315f8fef0c",
+  "verifiedReferences": 71,
+  "evidenceSha256": "238f26f46b2f674a7732310bc60821f5ab0c311b4b11a9d8072a56f60a69a8e1",
+  "postSourceDiff": [
+    "docs/agent-tasks/P008-string-trim/correction-1-evidence.json",
+    "docs/agent-tasks/P008-string-trim/correction-1-implementation.md"
+  ],
+  "validation": [
+    {
+      "name": "discovery",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-discovery.log"
+    },
+    {
+      "name": "focused",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-focused.log"
+    },
+    {
+      "name": "full-suite",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-full-suite.log"
+    },
+    {
+      "name": "typecheck",
+      "sourceCommit": "06eefd516e65bbc5d02b6bf94ddbed383f59c8d7",
+      "exit": 0,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008-correction-1-final/final-typecheck.log"
+    }
+  ]
+}

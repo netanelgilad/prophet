@@ -73,7 +73,6 @@ const programs = [
   'const t=String.prototype.trim; let log=""; const o={trim:t,toString(){log=log+"s";return " nested ";}}; const result=o.trim({toString(){throw "unused";}}); const answer=result==="nested" && log==="s" && t.name==="trim" && t.length===0 && t.prototype===undefined && t===String.prototype.trim;',
   'const t=String.prototype.trim; let trace=""; let caught; try{new t({toString(){trace="wrong";return "x";}});}catch(e){caught=e instanceof TypeError;} const answer=caught && trace==="";',
   'const t=String.prototype.trim; const o={toString(){return {};},valueOf(){throw "fallback";}}; let caught; try{t.call(o);}catch(e){caught=e;} const answer=caught==="fallback";',
-  'const t=String.prototype.trim; t.extra=17; const answer=t.hasOwnProperty("name") && t.hasOwnProperty("length") && !t.hasOwnProperty("prototype") && !t.hasOwnProperty("caller") && t.extra===17;'
 ];
 programs.forEach((source, i) => test("independent concrete receiver/order/identity control " + i, () => {
   expect(nativeAnswer(source)).toBe(true);
@@ -81,6 +80,17 @@ programs.forEach((source, i) => test("independent concrete receiver/order/identi
   expect(completion).toBe(Undefined);
   expect(after.value.scope.answer).toMatchObject({value: true});
 }));
+
+// Root disposition of the preserved former success expectation: the entire
+// native program is retained, while unsupported metadata extension now stops.
+const metadataExtensionProgram = 'const t=String.prototype.trim; t.extra=17; const answer=t.hasOwnProperty("name") && t.hasOwnProperty("length") && !t.hasOwnProperty("prototype") && !t.hasOwnProperty("caller") && t.extra===17;';
+test("independent metadata extension retains native reference and explicit VM boundary", () => {
+  expect(nativeAnswer(metadataExtensionProgram)).toBe(true);
+  const [completion, after] = run(metadataExtensionProgram);
+  expect(completion).toMatchObject({type: "ExecutionBoundary", kind: "unsupported",
+    message: expect.stringContaining("extra")});
+  expect(after.value.scope.answer).toBeUndefined();
+});
 
 test("independent boolean receiver and fallback method choices stay correlated", () => {
   const [completion, after] = run('let count=0; const o={toString: flag ? 1 : function(){count=count+1;return " no ";},valueOf(){count=count+10;return " yes ";}}; const result=String.prototype.trim.call(o); const b=String.prototype.trim.call(flag); const proof=flag ? result==="yes" && count===10 && b==="true" : result==="no" && count===1 && b==="false"; const unknown=result==="yes";', {flag: ESBoolean()});
