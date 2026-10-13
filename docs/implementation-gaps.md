@@ -1088,3 +1088,11 @@ No gap ID is closed; no source/dependency fixtures or P007 production changed.
   The sole authorized P007 test change replaces its obsolete trim rejection with
   actual result/effect/correlation checks and retains the original native trim
   replacement assertion verbatim. All unrelated P007 expectations stay intact.
+
+
+Correction 1's validation also migrates only the String.prototype entry of the
+existing object-spread descriptor-layout rejection table from legacy host throw
+to typed boundary, preserving the message constraint and adding prefix/sibling
+checks. Other layouts remain unchanged, and no descriptor support or skip is
+introduced (OBJ-001/REPORT-001/TEST-002). The superseded one-failure run is retained
+separately from the final corrected-source validation.

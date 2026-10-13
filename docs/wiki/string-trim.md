@@ -44,3 +44,12 @@ See [semantics/limits](../symbolic-strings.md#bounded-stringprototypetrim-p008),
 [executable specs](../../test/string-trim.spec.ts),
 [candidates](../agent-tasks/P008-string-trim/upstream-candidates.md), and
 [ECMAScript TrimString](https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.trim).
+
+
+Typed-boundary migrations also need to update parameterized legacy rejection
+specs. Correction 1's first full suite found Object spread's String.prototype
+entry still expecting a host throw; a literal `Object.keys(String.prototype)`
+search did not reveal that table-driven case. Its replacement keeps the unsupported
+result/message and adds prefix/sibling assertions. Other legacy layouts remain
+unchanged. Include the container's existing inspection spec in affected checks
+before freezing, and retain failed validation logs rather than rewriting them.

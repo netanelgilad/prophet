@@ -47,3 +47,22 @@ See [string limits](../../symbolic-strings.md#truthful-partial-string-surface-p0
 [wiki lessons](../../wiki/string-trim.md) and [contract](correction-1.md).
 Independent strong review is pending. No push, merge, release, delegation,
 account/model switch or credentials/access expansion occurs in this correction.
+
+
+## Validation-discovered inspection checkpoint
+
+The first frozen correction source `93dcdbd` completed its full suite in 365.663
+Jest seconds (367.94 external seconds): 128 suites passed / 1 failed, 3475 tests
+passed / 1 failed / 46 skipped. Typecheck passed. The sole failure was the existing
+parameterized `test/object-spread.spec.ts` String.prototype case, which still
+expected a legacy host throw for both spread and Object.keys. The authorized
+inspection correction instead returns the intended typed unsupported boundary.
+
+That String-only checkpoint is migrated to typed-boundary/message assertions,
+with preserved prefix state and a normal sibling. All seven other legacy layout
+cases retain their original source and assertions; no test count or skip changes.
+This is the necessary regression expectation update for the concrete authorized
+own-inspection repair, not an additional production feature. All production
+bytes remain identical to `93dcdbd`; a new spec/docs source commit precedes the
+final full-suite rerun. The earlier failed correction run stays separately in
+`logs/p008-correction-1/`; final logs use `logs/p008-correction-1-final/`.
