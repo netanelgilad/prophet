@@ -122,3 +122,31 @@ Final probe log SHA-256: `a21fc7e66b4b95824d75b7f18d830cbfe6b19809a0b9fb1e685be8
 Correction diff SHA-256: `8f79148b5138a0eba16625dca0f1f6f140a5908decd642673bbdebcd34da4161`.
 
 Only this appended review, new correction evidence and probe refinements are committed by the reviewer. Root's pre-existing edit to `independent-review-task.md` is preserved unstaged. No push, merge, model/account change, delegation or production edit occurred. Review frozen after this bounded correction verdict.
+
+
+## Final bounded review gate — 2026-10-13 — sourcee13d6c1
+
+**ACCEPT `e13d6c1448ee6a34db0d00d5536f1f99eb02f87c` for the declared P007 domain. No outstanding review or regression gate blocker.** Both independent-p007-F1 (deferred conversion completions) and independent-p007-F2 (Jest discovery) are closed for this exact source. Prior source-specific rejection/not-ready decisions and both previous evidence manifests remain unchanged.
+
+Root applied the rename through review-tree commit `462be989bf1baaf1c8836c91d5a5450c13975bb1`. I reviewed the entire6bae07c..e13d6c1 delta: a100% content-identical rename from `src/regexp/test.ts` to `src/regexp/intrinsic.ts`, the corresponding single import replacement in `RegExp.ts`, and the wiki discovery lesson. The old implementation path is absent. The291-file source/test/boundary-doc mapping matches the requested source; no production edit was made by this reviewer.
+
+Evidence reuse is explicit, not a new execution claim. The35 independent probes and exhaustive comparisons last ran on6bae07c (recorded above). Their implementation dependencies remain identical after the path mapping, with the only executable text difference being the verified import path. In particular, both old `src/regexp/test.ts` and new `src/regexp/intrinsic.ts` hash to `4b031a60ddcf95f942c9067b4aadd7386e936788638b3bc359a535bb6227ada6`; `matcher.ts` remains `e70bd541c3f946fcce7f5c5b4b3b4ba8d04f5341e1695930ba719afbe3a61aa1`; the independent probe file remains `8fcc4d6f8dcc2b2e108484f9c81d75484749a15b1bb626e673dd7b3ba326a7d7`. I verified the prior passing log and probe hashes before reusing that semantic evidence. The broad investigation/full suite was not rerun by the reviewer.
+
+Fresh checks on exacte13d6c1:
+
+| Check | Result |
+| --- | --- |
+| Default Jest discovery | 127 actual source suites; neither production helper path is selected |
+| Review worktree discovery | 128 suites: the same127 plus the independent review-only probe suite |
+| Regex test/literal and actual unchanged sirv integration suites | 3 suites / 136 tests passed; actual CLI boundary/EMFILE assertions and pinned Node controls pass |
+| Typecheck | Exit0 |
+| Verified worker focused run | 5 suites / 741 tests passed, 46 historical skips |
+| Verified worker full run | 127 suites / 3,285 tests passed, 46 historical skips; exit0, no timeout |
+
+The final worker `docs/agent-tasks/P007-regexp-test/evidence.json` is now present and explicitly names tested sourcee13d6c1. I inspected it and the completed full log, verified all12 final run log hashes/statuses, all39 artifact hashes/sizes, all14 changed-source hashes against git blobs and this review tree, the two recorded red-source hashes and the pinned Node binary hash. Its inventory confirms the unchanged46 historical skips and no closed gap IDs. Saved copies and exact commands are recorded in `independent-final-evidence.json` and `logs/independent-p007-final-*`.
+
+Worker full-suite log SHA-256: `694913cb15b9ca32a4a56bc69cfc43e3cd19fb15723d0cc98f12b17c66811cd5`.
+Worker evidence snapshot SHA-256: `ee007d2eca960a4331f18d4365a4c3bdae3556969a64784c48a5c84bee4d018a`.
+Fresh reviewer focused log SHA-256: `18f1be855ea2fa74ee9cff637f6aef45a04402a633f9178650cda127920fc52a`.
+
+There is no environmental verification issue or stale-source substitution. Acceptance remains limited to the documented bounded flagless matching/coercion domain and the stated sirv progression, not full RegExp conformance or completed application analysis. Only the appended report and final review evidence are committed here. Root's contract edit remains untouched/unstaged. No push, merge, agent, production repair or model/account change occurred; final review is frozen.
