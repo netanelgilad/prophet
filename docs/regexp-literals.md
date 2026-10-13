@@ -104,8 +104,11 @@ before input conversion; an ordinary receiver without callable exec throws after
 conversion. Callable custom exec dispatch stops as unsupported, even though it
 is valid JavaScript. Actual public exec and result objects are still absent.
 Guest writes to exec/test and exposure/mutation of RegExp.prototype remain guarded;
-custom embedding layouts or custom Symbol.toPrimitive hooks are rejected. Ordinary
-string/number conversion inherits existing LIB-002 boundaries. The private
+custom embedding layouts or custom Symbol.toPrimitive hooks are rejected.
+Input/lastIndex conversion admits primitives and ordinary objects; arrays and
+functions (including customized ones) stop before conversion as an explicit
+LIB-002 domain boundary. This prevents their shared legacy conversion failures
+from discarding normal siblings. Other shared conversion gaps remain LIB-002. The private
 instance registry is not a serialized resumption mechanism.
 
 ### Matching grammar

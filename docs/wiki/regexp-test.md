@@ -16,7 +16,10 @@ Do not skip interpreted valueOf effects just because the local index is then
 ignored. Use shared `bindNormal` to checkpoint every reached conversion and keep
 normal siblings beside throws or analysis boundaries. String conversion must
 establish absence of inherited Symbol.toPrimitive before using the shared
-ordinary converter. Native generator continuation alone does not preserve forks.
+ordinary converter. Arrays/functions are explicitly excluded from input/index
+conversion before it begins: their shared default converters still raise legacy
+errors that would lose completed siblings. Customized array/function conversion
+is also outside this narrow domain. Native generator continuation alone does not preserve forks.
 
 For flagless Boolean existence without backreferences/lookaround, an epsilon NFA
 can discard ordered backtracking priority and captures. This is not a reusable
