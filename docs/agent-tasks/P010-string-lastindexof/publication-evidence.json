@@ -1,0 +1,59 @@
+{
+  "sourceCommit": "fcb650fdaf3c1994e2d01beb6a2984592d964965",
+  "workerArtifacts": 69,
+  "workerCommands": 19,
+  "frozenFilesCompared": 438,
+  "allFrozenBlobsIdenticalAfterReviewIntegration": true,
+  "workerAggregateSha256": "5a96e27efc2824e45a59458c404338cbc796dd06f2390d6385a9413a7ba9f926",
+  "wholeUpstreamHashes": 36091,
+  "reviewArtifacts": 597,
+  "reviewSourceFiles": 438,
+  "reviewCopiedByteForByte": true,
+  "totalChecks": 37673,
+  "errors": [],
+  "integrationHead": "04caf992ca6935e6f4e0bdba0de71d28d999416e",
+  "workerEvidenceCommit": "6aa81c5a4e8786fca0baaa0a443d8ea859609381",
+  "reviewCommit": "ffdfc9e28579365101982c4f742ecf070e70ad8c",
+  "commands": {
+    "integrated-focused": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p010-independent-review.spec.ts",
+        "test/p008-independent-correction.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "sourceHead": "04caf992ca6935e6f4e0bdba0de71d28d999416e",
+      "exit": 0,
+      "seconds": 6.972606182098389,
+      "timedOut": false,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010-root/integrated-focused.log",
+      "sha256": "cc0fef7ea74e7ec895505a79a41142a53521c3bb86378cb648062517aded54e2"
+    },
+    "integrated-typecheck": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "sourceHead": "04caf992ca6935e6f4e0bdba0de71d28d999416e",
+      "exit": 0,
+      "seconds": 2.4119818210601807,
+      "timedOut": false,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010-root/integrated-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "publicationGate": "At this documentation checkpoint the stacked draft PR and exact-head CI remain pending. Final result is recorded in PR body/Atlas."
+}

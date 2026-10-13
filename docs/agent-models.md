@@ -66,9 +66,7 @@ are unknown; current runtime identity is owner-authorized Sol6.1/high.
 
 
 P010 separately owner-authorizes the same `gpt-6.1-sol`/high writer/account for
-bounded generic UTF-16 lastIndexOf, based on reviewed c06374f. Frozen worker
-evidence is provisional pending independent `gpt-6-astra`/high semantic review;
-no first-review acceptance, trust transfer or concurrency promotion is claimed.
+bounded generic UTF-16 lastIndexOf, based on reviewed c06374f. Independent `gpt-6-astra`/high accepts frozen fcb650f source and evidence with no production or writer-evidence findings. One source freeze/full run; reviewer-only harness corrections are disclosed separately. See [publication review](agent-tasks/P010-string-lastindexof/publication-review.md). No trust transfer or concurrency promotion is claimed.
 No subagents, model/account rotation, paid API or access expansion. Account-wide
 quota at dispatch was owner-reported 52% remaining at22:19UTC, not a measured
 task allowance; no live quota measurement or provider limit error is inferred.
