@@ -1014,3 +1014,37 @@ construct and limit. No stable gap ID is closed or removed.
 - TEST-001/002/003 retain broader harness/corpus/version gaps. Fifteen complete
   files add thirty variants. All 46 historical skipped filenames and their
   metadata are reconciled unchanged; no new skip/todo site is introduced.
+
+
+## P008 reconciliation — 2026-10-13
+
+[Trim boundary](symbolic-strings.md#bounded-stringprototypetrim-p008) and
+[P008 evidence](agent-tasks/P008-string-trim/evidence.json) define the tested
+source and declared limits. No stable ID is closed or removed.
+
+- LIB-001/002 and OBJ-001/003: generic inherited trim now uses interpreted
+  ordinary ToString and current prototype/heap state. Arrays/functions (even
+  customized), wrappers, public symbols, nonnull inherited/own primitive hooks,
+  getters/descriptors, partial-host and cyclic-prototype cases remain excluded.
+  The latter shared guards are not all typed; arbitrary coercion can still stop
+  at a partial checkpoint. The missing trim guard is removed, not left as a
+  rejection spec. Next reached toLowerCase lookup alone gains the typed guard;
+  own replacements remain ordinary. Case conversion, lastIndexOf, substring,
+  Date/Stats metadata, streams and broad missing-builtin repair stay separate.
+- STRING-001/SYM-001/LEGACY-002: open symbolic converted strings/numbers and
+  legacy chunk inputs stop, retaining prior conversion effects and normal
+  siblings. Finite choices preserve correlations and mandatory unknowns.
+  No open input is silently narrowed. Successful allocation is still assumed.
+- STRING-001/SYM-004/SECURITY-002/REPORT-001: a 65,536-unit cap bounds trim scan
+  and output before preparation; exceeding it is a budget leaf after conversion.
+  Coercion, symbol/prototype depth, parser, branch/frontier volume, embedding
+  allocation and CLI graph serialization retain their existing resource limits.
+- FS-001/TARGET-002/REPORT-001: unchanged sirv and actual CLI reach mrmime's
+  toLowerCase after trim, preserving source frames, directory effects and EMFILE.
+  No filesystem outcome was selected away, and headers/factory/server/request
+  execution remains unfinished. Provenance fixtures are unchanged.
+- TEST-001/002/003: 41 complete files add 82 variants. The full 128-file trim
+  candidate list records 87 inactive files and native controls for all 256
+  variants. No new skip/todo site; the complete 46-file historical inventory is
+  unchanged. Full documented guard/assertion/skip/docs scans are saved with
+  hashes; a scan is not a complete language/host conformance audit.

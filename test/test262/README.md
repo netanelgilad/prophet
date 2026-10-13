@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **286 complete files / 563 strictness variants**,
+The active corpus contains **341 complete files / 673 strictness variants**,
 including 25 parse-negative files / 49 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -356,3 +356,25 @@ Public exec/result objects, global/sticky and other flags, global RegExp exposur
 descriptor/propertyHelper, Unicode/code-point harness, lookaround and backreference
 cases remain unselected prerequisites; no fragments replace them. The 46 historical
 skips remain unchanged. Native matching is only an independent test oracle.
+
+
+### P008: shared trim
+
+Forty-one complete unmodified `built-ins/String/prototype/trim` files add 82
+variants, covering nullish rejection, primitive and ordinary object receivers,
+ToString/valueOf order and TypeError, inherited conversion, immutability, empty
+strings, the complete modern whitespace set, interior preservation, NUL and
+U+180E exclusion. No runner change or new skip is needed. The header count is
+recomputed from the actual corpus (the prior header was stale).
+
+The [complete 128-file candidate inventory](../../docs/agent-tasks/P008-string-trim/upstream-candidates.md)
+records active files and every inactive candidate. All 256 strict/sloppy native
+variants pass pinned Node 24.21.0, with original harness includes. The installed
+old revision's selected whitespace strings already exclude U+180E, and its
+`u180e.js` explicitly checks preservation. Historical Unicode versions treated
+U+180E differently; this implementation does not import that obsolete membership
+or alter upstream source. U+0085 and U+200B are also excluded, including at edges
+in local controls. Unselected numeric/individual whitespace files remain future
+coverage, not claimed VM failures; wrappers, array/function conversion, RegExp,
+arguments objects and descriptor harness candidates retain their actual gaps.
+All 46 historical skipped filenames and metadata remain unchanged.

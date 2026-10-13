@@ -19,6 +19,7 @@ import { createError } from "../error/Error";
 import { toString } from "../conversion/toString";
 import { concat } from "./concat";
 import { stringSlice } from "./slice";
+import { stringTrim } from "./trim";
 
 export type TESString = Type<"string"> &
   WithProperties<{
@@ -38,6 +39,11 @@ export function getStringPrototype(): TESObject {
       unmodeledPropertyWrites: ["length"]
     };
     stringPrototype = prototype;
+    prototype.properties.trim = {
+      ...ESBuiltinFunction(stringTrim),
+      properties: { length: ESNumber(0), name: ESString("trim") },
+      unmodeledPropertyWrites: ["length", "name"]
+    };
     prototype.properties.concat = {
       ...ESBuiltinFunction(concat),
       properties: { length: ESNumber(1), name: ESString("concat") },
