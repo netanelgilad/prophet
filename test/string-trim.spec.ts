@@ -268,13 +268,13 @@ test("available own-inspection syntax stops at the typed String metadata boundar
 // is complete for the pinned runtime, independently of the implementation list.
 const deferredStringNames = ["anchor", "at", "big", "blink", "bold", "charAt", "charCodeAt",
   "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed", "includes", "indexOf",
-  "isWellFormed", "italics", "lastIndexOf", "link", "localeCompare", "match", "matchAll",
+  "isWellFormed", "italics", "link", "localeCompare", "match", "matchAll",
   "normalize", "padEnd", "padStart", "repeat", "replace", "replaceAll", "search", "small",
   "split", "strike", "sub", "substr", "substring", "sup", "startsWith", "toWellFormed",
   "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase", "toLocaleUpperCase",
   "toUpperCase"];
 test("native pinned String prototype own-name inventory", () => {
-  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "toLowerCase", "valueOf"]).sort();
+  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "toLowerCase", "lastIndexOf", "valueOf"]).sort();
   withModuleFixture(`module.exports = Object.getOwnPropertyNames(String.prototype).sort().join("|") === ${JSON.stringify(names.join("|"))};`, file => {
     expect(nodeModuleObservation(file)).toEqual({kind: "return", value: {type: "boolean", value: true}});
   });
@@ -300,4 +300,8 @@ test("trim metadata guards retain state beside completed siblings", () => {
     expect(completion.consequent[1].value.scope.trace).toMatchObject({value: "prefix"});
     expect(completion.alternate[1].value.scope.trace).toMatchObject({value: "sibling"});
   }
+});
+
+test("P010 supported name has actual search semantics and own presence",()=>{
+  expect(compareModule(`module.exports=Object.prototype.hasOwnProperty.call(String.prototype,"lastIndexOf") && "ababa".lastIndexOf("aba")===2;`).loaded).toMatchObject({value:true});
 });

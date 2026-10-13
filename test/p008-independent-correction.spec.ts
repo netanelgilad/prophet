@@ -29,7 +29,7 @@ function leaves(value:any,context?:any):any[] {
 
 test("native-discovered prototype own names guard every unmodeled read and own presence",()=>{
   const names:string[]=native('process.stdout.write(JSON.stringify(Object.getOwnPropertyNames(String.prototype).sort()));');
-  const supported=["length","constructor","concat","slice","toString","trim","toLowerCase","valueOf"];
+  const supported=["length","constructor","concat","slice","toString","trim","toLowerCase","lastIndexOf","valueOf"];
   expect(names).toHaveLength(52);
   // P009 supersedes only lowercase's old deferred checkpoint. Keep the native
   // name discovery and every residual guard; assert its actual supported result.
@@ -38,6 +38,8 @@ test("native-discovered prototype own names guard every unmodeled read and own p
   const [completed,lowered]=run(lowercase);
   expect(completed).toBe(Undefined);
   expect(lowered.value.scope.answer).toMatchObject({value:true});
+  const search='const answer=typeof String.prototype.lastIndexOf === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"lastIndexOf") && "ababa".lastIndexOf("aba") === 2;';
+  expect(nativeAnswer(search)).toBe(true);const [searched,searchState]=run(search);expect(searched).toBe(Undefined);expect(searchState.value.scope.answer).toMatchObject({value:true});
   for(const name of names.filter(n=>!supported.includes(n))) {
     for(const expression of ['String.prototype['+JSON.stringify(name)+']','Object.prototype.hasOwnProperty.call(String.prototype,'+JSON.stringify(name)+')']) {
       const [completion,after]=run('let trace="prefix";const answer='+expression+';trace="wrong";');

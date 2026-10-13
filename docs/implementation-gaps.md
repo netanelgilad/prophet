@@ -1132,3 +1132,42 @@ record worker verification pending independent Astra/high review. No ID closes.
   assertion, skip, boundary-doc and diff scans plus the complete historical
   46-file inventory are reconciled and retained in ignored hashed evidence.
   Source audits do not establish full language/Node coverage.
+
+
+## P010 reconciliation — 2026-10-14
+
+[Bounded lastIndexOf](symbolic-strings.md#bounded-stringprototypelastindexof-p010),
+[whole candidates](agent-tasks/P010-string-lastindexof/upstream-candidates.md) and
+[source-bound evidence](agent-tasks/P010-string-lastindexof/evidence.json) record
+this partial increment. No stable group closes on one intrinsic.
+
+- LIB-001/002, OBJ-001/003, LANG-006: shared inherited lastIndexOf now models
+  ordinary conversion/search/position and conservative name/length/call metadata.
+  Nine modeled/43 deferred String own names retain the pinned 52-name inventory.
+  All other APIs, descriptor/reflection semantics, wrappers/public symbols and
+  default/custom array/function or other exotic conversion remain work. Nonnull
+  symbol hooks are guarded at each reached operand conversion. Partial-host and
+  cyclic shared conversion failures retain their existing legacy limitations.
+- STRING-001, SYM-001, LEGACY-002: arbitrary literal UTF-16 units are admitted,
+  including lone surrogates, with no ASCII assumption. Open converted text/search/
+  position and legacy chunks remain explicit unsupported results after ALL required
+  conversions, so later observable effects/guest throws are preserved. No arbitrary
+  open-string index proof, general coercion repair or allocation-failure model.
+- SYM-004, SECURITY-002, REPORT-001: operand cap 65,536 units EACH precedes search/
+  copies/preprocessing after conversions. Separate actual-comparison cap 1,048,576
+  bounds synchronous near-match work; empty needle still obeys lengths. Candidate
+  visits are bounded by text length. Coercion/prototype traversal, parser/input
+  allocation, branch/CLI volume and V8 allocation failures remain residuals.
+- LANG-001/003, REPORT-001, FS-001, TARGET-002: unchanged sirv now retains idx=5
+  and tmp=hello.txt at mrmime/index.js:445 unary ~, before substring/increment or
+  headers. Only the reached missing unary ~ resolver assertion is classified,
+  after operand evaluation, preserving source frames/current effects and all
+  enumeration/EMFILE histories. No bitwise operation or other language feature is
+  implemented. All other legacy unary assertions and filesystem assumptions remain.
+- TEST-001/002/003: ten whole lastIndexOf files/20 variants added; 23 whole native
+  candidates/46 variants pass. All 13 inactive candidates are inventoried; A11's
+  failed complete-file metadata probe remains evidence. No source trimming,
+  runner workaround, new skip or removal from the prior active baseline. Complete
+  guard/assertion/skip/doc/diff scans and installed/candidate/active/historical
+  inventories are source-bound in evidence. All 46 historical skipped files keep
+  their exact names, bytes and metadata. Audit counts do not imply full JS/Node coverage.
