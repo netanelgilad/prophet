@@ -2,7 +2,7 @@ import { markUnsupportedBoundaryObject } from "../execution-context/analysis-fai
 import { ESObject, TESObject } from "../Object";
 import { getObjectPrototype } from "../Object/prototype";
 import { Any, ESNumber } from "../types";
-import { getRegExpTest } from "./test";
+import { getRegExpTest } from "./intrinsic";
 
 export type TESRegExp = TESObject & {
   // ECMAScript internal source/flags, separate from guest properties. No native
