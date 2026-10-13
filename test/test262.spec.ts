@@ -13,6 +13,8 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  "built-ins/RegExp/prototype/test/S15.10.6.3_A1_T7.js",
+  "built-ins/RegExp/prototype/test/S15.10.6.3_A1_T8.js",
   // Complete literal identity and parser-negative files; no matching engine or
   // descriptor-helper fragment is substituted for an upstream case.
   "language/literals/regexp/S7.8.5_A4.2.js",
