@@ -355,7 +355,7 @@ test("accessor source creation stays an explicit gap until getter and descriptor
     nodeInitialExecutionContext)).toThrow(/accessor/i);
 });
 
-for (const source of ["[1, 2]", "function() {}", "new Error('failure')", "Object.prototype", "Function.prototype", "String.prototype", "Error.prototype", "this"]) {
+for (const source of ["[1, 2]", "function() {}", "new Error('failure')", "Object.prototype", "Function.prototype", "Error.prototype", "this"]) {
   test(`unmodeled descriptor layouts cannot be guessed from a VM property dictionary: ${source}`, () => {
     expect(() => evaluateCode(`const copy = { ...(${source}) };`, nodeInitialExecutionContext))
       .toThrow(/enumerat|spread|propert/i);
@@ -363,6 +363,21 @@ for (const source of ["[1, 2]", "function() {}", "new Error('failure')", "Object
       .toThrow(/enumerat|spread|propert/i);
   });
 }
+
+test("String prototype descriptor inspection retains a typed boundary and its normal sibling", () => {
+  for (const operation of ['const copy = { ...String.prototype };', 'Object.keys(String.prototype);']) {
+    const [completion] = evaluateCode(`let trace = "";
+      if (selected) {trace = "prefix"; ${operation} trace = "wrong";} else trace = "sibling";`,
+      setVariablesInScope(nodeInitialExecutionContext, { selected: ESBoolean() }));
+    expect(isForkedCompletion(completion)).toBe(true);
+    if (!isForkedCompletion(completion)) throw new Error("expected fork");
+    expect(completion.consequent[0]).toMatchObject({type: "ExecutionBoundary", kind: "unsupported",
+      message: expect.stringMatching(/enumerat|spread|propert/i)});
+    expect(completion.consequent[1].value.scope.trace).toMatchObject({value: "prefix"});
+    expect(completion.alternate[0]).toMatchObject({type: "undefined"});
+    expect(completion.alternate[1].value.scope.trace).toMatchObject({value: "sibling"});
+  }
+});
 
 test("opaque host objects do not become complete enumerable objects because some fields are exposed", () => {
   const source = Object.assign(ESObject({ known: ESNumber(7) }), { unknownProperties: "partial host object" });
