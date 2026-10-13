@@ -46,3 +46,8 @@ noncallable assertions would discard it. This is application progression, not
 completed headers/factory/server/request coverage. See
 [the precise grammar, caps and upstream candidates](../regexp-literals.md) and
 [executable specs](../../test/regexp-test.spec.ts).
+
+Jest's default discovery also treats a production file named `test.ts` as a test
+suite. Name intrinsic implementation modules by role (`intrinsic.ts` here);
+focused spec runs alone do not catch that discovery failure. The full suite
+exposed it before handoff, despite all behavioral tests passing.
