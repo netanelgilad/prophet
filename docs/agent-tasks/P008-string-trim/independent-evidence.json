@@ -1,0 +1,752 @@
+{
+  "task": "P008 independent review",
+  "decision": "reject",
+  "reviewedSourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+  "effectiveBaseline": "750b5c690d97dd63ca304713805c59a360b748a0",
+  "contentComparison": "git diff 750b5c6..0d3b278",
+  "workdir": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+  "branch": "review/p008-string-trim",
+  "ancestry": {
+    "mergeBase": "8a2b976fff5d03589660f1fc344c4549d3c01771",
+    "workerParent": "1bf4dd45d488654132b683ce83ec9f0380f006e2",
+    "acceptedBaselineAncestorOfSource": false,
+    "workerParentVsEffectiveBaselineContent": "Only P008 task.md differs; portable P007 probe and publication correction identical",
+    "baselineSourceTree": "1f3c2c9ea616e73c08bc123d5bb71684a6083a24",
+    "workerParentSourceTree": "1f3c2c9ea616e73c08bc123d5bb71684a6083a24",
+    "baselineTestTree": "d9746fa76cef19146528accf9130b0a9d8416276",
+    "workerParentTestTree": "d9746fa76cef19146528accf9130b0a9d8416276"
+  },
+  "sourceTrees": {
+    "src": "f47191051f11df144efc8e017b26ebdf04c93474",
+    "test": "828350e866dc8369ab4d38e9f8293bb91155108c"
+  },
+  "sourceFilesSha256": {
+    "docs/agent-tasks/P008-string-trim/implementation.md": "3ef1532767f28a94bfe2e345177ce878fc4feddfaf2eb13bf1b400fadfaf51f8",
+    "docs/agent-tasks/P008-string-trim/task.md": "f59fffda74b32062bc81120d1b9f2661b95c6c7d71b711101bf65b7454024271",
+    "docs/agent-tasks/P008-string-trim/upstream-candidates.md": "730566628600d393f8f3eee171a959b5140b6aceeb2bfd391f187c9d6db5ff18",
+    "docs/implementation-gaps.md": "b5141a2687a3d2959941c739d7ff63a11135ab9ada4b46abfe2b871b71b7a747",
+    "docs/sirv-target.md": "f0c5cfa07fdf3e85f14a14fa7a08a19087f2b17e58f673cacc8c090625d32899",
+    "docs/symbolic-strings.md": "862d510644c28a5359b3e45429417dd2cf98c1b982e834e882a0018846f6ced3",
+    "docs/wiki/README.md": "69d214115c8811a2ca975cb54f7df09df400df2460cc09405cdb4a532a081fba",
+    "docs/wiki/string-trim.md": "7303fe2607e1949fbdf1085089bcaaaef67374f187faf0c09c1b6b08d83cadcd",
+    "src/ASTResolvers.ts": "07e521cb7ee1461bab52635c93db3a319055ae9e2498044c909bea9c2e85675f",
+    "src/string/String.ts": "f2b09dbc81bdf176299d383e3e88ce1d31151d2df501c3f1dd24d9fad2243afa",
+    "src/string/trim.ts": "8444a5650d7483541e391c500d752994822d04e6dd77c3822021f3ffe730be86",
+    "test/sirv-target.spec.ts": "945f0fc8b761b193d5a3cb1bdf6ad6254a6571f1af630e0b885ed503783688eb",
+    "test/string-trim.spec.ts": "b1a456bf8660396c6d722ffadc06f2c47b18c214cbedc827a4ea62b689f7c63b",
+    "test/test262.spec.ts": "b4945b3e0d2d7c085d29f51e4c9e19f682d651b8e3daa053f08c251c7be18a6e",
+    "test/test262/README.md": "c2a789360b30f0a1d395c0b219b1acb29811d97e835d9d12910d3a92bb71159f"
+  },
+  "reviewArtifactSha256": {
+    "test/p008-independent-review.spec.ts": "cc80ac4b34b1a07b071c2d641a4c403bb2f5874599996adbae089fae15cfd9c8",
+    "docs/agent-tasks/P008-string-trim/independent-review.md": "e87b60f0d198ccb106c7f44afebc4e6141055fd7394c03fbd1d3a28810635d71",
+    "docs/agent-tasks/P008-string-trim/independent-review-task.md": "bd0cae6fc853d208782480f9990ebfeddb10ac0af872a4742717abfdc819f57a"
+  },
+  "runtime": "Node v24.21.0 native darwin-arm64",
+  "nativeBinary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "commands": [
+    {
+      "name": "discovery",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 2.804993152618408,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/discovery.log",
+      "sha256": "39599464710a1bbb7d71841f5d27deb60a19686867c697398838f1f409b0409a"
+    },
+    {
+      "name": "independent-initial",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p008-independent-review.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 1,
+      "seconds": 20.22180199623108,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/independent-initial.log",
+      "sha256": "d4c64272d1de51e8d891d7d3598665f43b462c6effe353b1e339a8623af10a1f"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 10.934323072433472,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "affected",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-trim.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/symbolic-strings.spec.ts",
+        "test/prototype-state.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 34.08106803894043,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/affected.log",
+      "sha256": "3a1ffeac88d8aa4c74c8cdf5fad0cdb448aff189ba9edd938bbdf2a49b5880d7"
+    },
+    {
+      "name": "independent-final",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p008-independent-review.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 1,
+      "timeoutSeconds": 240,
+      "seconds": 14.745576858520508,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/independent-final.log",
+      "sha256": "9701cb9726ea1e71655d161c7145eda9eb58a7f8be4384752a7a54c81372527a"
+    },
+    {
+      "name": "typecheck-final",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 8.869617223739624,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/typecheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "stale-regression",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/regexp-test.spec.ts",
+        "--testNamePattern=trim's deferred"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 1,
+      "timeoutSeconds": 240,
+      "seconds": 6.408260107040405,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/stale-regression.log",
+      "sha256": "c8cc00d39ef69f3d458766d4201d54b1fb1628ac09d15fbd9b018f784824117b"
+    },
+    {
+      "name": "inventory",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/inventory.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 0.8878540992736816,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/inventory.log",
+      "sha256": "068cd46085d7821aec8f01be296b40c5b87e3c0500c735305a7d0fee3df195a6"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 0.1686997413635254,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/guards.log",
+      "sha256": "d3f28b08a9cde7ab01844d029183465e5979bccb35c3d728bf8fa516c02264f0"
+    },
+    {
+      "name": "assertions",
+      "command": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 0.20194673538208008,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/assertions.log",
+      "sha256": "cae2d7d4dc556318e98ec8466a79f0367e0594f67e27834bdbef2915f82041ca"
+    },
+    {
+      "name": "skip-sites",
+      "command": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 0.1532421112060547,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/skip-sites.log",
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac"
+    },
+    {
+      "name": "boundary-docs",
+      "command": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 0.17761683464050293,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/boundary-docs.log",
+      "sha256": "f01fffaac03842eaeec0984d5798f0cfb656687891fe5462bd7309a4c5a23956"
+    },
+    {
+      "name": "content-diff",
+      "command": [
+        "git",
+        "diff",
+        "750b5c6..0d3b278"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 0.6094791889190674,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/content-diff.log",
+      "sha256": "350c96896921c942b27e22d8493638d1ec28f432f8cd15fb4eab3cbd24a55fa0"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "750b5c6..0d3b278"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 0.03853607177734375,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "protected-diff",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "750b5c6..0d3b278",
+        "--",
+        "src/regexp",
+        "test/regexp-test.spec.ts",
+        "test/p007-independent-review.spec.ts",
+        "test/fixtures",
+        "package.json",
+        "yarn.lock",
+        "AGENTS.md"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "env": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "timeoutSeconds": 240,
+      "seconds": 0.03538823127746582,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/protected-diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "evidence-verification",
+      "command": [
+        "python3",
+        "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/verify-evidence.py"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim",
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "exit": 0,
+      "seconds": 0.97800612449646,
+      "timeoutSeconds": 60,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/verification.log",
+      "sha256": "f9a3c58ba6b3dbe842c081f6fbfeb1dc06f63adde04ff447de3d303899b51383"
+    }
+  ],
+  "testSummaries": {
+    "independentInitial": {
+      "passed": 20,
+      "failed": 2,
+      "note": "Initial 22-probe draft; production frozen, final probe file subsequently expanded and failure printing simplified."
+    },
+    "independentFinal": {
+      "passed": 22,
+      "failed": 4,
+      "failures": "caller/arguments reads and writes: R1",
+      "probeSha256": "cc80ac4b34b1a07b071c2d641a4c403bb2f5874599996adbae089fae15cfd9c8"
+    },
+    "affected": {
+      "suitesPassed": 6,
+      "passed": 799,
+      "historicalSkipped": 46
+    },
+    "finalTypecheckExit": 0,
+    "staleRegression": {
+      "failed": 1,
+      "selectorExcluded": 97,
+      "historicalSkipCountNotApplicable": true
+    }
+  },
+  "workerEvidence": {
+    "commit": "cb2c0da6707ae0e4999712eda886f5819cc48947",
+    "sha256": "93451da2fa2ea60071aec3c8b6eb6341deceb92c180b3278d60cecbbc1292e54",
+    "testedSourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+    "runtimeAndSpecsUnchangedFromFrozenSource": true,
+    "all72HashChecksMatched": true,
+    "verification": {
+      "workerEvidenceCommit": "cb2c0da6707ae0e4999712eda886f5819cc48947",
+      "source": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+      "workerHashChecks": 72,
+      "allMatch": true,
+      "ownCommandLogs": 15,
+      "upstreamByteAndMetadataRows": 387,
+      "nativeVariantHashes": 256,
+      "skipFilenamesUnchanged": true,
+      "laterRuntimeSpecDiffEmpty": true,
+      "trackedReviewSourceDiffEmpty": true
+    },
+    "fullSuite": [
+      "Test Suites: 1 failed, 128 passed, 129 total",
+      "Tests:       1 failed, 46 skipped, 3448 passed, 3495 total",
+      "Snapshots:   0 total",
+      "Time:        362.817s"
+    ],
+    "validationCommands": [
+      {
+        "name": "discovery",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--listTests",
+          "--runInBand"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+        "environment": {
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+        },
+        "timeoutSeconds": 60,
+        "timedOut": false,
+        "exit": 0,
+        "seconds": 2.4882960319519043,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-discovery.log",
+        "sha256": "78d03f07042266ccc8726b9e50dbd68aaa55371ced156ec22bb38561c13b7687"
+      },
+      {
+        "name": "focused",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "test/string-trim.spec.ts",
+          "test/sirv-target.spec.ts",
+          "test/test262.spec.ts",
+          "test/test262/runner.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+        "environment": {
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+        },
+        "timeoutSeconds": 180,
+        "timedOut": false,
+        "exit": 0,
+        "seconds": 21.40115213394165,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-focused.log",
+        "sha256": "878fff6f85f79ce6e7132970b71667fa327e4bd39dd6d87559312ccf2f9ce6a5"
+      },
+      {
+        "name": "full-suite",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+        "environment": {
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+        },
+        "timeoutSeconds": 900,
+        "timedOut": false,
+        "exit": 1,
+        "seconds": 365.09401512145996,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-full-suite.log",
+        "sha256": "89c382db10ea180b40e2de917be4a20f269ce7172767cfbf887dc7747fb35153"
+      },
+      {
+        "name": "typecheck",
+        "command": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim",
+        "sourceCommit": "0d3b2781147e1625d90da2db5ec6e86c58a238ff",
+        "environment": {
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "PATH_prefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+        },
+        "timeoutSeconds": 180,
+        "timedOut": false,
+        "exit": 0,
+        "seconds": 8.22760820388794,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/astra-p008-string-trim/logs/p008/final-typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "fullSuiteExit": 1,
+    "typecheckExit": 0,
+    "fullSuiteRepeated": false,
+    "note": "Read source-bound failed full-suite log; independently reproduced disclosed stale assertion. Documentation count corrections reviewed as evidence-only, not later source acceptance."
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "priority": "P1",
+      "location": "src/string/String.ts:42-46",
+      "description": "New trim intrinsic lacks restricted caller/arguments read/write guards; VM fabricates absence/assignment success where pinned Node throws TypeError. Minimal typed unsupported guard permitted; broad accessor implementation not required.",
+      "attribution": "Independent concrete witnesses; metadata area was disclosed in task checklist; not a hidden holdout."
+    }
+  ],
+  "remainingGates": [
+    "R1 narrow correction with effect/sibling/alias regressions and gap reconciliation",
+    "Root-owned or authorized update of stale P007 test at test/regexp-test.spec.ts:205-214",
+    "Independent review of exact revised source",
+    "Green final-source full suite and typecheck",
+    "Final docs/audit reconciliation and root stack alignment/draft PR/CI"
+  ],
+  "upstream": {
+    "revision": "47bf9d1db9f6e7632120ac1b1946ad092e6c214e",
+    "addedWholeFiles": [
+      "built-ins/String/prototype/trim/15.5.4.20-0-1.js",
+      "built-ins/String/prototype/trim/15.5.4.20-0-2.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-1.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-2.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-3.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-4.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-5.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-7.js",
+      "built-ins/String/prototype/trim/15.5.4.20-1-8.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-1.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-3.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-6.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-9.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-11.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-28.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-29.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-38.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-39.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-40.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-41.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-42.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-43.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-44.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-47.js",
+      "built-ins/String/prototype/trim/15.5.4.20-2-50.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-1.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-2.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-3.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-4.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-5.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-6.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-7.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-8.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-9.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-10.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-11.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-12.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-13.js",
+      "built-ins/String/prototype/trim/15.5.4.20-3-14.js",
+      "built-ins/String/prototype/trim/u180e.js"
+    ],
+    "addedVariants": 80,
+    "activeCorpusFiles": 341,
+    "activeCorpusVariants": 673,
+    "trimCandidates": 128,
+    "inactiveTrimCandidates": 88,
+    "nativeWholeFileVariants": 256,
+    "nativeFailures": 0,
+    "completeHistoricalSkippedFiles": [
+      "built-ins/Boolean/S15.6.1.1_A1_T1.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T2.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T3.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T4.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T5.js",
+      "built-ins/Boolean/S15.6.1.1_A2.js",
+      "built-ins/Boolean/S15.6.2.1_A1.js",
+      "language/statements/if/if-async-fun-else-async-fun.js",
+      "language/statements/if/if-async-fun-else-stmt.js",
+      "language/statements/if/if-async-fun-no-else.js",
+      "language/statements/if/if-async-gen-else-async-gen.js",
+      "language/statements/if/if-async-gen-else-stmt.js",
+      "language/statements/if/if-async-gen-no-else.js",
+      "language/statements/if/if-cls-else-cls.js",
+      "language/statements/if/if-cls-else-stmt.js",
+      "language/statements/if/if-cls-no-else.js",
+      "language/statements/if/if-const-else-const.js",
+      "language/statements/if/if-decl-else-decl-strict.js",
+      "language/statements/if/if-decl-else-stmt-strict.js",
+      "language/statements/if/if-decl-no-else-strict.js",
+      "language/statements/if/if-fun-else-fun-strict.js",
+      "language/statements/if/if-fun-else-stmt-strict.js",
+      "language/statements/if/if-fun-no-else-strict.js",
+      "language/statements/if/if-gen-else-gen.js",
+      "language/statements/if/if-gen-else-stmt.js",
+      "language/statements/if/if-gen-no-else.js",
+      "language/statements/if/if-let-else-let.js",
+      "language/statements/if/if-let-else-stmt.js",
+      "language/statements/if/if-let-no-else.js",
+      "language/statements/if/if-stmt-else-async-fun.js",
+      "language/statements/if/if-stmt-else-async-gen.js",
+      "language/statements/if/if-stmt-else-cls.js",
+      "language/statements/if/if-stmt-else-const.js",
+      "language/statements/if/if-stmt-else-decl-strict.js",
+      "language/statements/if/if-stmt-else-fun-strict.js",
+      "language/statements/if/if-stmt-else-gen.js",
+      "language/statements/if/if-stmt-else-let.js",
+      "language/statements/if/labelled-fn-stmt-first.js",
+      "language/statements/if/labelled-fn-stmt-lone.js",
+      "language/statements/if/labelled-fn-stmt-second.js",
+      "language/statements/if/let-array-with-newline.js",
+      "language/statements/if/let-block-with-newline.js",
+      "language/statements/if/let-identifier-with-newline.js",
+      "language/types/boolean/S8.3_A1_T1.js",
+      "language/types/boolean/S8.3_A1_T2.js",
+      "language/types/boolean/S8.3_A3.js"
+    ],
+    "skipFilenamesUnchanged": true,
+    "allSkippedDocumented": true,
+    "metadataAndHashRowsVerified": 387,
+    "nativeVariantHashesVerified": 256,
+    "inventoryLog": "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/inventory.log",
+    "manualCountCorrectionAttribution": "41/82/87 was frozen-doc error corrected by worker in cb2c0da; not a new independent finding."
+  },
+  "independentMatrix": {
+    "bmpUnits": 65536,
+    "interpretedStrings": 134,
+    "nativeConcretePrograms": 10,
+    "capLengths": [
+      65535,
+      65536,
+      65537
+    ],
+    "frontiers": "open-string/guest-throw/normal and cap/guest-throw; conversion/prototype state retained"
+  },
+  "protectedSourceUnchanged": true,
+  "externalUntrackedFilePreserved": {
+    "path": "test/p008-root-boundary-probes.spec.ts",
+    "sha256": "b61384acc11892fa093be8fbafab2af72041889efe0565d2707355ac34dec0e9",
+    "notAuthoredRunEditedOrCommittedByReviewer": true,
+    "attribution": "Root/Grok-disclosed concerns; enumeration already guarded, other missing String API absence is pre-existing source debt."
+  },
+  "primaryReferences": [
+    "https://tc39.es/ecma262/multipage/text-processing.html#sec-trimstring",
+    "https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#sec-white-space",
+    "https://tc39.es/ecma262/2025/multipage/ordinary-and-exotic-objects-behaviours.html#sec-addrestrictedfunctionproperties",
+    "https://tc39.es/ecma262/2025/multipage/executable-code-and-execution-contexts.html#sec-createintrinsics"
+  ],
+  "localArtifacts": {
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/affected.log": {
+      "sha256": "3a1ffeac88d8aa4c74c8cdf5fad0cdb448aff189ba9edd938bbdf2a49b5880d7",
+      "bytes": 696
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/assertions.log": {
+      "sha256": "cae2d7d4dc556318e98ec8466a79f0367e0594f67e27834bdbef2915f82041ca",
+      "bytes": 2401
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/boundary-docs.log": {
+      "sha256": "f01fffaac03842eaeec0984d5798f0cfb656687891fe5462bd7309a4c5a23956",
+      "bytes": 263843
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/content-diff.log": {
+      "sha256": "350c96896921c942b27e22d8493638d1ec28f432f8cd15fb4eab3cbd24a55fa0",
+      "bytes": 61571
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/diff-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/discovery.log": {
+      "sha256": "39599464710a1bbb7d71841f5d27deb60a19686867c697398838f1f409b0409a",
+      "bytes": 13681
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/guards.log": {
+      "sha256": "d3f28b08a9cde7ab01844d029183465e5979bccb35c3d728bf8fa516c02264f0",
+      "bytes": 64295
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/independent-final.log": {
+      "sha256": "9701cb9726ea1e71655d161c7145eda9eb58a7f8be4384752a7a54c81372527a",
+      "bytes": 17040
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/independent-initial.log": {
+      "sha256": "d4c64272d1de51e8d891d7d3598665f43b462c6effe353b1e339a8623af10a1f",
+      "bytes": 16245
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/inventory-verification.json": {
+      "sha256": "4eda67fa3a006a625a2508375aff315bb3571faf8cc1b04480445ea1fc29f495",
+      "bytes": 249
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/inventory.cjs": {
+      "sha256": "118eddb69662ff00ce8f74de3281ae5d4fa999bc1b3d6974cd0d5ba3b6ac7456",
+      "bytes": 2489
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/inventory.log": {
+      "sha256": "068cd46085d7821aec8f01be296b40c5b87e3c0500c735305a7d0fee3df195a6",
+      "bytes": 246922
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/protected-diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/run-checks.py": {
+      "sha256": "4e421dcc0d68fa06c0da761f6d6602f55045ee22bc5f6d074069d7821a6ae259",
+      "bytes": 2318
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/runs.json": {
+      "sha256": "3e6e055bd273ab0a6e527e4769d0662229a31385bb7f404dd0da3e77c481c7a1",
+      "bytes": 12111
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/skip-sites.log": {
+      "sha256": "875aab9b6d29efaf514f8d86656d953f603327dbb68341591e3a28237abef8ac",
+      "bytes": 55
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/stale-regression.log": {
+      "sha256": "c8cc00d39ef69f3d458766d4201d54b1fb1628ac09d15fbd9b018f784824117b",
+      "bytes": 1369
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/typecheck-final.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/verification.log": {
+      "sha256": "f9a3c58ba6b3dbe842c081f6fbfeb1dc06f63adde04ff447de3d303899b51383",
+      "bytes": 378
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/verify-evidence.py": {
+      "sha256": "fe85bd00a86984956a507e27ec8fff3a7a9e03fa89a2dd488d0ba4a14267b2ab",
+      "bytes": 2659
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/worker-evidence.json": {
+      "sha256": "93451da2fa2ea60071aec3c8b6eb6341deceb92c180b3278d60cecbbc1292e54",
+      "bytes": 31591
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/review-p008-string-trim/logs/p008-independent/worker-verification.json": {
+      "sha256": "e17774074bb6657016ac3739e168e763f2274ba0f43550ca043209e29f5865ad",
+      "bytes": 12340
+    }
+  },
+  "authorization": "Review artifacts/probes only. No production changes, agents, worker/main changes, dependency install, model/account switching, paid APIs, push/merge/release.",
+  "freeze": "Review commit will be supplied in final handoff; this manifest cannot self-hash its containing commit. Verdict applies only to reviewedSourceCommit."
+}
