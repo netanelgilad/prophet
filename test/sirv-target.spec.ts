@@ -77,15 +77,15 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
   // Both flagless filters execute on the unmodified filename. The next
-  // reached gap is mrmime.lookup's String.toLowerCase, before header construction.
+  // reached gap is mrmime.lookup's String.lastIndexOf, after bounded ASCII lowercase and before headers.
   // The filesystem failure sibling must survive that stop.
-  expect(result.diagnostic).toBe("String.prototype.toLowerCase is not yet supported");
+  expect(result.diagnostic).toBe("String.prototype.lastIndexOf is not yet supported");
   expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
   expect(isForkedCompletion(result.completion)).toBe(true);
   const boundaries = executionBoundaries(result.completion as Any);
   expect(boundaries).toHaveLength(1);
   expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "String.prototype.toLowerCase is not yet supported" });
+    message: "String.prototype.lastIndexOf is not yet supported" });
   const forked = result.completion as ForkedCompletion;
   const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
     leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
@@ -98,10 +98,22 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   expect(getProperties(failed[0].value as WithProperties, failed[1]).code).toMatchObject({ value: "EMFILE" });
   const stopped = [forked.consequent, forked.alternate].find(leaf => !isThrownValue(leaf[0]))!;
   expect(stopped[1].value.sourceFile).toMatch(/mrmime\/index\.js$/);
+  expect(stopped[1].value.scope.tmp).toMatchObject({value: "hello.txt"});
+  // Both descriptor histories retain the reached enumeration and its outcome.
+  for (const leaf of [stopped, failed]) {
+    const kind = leaf === stopped ? "return" : "throw";
+    const histories = effectPaths(leaf[1].value.effects);
+    expect(histories.length).toBeGreaterThan(0);
+    for (const history of histories) {
+      const events = history.events.filter(event => event.call.operation === "fs.readdirSync");
+      expect(events.map(event => event.kind)).toEqual(["call", kind]);
+      expect(events[0].call).toBe(events[1].call);
+    }
+  }
   expect(effectPaths(stopped[1].value.effects).some(path => path.events.some(event =>
     event.call.operation === "fs.readdirSync"))).toBe(true);
   expect(boundaries[0].frames.some(frame => frame.node.type === "CallExpression" &&
-    (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "toLowerCase")).toBe(true);
+    (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "lastIndexOf")).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -174,7 +186,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
     });
   expect(child.error).toBeUndefined();
   expect(child.status).toBe(2);
-  expect(child.stderr).toBe("prophet: String.prototype.toLowerCase is not yet supported\n");
+  expect(child.stderr).toBe("prophet: String.prototype.lastIndexOf is not yet supported\n");
   const graph = JSON.parse(child.stdout);
   expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
   const nodes = new Map<string, any>(graph.nodes.map((node: any) => [node.id, node]));
@@ -192,9 +204,22 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
   expect(field(field(field(field(failed, "value"), "properties"), "code"), "value")).toBe("EMFILE");
   const boundary = values.find(value => field(value, "type") === "ExecutionBoundary");
   expect(field(boundary, "kind")).toBe("unsupported");
-  expect(field(boundary, "message")).toBe("String.prototype.toLowerCase is not yet supported");
+  expect(field(boundary, "message")).toBe("String.prototype.lastIndexOf is not yet supported");
   const stopped = leaves.find(leaf => field(field(leaf, "0"), "type") === "ExecutionBoundary");
   expect(field(field(stopped, "1"), "sourceFile")).toMatch(/mrmime\/index\.js$/);
+  // Inspect the public environment records, not the private flattened scope view.
+  const state = field(stopped, "1");
+  const environments = nodes.get(field(state, "environments").ref).entries;
+  let environment = field(state, "environment");
+  let tmp: any;
+  while (environment && environment.ref) {
+    const record = environments.find(([key]: [any]) => key.ref === environment.ref);
+    const binding = record && nodes.get(record[1].ref).entries.find(([name]: [string]) => name === "tmp");
+    if (binding) { tmp = field(binding[1], "value"); break; }
+    environment = field(environment, "parent");
+  }
+  expect(tmp).toBeDefined();
+  expect(field(tmp, "value")).toBe("hello.txt");
   expect(graph.nodes.some((node: any) => (node.entries || []).some(([name, value]: [string, any]) =>
     name === "operation" && value === "fs.readdirSync"))).toBe(true);
 });
