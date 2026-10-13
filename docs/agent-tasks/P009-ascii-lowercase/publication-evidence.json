@@ -1,0 +1,840 @@
+{
+  "acceptedSource": "c52c3f4e4f7c15fda4038f630fc9cb35b1bf63d6",
+  "reviewOriginalCommit": "6cd9923",
+  "integratedReviewCommit": "367559bb0dfc6fd36272a119293184887fcbfeeb",
+  "sourceVerification": {
+    "manifest": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/docs/agent-tasks/P009-ascii-lowercase/evidence.json",
+    "testedSourceCommit": "c52c3f4e4f7c15fda4038f630fc9cb35b1bf63d6",
+    "checks": [
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/affected-green.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/affected-green.json",
+        "ok": true,
+        "sha256": "8df189c01ad5ca87b69868764df0edd0f71d5a46fdac38e743f825418383be48"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/affected-green.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/affected-green.log",
+        "ok": true,
+        "sha256": "1f850f86ff71e3f7a54d94dd46128f3eb6ab1cf1e29412503518dd7a49498753"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/audit.py",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/audit.py",
+        "ok": true,
+        "sha256": "d437e7e90b2ef38c7c870d28f9045b6b7799f834d7b7657c2d285d6b2cb33d8c"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/checkpoint-correction.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/checkpoint-correction.json",
+        "ok": true,
+        "sha256": "ca10c464daf6c330665fe5c2d54850a5c873f37b0c44820833c3b1774a99846e"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/checkpoint-correction.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/checkpoint-correction.log",
+        "ok": true,
+        "sha256": "6a23203842d047b99f9258cd842925248e306e3fc44c039e6d495de50e6b282c"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/development-typecheck.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/development-typecheck.json",
+        "ok": true,
+        "sha256": "98b3420b0d9790d82d79c44327dd0a3efa85aee21fa430ce9a085a653f7d38ce"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/development-typecheck.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/development-typecheck.log",
+        "ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/development.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/development.json",
+        "ok": true,
+        "sha256": "f97f7b985c2717badac5e7da5ac4140dceb1f05c26c5305dd2dee1d96c243e74"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/development.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/development.log",
+        "ok": true,
+        "sha256": "7cf3f6aeeb594cfa9523f15a2d0b750c75bc0ab767ef7acc9fcf9f03b38f4d22"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/evidence.py",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/evidence.py",
+        "ok": true,
+        "sha256": "37397bcd750ea505391308809cc30b647e0fd775427a1785fd09194e017f5a90"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-assertions.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-assertions.log",
+        "ok": true,
+        "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-audit.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-audit.json",
+        "ok": true,
+        "sha256": "0dad77696c4d9e82ef52364c1700ed8e380ee5e12370e458a70e32edb30a9f9d"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-boundary-docs.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-boundary-docs.log",
+        "ok": true,
+        "sha256": "70d3ba0e09fcd17b017ffb9b848f1cb0f7dd33a212247282eeb249e6b45d81c9"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-cumulative-diff.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-cumulative-diff.log",
+        "ok": true,
+        "sha256": "47e35f8e3c60f83360fbce02d4de971161cb6c82d80f2421e10d7174e8b582ea"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-development.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-development.json",
+        "ok": true,
+        "sha256": "9eadd1873693efea6ce61574a74bd813bbedb35d6e5f16fe3c6c323a3d803398"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-development.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-development.log",
+        "ok": true,
+        "sha256": "394a842931079352179147f0fc4c358ea519a03e4e16878773898bc9eb13538c"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-diff-check.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-diff-check.log",
+        "ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-discovery.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-discovery.json",
+        "ok": true,
+        "sha256": "d385d9be9da4a122473950c690b11fb0907e57391c8d8273f50cd2abb01d76b2"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-discovery.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-discovery.log",
+        "ok": true,
+        "sha256": "e3fdbb6e3eb365516178467904c9ab3eb72a9db2b4dfb15e123290ddc1ee95f5"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-focused.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-focused.json",
+        "ok": true,
+        "sha256": "86adedf73ef985e6540e49f94fd3fd09851e0a56f54bf34b8d98a7c3af0ca920"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-focused.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-focused.log",
+        "ok": true,
+        "sha256": "2a7372c9a0df83ad49c6e998d3b271193da939d7c3951a2da81d50ed6f72bf96"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-full-suite.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-full-suite.json",
+        "ok": true,
+        "sha256": "66547333a15983101f20a6c3d1e5fc46f3077f42169dd414002276b0a6cd5cd0"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-full-suite.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-full-suite.log",
+        "ok": true,
+        "sha256": "117dc1bf633f9af3ed488c3ea2c2434f5caa6d47377874f3b3a503452868d327"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-guards.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-guards.log",
+        "ok": true,
+        "sha256": "d1c5a2b905d79ca0b67c763bff0c37b8ce8279964546098fb226f34c010da545"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-inventory.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-inventory.log",
+        "ok": true,
+        "sha256": "3251c8af6b7dddf23a4a60080819ff95c91067cca38b2552c31f179abc723c73"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-skip-sites.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-skip-sites.log",
+        "ok": true,
+        "sha256": "debc6eec6180056587088d2ab08609264739d5c0b731959549903d25a813c42a"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-typecheck.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-typecheck.json",
+        "ok": true,
+        "sha256": "0a2885b86ef36f52f1a8d9ff45a20888ae23f7fe89bb9fecae54e062d76c4570"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-typecheck.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-typecheck.log",
+        "ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-upstream-native.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-upstream-native.log",
+        "ok": true,
+        "sha256": "eed50621c1f3796d11108851a5e686ff106d681c64d37b6b5cee4d8b492ff7da"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-assertions.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-assertions.log",
+        "ok": true,
+        "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-audit.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-audit.json",
+        "ok": true,
+        "sha256": "08a432f032a4eb0c7ebd4bdd1cfa656b688b2ea69efe74b63c9f774e2ed7db7e"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-boundary-docs.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-boundary-docs.log",
+        "ok": true,
+        "sha256": "c3454bda71b0e7a1fc9b9d4e16d5b3700fa82e46fdb209636c3f3d69544fdaec"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-cumulative-diff.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-cumulative-diff.log",
+        "ok": true,
+        "sha256": "c9ae1bfed1565d1b7ccd8c67bfb991c62e475f62e268e7fe7c1bdf6642b74cd1"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-diff-check.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-diff-check.log",
+        "ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-discovery.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-discovery.json",
+        "ok": true,
+        "sha256": "17003372cb1e867a08b634718140317593fad43ed69105a278ac10180d8f5656"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-discovery.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-discovery.log",
+        "ok": true,
+        "sha256": "b910f40e995d5658bbdce2851cacf58201ff852ba53c5b73344eb5e9f2c9b8ef"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-focused.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-focused.json",
+        "ok": true,
+        "sha256": "34b0447dc725412721e6de0903a5570a6221b9599b731fa43dbc9a49b62b1588"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-focused.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-focused.log",
+        "ok": true,
+        "sha256": "5fdb4c3c2ac9809c41a9e9d7c7a2406aaabe3ab4b28de279ea8de17337de9d07"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-full-suite.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-full-suite.json",
+        "ok": true,
+        "sha256": "1c59541993fc9fd317700ed88802dadb961eb882214523ca669913673bfbc810"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-full-suite.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-full-suite.log",
+        "ok": true,
+        "sha256": "3c7c814f9803dfb3837235024554ac87e9df7ccddc939bff9ace53b54883d8fc"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-guards.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-guards.log",
+        "ok": true,
+        "sha256": "d1c5a2b905d79ca0b67c763bff0c37b8ce8279964546098fb226f34c010da545"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-inventory.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-inventory.log",
+        "ok": true,
+        "sha256": "3251c8af6b7dddf23a4a60080819ff95c91067cca38b2552c31f179abc723c73"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-skip-sites.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-skip-sites.log",
+        "ok": true,
+        "sha256": "debc6eec6180056587088d2ab08609264739d5c0b731959549903d25a813c42a"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-typecheck.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-typecheck.json",
+        "ok": true,
+        "sha256": "376597e09ab588bd868b58b2557617d37b1b7b7b6bc598b4bd6bc676ed5e51b7"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-typecheck.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-typecheck.log",
+        "ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-upstream-native.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-upstream-native.log",
+        "ok": true,
+        "sha256": "eed50621c1f3796d11108851a5e686ff106d681c64d37b6b5cee4d8b492ff7da"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/inventory.cjs",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/inventory.cjs",
+        "ok": true,
+        "sha256": "b5559bf9d6327ce0b65e31428c6e0401ff41715d5efb408c4df297397524152e"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/inventory.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/inventory.json",
+        "ok": true,
+        "sha256": "3251c8af6b7dddf23a4a60080819ff95c91067cca38b2552c31f179abc723c73"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/last-typecheck.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/last-typecheck.json",
+        "ok": true,
+        "sha256": "0541b2a611a482a8cca06988b3d5c7206c8f3c9c0c41a8ec9fb8a3f54bd83935"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/last-typecheck.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/last-typecheck.log",
+        "ok": true,
+        "sha256": "d201ecb1a9a601fb826d641aa037cd48223f6656c477dd6b3ad708956fc4b240"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/native-red.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/native-red.json",
+        "ok": true,
+        "sha256": "75a31a482e4c619ba26e3bccc91c387cc1238cbd163068801085789a43052c67"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/native-red.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/native-red.log",
+        "ok": true,
+        "sha256": "04c6e22a66bc01fc7a62a0187be19a52fcf0db62b12c08305c9fbf7f9af276c8"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/obsolete-predecessor-correction.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/obsolete-predecessor-correction.log",
+        "ok": true,
+        "sha256": "532a154c41e9a66351ddee330636cff2056e65a39638c4493327c2874f53044c"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/ownership.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/ownership.json",
+        "ok": true,
+        "sha256": "330c94408e759f320f5d57906c73e3e7d5bb9c342a8616ad74b09a2a1b794e20"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/prefreeze-green-typecheck.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/prefreeze-green-typecheck.json",
+        "ok": true,
+        "sha256": "6379b06ea6512c1f0204584052830253d440cbe29f1ba00089049ac90feb4745"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/prefreeze-green-typecheck.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/prefreeze-green-typecheck.log",
+        "ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/prefreeze-typecheck.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/prefreeze-typecheck.json",
+        "ok": true,
+        "sha256": "33ebc948f9ab0c5b913c1b4f0205be1c6adb9e5f352eea1548851e197b595002"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/prefreeze-typecheck.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/prefreeze-typecheck.log",
+        "ok": true,
+        "sha256": "c3a32a81531d5111762e373c70d68472b0739a979adccb9a4582a9e71a6ddf01"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/red.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/red.json",
+        "ok": true,
+        "sha256": "31edd779bce8c4148493548b06fb99290119a639f6cdc9c220dec33f94468e25"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/red.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/red.log",
+        "ok": true,
+        "sha256": "8c574c4883070aa7e43b52d269faccda95f586c09b7f940117d80f59fca0948a"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/refined-focused.json",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/refined-focused.json",
+        "ok": true,
+        "sha256": "7a8d32f9c5dc8a7b644a8db33fbcb52b70d3d235d47d2df2a590b7246c1eabaf"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/refined-focused.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/refined-focused.log",
+        "ok": true,
+        "sha256": "fbbe88bb870e577415392f168fc14eb7d03f8df5fd455ade174f65873b4ebf74"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/run.py",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/run.py",
+        "ok": true,
+        "sha256": "2f59ebe572fd7ea3bf9e27d589aef985c4cb68551096e9ed4ea39b5b8c2c116c"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/upstream-native.cjs",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/upstream-native.cjs",
+        "ok": true,
+        "sha256": "8c49e9a39dcd649732e2259701f5fddd369a3ba505d56769e0f336a82d428b76"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/upstream-native.log",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/upstream-native.log",
+        "ok": true,
+        "sha256": "eed50621c1f3796d11108851a5e686ff106d681c64d37b6b5cee4d8b492ff7da"
+      },
+      {
+        "label": "artifact /Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/validate-evidence.py",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/validate-evidence.py",
+        "ok": true,
+        "sha256": "cbf870fe63d9b1d245f8323868bebd093368868de0515587569c6a832fef6df9"
+      },
+      {
+        "label": "manifest.audit.guards",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-guards.log",
+        "ok": true,
+        "sha256": "d1c5a2b905d79ca0b67c763bff0c37b8ce8279964546098fb226f34c010da545"
+      },
+      {
+        "label": "manifest.audit.assertions",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-assertions.log",
+        "ok": true,
+        "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+      },
+      {
+        "label": "manifest.audit.skip-sites",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-skip-sites.log",
+        "ok": true,
+        "sha256": "debc6eec6180056587088d2ab08609264739d5c0b731959549903d25a813c42a"
+      },
+      {
+        "label": "manifest.audit.boundary-docs",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-boundary-docs.log",
+        "ok": true,
+        "sha256": "70d3ba0e09fcd17b017ffb9b848f1cb0f7dd33a212247282eeb249e6b45d81c9"
+      },
+      {
+        "label": "manifest.audit.cumulative-diff",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-cumulative-diff.log",
+        "ok": true,
+        "sha256": "47e35f8e3c60f83360fbce02d4de971161cb6c82d80f2421e10d7174e8b582ea"
+      },
+      {
+        "label": "manifest.audit.diff-check",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-diff-check.log",
+        "ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "manifest.audit.inventory",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-inventory.log",
+        "ok": true,
+        "sha256": "3251c8af6b7dddf23a4a60080819ff95c91067cca38b2552c31f179abc723c73"
+      },
+      {
+        "label": "manifest.audit.upstream-native",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/final-upstream-native.log",
+        "ok": true,
+        "sha256": "eed50621c1f3796d11108851a5e686ff106d681c64d37b6b5cee4d8b492ff7da"
+      },
+      {
+        "label": "manifest.firstFrozenAudit.guards",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-guards.log",
+        "ok": true,
+        "sha256": "d1c5a2b905d79ca0b67c763bff0c37b8ce8279964546098fb226f34c010da545"
+      },
+      {
+        "label": "manifest.firstFrozenAudit.assertions",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-assertions.log",
+        "ok": true,
+        "sha256": "49bc215a0b0c3850948a5ce606e31b4d1a2d93b122b39b7fa022a7d8a08add19"
+      },
+      {
+        "label": "manifest.firstFrozenAudit.skip-sites",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-skip-sites.log",
+        "ok": true,
+        "sha256": "debc6eec6180056587088d2ab08609264739d5c0b731959549903d25a813c42a"
+      },
+      {
+        "label": "manifest.firstFrozenAudit.boundary-docs",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-boundary-docs.log",
+        "ok": true,
+        "sha256": "c3454bda71b0e7a1fc9b9d4e16d5b3700fa82e46fdb209636c3f3d69544fdaec"
+      },
+      {
+        "label": "manifest.firstFrozenAudit.cumulative-diff",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-cumulative-diff.log",
+        "ok": true,
+        "sha256": "c9ae1bfed1565d1b7ccd8c67bfb991c62e475f62e268e7fe7c1bdf6642b74cd1"
+      },
+      {
+        "label": "manifest.firstFrozenAudit.diff-check",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-diff-check.log",
+        "ok": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "manifest.firstFrozenAudit.inventory",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-inventory.log",
+        "ok": true,
+        "sha256": "3251c8af6b7dddf23a4a60080819ff95c91067cca38b2552c31f179abc723c73"
+      },
+      {
+        "label": "manifest.firstFrozenAudit.upstream-native",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009/first-frozen-upstream-native.log",
+        "ok": true,
+        "sha256": "eed50621c1f3796d11108851a5e686ff106d681c64d37b6b5cee4d8b492ff7da"
+      },
+      {
+        "label": "source docs/agent-models.md",
+        "path": "docs/agent-models.md",
+        "ok": true,
+        "sha256": "77ec0a3f55ff0ce19d108b2415c8bc0c7d27c6b8cf35f1f3bb2ac3349662764c"
+      },
+      {
+        "label": "source docs/agent-tasks/P009-ascii-lowercase/implementation.md",
+        "path": "docs/agent-tasks/P009-ascii-lowercase/implementation.md",
+        "ok": true,
+        "sha256": "5224f782dc852a218eb5d52ae725c43722967eb46b55e8dc0d8b89f543fc09ee"
+      },
+      {
+        "label": "source docs/agent-tasks/P009-ascii-lowercase/task.md",
+        "path": "docs/agent-tasks/P009-ascii-lowercase/task.md",
+        "ok": true,
+        "sha256": "30a804ddf0ca945e5ab77590f63111a968683e0a5872fd9523f3a4b4bd9099d6"
+      },
+      {
+        "label": "source docs/agent-tasks/P009-ascii-lowercase/upstream-candidates.md",
+        "path": "docs/agent-tasks/P009-ascii-lowercase/upstream-candidates.md",
+        "ok": true,
+        "sha256": "0d01b8eb373f2b601b8fbba09f9f78dca312bcbb7a2f23a93c80236daf568c21"
+      },
+      {
+        "label": "source docs/agent-tasks/README.md",
+        "path": "docs/agent-tasks/README.md",
+        "ok": true,
+        "sha256": "f25801e94bbb1305fe2005b32a3f29fc374e6de403a0703ab690f37720635692"
+      },
+      {
+        "label": "source docs/implementation-gaps.md",
+        "path": "docs/implementation-gaps.md",
+        "ok": true,
+        "sha256": "6c956db5c1a5689b489976f2a1319d8f4abd852aaea1ebb60e2fce0ecf8fbbc5"
+      },
+      {
+        "label": "source docs/sirv-target.md",
+        "path": "docs/sirv-target.md",
+        "ok": true,
+        "sha256": "3050b2a8c9bd1bd9d0ac1f6a64c40de7d7fdda885ac0a777810fe83bf4ed15e4"
+      },
+      {
+        "label": "source docs/symbolic-strings.md",
+        "path": "docs/symbolic-strings.md",
+        "ok": true,
+        "sha256": "21132783aceaff9f210056fbed1fe89ea71efbf7f11d3924b54462cce207b7e2"
+      },
+      {
+        "label": "source docs/wiki/README.md",
+        "path": "docs/wiki/README.md",
+        "ok": true,
+        "sha256": "807388a120bf9b142e47302b8b59041f7fa7cd0ccca8aa325bdddaff30d50919"
+      },
+      {
+        "label": "source docs/wiki/string-lowercase.md",
+        "path": "docs/wiki/string-lowercase.md",
+        "ok": true,
+        "sha256": "0359738bce967dfca87b4cfcaa942e4bae8078bac8792530c4b1d733002fd70c"
+      },
+      {
+        "label": "source src/string/String.ts",
+        "path": "src/string/String.ts",
+        "ok": true,
+        "sha256": "533783b577eb58c5cb109400516a80f2645026e46823ca0fe861205e13b01712"
+      },
+      {
+        "label": "source src/string/toLowerCase.ts",
+        "path": "src/string/toLowerCase.ts",
+        "ok": true,
+        "sha256": "7affb10ec4dca7d0714647f214d5b3eea26b09d0c82ea9e80c03e176bacdc14d"
+      },
+      {
+        "label": "source test/p008-independent-correction.spec.ts",
+        "path": "test/p008-independent-correction.spec.ts",
+        "ok": true,
+        "sha256": "dffc11b620d464c400cd0a4b7d9ef8ae84d16014e286faf31db30aa251096a74"
+      },
+      {
+        "label": "source test/sirv-target.spec.ts",
+        "path": "test/sirv-target.spec.ts",
+        "ok": true,
+        "sha256": "072947fce934706c9013c2623a342377c9c03480f48c52a84551182bc1a2d0f7"
+      },
+      {
+        "label": "source test/string-lowercase.spec.ts",
+        "path": "test/string-lowercase.spec.ts",
+        "ok": true,
+        "sha256": "7a95fabe636d6033e2890a18a6bc5b14250bd530b3812438b1990920d1a3ff5e"
+      },
+      {
+        "label": "source test/string-trim.spec.ts",
+        "path": "test/string-trim.spec.ts",
+        "ok": true,
+        "sha256": "3284f3573ef74295a93e53c000bef6c5e864050093306f1551160260eed91a48"
+      },
+      {
+        "label": "source test/test262.spec.ts",
+        "path": "test/test262.spec.ts",
+        "ok": true,
+        "sha256": "b8ce37b16fba679d08e97c0c8fb32c44128cbe98d187855d2e7252e979cff7c6"
+      },
+      {
+        "label": "source test/test262/README.md",
+        "path": "test/test262/README.md",
+        "ok": true,
+        "sha256": "4c9261da558d382f7c8b46a812c60adf6567fa173b425620f460dd8546651df0"
+      },
+      {
+        "label": "aggregate frozen source",
+        "ok": true,
+        "sha256": "af5a0f0ef76604751aa7cac68204022324f2f51028eec1e54b0cddc79c4cfe77",
+        "files": 295
+      },
+      {
+        "label": "whole upstream Final_Sigma_U180E.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/Final_Sigma_U180E.js",
+        "ok": true,
+        "sha256": "9d491099104fc8178173e00ceca48b452b8793acac68763c571ebfecec65af9a"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A10.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A10.js",
+        "ok": true,
+        "sha256": "000cc4021ea9412b6e037106174900baabfb56264731b50b08f6cf4b7a67f54e"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A11.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A11.js",
+        "ok": true,
+        "sha256": "f4f7ff684062b30f45823fc2299f4962fd64112c1f35a4b49626a60dd870607b"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T1.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T1.js",
+        "ok": true,
+        "sha256": "ab4fd2ef4f8c08ef36156686a4042c84fa84445ca2c67a0eb265aa2c660448c4"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T10.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T10.js",
+        "ok": true,
+        "sha256": "e1a133808294d9cffff19d24b92cdb5ce9276a0929c4bd364d9b704f69256933"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T11.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T11.js",
+        "ok": true,
+        "sha256": "f739f7b368873b1c1d9c534d59e931ee3fcab574f7ab5f611d42f8539d27b83f"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T12.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T12.js",
+        "ok": true,
+        "sha256": "263b529eed14c0814f7fef5176dbbc24e81db251d28bf545424b476c2a18eac9"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T13.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T13.js",
+        "ok": true,
+        "sha256": "8cf4512c60465f7c4cddfc189b75c794f48cc32f43301e7751a6006a6d487f4e"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T14.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T14.js",
+        "ok": true,
+        "sha256": "22694f337a9fbf60a86a338dfaa01db8a9fb1dec386bedc603439256babb9195"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T2.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T2.js",
+        "ok": true,
+        "sha256": "6b3a445dc0e3aab8baee620175440a7c3bbfa7aee3527a68c235abe0cb33e7b4"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T3.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T3.js",
+        "ok": true,
+        "sha256": "1bb7a7aa83aa1fea57b59fffb153d3236b4e525657508dd38edc972c371cffc2"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T4.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T4.js",
+        "ok": true,
+        "sha256": "e36c40e8f81136509585b12b66e01e71fffcd8e3f8c451f08044f6835706fedf"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T5.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T5.js",
+        "ok": true,
+        "sha256": "c729c38987a38d803b212a6dabe2e0f9b81a315ff785e25f7cff17c3e1096852"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T6.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T6.js",
+        "ok": true,
+        "sha256": "0fff36e6c1608a3b1539696133a441c6a728da63ea54fc28d1af5110e427bd63"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T7.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T7.js",
+        "ok": true,
+        "sha256": "4a37d019c1ad4635d47bc6957cdb619c1026547a07927dbea956e172679e62c0"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T8.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T8.js",
+        "ok": true,
+        "sha256": "3661fd153cb627bae074c24e38b5039bc37b246cde36489af9d3b3d3025920d3"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A1_T9.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T9.js",
+        "ok": true,
+        "sha256": "bcc00156a9af01a8d3b1c09273829188056d0ce09963ee7d6258faf11e73d989"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A2_T1.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A2_T1.js",
+        "ok": true,
+        "sha256": "79135f4ee2d52194a70d9fbaf22d976ad0878a0e7995175498ae9b6f30788e8d"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A6.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A6.js",
+        "ok": true,
+        "sha256": "df4e1da94e74b802211403f2adc1e2d9efc9f752b226830be709d7af78aca58d"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A7.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A7.js",
+        "ok": true,
+        "sha256": "12b75fb098c0bd2878ba34d23dcabf7f97b8461c1cc4646da3143e94fc7d7740"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A8.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A8.js",
+        "ok": true,
+        "sha256": "9662ec3ec8b66875e0af0e5df6eaf9a9cefd1027fd41a848843c63d4f8829c83"
+      },
+      {
+        "label": "whole upstream S15.5.4.16_A9.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/S15.5.4.16_A9.js",
+        "ok": true,
+        "sha256": "43ed2a998bbfeb92106c610e3cc187cde525e514d7a227ccdd336fe346fc7b86"
+      },
+      {
+        "label": "whole upstream name.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/name.js",
+        "ok": true,
+        "sha256": "7b056b751c1cdc33c8d5a03c3319960e638170655acbbca4e61efdfc1c2fbae4"
+      },
+      {
+        "label": "whole upstream special_casing.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/special_casing.js",
+        "ok": true,
+        "sha256": "687d184e7dca988829d19c6ae3f617dc0c4f7a7916a7add1f9afb7df36fc19f9"
+      },
+      {
+        "label": "whole upstream special_casing_conditional.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/special_casing_conditional.js",
+        "ok": true,
+        "sha256": "d1950d48abd380e96db84e7414179f2ffebbd2dfc6f3794472184977d5a57353"
+      },
+      {
+        "label": "whole upstream supplementary_plane.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/supplementary_plane.js",
+        "ok": true,
+        "sha256": "77c007c761f1c7746f5a41a023cb98ad761a6a7d38f94b137f55c86b38c4e26c"
+      },
+      {
+        "label": "whole upstream this-value-not-obj-coercible.js",
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/node_modules/test262/test/built-ins/String/prototype/toLowerCase/this-value-not-obj-coercible.js",
+        "ok": true,
+        "sha256": "d4f2842ae55af07ee9abe506f6bfbf9cd571d8d547793a4d00431d707cab542a"
+      }
+    ],
+    "errors": []
+  },
+  "integration": {
+    "source": "c52c3f4e4f7c15fda4038f630fc9cb35b1bf63d6",
+    "all295ExistingSourceTestBlobsIdentical": true,
+    "existingFilesCompared": 295,
+    "independentHashChecks": 51,
+    "reviewDeliverablesCopiedByteForByte": true,
+    "originalManifestPreservedAt3912693": true,
+    "R1OnlySnapshotNoteChanged": true,
+    "errors": []
+  },
+  "commands": {
+    "integrated-focused": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p009-independent-review.spec.ts",
+        "test/p008-independent-correction.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "sourceHead": "367559bb0dfc6fd36272a119293184887fcbfeeb",
+      "exit": 0,
+      "seconds": 4.621252775192261,
+      "timedOut": false,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009-root/integrated-focused.log",
+      "sha256": "a215051e0c41502d1144c8782447630545c54ee78be59f3add341a87b1c2559a"
+    },
+    "integrated-typecheck": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "sourceHead": "367559bb0dfc6fd36272a119293184887fcbfeeb",
+      "exit": 0,
+      "seconds": 2.409527063369751,
+      "timedOut": false,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p009-ascii-lowercase/logs/p009-root/integrated-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "R1": {
+    "field": "commands.final-development.snapshotNote",
+    "originalEvidenceCommit": "391269399a8631081695a3a5156d1b7c8dca595f",
+    "originalManifest": "original-evidence.json",
+    "originalSha256": "dc0a07e3b655b008293ff4ebe663eeab0a599d2958f37560a4a501044ca3daa6",
+    "correctedManifest": "evidence.json",
+    "correctedSha256": "391a6438b466f20ac3353512ad8046c4641bc774bcff4c434a5530dd08edc15b",
+    "onlyFieldChanged": true,
+    "reviewerAuthorizedRootCorrection": true
+  },
+  "publicationGate": "Draft PR and exact-head CI still pending at this documentation checkpoint. Final status is recorded in PR body and Atlas."
+}

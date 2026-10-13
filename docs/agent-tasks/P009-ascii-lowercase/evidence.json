@@ -156,7 +156,7 @@
         "passed": 998,
         "total": 1044
       },
-      "snapshotNote": "Frozen source/spec/docs at recorded revision"
+      "snapshotNote": "Development run: uncommitted evolving specs; revision identifies inherited HEAD, not an exact frozen spec snapshot"
     },
     "final-discovery": {
       "command": [
