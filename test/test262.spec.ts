@@ -13,6 +13,21 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // Whole flagless Boolean matching cases, plus two abrupt ToString files.
+  "built-ins/RegExp/regexp-class-chars.js",
+  "built-ins/RegExp/S15.10.2.3_A1_T5.js",
+  "built-ins/RegExp/S15.10.2.7_A1_T9.js",
+  "built-ins/RegExp/S15.10.2.7_A6_T2.js",
+  "built-ins/RegExp/S15.10.2.7_A2_T4.js",
+  "built-ins/RegExp/S15.10.2.7_A3_T3.js",
+  "built-ins/RegExp/S15.10.2.7_A4_T8.js",
+  "built-ins/RegExp/S15.10.2.7_A5_T3.js",
+  "built-ins/RegExp/S15.10.2.6_A1_T1.js",
+  "built-ins/RegExp/S15.10.2.6_A2_T7.js",
+  "built-ins/RegExp/S15.10.2.13_A1_T1.js",
+  "built-ins/RegExp/S15.10.2.13_A2_T6.js",
+  "built-ins/RegExp/S15.10.2.8_A3_T3.js",
+
   "built-ins/RegExp/prototype/test/S15.10.6.3_A1_T7.js",
   "built-ins/RegExp/prototype/test/S15.10.6.3_A1_T8.js",
   // Complete literal identity and parser-negative files; no matching engine or

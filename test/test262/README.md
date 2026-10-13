@@ -345,3 +345,14 @@ labels, while/do-while/for-in/of, switch, sequence expressions, compound
 assignment, wrapper construction, completion values or harness includes stay
 inactive rather than trimmed. See [loop boundaries](../../docs/for-statement.md)
 for iteration budgets, jump composition and the remaining loop candidates.
+
+
+P007 activates 15 complete RegExp files (30 variants), listed in
+[the matching boundary](../../docs/regexp-literals.md#whole-upstream-evidence).
+Thirteen cover flagless Boolean matching (classes, anchors, groups, alternatives
+and quantifiers) and two cover abrupt ToString. The exact same files run in
+fresh pinned Node 24.21.0 contexts with sta.js and assert.js loaded separately.
+Public exec/result objects, global/sticky and other flags, global RegExp exposure,
+descriptor/propertyHelper, Unicode/code-point harness, lookaround and backreference
+cases remain unselected prerequisites; no fragments replace them. The 46 historical
+skips remain unchanged. Native matching is only an independent test oracle.

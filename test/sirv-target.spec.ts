@@ -8,7 +8,8 @@ import { runFile } from "../src/cli/runtime";
 import { effectPaths } from "../src/effects";
 import { isESFunction } from "../src/Function/Function";
 import { executionBoundaries, hasExecutionBoundary, isForkedCompletion, ForkedCompletion } from "../src/execution-context/Completion";
-import { Any, isThrownValue } from "../src/types";
+import { Any, isThrownValue, WithProperties } from "../src/types";
+import { getProperties } from "../src/execution-context/Heap";
 import { assertPinnedNode } from "./commonjs/oracle";
 
 const packages = [
@@ -75,20 +76,16 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
-  // The default ignores list is empty, so the shared bounded forEach completes
-  // with zero visits and totalist's ordinary for-loop now walks the directory
-  // entries through shared bounded ForStatement semantics. The walk reaches
-  // sirv's ignore-filter RegExp test inside the walk callback, which remains
-  // an explicit unsupported RegExp instance boundary while the sibling
-  // filesystem failure path still throws beside it. This is an unfinished
-  // factory, not HTTP setup.
-  expect(result.diagnostic).toBe("Unmodeled host property 'test': RegExp instance API");
+  // Both flagless filters execute on the unmodified filename. The next
+  // reached gap is mrmime.lookup's String.trim, before header construction.
+  // The filesystem failure sibling must survive that stop.
+  expect(result.diagnostic).toBe("String.prototype.trim is not yet supported");
   expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
   expect(isForkedCompletion(result.completion)).toBe(true);
   const boundaries = executionBoundaries(result.completion as Any);
   expect(boundaries).toHaveLength(1);
   expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "Unmodeled host property 'test': RegExp instance API" });
+    message: "String.prototype.trim is not yet supported" });
   const forked = result.completion as ForkedCompletion;
   const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
     leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
@@ -96,7 +93,15 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   expect(kinds).toContain("boundary");
   expect(kinds).toContain("thrown");
   expect(kinds).not.toContain("normal");
-  expect(result.current.value.sourceFile).toMatch(/totalist\/sync\/index\.js$/);
+  const failed = [forked.consequent, forked.alternate].find(leaf => isThrownValue(leaf[0]))!;
+  if (!isThrownValue(failed[0])) throw new Error("expected filesystem throw");
+  expect(getProperties(failed[0].value as WithProperties, failed[1]).code).toMatchObject({ value: "EMFILE" });
+  const stopped = [forked.consequent, forked.alternate].find(leaf => !isThrownValue(leaf[0]))!;
+  expect(stopped[1].value.sourceFile).toMatch(/mrmime\/index\.js$/);
+  expect(effectPaths(stopped[1].value.effects).some(path => path.events.some(event =>
+    event.call.operation === "fs.readdirSync"))).toBe(true);
+  expect(boundaries[0].frames.some(frame => frame.node.type === "CallExpression" &&
+    (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "trim")).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -157,4 +162,39 @@ test("the real CLI serializes the unchanged sirv import and nested literal defin
   expect(literals.length).toBeGreaterThan(0);
   for (const literal of literals) expect(literal.entries).toContainEqual(["value", null]);
   expect(graph.nodes.some((node: any) => node.definition)).toBe(true);
+});
+
+test("the real CLI factory graph retains the next boundary and filesystem throw", () => {
+  assertPinnedNode();
+  writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
+  const child = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath,
+    [join(__dirname, "../bin/prophet.js"), "--", "entry.cjs"], {
+      cwd: directory, encoding: "utf8", timeout: 60000, maxBuffer: 80 * 1024 * 1024,
+      env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" }
+    });
+  expect(child.error).toBeUndefined();
+  expect(child.status).toBe(2);
+  expect(child.stderr).toBe("prophet: String.prototype.trim is not yet supported\n");
+  const graph = JSON.parse(child.stdout);
+  expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
+  const nodes = new Map<string, any>(graph.nodes.map((node: any) => [node.id, node]));
+  const field = (reference: any, key: string) => {
+    const pair = nodes.get(reference.ref).entries.find(([name]: [string]) => name === key);
+    return pair && pair[1];
+  };
+  const fork = graph.roots.completion;
+  expect(field(fork, "type")).toBe("ForkedCompletion");
+  expect(field(fork, "state")).toBe("partial");
+  const leaves = [field(fork, "consequent"), field(fork, "alternate")];
+  const values = leaves.map(leaf => field(leaf, "0"));
+  expect(values.map(value => field(value, "type")).sort()).toEqual(["ExecutionBoundary", "ThrownValue"]);
+  const failed = values.find(value => field(value, "type") === "ThrownValue");
+  expect(field(field(field(field(failed, "value"), "properties"), "code"), "value")).toBe("EMFILE");
+  const boundary = values.find(value => field(value, "type") === "ExecutionBoundary");
+  expect(field(boundary, "kind")).toBe("unsupported");
+  expect(field(boundary, "message")).toBe("String.prototype.trim is not yet supported");
+  const stopped = leaves.find(leaf => field(field(leaf, "0"), "type") === "ExecutionBoundary");
+  expect(field(field(stopped, "1"), "sourceFile")).toMatch(/mrmime\/index\.js$/);
+  expect(graph.nodes.some((node: any) => (node.entries || []).some(([name, value]: [string, any]) =>
+    name === "operation" && value === "fs.readdirSync"))).toBe(true);
 });
