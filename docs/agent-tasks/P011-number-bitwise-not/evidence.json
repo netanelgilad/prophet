@@ -1,0 +1,1268 @@
+{
+  "task": "P011",
+  "writer": "owner-authorized gpt-6.1-sol/high; sole writer; no independent review claimed",
+  "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+  "branch": "agent/p011-number-bitwise-not",
+  "acceptedBase": "14227f2c183c3c91503cbdb584c56e8c91f0d4ca",
+  "startHead": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+  "frozenSourceCommit": "b920a64c9679cc537ec74d708b7647c268b6cd8e",
+  "frozenTree": "0a1109b27afbc5a96fd01636c84068b28d15c3c2",
+  "evidenceCommit": "separate evidence-only child commit; its exact id is reported in handoff",
+  "nodeBinary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "environment": {
+    "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+  },
+  "changedFileHashes": {
+    "docs/agent-models.md": "bb0ea291052a3cc4e740b86ea661a0009a03061ac9b93ad9f7bc72b702fe986c",
+    "docs/agent-tasks/P011-number-bitwise-not/task.md": "ce0a133a4b0cc53fde801609dfc5e60737bb430f71f5c38f8515e5374854fac0",
+    "docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md": "71cf144ac8043ade9b10a3c8b77eb2440dbc694939d3217f7da6da046f306d72",
+    "docs/agent-tasks/README.md": "29da5a5e778bd47140fd2ac51cf25ecaec630b45dd69b24045f39c21dd592c22",
+    "docs/implementation-gaps.md": "91eda5b5e52c08d5e7801ac3bb40b6dbff48e529e8a05e2c7efa16c3d19dbbd2",
+    "docs/number-bitwise-not.md": "ae6b6ceeb0947a4e788b69ce67f2ada830e2207ee39955f3064a408edb922825",
+    "docs/sirv-target.md": "c9a160cce93fad223e66ff3f71c41f2bcad8e4adaf413e47bf29f2033ca75fad",
+    "docs/wiki/README.md": "c3a27acd52609e5920e9959e585c1f6fd1ebd4611e757914ad333f0d6523fbe8",
+    "docs/wiki/number-bitwise-not.md": "0e8c037bf9cfce081ff0b23c2e0cff938daac30a3cceb80a774f279e7b298b36",
+    "src/ASTResolvers.ts": "99dc4eb4ef984c6d827694f6766789c830046ebc873b2351fdf343171a6b7dcc",
+    "src/conversion/toNumber.ts": "356f4baf70c4dbd4f52165d59040c20bbc6548796ffe3c0381a152df100ec937",
+    "src/number/bitwise-not.ts": "cda4f18425b76fde47f350529c53e1e9bc6eec000b30d44c20c29474534c8de7",
+    "src/operators.ts": "bc7247a6e69523b0216c23ece364cb17b9d45a8a18e09366f9dcbc7cbc96dc54",
+    "test/bitwise-not.spec.ts": "4e25246a01b1f0a18ff1735f8fbca1688e42bf79f4eaa9f8d4f435d1fd24f486",
+    "test/p009-independent-review.spec.ts": "01a48d1302ae2511d2baf8da4d43440d6df6e4e0a93d689cca81e5e39fe9586a",
+    "test/p010-independent-review.spec.ts": "867aec0d6297861f3e81615ff99576e5e0866864f92c44eb46e69d0bc3b23069",
+    "test/sirv-target.spec.ts": "26d6b1bf0353cf549dac989428affee7a715c5f3288a010c6701b85d0c9a1088",
+    "test/string-lastindexof.spec.ts": "bff43c1658b6d5f793e7670641fb72518b6950cbc4777fc6ce4d72eab798c7b9",
+    "test/test262.spec.ts": "07656fc4e02d305f5650cf24cde6c800405b18a55f5daa20b2a6e4b0588ae9b3",
+    "test/test262/README.md": "271df2dd229e0769dc1c10bd02b9b507f5727ab445c78ad91064dc9934e74d2e"
+  },
+  "runs": [
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/sirv-target.md\n M docs/wiki/README.md\n M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n M test/test262/README.md\n?? docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md\n?? docs/number-bitwise-not.md\n?? docs/wiki/number-bitwise-not.md\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts",
+        "test/string-lastindexof.spec.ts",
+        "test/string-lowercase.spec.ts",
+        "test/string-trim.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/p007-independent-review.spec.ts",
+        "test/p008-independent-review.spec.ts",
+        "test/p008-independent-correction.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/p010-independent-review.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/arithmetic-soundness.spec.ts",
+        "test/symbolic-numbers.spec.ts",
+        "test/symbolic-exceptions.spec.ts",
+        "test/symbolic-choice-equality.spec.ts",
+        "test/symbolic-selection-membership.spec.ts",
+        "test/instanceof.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/object-enumeration.spec.ts",
+        "test/analysis-failure-context.spec.ts"
+      ],
+      "timeoutSeconds": 300,
+      "started": 1791933984.312047,
+      "exit": 0,
+      "elapsedSeconds": 110.69655895233154,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/affected-final.log",
+      "logSha256": "46d8f838d0bd62fe534055a53ddd0bc9cc467e48be3675a4767fc0342cb104cb",
+      "snapshotNote": "Final production/spec hashes; wiki/task documentation completed during this prefreeze run. No source/spec edits during execution; committed full validation follows.",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/affected-final.json",
+        "sha256": "5539e795d596f71eb2416588f5d4d0cfe7957b50231f7e38589b254121c055e2",
+        "sourceSnapshotSha256": "13d5961a5f8112a606b5ec141440ce318c25be835c4d951367bcae6ae1c7e57a"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "affected-final",
+        "prefreeze-final-source",
+        "300",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts",
+        "test/string-lastindexof.spec.ts",
+        "test/string-lowercase.spec.ts",
+        "test/string-trim.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/p007-independent-review.spec.ts",
+        "test/p008-independent-review.spec.ts",
+        "test/p008-independent-correction.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/p010-independent-review.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/arithmetic-soundness.spec.ts",
+        "test/symbolic-numbers.spec.ts",
+        "test/symbolic-exceptions.spec.ts",
+        "test/symbolic-choice-equality.spec.ts",
+        "test/symbolic-selection-membership.spec.ts",
+        "test/instanceof.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/object-enumeration.spec.ts",
+        "test/analysis-failure-context.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 21 passed, 21 total",
+        "Tests:       46 skipped, 1728 passed, 1774 total",
+        "Snapshots:   0 total",
+        "Time:        108.124s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts",
+        "test/string-lastindexof.spec.ts",
+        "test/string-lowercase.spec.ts",
+        "test/string-trim.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/p007-independent-review.spec.ts",
+        "test/p008-independent-review.spec.ts",
+        "test/p008-independent-correction.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/p010-independent-review.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/arithmetic.spec.ts",
+        "test/arithmetic-soundness.spec.ts",
+        "test/symbolic-numbers.spec.ts",
+        "test/symbolic-exceptions.spec.ts",
+        "test/symbolic-choice-equality.spec.ts",
+        "test/symbolic-selection-membership.spec.ts",
+        "test/instanceof.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/property-enumeration.spec.ts",
+        "test/analysis-failure-context.spec.ts"
+      ],
+      "timeoutSeconds": 300,
+      "started": 1791933721.054382,
+      "exit": 0,
+      "elapsedSeconds": 109.58416175842285,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/affected.log",
+      "logSha256": "1e16b71087e9a2080cd2f873bdffdf58c88e84a974cf5b0948de9de1778a17b1",
+      "snapshotNote": "Prefreeze source/spec snapshot before BigInt literal guard. Boundary/wiki/ledger documentation was added during this run; no production/spec edits overlapped this run. Replaced by affected-final and frozen full validation.",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/affected.json",
+        "sha256": "f1d4ec0cd93251e0582cc92b7ba0e97b81e0f0397b2a9997b56973ae7e5df59e",
+        "sourceSnapshotSha256": "cb2853e3a904fa469bd91c507a002d8a634a68b68268cbe4075373a78aab87a9"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "affected",
+        "prefreeze",
+        "300",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts",
+        "test/string-lastindexof.spec.ts",
+        "test/string-lowercase.spec.ts",
+        "test/string-trim.spec.ts",
+        "test/regexp-test.spec.ts",
+        "test/p007-independent-review.spec.ts",
+        "test/p008-independent-review.spec.ts",
+        "test/p008-independent-correction.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/p010-independent-review.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/arithmetic.spec.ts",
+        "test/arithmetic-soundness.spec.ts",
+        "test/symbolic-numbers.spec.ts",
+        "test/symbolic-exceptions.spec.ts",
+        "test/symbolic-choice-equality.spec.ts",
+        "test/symbolic-selection-membership.spec.ts",
+        "test/instanceof.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/property-enumeration.spec.ts",
+        "test/analysis-failure-context.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 21 passed, 21 total",
+        "Tests:       46 skipped, 1720 passed, 1766 total",
+        "Snapshots:   0 total",
+        "Time:        106.94s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/sirv-target.md\n M docs/wiki/README.md\n M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n M test/test262/README.md\n?? docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md\n?? docs/number-bitwise-not.md\n?? docs/wiki/number-bitwise-not.md\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "python3",
+        "logs/p011/audit.py"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791933951.7216692,
+      "exit": 0,
+      "elapsedSeconds": 2.2100067138671875,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-development.log",
+      "logSha256": "93aa883f66a00231699e74452bfd22f44bdb0b5ca1660558b31f7e36d59bb264",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-development.json",
+        "sha256": "1c713116fed5c0d0620e14b2d9fa457375f6442e05528d4c91dce2793034abb8",
+        "sourceSnapshotSha256": "f8071c80a5cb3670c61dce77801eebdd492be35339a30f70d46b02aa9695ba91"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "audit-development",
+        "prefreeze",
+        "120",
+        "python3",
+        "logs/p011/audit.py"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "frozen",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "b920a64c9679cc537ec74d708b7647c268b6cd8e",
+      "status": "",
+      "command": [
+        "python3",
+        "logs/p011/audit.py"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791934174.335194,
+      "exit": 0,
+      "elapsedSeconds": 2.190830945968628,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-frozen.log",
+      "logSha256": "2c7e9092f0200e423a157641f4c8d4e7ed782dc7966483598012b27c00f01592",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-frozen.json",
+        "sha256": "02b12a097251da4de2ffe5ee5c706e460c9d11f3a01868e2b6cfe043154ab966",
+        "sourceSnapshotSha256": "2c4b1469e5a52cfca5a49443e3626f0eca2b32d906abbe5505831e3ecbbbe18d"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "audit-frozen",
+        "frozen",
+        "120",
+        "python3",
+        "logs/p011/audit.py"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/P011-number-bitwise-not/task.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/sirv-target.md\n M docs/wiki/README.md\n M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n M test/test262/README.md\n?? docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md\n?? docs/number-bitwise-not.md\n?? docs/wiki/number-bitwise-not.md\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791934035.647876,
+      "exit": 0,
+      "elapsedSeconds": 2.1806910037994385,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/discovery-final.log",
+      "logSha256": "77b347fd83b9025a22ca1f046bcb64f6a8eb4e6cd9b7cdeae0eff07177057ee8",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/discovery-final.json",
+        "sha256": "a67c9e38d03bb7931a63f7e5c939a7837851b1d776278ede8f5b351eae78c77d",
+        "sourceSnapshotSha256": "2c4b1469e5a52cfca5a49443e3626f0eca2b32d906abbe5505831e3ecbbbe18d"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "discovery-final",
+        "prefreeze-final-source",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/test262.spec.ts\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts",
+        "test/sirv-target.spec.ts"
+      ],
+      "timeoutSeconds": 180,
+      "started": 1791933529.17019,
+      "exit": 1,
+      "elapsedSeconds": 21.666072845458984,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/focused-first.log",
+      "logSha256": "ac621dc828731dc88e15a776a2012bba0fa2211e0e7c6b7a45d19ed5beb101f7",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/focused-first.json",
+        "sha256": "253b5325fe4a02df10b81334e97399e54460884e71acf042c232a642564f25e7",
+        "sourceSnapshotSha256": "ecae7b9dfadf1428cb51dab28b055a9647b3e9b89165fbfadeb1e42f1f08d9af"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "focused-first",
+        "prefreeze",
+        "180",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts",
+        "test/sirv-target.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 failed, 2 passed, 3 total",
+        "Tests:       2 failed, 46 skipped, 842 passed, 890 total",
+        "Snapshots:   0 total",
+        "Time:        19.503s"
+      ]
+    },
+    {
+      "phase": "frozen",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "b920a64c9679cc537ec74d708b7647c268b6cd8e",
+      "status": "",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "timeoutSeconds": 900,
+      "started": 1791934168.0738099,
+      "exit": 0,
+      "elapsedSeconds": 438.6341760158539,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/full-frozen.log",
+      "logSha256": "8203a34d21ae5ef0035cf97e7dac237695fc133078aeb21fee590128818fbb9b",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/full-frozen.json",
+        "sha256": "e0b3e280d2b1a21b222372a85a3b867d42b5c3c2ea2bb2fde059626d3029c0cb",
+        "sourceSnapshotSha256": "2c4b1469e5a52cfca5a49443e3626f0eca2b32d906abbe5505831e3ecbbbe18d"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "full-frozen",
+        "frozen",
+        "900",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "jestSummary": [
+        "Test Suites: 136 passed, 136 total",
+        "Tests:       46 skipped, 4113 passed, 4159 total",
+        "Snapshots:   0 total",
+        "Time:        435.826s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/sirv-target.md\n M docs/wiki/README.md\n M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n M test/test262/README.md\n?? docs/number-bitwise-not.md\n?? docs/wiki/number-bitwise-not.md\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791933912.374419,
+      "exit": 0,
+      "elapsedSeconds": 14.124008893966675,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/literal-and-upstream.log",
+      "logSha256": "dfc4451ebd4275a1c520d23906949ac8e85ba6bb17aa718da99b059007fe0f6e",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/literal-and-upstream.json",
+        "sha256": "d0bd10890ffd9152cb5437f9a8ff4c33248430b9cdf4b06c01da47f6758ffb28",
+        "sourceSnapshotSha256": "4a8274f841eb30e4f60c5918724af9bb3c4666445e76a956c26695edf77a9236"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "literal-and-upstream",
+        "prefreeze",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 2 passed, 2 total",
+        "Tests:       46 skipped, 845 passed, 891 total",
+        "Snapshots:   0 total",
+        "Time:        12.213s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/sirv-target.md\n M docs/wiki/README.md\n M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n M test/test262/README.md\n?? docs/number-bitwise-not.md\n?? docs/wiki/number-bitwise-not.md\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "reached BigInt"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791933897.384949,
+      "exit": 1,
+      "elapsedSeconds": 5.861508131027222,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/literal-red.log",
+      "logSha256": "02a78e0ff1a98db135adb37d29dd646749cc8c4e73ccd5a04190daf4e32b11e1",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/literal-red.json",
+        "sha256": "a84d513479a780f0cc9050e426eb9a6bf7d3ca546abb939c24a9d74a5781e6d3",
+        "sourceSnapshotSha256": "47bb8718a031aae4eeaf4f51c5d66c80fff7813902f2fd0cd39ba2181b882969"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "literal-red",
+        "prefreeze",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "reached BigInt"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       5 failed, 109 skipped, 114 total",
+        "Snapshots:   0 total",
+        "Time:        3.273s, estimated 8s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/string-lastindexof.spec.ts",
+        "test/p010-independent-review.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/sirv-target.spec.ts"
+      ],
+      "timeoutSeconds": 240,
+      "started": 1791933595.003541,
+      "exit": 1,
+      "elapsedSeconds": 44.80633997917175,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/migrations.log",
+      "logSha256": "36d6a87d42d142188bcec4b7f24ed72c3d498c40c079e424b0ec688e055bb3e5",
+      "snapshotNote": "Prefreeze development run: bitwise-not spec extended with mixed-branch and upstream-inventory cases while run active; sirv frame assertion was corrected after its failure. Not frozen-source evidence.",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/migrations.json",
+        "sha256": "1929eee7b1ab92c3e09951fcf44a6e68f784d6a9a2331aceb7d9a26f189a574c",
+        "sourceSnapshotSha256": "4ff631f5c3917f3ee22ab4826b433d7e08e20d7400a404da60af552a68655840"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "migrations",
+        "prefreeze",
+        "240",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/string-lastindexof.spec.ts",
+        "test/p010-independent-review.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/sirv-target.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 failed, 4 passed, 5 total",
+        "Tests:       1 failed, 316 passed, 317 total",
+        "Snapshots:   0 total",
+        "Time:        41.657s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M test/test262.spec.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "native"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791933479.647938,
+      "exit": 0,
+      "elapsedSeconds": 6.7707788944244385,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/native-corrected.log",
+      "logSha256": "f23bf6fec9df9dd51fd83dc0b84330514e0396f50ad8b2b22f664b6fc34fb1be",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/native-corrected.json",
+        "sha256": "2d293b83faa14498fb5174b3de8a5e760ef334cccbd888a5cd9a16573c3e074c",
+        "sourceSnapshotSha256": "6cd6db6ff3c5091b05ab4ffa3c2a5192fdac4336927a55f8dbb767cf58074613"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "native-corrected",
+        "prefreeze",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "native"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       91 skipped, 13 passed, 104 total",
+        "Snapshots:   0 total",
+        "Time:        4.848s, estimated 5s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M test/test262.spec.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "native"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791933456.210798,
+      "exit": 1,
+      "elapsedSeconds": 10.140771865844727,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/native-red.log",
+      "logSha256": "6446d9bca7abed5faedc5ae717c0ec39469e4c7a49cbc470ebeb81e97fbbbccd",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/native-red.json",
+        "sha256": "f1c9590e71dbfc0149d89a0d3efcccd7ec29126daf0f5e374d657b3a26f6ce98",
+        "sourceSnapshotSha256": "8df009d4b8b83a2208c339f93f7d0b21f46b434ea9b0613f02cf846956353aa8"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "native-red",
+        "prefreeze",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "native"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       1 failed, 91 skipped, 12 passed, 104 total",
+        "Snapshots:   0 total",
+        "Time:        8.214s"
+      ]
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/P011-number-bitwise-not/task.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/sirv-target.md\n M docs/wiki/README.md\n M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n M test/test262/README.md\n?? docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md\n?? docs/number-bitwise-not.md\n?? docs/wiki/number-bitwise-not.md\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "python3",
+        "logs/p011/audit.py"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791934050.1239538,
+      "exit": 0,
+      "elapsedSeconds": 2.19521427154541,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/prefreeze-audit.log",
+      "logSha256": "93aa883f66a00231699e74452bfd22f44bdb0b5ca1660558b31f7e36d59bb264",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/prefreeze-audit.json",
+        "sha256": "4acde981e51dd3dccd0d4b1a2541301f66d3d17a121d226746a1dc8103241d52",
+        "sourceSnapshotSha256": "2c4b1469e5a52cfca5a49443e3626f0eca2b32d906abbe5505831e3ecbbbe18d"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "prefreeze-audit",
+        "prefreeze-final-source",
+        "120",
+        "python3",
+        "logs/p011/audit.py"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/sirv-target.md\n M docs/wiki/README.md\n M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n M test/test262/README.md\n?? docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md\n?? docs/number-bitwise-not.md\n?? docs/wiki/number-bitwise-not.md\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/branch-state.spec.ts",
+        "test/prototype-state.spec.ts",
+        "test/lexical-completions.spec.ts",
+        "test/arithmetic-bounds.spec.ts",
+        "test/instanceof-internal.spec.ts"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791934004.0637891,
+      "exit": 0,
+      "elapsedSeconds": 8.889919996261597,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/state-operators-final.log",
+      "logSha256": "5dc4a6e32daa64c6bc22ff095fb5dd14056d7897b836d93aa05bfc8a2a054ea3",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/state-operators-final.json",
+        "sha256": "defcb64ea5e65b7de2eeea7cb11c458a9d2a4b89c3a026bffdd1498882e23324",
+        "sourceSnapshotSha256": "13d5961a5f8112a606b5ec141440ce318c25be835c4d951367bcae6ae1c7e57a"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "state-operators-final",
+        "prefreeze-final-source",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/branch-state.spec.ts",
+        "test/prototype-state.spec.ts",
+        "test/lexical-completions.spec.ts",
+        "test/arithmetic-bounds.spec.ts",
+        "test/instanceof-internal.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 5 passed, 5 total",
+        "Tests:       54 passed, 54 total",
+        "Snapshots:   0 total",
+        "Time:        6.609s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791933649.208361,
+      "exit": 0,
+      "elapsedSeconds": 7.46703314781189,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/typecheck-dev.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/typecheck-dev.json",
+        "sha256": "dd97f6b4167c74b2012aff3f310bb2b30e5ea0142f628e405b623475fa1b73f7",
+        "sourceSnapshotSha256": "cb2853e3a904fa469bd91c507a002d8a634a68b68268cbe4075373a78aab87a9"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "typecheck-dev",
+        "prefreeze",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "frozen",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "b920a64c9679cc537ec74d708b7647c268b6cd8e",
+      "status": "",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791934174.335197,
+      "exit": 0,
+      "elapsedSeconds": 7.990569829940796,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/typecheck-frozen.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/typecheck-frozen.json",
+        "sha256": "6945a2c8b27691b600d2569a7aec466f58f61bbad89f8ee61f33dd57a749cf14",
+        "sourceSnapshotSha256": "2c4b1469e5a52cfca5a49443e3626f0eca2b32d906abbe5505831e3ecbbbe18d"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "typecheck-frozen",
+        "frozen",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M src/ASTResolvers.ts\n M src/conversion/toNumber.ts\n M src/operators.ts\n M test/p009-independent-review.spec.ts\n M test/p010-independent-review.spec.ts\n M test/sirv-target.spec.ts\n M test/string-lastindexof.spec.ts\n M test/test262.spec.ts\n?? src/number/bitwise-not.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "whole upstream"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791933616.4896572,
+      "exit": 0,
+      "elapsedSeconds": 9.017920017242432,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/upstream-trials.log",
+      "logSha256": "4dcaa03642f0c31f3771c9d1cbf2f0701a830c00681b75dc3b42c898cf6bed62",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/upstream-trials.json",
+        "sha256": "6c47d5459e0f413b3705a7ddfbc9b89b8948835b4d7fe85ec520b45a6c0ceaa2",
+        "sourceSnapshotSha256": "297b88577f62a02ca131b08ab8097289339d43e0a44ab0c6c987da0658db0607"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "upstream-trials",
+        "prefreeze",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "whole upstream"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       108 skipped, 1 passed, 109 total",
+        "Snapshots:   0 total",
+        "Time:        6.926s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M test/test262.spec.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts"
+      ],
+      "timeoutSeconds": 180,
+      "started": 1791933487.840008,
+      "exit": 1,
+      "elapsedSeconds": 10.42531704902649,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/vm-red-corrected.log",
+      "logSha256": "c9445576b04e24d53c5bb9e2343ab6111885c6fb59347aec0b21e30aabb2020d",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/vm-red-corrected.json",
+        "sha256": "72173b9ea2709dca6cde66c70960d1e0547a935b7c38557280695426051a3e12",
+        "sourceSnapshotSha256": "6cd6db6ff3c5091b05ab4ffa3c2a5192fdac4336927a55f8dbb767cf58074613"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "vm-red-corrected",
+        "prefreeze",
+        "180",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 2 failed, 2 total",
+        "Tests:       95 failed, 46 skipped, 740 passed, 881 total",
+        "Snapshots:   0 total",
+        "Time:        8.63s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "a935a552a733652c7b363308f5f3b6d4ec6dd8e8",
+      "status": "M test/test262.spec.ts\n?? test/bitwise-not.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts"
+      ],
+      "timeoutSeconds": 180,
+      "started": 1791933467.574572,
+      "exit": 1,
+      "elapsedSeconds": 10.850595712661743,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/vm-red.log",
+      "logSha256": "836b3a2b3f8ef288d6e32039900c6ffd229e03e55b44ec313f79ab04859f8192",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/vm-red.json",
+        "sha256": "460e15022e64e6fb485130c84882527ac9d15036dd00a52211390f6fc0795997",
+        "sourceSnapshotSha256": "8df009d4b8b83a2208c339f93f7d0b21f46b434ea9b0613f02cf846956353aa8"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011/run.py",
+        "vm-red",
+        "prefreeze",
+        "180",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/test262.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 2 failed, 2 total",
+        "Tests:       96 failed, 46 skipped, 739 passed, 881 total",
+        "Snapshots:   0 total",
+        "Time:        8.709s"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/run.py",
+      "sha256": "864da2d61474750286f426fe655134b4dd7089f5a016c18fa60278b7ee3dc15c"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit.py",
+      "sha256": "f815fa53680d71477799308fb789751b0c45015440e18496646e8eace71a6467"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/evidence.py",
+      "sha256": "ec72693c45624cffc11e39c5dbf4c9da44cb10377d7ee220391027c121f79eb3"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/whole-candidates.json",
+      "sha256": "08eac2314476df7c474a874fe4ca411e8b5cf8744d7edd1027391e84b8646a06"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/whole-candidates-before-literal-guard.json",
+      "sha256": "bb311eb851e1c3ae1bfb795d07699010ed09c0f0614fa39e3e3fed40c0155915"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/test262-inventory.json",
+      "sha256": "a9b9a18517d69bc2001fce191dacf71e90ab35ac6027ef1c1e4e54a3902fe740"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-summary.json",
+      "sha256": "3749efe6c6803815583551dcab39cc2d8a73b9633f4ec6065f0c680b0563b333"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/evidence-tooling-failures.json",
+      "sha256": "c76bf62c4f1acd7ce73c2767440e1d5ea42f463286db1d308e647067d8a3adda"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/evidence-generation-first-stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/verify-evidence.py",
+      "sha256": "fa456a79e49db92e00a97f3dc84fd73133db7bf28664b8a4033cb83ad37e53f5"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-00.log",
+      "sha256": "ccc9e528a283d40e4d59a1a88a9fdd90100265f39df8cf11ffd5ea2f1480a85a"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-01.log",
+      "sha256": "244c27fff21d937192563738e3fd037a97b5339caea69ade49040c4766c0359a"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-02.log",
+      "sha256": "fcf780cdeda82410c40218ab2f59635f2ffe1693bd6901e19d8d28e899283300"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-03.log",
+      "sha256": "00b4f939d3d8b3b8e6615ac4d253550d50f599132a2e96c551855e0d1616a758"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-04.log",
+      "sha256": "b4b82834c22835093b03d14849917a6033ddefeb3ab2ec124733efc927c8f533"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-05.log",
+      "sha256": "3f73d900bbdc93ccdc96c20eb0dc5f511368beb9981bc259848d06f4f2fea181"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-06.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-07.log",
+      "sha256": "dbc85eacb8cc18ad91a693dec1ba84509de49e0d00765964cba466b405c4c99f"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-08.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-09.log",
+      "sha256": "5ca4987e21b91289f4f457aff9babb6ed6e14fa1c5d9e6efba50a0728c39ac74"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-development.log",
+      "sha256": "93aa883f66a00231699e74452bfd22f44bdb0b5ca1660558b31f7e36d59bb264"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-frozen.log",
+      "sha256": "2c7e9092f0200e423a157641f4c8d4e7ed782dc7966483598012b27c00f01592"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p010-independent/manual/cli.stdout.json",
+      "sha256": "a0f7bf1a000c71218c3659acf17a73922ce0c6068f61fdeb1de51e626277d87a"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p010-independent/manual/cli.stderr.log",
+      "sha256": "a3f447be1bfb42237476aad6880b7daf7ea38e353b8e302d2111fa321fdc2b10"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p010-independent/manual/cli-command.json",
+      "sha256": "7a374a269e1b388ffae21090525abf37f835b36b821375a1d356b0259a89fd23"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p009-independent/cli.stdout.json",
+      "sha256": "a0d62866c47dc11d2aa6329de8eac4784f6b493cd3615c729456ac8d1a340a75"
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p009-independent/cli.stderr.log",
+      "sha256": "a3f447be1bfb42237476aad6880b7daf7ea38e353b8e302d2111fa321fdc2b10"
+    }
+  ],
+  "audit": {
+    "commands": [
+      {
+        "command": [
+          "rg",
+          "-n",
+          "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+          "src",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-00.log",
+        "sha256": "ccc9e528a283d40e4d59a1a88a9fdd90100265f39df8cf11ffd5ea2f1480a85a"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "assert\\(|unimplemented\\(",
+          "src",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-01.log",
+        "sha256": "244c27fff21d937192563738e3fd037a97b5339caea69ade49040c4766c0359a"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+          "test",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-02.log",
+        "sha256": "fcf780cdeda82410c40218ab2f59635f2ffe1693bd6901e19d8d28e899283300"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "gap|unsupported|assum|remain|limit|not yet|not modeled",
+          "README.md",
+          "docs",
+          "test/commonjs/README.md",
+          "test/test262/README.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-03.log",
+        "sha256": "00b4f939d3d8b3b8e6615ac4d253550d50f599132a2e96c551855e0d1616a758"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "bitwise|unary|Unary operator|substring|lastIndexOf|frontier|deferred|supportedNames",
+          "test",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-04.log",
+        "sha256": "b4b82834c22835093b03d14849917a6033ddefeb3ab2ec124733efc927c8f533"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "14227f2",
+          "--",
+          "src",
+          "test",
+          "README.md",
+          "docs",
+          "AGENTS.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-05.log",
+        "sha256": "3f73d900bbdc93ccdc96c20eb0dc5f511368beb9981bc259848d06f4f2fea181"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "14227f2"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-06.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--name-status",
+          "14227f2"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-07.log",
+        "sha256": "dbc85eacb8cc18ad91a693dec1ba84509de49e0d00765964cba466b405c4c99f"
+      },
+      {
+        "command": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-08.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "git",
+          "log",
+          "-3",
+          "--oneline"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/audit-09.log",
+        "sha256": "5ca4987e21b91289f4f457aff9babb6ed6e14fa1c5d9e6efba50a0728c39ac74"
+      }
+    ],
+    "inventory": {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011/test262-inventory.json",
+      "activeFiles": 370,
+      "activeVariants": 731,
+      "skippedFiles": 46,
+      "sha256": "a9b9a18517d69bc2001fce191dacf71e90ab35ac6027ef1c1e4e54a3902fe740"
+    },
+    "unchangedFixtures": [
+      {
+        "manifest": "test/fixtures/mrmime-2.0.1/integrity.json",
+        "sha256": "32aee021592efb4177bc013f0bb1f87fcd6bfe74b55f0099cda8f3b8650e0b57",
+        "files": 6
+      },
+      {
+        "manifest": "test/fixtures/pico-static-server-3.0.3/integrity.json",
+        "sha256": "0904577c883bb1f47e8f6fc0081dcc69ffd8ca8b5ecb2ca405dad3d78ed0e4fc",
+        "files": 0
+      },
+      {
+        "manifest": "test/fixtures/polka-url-1.0.0-next.29/integrity.json",
+        "sha256": "c5e8997c2a86c65375d9f64d67dff316c923105dfc9edd8127a4b43843cc13fd",
+        "files": 5
+      },
+      {
+        "manifest": "test/fixtures/sirv-3.0.2/integrity.json",
+        "sha256": "2772de9ca14a3ec367d7e5fc064e9be3ba0a0cbd6a81ab62528f83b58f2d8315",
+        "files": 6
+      },
+      {
+        "manifest": "test/fixtures/tiny-invariant-1.3.3/integrity.json",
+        "sha256": "9a424f4a28a26addabc31a1e26e4356bcb2464009ecc4d2d7653f175ce933eb9",
+        "files": 0
+      },
+      {
+        "manifest": "test/fixtures/totalist-3.0.1/integrity.json",
+        "sha256": "e81b8166f033a4514025bfe73c85e2eb9b80053775a22bf30ea7b201c6428dcb",
+        "files": 9
+      }
+    ],
+    "changed": [
+      "docs/agent-models.md",
+      "docs/agent-tasks/P011-number-bitwise-not/task.md",
+      "docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md",
+      "docs/agent-tasks/README.md",
+      "docs/implementation-gaps.md",
+      "docs/number-bitwise-not.md",
+      "docs/sirv-target.md",
+      "docs/wiki/README.md",
+      "docs/wiki/number-bitwise-not.md",
+      "src/ASTResolvers.ts",
+      "src/conversion/toNumber.ts",
+      "src/number/bitwise-not.ts",
+      "src/operators.ts",
+      "test/bitwise-not.spec.ts",
+      "test/p009-independent-review.spec.ts",
+      "test/p010-independent-review.spec.ts",
+      "test/sirv-target.spec.ts",
+      "test/string-lastindexof.spec.ts",
+      "test/test262.spec.ts",
+      "test/test262/README.md"
+    ],
+    "checks": [
+      "all historical skipped files reconciled to stable backlog",
+      "no active baseline removed",
+      "nine whole files added",
+      "no fixture/dependency changes",
+      "diff whitespace clean"
+    ]
+  },
+  "counts": {
+    "activeFiles": 370,
+    "activeVariants": 731,
+    "historicalSkippedFiles": 46,
+    "wholeCandidates": 16,
+    "nativeCandidateVariants": 32,
+    "newActiveFiles": 9,
+    "newActiveVariants": 18,
+    "inactiveWholeFiles": 7
+  },
+  "consumer": {
+    "unchangedGoal": "sirv full factory/Node setup/request/file histories; not achieved by this increment",
+    "actualFrontier": "String.prototype.substring callee lookup in unchanged mrmime/index.js:445",
+    "state": {
+      "tmp": "hello.txt",
+      "idx": 5
+    },
+    "frame": "CallExpression with member callee substring; ++idx not executed",
+    "cliExit": 2,
+    "stderr": "prophet: String.prototype.substring is not yet supported\n",
+    "histories": "all readdir call/return then stat call/return then Stats.isDirectory call/return histories retained; EMFILE readdir call/throw sibling retained; P010 graph oracle asserts every history and shared call identity"
+  },
+  "residuals": [
+    "open converted Number/string and legacy chunks",
+    "BigInt representation and public Symbol/custom ToPrimitive",
+    "array/function/custom exotics and wrappers/descriptors",
+    "partial-host and cyclic prototype legacy checkpoints may omit siblings",
+    "string cap local; coercion/prototype/branch/parser/embedding/allocation resources not globally bounded",
+    "substring, other bitwise, full sirv factory/headers/HTTP requests and resumption remain deferred"
+  ],
+  "selfCorrections": [
+    "postfreeze evidence tooling: wrong assumed P010 log suffix caused generation failure and two dependent absent-evidence errors; inspected actual logRoot/manual, corrected only ignored scripts; all failures attributed in artifact",
+    "native-red: generated failure-message quoting SyntaxError; corrected native controls pass before production implementation",
+    "vm-red and vm-red-corrected: intended unsupported ~ failures; initial harness failure preserved separately",
+    "focused-first: two expected obsolete sirv ~ checkpoint failures; actual next frontier substring",
+    "migrations: one frame-shape assertion failure; corrected from MemberExpression to actual CallExpression; test edits during run explicitly marked mixed development",
+    "literal-red: five intentional failures exposed old BigInt literal Number-valued field; narrow reached-marker guard added",
+    "affected: source/spec validated before literal guard; docs added during run; not final source evidence",
+    "affected-final: final production/spec hashes; wiki/task docs completed during run; frozen full checks own committed source evidence"
+  ],
+  "hashValidation": "Every run log, artifact, upstream/historical inventory row and changed file hash recomputed programmatically; frozen run source maps verified against unchanged working files and commit."
+}
