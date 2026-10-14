@@ -157,19 +157,19 @@ test("independent actual unchanged sirv CLI every FS history and measured Stats-
  const binary=process.env.PROPHET_NODE_BINARY||process.execPath,argv=[join(root,"bin/prophet.js"),"--","entry.cjs"],start=new Date().toISOString();
  const child=spawnSync(binary,argv,{cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
  writeFileSync(join(logs,"cli.stdout.json"),child.stdout);writeFileSync(join(logs,"cli.stderr.log"),child.stderr);writeFileSync(join(logs,"cli-command.json"),JSON.stringify({binary,argv,cwd:directory,start,end:new Date().toISOString(),timeoutMs:60000,env:{NODE_OPTIONS:"",NODE_PATH:""},status:child.status,signal:child.signal,error:child.error&&String(child.error)},null,2));
- expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.replace is not yet supported\n");
+ expect(child.error).toBeUndefined();expect(child.status).toBe(0);expect(child.stderr).toBe("");
  const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));const field=(r:any,k:string)=>{const pair=nodes.get(r.ref).entries.find(([name]:[string])=>name===k);return pair&&pair[1];};
  const completion=graph.roots.completion;expect(field(completion,"type")).toBe("ForkedCompletion");
- const all=[field(completion,"consequent"),field(completion,"alternate")];expect(all.map(l=>field(field(l,"0"),"type")).sort()).toEqual(["ExecutionBoundary","ThrownValue"]);
+ const all=[field(completion,"consequent"),field(completion,"alternate")];expect(all.map(l=>field(field(l,"0"),"type")).sort()).toEqual(["ThrownValue","function"]);
  const records:any[]=[];
- for(const leaf of all){const value=field(leaf,"0"),state=field(leaf,"1"),stop=field(value,"type")==="ExecutionBoundary";
-  if(stop){expect(field(value,"message")).toBe("String.prototype.replace is not yet supported");expect(field(state,"sourceFile")).toMatch(/sirv\/build\.js$/);
+ for(const leaf of all){const value=field(leaf,"0"),state=field(leaf,"1"),stop=field(value,"type")==="function";
+  if(stop){// The healthy leaf is the returned request handler closure.
    // Completed mrmime activation records remain; these are not current sirv locals.
    const envs=nodes.get(field(state,"environments").ref).entries;let tmp:any,idx:any;
    for(const [,record]of envs){for(const name of ["tmp","idx"]){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key===name);if(binding){if(name==="tmp")tmp=field(binding[1],"value");else idx=field(binding[1],"value");}}if(tmp&&idx)break;}
    expect(field(tmp,"value")).toBe("hello.txt");expect(field(idx,"value")).toBe(6);
-   const currentRecord=envs.find(([key]:[any])=>key.ref===field(state,"environment").ref);expect(nodes.get(currentRecord[1].ref).entries.some(([key]:[string])=>key==="headers")).toBe(true);let ctype:any;for(const[,record]of envs){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key==="ctype");if(binding){ctype=binding;break;}}expect(ctype).toBeDefined();expect(field(field(ctype[1],"value"),"value")).toBe("text/plain");
-   const frames=nodes.get(field(value,"frames").ref).entries.filter(([k]:[string])=>k!=="length").map(([,r]:[string,any])=>field(field(r,"node"),"type"));expect(frames).toContain("CallExpression");
+   let ctype:any;for(const[,record]of envs){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key==="ctype");if(binding){ctype=binding;break;}}expect(ctype).toBeDefined();expect(field(field(ctype[1],"value"),"value")).toBe("text/plain");
+   
   }else expect(field(field(field(field(value,"value"),"properties"),"code"),"value")).toBe("EMFILE");
   function paths(r:any):any[][]{const kind=field(r,"kind");if(kind==="empty")return [[]];if(kind==="choice")return paths(field(r,"consequent")).concat(paths(field(r,"alternate")));expect(kind).toBe("event");return paths(field(r,"previous")).map(p=>p.concat([field(r,"event")]));}
   const histories=paths(field(state,"effects"));expect(histories.length).toBeGreaterThan(0);

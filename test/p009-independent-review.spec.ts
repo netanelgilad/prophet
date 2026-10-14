@@ -179,21 +179,21 @@ test("independent retained actual unchanged sirv CLI graph and both histories", 
     {cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
   writeFileSync(join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"cli.stdout.json"),child.stdout);writeFileSync(join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"cli.stderr.log"),child.stderr);
   console.log("INDEPENDENT_CLI_EXIT",child.status);
-  expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.replace is not yet supported\n");
+  expect(child.error).toBeUndefined();expect(child.status).toBe(0);expect(child.stderr).toBe("");
   const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);
   const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
   const field=(ref:any,key:string)=>{const pair=nodes.get(ref.ref).entries.find(([name]:[string])=>name===key);return pair&&pair[1];};
-  const fork=graph.roots.completion;expect(field(fork,"type")).toBe("ForkedCompletion");expect(field(fork,"state")).toBe("partial");
-  const all=[field(fork,"consequent"),field(fork,"alternate")];expect(all.map(l=>field(field(l,"0"),"type")).sort()).toEqual(["ExecutionBoundary","ThrownValue"]);
+  const fork=graph.roots.completion;expect(field(fork,"type")).toBe("ForkedCompletion");
+  const all=[field(fork,"consequent"),field(fork,"alternate")];expect(all.map(l=>field(field(l,"0"),"type")).sort()).toEqual(["ThrownValue","function"]);
   for(const leaf of all){
-    const value=field(leaf,"0"),state=field(leaf,"1"),stopped=field(value,"type")==="ExecutionBoundary";
+    const value=field(leaf,"0"),state=field(leaf,"1"),stopped=field(value,"type")==="function";
     if(stopped){
-      expect(field(value,"message")).toBe("String.prototype.replace is not yet supported");expect(field(state,"sourceFile")).toMatch(/sirv\/build\.js$/);
+      // The healthy leaf is the returned request handler closure.
       // Completed mrmime activation records remain; these are not current sirv locals.
    const envs=nodes.get(field(state,"environments").ref).entries;let tmp:any,idx:any;
       for(const [,record]of envs){for(const name of ["tmp","idx"]){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key===name);if(binding){if(name==="tmp")tmp=field(binding[1],"value");else idx=field(binding[1],"value");}}if(tmp&&idx)break;}
       expect(field(tmp,"value")).toBe("hello.txt");expect(field(idx,"value")).toBe(6);
-   const currentRecord=envs.find(([key]:[any])=>key.ref===field(state,"environment").ref);expect(nodes.get(currentRecord[1].ref).entries.some(([key]:[string])=>key==="headers")).toBe(true);let ctype:any;for(const[,record]of envs){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key==="ctype");if(binding){ctype=binding;break;}}expect(ctype).toBeDefined();expect(field(field(ctype[1],"value"),"value")).toBe("text/plain");
+   let ctype:any;for(const[,record]of envs){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key==="ctype");if(binding){ctype=binding;break;}}expect(ctype).toBeDefined();expect(field(field(ctype[1],"value"),"value")).toBe("text/plain");
     }else expect(field(field(field(field(value,"value"),"properties"),"code"),"value")).toBe("EMFILE");
     // Walk only this leaf's effect graph: both call and outcome must be reachable.
     const seen=new Set<string>(),events:any[]=[];

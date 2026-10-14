@@ -40,16 +40,22 @@ factory with a directory evaluates two regular-expression literals and appends
  [bounded Stats.size and Stats.mtime model](node-filesystem.md#bounded-statssize-and-statsmtime-and-the-p012-r1-boundary),
  so `Content-Length` and `Last-Modified` (a bounded-Date `toUTCString` of the
  observed mtime) are set and header preparation completes. The ASCII filename
- `name.normalize()` is then the identity (bounded ASCII normalize), so the
- next measured stop is `String.prototype.replace` in the `FILES` key
- expression, with the completed `toHeaders` activation (ctype `text/plain`,
- headers object) retained outside the current totalist callback chain. The
- stop is a retained typed boundary, preserving source frames and every
- directory/stat/isDirectory call/outcome identity beside the EMFILE readdir
- call/throw sibling. The factory has not returned. No package source rewrite
- is introduced. Full Unicode casing/normalization, other bitwise operations,
- deferred String APIs (including replace), other Stats/Date metadata and
- streams remain work.
+ `name.normalize()` is then the identity (bounded ASCII normalize), and
+ `name.replace(/\\+/g, ...)` with no backslash in the filename is the
+ identity through the bounded no-match RegExp replace, so the `FILES` key
+ expression completes with the completed `toHeaders` activation (ctype
+ `text/plain`, headers object) retained outside the current totalist
+ callback chain. `viaCache.bind` then captures the completed FILES table
+ through bounded Function.prototype.bind, and **the factory returns its
+ request handler closure**: the CLI exits 0 with empty stderr and the
+ completion fork's healthy leaf is the returned function value, preserving
+ every directory/stat/isDirectory call/outcome identity beside the EMFILE
+ readdir call/throw sibling. No package source rewrite is introduced.
+ Calling the returned handler (the pre-existing sloppy primitive receiver
+ boxing rejection, request parsing, http modeling), full Unicode
+ casing/normalization, other bitwise operations, remaining deferred String
+ APIs, other Stats/Date metadata, bound-function name metadata and streams
+ remain work.
  The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity

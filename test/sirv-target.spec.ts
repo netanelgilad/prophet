@@ -7,7 +7,7 @@ import { join } from "path";
 import { runFile } from "../src/cli/runtime";
 import { effectPaths } from "../src/effects";
 import { isESFunction } from "../src/Function/Function";
-import { executionBoundaries, hasExecutionBoundary, isForkedCompletion, ForkedCompletion } from "../src/execution-context/Completion";
+import { hasExecutionBoundary, isForkedCompletion, ForkedCompletion } from "../src/execution-context/Completion";
 import { Any, isThrownValue, WithProperties } from "../src/types";
 import { getProperties } from "../src/execution-context/Heap";
 import { assertPinnedNode } from "./commonjs/oracle";
@@ -72,48 +72,36 @@ test("the unchanged sirv dependency graph imports through the assembled CLI envi
   }
 });
 
-test("the unchanged sirv factory exposes the next reached VM boundary", () => {
+test("the unchanged sirv factory returns its request handler", () => {
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
-  expect(result.status).toBe("analysis-stop");
+  expect(result.status).toBe("evaluated");
   // Both flagless filters execute on the unmodified filename. Stats.size and
   // Stats.mtime complete with the observed byte count (16) and declared
   // mtime, header preparation (Content-Length, Content-Type from unchanged
-  // mrmime substring, Last-Modified) finishes, and the ASCII filename
-  // normalize is the identity, so the next reached gap is
-  // String.prototype.replace in the FILES key expression. The filesystem
-  // failure sibling must survive that stop.
-  expect(result.diagnostic).toBe("String.prototype.replace is not yet supported");
-  expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
+  // mrmime substring, Last-Modified) finishes, the ASCII filename normalize
+  // is the identity, the no-backslash replace is the identity, and
+  // viaCache.bind captures the completed FILES table. The factory returns
+  // its request handler closure; the filesystem failure sibling still throws.
   expect(isForkedCompletion(result.completion)).toBe(true);
-  const boundaries = executionBoundaries(result.completion as Any);
-  expect(boundaries).toHaveLength(1);
-  expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "String.prototype.replace is not yet supported" });
+  expect(hasExecutionBoundary(result.completion as Any)).toBe(false);
   const forked = result.completion as ForkedCompletion;
-  const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
-    leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
-    isThrownValue(leaf) ? "thrown" : "normal");
-  expect(kinds).toContain("boundary");
-  expect(kinds).toContain("thrown");
-  expect(kinds).not.toContain("normal");
+  const returned = [forked.consequent, forked.alternate].find(leaf => !isThrownValue(leaf[0]))!;
+  expect(isESFunction(returned[0])).toBe(true);
   const failed = [forked.consequent, forked.alternate].find(leaf => isThrownValue(leaf[0]))!;
   if (!isThrownValue(failed[0])) throw new Error("expected filesystem throw");
   expect(getProperties(failed[0].value as WithProperties, failed[1]).code).toMatchObject({ value: "EMFILE" });
-  const stopped = [forked.consequent, forked.alternate].find(leaf => !isThrownValue(leaf[0]))!;
-  expect(stopped[1].value.sourceFile).toMatch(/sirv\/build\.js$/);
-  // The current lexical chain is the totalist callback processing hello.txt.
-  expect(stopped[1].value.scope.name).toMatchObject({value: "hello.txt"});
-  // Completed mrmime and toHeaders activations persist outside that chain.
-  const mimeRecord = Array.from(stopped[1].value.environments.values()).find(record => record.has("tmp") && record.has("idx"))!;
+  // Completed mrmime and toHeaders activations persist in the returned state.
+  const records = Array.from(returned[1].value.environments.values());
+  const mimeRecord = records.find(record => record.has("tmp") && record.has("idx"))!;
   expect(mimeRecord.get("tmp")!.value).toMatchObject({value: "hello.txt"});
   expect(mimeRecord.get("idx")!.value).toMatchObject({value: 6});
-  const headersRecord = Array.from(stopped[1].value.environments.values()).find(record => record.has("ctype") && record.has("headers"))!;
+  const headersRecord = records.find(record => record.has("ctype") && record.has("headers"))!;
   expect(headersRecord.get("ctype")!.value).toMatchObject({value: "text/plain"});
   expect(headersRecord.get("headers")!.value).toBeDefined();
   // Both descriptor histories retain the reached enumeration and its outcome.
-  for (const leaf of [stopped, failed]) {
-    const kind = leaf === stopped ? "return" : "throw";
+  for (const leaf of [returned, failed]) {
+    const kind = leaf === returned ? "return" : "throw";
     const histories = effectPaths(leaf[1].value.effects);
     expect(histories.length).toBeGreaterThan(0);
     for (const history of histories) {
@@ -122,9 +110,8 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
       expect(events[0].call).toBe(events[1].call);
     }
   }
-  expect(effectPaths(stopped[1].value.effects).some(path => path.events.some(event =>
-    event.call.operation === "fs.readdirSync"))).toBe(true);
-  expect(boundaries[0].frames.some(frame => frame.node.type === "CallExpression" && (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "replace")).toBe(true);
+  expect(effectPaths(returned[1].value.effects).some(path => path.events.some(event =>
+    event.call.operation === "fs.statSync"))).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -187,7 +174,7 @@ test("the real CLI serializes the unchanged sirv import and nested literal defin
   expect(graph.nodes.some((node: any) => node.definition)).toBe(true);
 });
 
-test("the real CLI factory graph retains the next boundary and filesystem throw", () => {
+test("the real CLI factory graph retains the returned handler and filesystem throw", () => {
   assertPinnedNode();
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const child = spawnSync(process.env.PROPHET_NODE_BINARY || process.execPath,
@@ -196,8 +183,8 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
       env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" }
     });
   expect(child.error).toBeUndefined();
-  expect(child.status).toBe(2);
-  expect(child.stderr).toBe("prophet: String.prototype.replace is not yet supported\n");
+  expect(child.status).toBe(0);
+  expect(child.stderr).toBe("");
   const graph = JSON.parse(child.stdout);
   expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
   const nodes = new Map<string, any>(graph.nodes.map((node: any) => [node.id, node]));
@@ -207,19 +194,18 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
   };
   const fork = graph.roots.completion;
   expect(field(fork, "type")).toBe("ForkedCompletion");
-  expect(field(fork, "state")).toBe("partial");
   const leaves = [field(fork, "consequent"), field(fork, "alternate")];
   const values = leaves.map(leaf => field(leaf, "0"));
-  expect(values.map(value => field(value, "type")).sort()).toEqual(["ExecutionBoundary", "ThrownValue"]);
+  // The healthy leaf is the returned request handler closure; the filesystem
+  // failure sibling still throws EMFILE.
+  expect(values.map(value => field(value, "type")).sort()).toEqual(["ThrownValue", "function"]);
   const failed = values.find(value => field(value, "type") === "ThrownValue");
   expect(field(field(field(field(failed, "value"), "properties"), "code"), "value")).toBe("EMFILE");
-  const boundary = values.find(value => field(value, "type") === "ExecutionBoundary");
-  expect(field(boundary, "kind")).toBe("unsupported");
-  expect(field(boundary, "message")).toBe("String.prototype.replace is not yet supported");
-  const stopped = leaves.find(leaf => field(field(leaf, "0"), "type") === "ExecutionBoundary");
-  expect(field(field(stopped, "1"), "sourceFile")).toMatch(/sirv\/build\.js$/);
+  const handler = values.find(value => field(value, "type") === "function");
+  expect(field(handler, "function")).toBeDefined();
   // Inspect the public environment records, not the private flattened scope view.
-  const state = field(stopped, "1");
+  const returned = leaves.find(leaf => field(field(leaf, "0"), "type") === "function");
+  const state = field(returned, "1");
   const environments = nodes.get(field(state, "environments").ref).entries;
   let tmp: any, idx: any;
   for (const [, record] of environments) {
@@ -229,11 +215,6 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
     }
     if (tmp && idx) break;
   }
-  // The innermost callback block holds the completed headers object; the
-  // parameter record with name/abs/stats is its parent in the chain.
-  const currentRecord = environments.find(([key]: [any]) => key.ref === field(state, "environment").ref);
-  const headersBinding = nodes.get(currentRecord[1].ref).entries.find(([key]: [string]) => key === "headers");
-  expect(headersBinding).toBeDefined();
   // ctype persists in the completed toHeaders activation, outside the chain.
   let ctype: any;
   for (const [, record] of environments) {
