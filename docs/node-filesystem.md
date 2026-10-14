@@ -106,6 +106,11 @@ Supported operations are:
   exposing shared `isDirectory` and `isFile` methods. Methods may be borrowed
   between modeled Stats receivers; arbitrary receivers, mode/_checkModeProperty
   changes, other fields, constructors and descriptor reflection remain guarded.
+  A regular file's `size` is the declared byte size: derived from concrete
+  declared contents, or supplied as a validated observed size at acquisition
+  (the CLI capture passes the memoized `lstat` size). Directory sizes and
+  files without an observed size keep the typed boundary; see
+  [Stats size](#bounded-statssize-and-the-p012-r1-boundary).
 - `readdirSync(path)` with omitted/undefined/null options: returns a fresh array
   of complete UTF-8 names in pinned Linux/Darwin byte order. Closed declarations
   and acquired complete names retain symbolic conditions; see
@@ -447,15 +452,22 @@ asynchronous realpath and os.hostname. It is not evidence for a missing-file
 readFileSync case. None of these complete files is currently activated or
 counted passing, and none is trimmed to an easier fragment.
 
-## Supplied Stats data and the P012-R1 boundary
+## Bounded Stats.size and the P012-R1 boundary
 
-Stats.size remains unmodeled for a fresh/unprovided Stats value. Correction1
-preserves an explicitly supplied current own data property through persistent
-heap state, including undefined/zero, conditional presence, finite values and
-alias replacement. Its read guard checks current own presence before a typed
-unknown-size stop; inherited Object.prototype.size does not establish native
-metadata. This repairs a regression introduced by P012's classification hook;
-it adds no initial native size, descriptor or Date semantics. Fresh unknown-size
-writes and other read/write/inspection/brand guards remain unchanged. See
-[specs](../test/node-filesystem-size-presence.spec.ts) and
-[correction contract](agent-tasks/P012-string-substring/correction-1.md).
+A regular file's `size` is modeled only from declared facts: concrete declared
+contents fix their UTF-8 byte length, and an observed file may carry a
+validated nonnegative safe-integer size recorded at acquisition (the CLI
+capture passes the memoized `lstat` size; no new host call and no
+change-revalidation at read time). The first read persists the reached fact
+onto the Stats value after the current own property check, so the P012-R1
+correction is preserved: an explicitly supplied current own data property
+(including undefined/zero, conditional presence, finite values and alias
+replacement) still wins, and inherited Object.prototype.size establishes no
+metadata. Directory sizes and files without a declared size stop at the typed
+unknown-size boundary. Other Stats fields (mtime/Date/mode/BigInt), fresh
+unknown-size writes, descriptor reflection and constructors remain guarded.
+Stats instances are boundary-marked, so reached unmodeled fields stop as
+retained typed boundaries beside their siblings rather than host failures
+that drop the CLI graph. See [size specs](../test/node-stats-size.spec.ts),
+[presence specs](../test/node-filesystem-size-presence.spec.ts) and the
+[P013 task](agent-tasks/P013-stats-size/task.md).

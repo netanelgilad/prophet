@@ -35,15 +35,17 @@ factory with a directory evaluates two regular-expression literals and appends
  callee's argument `++idx` exactly once and completes unchanged mrmime lookup:
  `tmp === "hello.txt"`, `idx === 6`, result `"text/plain"`. Those completed
  activation records remain in persistent state, outside the later current
- lexical chain. The next measured stop is `stats.size` in sirv/build.js:110,
- during header preparation, with current `ctype === "text/plain"` and
- `name === "hello.txt"`. See [substring boundaries](string-substring.md).
- The size-only existing Stats guard is typed, preserving source frames and
- every directory/stat/isDirectory call/outcome identity beside EMFILE readdir
- call/throw; other legacy Stats guards remain unchanged. No size/Stats/Date
- value or semantic implementation is added. The factory has not returned.
- No package source rewrite is introduced. Full Unicode casing, other bitwise
- operations, deferred String APIs, Stats/Date metadata and streams remain work.
+ lexical chain. Header preparation then completes `stats.size` with the
+ observed byte count (16 for `site/hello.txt`) through the
+ [bounded Stats.size model](node-filesystem.md#bounded-statssize-and-the-p012-r1-boundary),
+ so `Content-Length` is set and the next measured stop is `stats.mtime` in
+ `toHeaders` during `Last-Modified` preparation, with current
+ `ctype === "text/plain"` and `name === "hello.txt"`. The mtime stop is a
+ retained typed boundary, preserving source frames and every
+ directory/stat/isDirectory call/outcome identity beside the EMFILE readdir
+ call/throw sibling. The factory has not returned. No package source rewrite
+ is introduced. Full Unicode casing, other bitwise operations, deferred
+ String APIs, Stats/Date metadata (including mtime) and streams remain work.
  The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity
