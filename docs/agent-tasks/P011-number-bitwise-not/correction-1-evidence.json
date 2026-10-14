@@ -1,0 +1,1399 @@
+{
+  "task": "P011 correction 1 / disclosed P011-R1",
+  "writer": "same owner-authorized sole gpt-6.1-sol/high; renewed independent Astra/high review pending",
+  "workdir": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+  "branch": "agent/p011-number-bitwise-not",
+  "firstRejectedSource": "b920a64c9679cc537ec74d708b7647c268b6cd8e",
+  "firstEvidenceCommit": "fa927de851ed92883785da00ee2f1519ff557e0b",
+  "reviewerCommit": "df9ab53685b0a1391e3512d208b14f1232744e1e",
+  "correctionScopeHead": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+  "correctedFrozenSourceCommit": "5c70d29ef65012c4615d6e9c39e63d99a6cf3047",
+  "correctedTree": "9e3778fe36265b08123ee666d0ad23f6e8b00e5a",
+  "evidenceCommit": "separate evidence-only child; exact id reported in final handoff",
+  "changedFileHashes": {
+    "docs/agent-models.md": "13c72f11b1e9792774638ce05ecba04036352f68b6331e32a767db5ba40a2069",
+    "docs/agent-tasks/P011-number-bitwise-not/correction-1.md": "88ab9f888a8228f713f2ae59c4b4d80f235774d54752dd7f2e43c8741d61849b",
+    "docs/agent-tasks/README.md": "1ef8a5bfbb90e0ac148d911cc23a88f1c7c2f4b4c02b4f7e9c2b30d697681927",
+    "docs/implementation-gaps.md": "7526fba70c76262eb2e69702c03558d5883a2630fb8f0081414b27704aae3b25",
+    "docs/number-bitwise-not.md": "8b4636dcb365f5f8f536f0f270f6e19bcbd25f1a76edf79c00ca85acbec15ce9",
+    "docs/wiki/number-bitwise-not.md": "63c0f05aa4f264e0cd1dc4595ccc26667f0674904219d6d86997ce548ec3e944",
+    "src/ASTResolvers.ts": "a36ae2c223e33c2d462987172aeed3bdb544a51e0bd4b2cc3b0ef5678a999a53",
+    "src/Function/binding-patterns.ts": "7776926f30ffe4c1e84c2959167760a0c52c8c1783da7c1a2e36053e98fda5a0",
+    "src/Object/static-key.ts": "121f69a38091cdad63905ed840e88bfc8ba6d39c86d4e1b2ee2f62b15a772b42",
+    "src/parseECMACompliant.ts": "30a05b1437a7919256030272531ad6b023a01699852db0d84bc33d4bb563e0a7",
+    "test/bitwise-not.spec.ts": "953ea5cb25b7bfa4f80dccfc3fde72fc1303d7a0b4b589d97647af15bc2e79f2",
+    "test/p009-independent-review.spec.ts": "736e9dfbb8d56905b2feb0785375bd3471401a27862e394b22864c68adee4208"
+  },
+  "unchangedFileHashes": {
+    "src/number/bitwise-not.ts": "cda4f18425b76fde47f350529c53e1e9bc6eec000b30d44c20c29474534c8de7",
+    "src/operators.ts": "bc7247a6e69523b0216c23ece364cb17b9d45a8a18e09366f9dcbc7cbc96dc54",
+    "src/conversion/toNumber.ts": "356f4baf70c4dbd4f52165d59040c20bbc6548796ffe3c0381a152df100ec937",
+    "test/test262.spec.ts": "07656fc4e02d305f5650cf24cde6c800405b18a55f5daa20b2a6e4b0588ae9b3",
+    "docs/agent-tasks/P011-number-bitwise-not/evidence.json": "3349ac342a09f29382800fbcb5dceb17535ea849625205ffbf9b488fd08dbfbc",
+    "docs/agent-tasks/P011-number-bitwise-not/handoff.md": "0148086fba09854e56a08d4f4c42aaae3ae518641d060f313870404cec14aaff"
+  },
+  "preservedOldLogCount": 235,
+  "preservedOldLogHashes": {
+    "logs/p011-correction-parser-initial.log": "9e24116eac1d6857be4b134634182f5ba10d8ced3db0366500e95b45e3bfc832",
+    "logs/p011/test262-inventory.json": "a9b9a18517d69bc2001fce191dacf71e90ab35ac6027ef1c1e4e54a3902fe740",
+    "logs/p011/typecheck-dev.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p011/native-red.log": "6446d9bca7abed5faedc5ae717c0ec39469e4c7a49cbc470ebeb81e97fbbbccd",
+    "logs/p011/audit-summary.json": "3749efe6c6803815583551dcab39cc2d8a73b9633f4ec6065f0c680b0563b333",
+    "logs/p011/native-corrected.json": "2d293b83faa14498fb5174b3de8a5e760ef334cccbd888a5cd9a16573c3e074c",
+    "logs/p011/run.py": "864da2d61474750286f426fe655134b4dd7089f5a016c18fa60278b7ee3dc15c",
+    "logs/p011/discovery-final.json": "a67c9e38d03bb7931a63f7e5c939a7837851b1d776278ede8f5b351eae78c77d",
+    "logs/p011/upstream-trials.log": "4dcaa03642f0c31f3771c9d1cbf2f0701a830c00681b75dc3b42c898cf6bed62",
+    "logs/p011/audit-09.log": "5ca4987e21b91289f4f457aff9babb6ed6e14fa1c5d9e6efba50a0728c39ac74",
+    "logs/p011/evidence-tooling-failures.json": "c76bf62c4f1acd7ce73c2767440e1d5ea42f463286db1d308e647067d8a3adda",
+    "logs/p011/full-frozen.log": "8203a34d21ae5ef0035cf97e7dac237695fc133078aeb21fee590128818fbb9b",
+    "logs/p011/audit-08.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p011/audit.py": "f815fa53680d71477799308fb789751b0c45015440e18496646e8eace71a6467",
+    "logs/p011/literal-red.json": "a84d513479a780f0cc9050e426eb9a6bf7d3ca546abb939c24a9d74a5781e6d3",
+    "logs/p011/whole-candidates-before-literal-guard.json": "bb311eb851e1c3ae1bfb795d07699010ed09c0f0614fa39e3e3fed40c0155915",
+    "logs/p011/affected-final.log": "46d8f838d0bd62fe534055a53ddd0bc9cc467e48be3675a4767fc0342cb104cb",
+    "logs/p011/literal-red.log": "02a78e0ff1a98db135adb37d29dd646749cc8c4e73ccd5a04190daf4e32b11e1",
+    "logs/p011/discovery.log": "2a6ca4fff84c8929cca0370bb4d2f8b3a33c5043d9a1b64c01cb186fe7e2d17a",
+    "logs/p011/vm-red.json": "460e15022e64e6fb485130c84882527ac9d15036dd00a52211390f6fc0795997",
+    "logs/p011/full-frozen.json": "e0b3e280d2b1a21b222372a85a3b867d42b5c3c2ea2bb2fde059626d3029c0cb",
+    "logs/p011/hash-validation.log": "65d031c57e15e6ed0dd8edb6228131f2ef66d67a73fb6ed76579a83021c9ac45",
+    "logs/p011/affected.json": "f1d4ec0cd93251e0582cc92b7ba0e97b81e0f0397b2a9997b56973ae7e5df59e",
+    "logs/p011/audit-development.log": "93aa883f66a00231699e74452bfd22f44bdb0b5ca1660558b31f7e36d59bb264",
+    "logs/p011/typecheck-dev.json": "dd97f6b4167c74b2012aff3f310bb2b30e5ea0142f628e405b623475fa1b73f7",
+    "logs/p011/prefreeze-audit.json": "4acde981e51dd3dccd0d4b1a2541301f66d3d17a121d226746a1dc8103241d52",
+    "logs/p011/evidence-generation.log": "7f19d6aff8ad5adfebacca93a99691554da5d95b1f23b9770d36793ee7a1cc50",
+    "logs/p011/migrations.log": "36d6a87d42d142188bcec4b7f24ed72c3d498c40c079e424b0ec688e055bb3e5",
+    "logs/p011/typecheck-frozen.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p011/native-red.json": "f1c9590e71dbfc0149d89a0d3efcccd7ec29126daf0f5e374d657b3a26f6ce98",
+    "logs/p011/discovery-final.log": "77b347fd83b9025a22ca1f046bcb64f6a8eb4e6cd9b7cdeae0eff07177057ee8",
+    "logs/p011/focused-first.log": "ac621dc828731dc88e15a776a2012bba0fa2211e0e7c6b7a45d19ed5beb101f7",
+    "logs/p011/vm-red.log": "836b3a2b3f8ef288d6e32039900c6ffd229e03e55b44ec313f79ab04859f8192",
+    "logs/p011/focused-first.json": "253b5325fe4a02df10b81334e97399e54460884e71acf042c232a642564f25e7",
+    "logs/p011/state-operators-final.json": "defcb64ea5e65b7de2eeea7cb11c458a9d2a4b89c3a026bffdd1498882e23324",
+    "logs/p011/native-corrected.log": "f23bf6fec9df9dd51fd83dc0b84330514e0396f50ad8b2b22f664b6fc34fb1be",
+    "logs/p011/audit-frozen.json": "02b12a097251da4de2ffe5ee5c706e460c9d11f3a01868e2b6cfe043154ab966",
+    "logs/p011/typecheck-frozen.json": "6945a2c8b27691b600d2569a7aec466f58f61bbad89f8ee61f33dd57a749cf14",
+    "logs/p011/audit-development.json": "1c713116fed5c0d0620e14b2d9fa457375f6442e05528d4c91dce2793034abb8",
+    "logs/p011/audit-frozen.log": "2c7e9092f0200e423a157641f4c8d4e7ed782dc7966483598012b27c00f01592",
+    "logs/p011/audit-06.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p011/prefreeze-audit.log": "93aa883f66a00231699e74452bfd22f44bdb0b5ca1660558b31f7e36d59bb264",
+    "logs/p011/audit-07.log": "dbc85eacb8cc18ad91a693dec1ba84509de49e0d00765964cba466b405c4c99f",
+    "logs/p011/hash-validation-final.log": "65d031c57e15e6ed0dd8edb6228131f2ef66d67a73fb6ed76579a83021c9ac45",
+    "logs/p011/verify-evidence.py": "fa456a79e49db92e00a97f3dc84fd73133db7bf28664b8a4033cb83ad37e53f5",
+    "logs/p011/hash-validation-postcommit.log": "65d031c57e15e6ed0dd8edb6228131f2ef66d67a73fb6ed76579a83021c9ac45",
+    "logs/p011/migrations.json": "1929eee7b1ab92c3e09951fcf44a6e68f784d6a9a2331aceb7d9a26f189a574c",
+    "logs/p011/checkpoints-development.log": "b525acad618036ae516908570870cd04f3b27832fb547d701550c7c8984f4e0e",
+    "logs/p011/state-operators-final.log": "5dc4a6e32daa64c6bc22ff095fb5dd14056d7897b836d93aa05bfc8a2a054ea3",
+    "logs/p011/evidence-generation-first-stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p011/affected-final.json": "5539e795d596f71eb2416588f5d4d0cfe7957b50231f7e38589b254121c055e2",
+    "logs/p011/audit-05.log": "3f73d900bbdc93ccdc96c20eb0dc5f511368beb9981bc259848d06f4f2fea181",
+    "logs/p011/vm-red-corrected.log": "c9445576b04e24d53c5bb9e2343ab6111885c6fb59347aec0b21e30aabb2020d",
+    "logs/p011/affected.log": "1e16b71087e9a2080cd2f873bdffdf58c88e84a974cf5b0948de9de1778a17b1",
+    "logs/p011/upstream-trials.json": "6c47d5459e0f413b3705a7ddfbc9b89b8948835b4d7fe85ec520b45a6c0ceaa2",
+    "logs/p011/audit-04.log": "b4b82834c22835093b03d14849917a6033ddefeb3ab2ec124733efc927c8f533",
+    "logs/p011/vm-red-corrected.json": "72173b9ea2709dca6cde66c70960d1e0547a935b7c38557280695426051a3e12",
+    "logs/p011/literal-and-upstream.json": "d0bd10890ffd9152cb5437f9a8ff4c33248430b9cdf4b06c01da47f6758ffb28",
+    "logs/p011/evidence.py": "ec72693c45624cffc11e39c5dbf4c9da44cb10377d7ee220391027c121f79eb3",
+    "logs/p011/audit-00.log": "ccc9e528a283d40e4d59a1a88a9fdd90100265f39df8cf11ffd5ea2f1480a85a",
+    "logs/p011/audit-01.log": "244c27fff21d937192563738e3fd037a97b5339caea69ade49040c4766c0359a",
+    "logs/p011/audit-03.log": "00b4f939d3d8b3b8e6615ac4d253550d50f599132a2e96c551855e0d1616a758",
+    "logs/p011/whole-candidates.json": "08eac2314476df7c474a874fe4ca411e8b5cf8744d7edd1027391e84b8646a06",
+    "logs/p011/literal-and-upstream.log": "dfc4451ebd4275a1c520d23906949ac8e85ba6bb17aa718da99b059007fe0f6e",
+    "logs/p011/audit-02.log": "fcf780cdeda82410c40218ab2f59635f2ffe1693bd6901e19d8d28e899283300",
+    "logs/p010-independent/manual/native-35.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-27.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-11.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-7.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-9.json": "c90a3eb0670c0a549402301cef54e6fd2b2b8e2432c41df76cda19102ad99455",
+    "logs/p010-independent/manual/native-21.json": "3bf902d853dca65963b02d53ce694a67f7cb8b3215f92e93a3e9b0e37d169f54",
+    "logs/p010-independent/manual/native-15.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-3.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-17.json": "43522f6bf7c1a08e45787471975c849349affcbe5846ad905f70c51af94a1888",
+    "logs/p010-independent/manual/native-19.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-31.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-23.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-5.json": "9bccf44895a0eb4b659b67656223d48156c580239508eb92cbe36c4ac7b71b89",
+    "logs/p010-independent/manual/native-4.json": "99e264bbd750dc4c6a3d7f13c61298c79ecd4b6558bb809c09e4ede6513630d4",
+    "logs/p010-independent/manual/native-17.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-21.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-16.json": "4fd699ce7d97d505a56a34b002be077aa3dcf30c20da323eae50ed9fb011778a",
+    "logs/p010-independent/manual/native-33.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-25.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-8.json": "5c197df10eb63217fc4751faca38c077a2e01df69aabdb31da6e34f0f5936efc",
+    "logs/p010-independent/manual/native-20.json": "ea4ac3ba785e548eb7bd727cde3b46de73e805e163072d2f31062f6ba6cad7ba",
+    "logs/p010-independent/manual/native-29.stdout": "7a216a8be2130848c95520d7b79e5949b5f654bdf39e1bd0aef5a58c60c0849e",
+    "logs/p010-independent/manual/native-9.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-13.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-5.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/cli.stdout.json": "a0f7bf1a000c71218c3659acf17a73922ce0c6068f61fdeb1de51e626277d87a",
+    "logs/p010-independent/manual/native-29.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-11.json": "f6a82f37e161017d9b89ce8398341e9b5cfc486a5734318fe543b23b4b263ae5",
+    "logs/p010-independent/manual/native-25.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-5.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-13.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/cli.stderr.log": "a3f447be1bfb42237476aad6880b7daf7ea38e353b8e302d2111fa321fdc2b10",
+    "logs/p010-independent/manual/native-9.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-3.json": "2a6352847c9575e3465d02bc1286b5ad98f9c687563a792524208ffe47053e8b",
+    "logs/p010-independent/manual/native-1.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-17.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/cli-command.json": "7a374a269e1b388ffae21090525abf37f835b36b821375a1d356b0259a89fd23",
+    "logs/p010-independent/manual/native-33.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-31.json": "934216fb1e8c2bc3130ae3ceb5cdca5b2eb20cf6144be874a1a3925f8e9d5bcb",
+    "logs/p010-independent/manual/native-21.stdout": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+    "logs/p010-independent/manual/native-27.json": "dc8e2d90e7470998473cb13a96f44a9197a02d6aa65bbdeb58ba12669ff0f918",
+    "logs/p010-independent/manual/native-26.json": "b73e7babeaccc9501e2184be77affb4d5d29dfbac5272df98b359d4849957967",
+    "logs/p010-independent/manual/native-19.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-3.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-30.json": "57ab9abf8e2303b77c87765da20708f047a68798e0a4859fe43ebf4e638f7647",
+    "logs/p010-independent/manual/native-15.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-23.stdout": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+    "logs/p010-independent/manual/native-31.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-2.json": "a677ca843115caf6f6c210473fdac4bb3b86863ff399a29a3fe32b96bca6a20f",
+    "logs/p010-independent/manual/native-27.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-35.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-10.json": "c79e21b655ff217d2546eb8b491733a18ba9761a1cd6ee39d96776efcdf138a3",
+    "logs/p010-independent/manual/native-7.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-11.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-29.json": "b776a2b5d2d1fe9de89ebaca3d90a8fd5cdf6cd42cad18d6c2e2ccb03c6b0650",
+    "logs/p010-independent/manual/native-1.json": "69a9ada499016cc38e54683c9b89e1d9c63698984b13f43ca5fc40c9a80a104a",
+    "logs/p010-independent/manual/native-30.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-22.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-14.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-13.json": "5d6945d29b2c93f44ee9fdf2528321515b152efeb0f6786b0d501afe0cfd49f5",
+    "logs/p010-independent/manual/native-18.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-25.json": "608941bbe4b8b8927c316f4886797f499db7d2c1f80a9d28d07e746cb97feaa5",
+    "logs/p010-independent/manual/native-6.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-10.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-33.json": "ddc15d58e5fc92bf3f45c2c7b33729be2a11e33c3c8b5d1ef703eaaa59682fe5",
+    "logs/p010-independent/manual/native-34.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-26.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-8.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-4.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-12.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-32.json": "8908b0f1658fa2c8232534095efc6c59909e401b943ad548c220d904b6fb7753",
+    "logs/p010-independent/manual/native-24.stdout": "4a6de2869990480fc6946f7ae850a24083f2b92dc0d6525bbe4d7b512be3b59b",
+    "logs/p010-independent/manual/native-28.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-24.json": "0c02124ece4b655fe78795419fcf6726b97bf6966578e39bf8119e2a1686aeae",
+    "logs/p010-independent/manual/native-20.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-12.json": "e1c0e0fec9c793426733a2c87c946a308eb690cd1d245b8eaabeb5599b11df1b",
+    "logs/p010-independent/manual/native-32.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-28.json": "75137fcaf05ff734b4589242c31ea1950c790107be57946e43f10736175a1c7d",
+    "logs/p010-independent/manual/native-0.json": "082a6b1c6dd0fc0f8dfb4d5e8d47a8cec2fd61be1ea5bb3834efe3d0f2d64426",
+    "logs/p010-independent/manual/native-0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-16.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-23.json": "87d70aecb306ac1f66073e95847571ac61ed1ab42fb4d7dc572474586b6ad142",
+    "logs/p010-independent/manual/native-32.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-35.json": "5f1dfa939b1978534ca803a4e787c736a7f4adee76af522d2037a9e3fa7dfceb",
+    "logs/p010-independent/manual/native-20.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-16.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-19.json": "fffb44778c4ac67854391d74c3d365fd49a52700a9034b861cc979e0217b7221",
+    "logs/p010-independent/manual/native-0.stdout": "067a2ca73443d77a6b59a89029302daa59c146f0f230bb1e388ae331761ce2d8",
+    "logs/p010-independent/manual/native-7.json": "4a711d89cee9b5110ea460482c6b9fd98aaf146fa9bce4b03f6bf55579b4cf03",
+    "logs/p010-independent/manual/native-12.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-4.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-8.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-28.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-15.json": "d546ac5108168afad12ee78c02a82bb4fc37c6cb4d1801c583dfc92be6b26d76",
+    "logs/p010-independent/manual/native-24.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-10.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-14.json": "e40371805e7644b653cb622c14a72ee83da205fc55a917e817c413c638a200f5",
+    "logs/p010-independent/manual/native-6.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-26.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-34.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/p010-independent/manual/native-6.json": "918c93aeaebc88e9598132850ac2e4d9c5dbb099fb34d92b5827fc4af7262cdb",
+    "logs/p010-independent/manual/native-22.stdout": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+    "logs/p010-independent/manual/native-30.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/whole-candidates.json": "aac856416e04da8dab2c3aebde0c131d318f341cfd74d94cfd8e7bc5082c4fa8",
+    "logs/p010-independent/manual/native-18.json": "c269f07ae52a3226c0c7ad3d24d127eda27af238f13db7a8a4b7bea9302ca989",
+    "logs/p010-independent/manual/native-34.json": "7f502a8a5489ad0d9244dfb8133b4f48f30d285aa3926f06c92cbcf9a527552f",
+    "logs/p010-independent/manual/native-18.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-14.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-2.stdout": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "logs/p010-independent/manual/native-22.json": "599c0925c10ba9f6854f3cd80e5f55f53781398e8e1bbb8273b5b53adc812a86",
+    "logs/p010-independent/manual/sirv/entry.cjs": "5d1892cb10eeac9f965ba8b3f91b382c2aaf82f7126b11e18a0d961cfcb13d7b",
+    "logs/p010-independent/manual/sirv/node_modules/@polka/url/build.js": "df25bb799f43af54c8c07c2665c05f9ac41dcb95410501a6d4c01f4b34e96440",
+    "logs/p010-independent/manual/sirv/node_modules/@polka/url/readme.md": "c8bc0cd661d06fd899eccf9bdf3c32459d9172ab0c5e83939e439ae76208297c",
+    "logs/p010-independent/manual/sirv/node_modules/@polka/url/package.json": "edc9d88105fe9c7123b8c26dd121c13b3b1dc6bbd5445fc616657ea1a9c2bba1",
+    "logs/p010-independent/manual/sirv/node_modules/@polka/url/build.mjs": "65ed346b3fd818328403d4f88ef3569e9e9b8cc00ea7779afbca3438baf3d664",
+    "logs/p010-independent/manual/sirv/node_modules/@polka/url/index.d.ts": "73523d538ca7a2a3adf40ca029f196d2332862ec616a972ebfb66d23c259c0d1",
+    "logs/p010-independent/manual/sirv/node_modules/sirv/index.d.mts": "4f10b34d39d752db178a61cd2e67666dd831b6d2d11d1a9f4a77cea0de06938d",
+    "logs/p010-independent/manual/sirv/node_modules/sirv/build.js": "245cf4a18c3902ba690497a9088e6dcb5d7a9012fd6bd76ecedfad0fcbf6d55d",
+    "logs/p010-independent/manual/sirv/node_modules/sirv/readme.md": "7834fa71b0dadf786bca4a3431fc8edd4662b47b9fd9cd8df48c426326b2c4ee",
+    "logs/p010-independent/manual/sirv/node_modules/sirv/package.json": "8ea2c94fa39ec92ed0f61b22a629f597c92a2e02039e6c4acf2653cb32a776a2",
+    "logs/p010-independent/manual/sirv/node_modules/sirv/build.mjs": "b5b9c79b302712b2ac0d0ef88ce170588c08f6ad1e6443d47c60996f65c5b0fb",
+    "logs/p010-independent/manual/sirv/node_modules/sirv/index.d.ts": "d6178e0ea8afbf02a236966bd0d99eed2646599482249e6ba281d16e6fb185d0",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/license": "306fa513e39b23a6e8747520de761809d206b99800ef41907b530226574c59ae",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/readme.md": "fb37c2d537fe6d81bb653a447a192348f373577be88f2a1aa66696e751c6bf7d",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/package.json": "0623891e622ac83bd53ef5a81987338da75697112e2386ffbd77676c1ef7e9df",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/index.d.ts": "9f78bd6e43202253f0af72af9978cda3399b5a1ae9cd28593976f42cf6a1f4ee",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/dist/index.js": "87895e609ed7419f7ecdff800a76ca3ffb167f129dfd45f689875397f2348214",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/dist/index.mjs": "70a998ce6b3da13e242332e704d9b64ee88c23520ee260663d178206a57ae14d",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/sync/index.js": "77b41c919524457aadd72b423b166e66c36c484d249c09124c22269ef8b3d6cb",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/sync/index.mjs": "0d911e865ba4c7e860a1ebb8e6fd7b25e5113967bea3e799bca690c48fdd41c0",
+    "logs/p010-independent/manual/sirv/node_modules/totalist/sync/index.d.ts": "4cdaa2f28b917cc3fb61454657fed974968a66557ef23c2858997565d3b9559c",
+    "logs/p010-independent/manual/sirv/node_modules/mrmime/license": "ba573393f24555ac0528612ad39665fab5bdcc80330a61096024bbf5f736526d",
+    "logs/p010-independent/manual/sirv/node_modules/mrmime/index.js": "d85cf096c0fbd1da566df54c22e32c8fa9873437b06b64b99d055763db3c4f38",
+    "logs/p010-independent/manual/sirv/node_modules/mrmime/readme.md": "df6eb07c79467b7fdf6011c1072bf3d8f0ca35a396a757500aa0d074beca17d8",
+    "logs/p010-independent/manual/sirv/node_modules/mrmime/package.json": "bbe60d7ad0ce4cdca6c452bc88d60ed6997c05b9e2e433475844b7d4de3176bb",
+    "logs/p010-independent/manual/sirv/node_modules/mrmime/index.mjs": "d17f751e95dc06e697375fd54413b5681a2d223370960ad5de2f5a3e98c4d5b6",
+    "logs/p010-independent/manual/sirv/node_modules/mrmime/index.d.ts": "369052a48d896f6da8f051051a547790c09c46b8b1e4fff1cf8fcf066daab7da",
+    "logs/p010-independent/manual/sirv/site/hello.txt": "9b8b98f0194aef82a02ce9f0cd0aa42433dc6d6d1b0a2dbd940dd02b644b46a3",
+    "logs/p009-independent/cli.stdout.json": "a0d62866c47dc11d2aa6329de8eac4784f6b493cd3615c729456ac8d1a340a75",
+    "logs/p009-independent/cli.stderr.log": "a3f447be1bfb42237476aad6880b7daf7ea38e353b8e302d2111fa321fdc2b10",
+    "logs/p009-independent/sirv-fixture/entry.cjs": "5d1892cb10eeac9f965ba8b3f91b382c2aaf82f7126b11e18a0d961cfcb13d7b",
+    "logs/p009-independent/sirv-fixture/node_modules/@polka/url/build.js": "df25bb799f43af54c8c07c2665c05f9ac41dcb95410501a6d4c01f4b34e96440",
+    "logs/p009-independent/sirv-fixture/node_modules/@polka/url/readme.md": "c8bc0cd661d06fd899eccf9bdf3c32459d9172ab0c5e83939e439ae76208297c",
+    "logs/p009-independent/sirv-fixture/node_modules/@polka/url/package.json": "edc9d88105fe9c7123b8c26dd121c13b3b1dc6bbd5445fc616657ea1a9c2bba1",
+    "logs/p009-independent/sirv-fixture/node_modules/@polka/url/build.mjs": "65ed346b3fd818328403d4f88ef3569e9e9b8cc00ea7779afbca3438baf3d664",
+    "logs/p009-independent/sirv-fixture/node_modules/@polka/url/index.d.ts": "73523d538ca7a2a3adf40ca029f196d2332862ec616a972ebfb66d23c259c0d1",
+    "logs/p009-independent/sirv-fixture/node_modules/sirv/index.d.mts": "4f10b34d39d752db178a61cd2e67666dd831b6d2d11d1a9f4a77cea0de06938d",
+    "logs/p009-independent/sirv-fixture/node_modules/sirv/build.js": "245cf4a18c3902ba690497a9088e6dcb5d7a9012fd6bd76ecedfad0fcbf6d55d",
+    "logs/p009-independent/sirv-fixture/node_modules/sirv/readme.md": "7834fa71b0dadf786bca4a3431fc8edd4662b47b9fd9cd8df48c426326b2c4ee",
+    "logs/p009-independent/sirv-fixture/node_modules/sirv/package.json": "8ea2c94fa39ec92ed0f61b22a629f597c92a2e02039e6c4acf2653cb32a776a2",
+    "logs/p009-independent/sirv-fixture/node_modules/sirv/build.mjs": "b5b9c79b302712b2ac0d0ef88ce170588c08f6ad1e6443d47c60996f65c5b0fb",
+    "logs/p009-independent/sirv-fixture/node_modules/sirv/index.d.ts": "d6178e0ea8afbf02a236966bd0d99eed2646599482249e6ba281d16e6fb185d0",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/license": "306fa513e39b23a6e8747520de761809d206b99800ef41907b530226574c59ae",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/readme.md": "fb37c2d537fe6d81bb653a447a192348f373577be88f2a1aa66696e751c6bf7d",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/package.json": "0623891e622ac83bd53ef5a81987338da75697112e2386ffbd77676c1ef7e9df",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/index.d.ts": "9f78bd6e43202253f0af72af9978cda3399b5a1ae9cd28593976f42cf6a1f4ee",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/dist/index.js": "87895e609ed7419f7ecdff800a76ca3ffb167f129dfd45f689875397f2348214",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/dist/index.mjs": "70a998ce6b3da13e242332e704d9b64ee88c23520ee260663d178206a57ae14d",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/sync/index.js": "77b41c919524457aadd72b423b166e66c36c484d249c09124c22269ef8b3d6cb",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/sync/index.mjs": "0d911e865ba4c7e860a1ebb8e6fd7b25e5113967bea3e799bca690c48fdd41c0",
+    "logs/p009-independent/sirv-fixture/node_modules/totalist/sync/index.d.ts": "4cdaa2f28b917cc3fb61454657fed974968a66557ef23c2858997565d3b9559c",
+    "logs/p009-independent/sirv-fixture/node_modules/mrmime/license": "ba573393f24555ac0528612ad39665fab5bdcc80330a61096024bbf5f736526d",
+    "logs/p009-independent/sirv-fixture/node_modules/mrmime/index.js": "d85cf096c0fbd1da566df54c22e32c8fa9873437b06b64b99d055763db3c4f38",
+    "logs/p009-independent/sirv-fixture/node_modules/mrmime/readme.md": "df6eb07c79467b7fdf6011c1072bf3d8f0ca35a396a757500aa0d074beca17d8",
+    "logs/p009-independent/sirv-fixture/node_modules/mrmime/package.json": "bbe60d7ad0ce4cdca6c452bc88d60ed6997c05b9e2e433475844b7d4de3176bb",
+    "logs/p009-independent/sirv-fixture/node_modules/mrmime/index.mjs": "d17f751e95dc06e697375fd54413b5681a2d223370960ad5de2f5a3e98c4d5b6",
+    "logs/p009-independent/sirv-fixture/node_modules/mrmime/index.d.ts": "369052a48d896f6da8f051051a547790c09c46b8b1e4fff1cf8fcf066daab7da",
+    "logs/p009-independent/sirv-fixture/site/hello.txt": "9b8b98f0194aef82a02ce9f0cd0aa42433dc6d6d1b0a2dbd940dd02b644b46a3"
+  },
+  "runs": [
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "python3",
+        "logs/p011-correction1/audit.py"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791935969.769073,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-audit-dev",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-dev",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-dev/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 3.270366907119751,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-dev.log",
+      "logSha256": "567a44130c0dfb2ba3edd14e3d06132bdeb70d16fd96d706ad8911b4d9cede7f",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-dev.json",
+        "sha256": "3dabc2e7fad03fd294b2eb5cfb89efccaa8e73bbcaa686cf5116be479e97a6a4",
+        "sourceSnapshotSha256": "a936094a67fd2f97ffaf38082a4bdf8e42dac9f067c01f21200011850b9d265f"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "audit-dev",
+        "prefreeze",
+        "120",
+        "python3",
+        "logs/p011-correction1/audit.py"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/P011-number-bitwise-not/correction-1.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/number-bitwise-not.md\n M docs/wiki/number-bitwise-not.md\n M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "python3",
+        "logs/p011-correction1/audit.py"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791936243.7424698,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-audit-final",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-final",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-final/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 2.636280059814453,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-final.log",
+      "logSha256": "567a44130c0dfb2ba3edd14e3d06132bdeb70d16fd96d706ad8911b4d9cede7f",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-final.json",
+        "sha256": "38ac2ce607fa193af5f75dd111ac36e329b73132a3ee36a36eb0d58a196923fe",
+        "sourceSnapshotSha256": "b038fcaa8ea05be8db517eb822583b0fd8767f5949751fe56ab26f7642995a7c"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "audit-final",
+        "prefreeze-final-source",
+        "120",
+        "python3",
+        "logs/p011-correction1/audit.py"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "frozen",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "5c70d29ef65012c4615d6e9c39e63d99a6cf3047",
+      "status": "",
+      "command": [
+        "python3",
+        "logs/p011-correction1/audit.py"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791936289.465178,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-audit-frozen",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-frozen",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-frozen/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 3.416846990585327,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-frozen.log",
+      "logSha256": "6ecd51868e388311c3c67223ca4e0a43aa8cd8bd53cea20414a893bf02972731",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-frozen.json",
+        "sha256": "cd16f5ae0a12d9d7c3e6dc8df24e4c54fbb8da49e5886e014231d4356a50cb7f",
+        "sourceSnapshotSha256": "1e00a0eea7a0525cd0f5c9eb6086a82bd2aa784a05f0303e7b700def5f98fe09"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "audit-frozen",
+        "frozen",
+        "120",
+        "python3",
+        "logs/p011-correction1/audit.py"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/P011-number-bitwise-not/correction-1.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/number-bitwise-not.md\n M docs/wiki/number-bitwise-not.md\n M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791936208.227487,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-discovery",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/discovery",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/discovery/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 1.991642951965332,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/discovery.log",
+      "logSha256": "389594c004535dbb683f165edb1ddb2612d08d3a08d95238c8b1e1d268787f53",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/discovery.json",
+        "sha256": "310f1af85c5a63da80ec21dda43fccc1ec43805e8625bf29ac2c2e4a9d6e3432",
+        "sourceSnapshotSha256": "b038fcaa8ea05be8db517eb822583b0fd8767f5949751fe56ab26f7642995a7c"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "discovery",
+        "prefreeze-final-source",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/P011-number-bitwise-not/correction-1.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/number-bitwise-not.md\n M docs/wiki/number-bitwise-not.md\n M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/object-bindings.spec.ts"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791936161.2675588,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-final-specs",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/final-specs",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/final-specs/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 15.846555233001709,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/final-specs.log",
+      "logSha256": "2d618cb3ad01c5a636eaed8470f0d6731bf70d5a5f31d7fddccf1f31b2ba2613",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/final-specs.json",
+        "sha256": "9e3a6e29a195b5e3bdc31d44e6ff552d5a5b5641883c28b16c3f876354ae555f",
+        "sourceSnapshotSha256": "b038fcaa8ea05be8db517eb822583b0fd8767f5949751fe56ab26f7642995a7c"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "final-specs",
+        "prefreeze-final-source",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/object-bindings.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 2 passed, 2 total",
+        "Tests:       212 passed, 212 total",
+        "Snapshots:   0 total",
+        "Time:        13.183s"
+      ]
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/object-bindings.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/string-literals.spec.ts",
+        "test/regexp-literals.spec.ts",
+        "test/function-early-errors.spec.ts",
+        "test/default-parameters.spec.ts",
+        "test/branch-state.spec.ts",
+        "test/prototype-state.spec.ts",
+        "test/lexical-completions.spec.ts",
+        "test/analysis-failure-context.spec.ts",
+        "test/arithmetic-soundness.spec.ts",
+        "test/arithmetic-bounds.spec.ts",
+        "test/instanceof.spec.ts",
+        "test/instanceof-internal.spec.ts",
+        "test/symbolic-numbers.spec.ts",
+        "test/symbolic-choice-equality.spec.ts",
+        "test/p010-independent-review.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "timeoutSeconds": 300,
+      "started": 1791935940.840891,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-focused-final",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/focused-final",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/focused-final/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 83.40153312683105,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/focused-final.log",
+      "logSha256": "fa6b3e2c2623820ebe44cf06b408bdb7bdd125466c59e79abaccdff9668e30c0",
+      "snapshotNote": "Prefreeze production source is final; correction boundary/wiki/ledger docs were completed during the run. Subsequent tests only added prefix-heap/read/default controls, run in key-context-final and final-specs. Frozen full regression binds complete final source/spec/docs.",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/focused-final.json",
+        "sha256": "3862784f9cc348c4a4dbd99fc6e7c66baec4205d1499b975886c14a484faf053",
+        "sourceSnapshotSha256": "a936094a67fd2f97ffaf38082a4bdf8e42dac9f067c01f21200011850b9d265f"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "focused-final",
+        "prefreeze-final-source",
+        "300",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/object-bindings.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/string-literals.spec.ts",
+        "test/regexp-literals.spec.ts",
+        "test/function-early-errors.spec.ts",
+        "test/default-parameters.spec.ts",
+        "test/branch-state.spec.ts",
+        "test/prototype-state.spec.ts",
+        "test/lexical-completions.spec.ts",
+        "test/analysis-failure-context.spec.ts",
+        "test/arithmetic-soundness.spec.ts",
+        "test/arithmetic-bounds.spec.ts",
+        "test/instanceof.spec.ts",
+        "test/instanceof-internal.spec.ts",
+        "test/symbolic-numbers.spec.ts",
+        "test/symbolic-choice-equality.spec.ts",
+        "test/p010-independent-review.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 22 passed, 22 total",
+        "Tests:       46 skipped, 1368 passed, 1414 total",
+        "Snapshots:   0 total",
+        "Time:        80.675s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/object-bindings.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/string-literals.spec.ts",
+        "test/regexp-literals.spec.ts"
+      ],
+      "timeoutSeconds": 180,
+      "started": 1791935866.679991,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-focused-first",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/focused-first",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/focused-first/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 23.940537929534912,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/focused-first.log",
+      "logSha256": "521926b763ea34993280dc3437ba8aaa7fd111481dd1654087cb4e12b76f35f7",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/focused-first.json",
+        "sha256": "77e2b12856496a4f38eef1eff17952c883b7dfac8c1eff869c938dc456458291",
+        "sourceSnapshotSha256": "8cb67b338ce5ff7b9ed2c2ef71dc7e8af472822d9b40de968979a157986bf69d"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "focused-first",
+        "prefreeze",
+        "180",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "test/object-bindings.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/string-literals.spec.ts",
+        "test/regexp-literals.spec.ts"
+      ],
+      "jestSummary": [
+        "Test Suites: 5 passed, 5 total",
+        "Tests:       307 passed, 307 total",
+        "Snapshots:   0 total",
+        "Time:        21.173s"
+      ]
+    },
+    {
+      "phase": "frozen",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "5c70d29ef65012c4615d6e9c39e63d99a6cf3047",
+      "status": "",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "timeoutSeconds": 900,
+      "started": 1791936280.430629,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-full-frozen",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/full-frozen",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/full-frozen/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 437.0136790275574,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/full-frozen.log",
+      "logSha256": "5b52b53461de1a023ea7e695259fabe9718e0bc87e2b2d62ccee10f3e0c2beb5",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/full-frozen.json",
+        "sha256": "9db13b301658044d3275b96759eb6d0ee5838ac75928882fdb9406a020ed35a9",
+        "sourceSnapshotSha256": "1e00a0eea7a0525cd0f5c9eb6086a82bd2aa784a05f0303e7b700def5f98fe09"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "full-frozen",
+        "frozen",
+        "900",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "jestSummary": [
+        "Test Suites: 136 passed, 136 total",
+        "Tests:       46 skipped, 4181 passed, 4227 total",
+        "Snapshots:   0 total",
+        "Time:        434.693s, estimated 441s"
+      ]
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/P011-number-bitwise-not/correction-1.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/number-bitwise-not.md\n M docs/wiki/number-bitwise-not.md\n M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "R1"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791936110.3235688,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-key-context-final",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/key-context-final",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/key-context-final/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 8.892481088638306,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/key-context-final.log",
+      "logSha256": "9f9162e4c3fc0c421e3bd1f85de21cf363a824254ea3eff7eafcfeb0d28e3974",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/key-context-final.json",
+        "sha256": "714840f6361824398d4b6cbcceae8a639957357286f6ba658225b493239a2586",
+        "sourceSnapshotSha256": "49185af105f4fe42cefb629494fea4d4451590a7e6e586ffd7cb4d80ff3d438f"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "key-context-final",
+        "prefreeze-final-source",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "R1"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       117 skipped, 67 passed, 184 total",
+        "Snapshots:   0 total",
+        "Time:        5.829s, estimated 12s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "R1 native"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791935800.516066,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-native-red",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/native-red",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/native-red/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 8.162368059158325,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/native-red.log",
+      "logSha256": "351875564ffb5b3efd62754f09b873755702d0ed3fdcb7cca46a4e47f1c71c6b",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/native-red.json",
+        "sha256": "03f3ae5fa27ce4be6a54e8059756202a259f84c120d292777a81b411a1e1ce2a",
+        "sourceSnapshotSha256": "1017f6dae3fa405d5d0c64d8996cad28a0dc73c96089409dc1be25d10daaa452"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "native-red",
+        "prefreeze",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "R1 native"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       153 skipped, 25 passed, 178 total",
+        "Snapshots:   0 total",
+        "Time:        5.525s, estimated 7s"
+      ]
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791935969.768957,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-typecheck-dev",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-dev",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-dev/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 8.944499254226685,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-dev.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-dev.json",
+        "sha256": "21c45b33be3e0d52cc25f9e440e5cefb93dc45f8db32f8372e5832f92187fe49",
+        "sourceSnapshotSha256": "a936094a67fd2f97ffaf38082a4bdf8e42dac9f067c01f21200011850b9d265f"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "typecheck-dev",
+        "prefreeze",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze-final-source",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M docs/agent-models.md\n M docs/agent-tasks/P011-number-bitwise-not/correction-1.md\n M docs/agent-tasks/README.md\n M docs/implementation-gaps.md\n M docs/number-bitwise-not.md\n M docs/wiki/number-bitwise-not.md\n M src/ASTResolvers.ts\n M src/Function/binding-patterns.ts\n M src/parseECMACompliant.ts\n M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts\n?? src/Object/static-key.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791936243.242284,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-typecheck-final",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-final",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-final/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 8.59977388381958,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-final.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-final.json",
+        "sha256": "e8e46841ea241696fe7549378953e0422a74cc61c52efe7f7d2265320c355c63",
+        "sourceSnapshotSha256": "b038fcaa8ea05be8db517eb822583b0fd8767f5949751fe56ab26f7642995a7c"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "typecheck-final",
+        "prefreeze-final-source",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "frozen",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "5c70d29ef65012c4615d6e9c39e63d99a6cf3047",
+      "status": "",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "timeoutSeconds": 120,
+      "started": 1791936289.465177,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-typecheck-frozen",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-frozen",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-frozen/p009"
+      },
+      "exit": 0,
+      "elapsedSeconds": 9.176010131835938,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-frozen.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/typecheck-frozen.json",
+        "sha256": "59814ac9cccfc1aa6d582c1bd4f60c6049d47c0bd7ad35d8859e8600cbd9ab02",
+        "sourceSnapshotSha256": "1e00a0eea7a0525cd0f5c9eb6086a82bd2aa784a05f0303e7b700def5f98fe09"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "typecheck-frozen",
+        "frozen",
+        "120",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "jestSummary": []
+    },
+    {
+      "phase": "prefreeze",
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "head": "9ec7d2e406fefa29eba6ff614ed2d795595a139e",
+      "status": "M test/bitwise-not.spec.ts\n M test/p009-independent-review.spec.ts",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "R1"
+      ],
+      "timeoutSeconds": 180,
+      "started": 1791935829.968943,
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p011-correction1-vm-red",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/vm-red",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/vm-red/p009"
+      },
+      "exit": 1,
+      "elapsedSeconds": 7.940427780151367,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/vm-red.log",
+      "logSha256": "4125e82615db9f6a76a569ac9b7842d2cc1822f039b8c5920729728abdf9a059",
+      "metadata": {
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/vm-red.json",
+        "sha256": "b4c63defd6c5e75c33353eb33c983299403ce786bb2742644e60c4e5f19b53da",
+        "sourceSnapshotSha256": "13c580fd329980703a33b51cce278f8153b09e96f34902eaba95bdbda601bc5a"
+      },
+      "invocation": [
+        "python3",
+        "logs/p011-correction1/run.py",
+        "vm-red",
+        "prefreeze",
+        "180",
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/bitwise-not.spec.ts",
+        "--testNamePattern",
+        "R1"
+      ],
+      "jestSummary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       30 failed, 117 skipped, 31 passed, 178 total",
+        "Snapshots:   0 total",
+        "Time:        5.933s"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/run.py",
+      "sha256": "2d90d37c6c7cb7e678784a3a692609ebaeaf4abe23a3d5fc694bbc4b15a12341",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit.py",
+      "sha256": "7cca7efed136c77d834a001eff2868a9ffd2468df7112a644ee6b7e5c01e9383",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/evidence.py",
+      "sha256": "ae09828df1be654ab9695252e646ca6238472c2b7b1608d78d81ddc1710bc551",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/verify.py",
+      "sha256": "7ef71545c72594e7f5d41f6d706779dbb80f54117db551e803dd23121714e702",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/preserved-log-hashes.json",
+      "sha256": "b6f1d9ce7ae8f4a733dc000a3e08decba83caa43dde56991cbdac3b47bd86c53",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/preservation.json",
+      "sha256": "9374898ccc38fbc7a18ee769cac292bf461af1abdda114f5bc8ac76babd46128",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-summary.json",
+      "sha256": "c716dd097bf86aa89364aa074b0222f5ab6f9c480aa454088261af9ec89aa109",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/test262-inventory.json",
+      "sha256": "a9b9a18517d69bc2001fce191dacf71e90ab35ac6027ef1c1e4e54a3902fe740",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/full-frozen/whole-candidates.json",
+      "sha256": "08eac2314476df7c474a874fe4ca411e8b5cf8744d7edd1027391e84b8646a06",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-00.log",
+      "sha256": "1ac02cba5e5291acd32415ab84721bef2bdc91397fbc7ba270d57111843ef468",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-01.log",
+      "sha256": "06bbc439fef2e1af0cca81024c274dc02d0d49718d6be00487f16eadf7a3962f",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-02.log",
+      "sha256": "fcf780cdeda82410c40218ab2f59635f2ffe1693bd6901e19d8d28e899283300",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-03.log",
+      "sha256": "773fc20f27d982987a78c95c88cd8f6ccda4a5b7c0157a89ea3861f71ad5754b",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-04.log",
+      "sha256": "38a33b33e47737d3453c9106d31cc99c1ef9993d999c65a2ce918bf45feb9a90",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-05.log",
+      "sha256": "d8bbaae624426cc8cf2a91f823aaf4379efc166979af6d03d3697b649f3da079",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-06.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-07.log",
+      "sha256": "8eb4517a5adc291208bf562f2c32ed82461843707734ea158fbddbd1975bfb78",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-08.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-09.log",
+      "sha256": "aea9fa1c9551ba867bd209a3f2de30a0cb7faeadd530be1caa3ea1d2c4a6dd92",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-10.log",
+      "sha256": "42edab6c627974bb55b9404db6370419306b7f3acad50c21b1425b6f93b6bc57",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-11.log",
+      "sha256": "13776c04d2146689a2cdf52f3a465a018fa63ae0809a2a0d61cb2742097dd4b9",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-dev.log",
+      "sha256": "567a44130c0dfb2ba3edd14e3d06132bdeb70d16fd96d706ad8911b4d9cede7f",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-final.log",
+      "sha256": "567a44130c0dfb2ba3edd14e3d06132bdeb70d16fd96d706ad8911b4d9cede7f",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-frozen.log",
+      "sha256": "6ecd51868e388311c3c67223ca4e0a43aa8cd8bd53cea20414a893bf02972731",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/full-frozen/p009/cli.stdout.json",
+      "sha256": "e633e82e37848cbde112c0d6e3fa7f910a160e90791040152fcaeb980f7a2f14",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/full-frozen/p009/cli.stderr.log",
+      "sha256": "a3f447be1bfb42237476aad6880b7daf7ea38e353b8e302d2111fa321fdc2b10",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p010-independent/p011-correction1-full-frozen/cli.stdout.json",
+      "sha256": "9a175449ba81e44f20031dbd9467df9f12e53dec1990c3f12edd1b5704361a7e",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p010-independent/p011-correction1-full-frozen/cli.stderr.log",
+      "sha256": "a3f447be1bfb42237476aad6880b7daf7ea38e353b8e302d2111fa321fdc2b10",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p010-independent/p011-correction1-full-frozen/cli-command.json",
+      "sha256": "dbf66eb8d6fd323abfa9e4a0011cc2398836712b7f27130ed9df9a40459ce2b9",
+      "readOnlyReviewerInput": false
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p011-number-bitwise-not/docs/agent-tasks/P011-number-bitwise-not/independent-review.md",
+      "sha256": "f7af7f71d8f3a0de4ea9a25d91d318809ea624d0e3c5b102c1b8249e75a01802",
+      "readOnlyReviewerInput": true
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p011-number-bitwise-not/docs/agent-tasks/P011-number-bitwise-not/independent-evidence.json",
+      "sha256": "d4cdad9be6d689ec5d24bfc8d969a8cf03f51c01ed572178d9396bd303bf74dd",
+      "readOnlyReviewerInput": true
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p011-number-bitwise-not/logs/p011-independent/bigint-key-probe/bigint-key-observations.json",
+      "sha256": "bc9722253af75615224720d34999cfc79fcf740d624cdf2986315693ffdfb4ce",
+      "readOnlyReviewerInput": true
+    },
+    {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/review-p011-number-bitwise-not/logs/p011-independent/bigint-key-parser.stdout",
+      "sha256": "08d454e16fc7659be41539c746e8a39242aeafb97668dfa6155895de17e7df6a",
+      "readOnlyReviewerInput": true
+    }
+  ],
+  "audit": {
+    "commands": [
+      {
+        "command": [
+          "rg",
+          "-n",
+          "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+          "src",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-00.log",
+        "sha256": "1ac02cba5e5291acd32415ab84721bef2bdc91397fbc7ba270d57111843ef468"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "assert\\(|unimplemented\\(",
+          "src",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-01.log",
+        "sha256": "06bbc439fef2e1af0cca81024c274dc02d0d49718d6be00487f16eadf7a3962f"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+          "test",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-02.log",
+        "sha256": "fcf780cdeda82410c40218ab2f59635f2ffe1693bd6901e19d8d28e899283300"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "gap|unsupported|assum|remain|limit|not yet|not modeled",
+          "README.md",
+          "docs",
+          "test/commonjs/README.md",
+          "test/test262/README.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-03.log",
+        "sha256": "773fc20f27d982987a78c95c88cd8f6ccda4a5b7c0157a89ea3861f71ad5754b"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "bitwise|unary|Unary operator|substring|lastIndexOf|frontier|deferred|supportedNames",
+          "test",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-04.log",
+        "sha256": "38a33b33e47737d3453c9106d31cc99c1ef9993d999c65a2ce918bf45feb9a90"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "14227f2",
+          "--",
+          "src",
+          "test",
+          "README.md",
+          "docs",
+          "AGENTS.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-05.log",
+        "sha256": "d8bbaae624426cc8cf2a91f823aaf4379efc166979af6d03d3697b649f3da079"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "14227f2"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-06.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--name-status",
+          "14227f2"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-07.log",
+        "sha256": "8eb4517a5adc291208bf562f2c32ed82461843707734ea158fbddbd1975bfb78"
+      },
+      {
+        "command": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-08.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "git",
+          "log",
+          "-4",
+          "--oneline"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-09.log",
+        "sha256": "aea9fa1c9551ba867bd209a3f2de30a0cb7faeadd530be1caa3ea1d2c4a6dd92"
+      },
+      {
+        "command": [
+          "rg",
+          "-n",
+          "key\\.name|key\\.value|staticPropertyName|restoreBigInt|BigInt static",
+          "src",
+          "test",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-10.log",
+        "sha256": "42edab6c627974bb55b9404db6370419306b7f3acad50c21b1425b6f93b6bc57"
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "fa927de",
+          "--",
+          "src",
+          "test",
+          "docs"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+        "exit": 0,
+        "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/audit-11.log",
+        "sha256": "13776c04d2146689a2cdf52f3a465a018fa63ae0809a2a0d61cb2742097dd4b9"
+      }
+    ],
+    "inventory": {
+      "path": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-correction1/test262-inventory.json",
+      "activeFiles": 370,
+      "activeVariants": 731,
+      "skippedFiles": 46,
+      "sha256": "a9b9a18517d69bc2001fce191dacf71e90ab35ac6027ef1c1e4e54a3902fe740"
+    },
+    "unchangedFixtures": [
+      {
+        "manifest": "test/fixtures/mrmime-2.0.1/integrity.json",
+        "sha256": "32aee021592efb4177bc013f0bb1f87fcd6bfe74b55f0099cda8f3b8650e0b57",
+        "files": 6
+      },
+      {
+        "manifest": "test/fixtures/pico-static-server-3.0.3/integrity.json",
+        "sha256": "0904577c883bb1f47e8f6fc0081dcc69ffd8ca8b5ecb2ca405dad3d78ed0e4fc",
+        "files": 9
+      },
+      {
+        "manifest": "test/fixtures/polka-url-1.0.0-next.29/integrity.json",
+        "sha256": "c5e8997c2a86c65375d9f64d67dff316c923105dfc9edd8127a4b43843cc13fd",
+        "files": 5
+      },
+      {
+        "manifest": "test/fixtures/sirv-3.0.2/integrity.json",
+        "sha256": "2772de9ca14a3ec367d7e5fc064e9be3ba0a0cbd6a81ab62528f83b58f2d8315",
+        "files": 6
+      },
+      {
+        "manifest": "test/fixtures/tiny-invariant-1.3.3/integrity.json",
+        "sha256": "9a424f4a28a26addabc31a1e26e4356bcb2464009ecc4d2d7653f175ce933eb9",
+        "files": 13
+      },
+      {
+        "manifest": "test/fixtures/totalist-3.0.1/integrity.json",
+        "sha256": "e81b8166f033a4514025bfe73c85e2eb9b80053775a22bf30ea7b201c6428dcb",
+        "files": 9
+      }
+    ],
+    "changed": [
+      "docs/agent-models.md",
+      "docs/agent-tasks/P011-number-bitwise-not/correction-1.md",
+      "docs/agent-tasks/P011-number-bitwise-not/evidence.json",
+      "docs/agent-tasks/P011-number-bitwise-not/handoff.md",
+      "docs/agent-tasks/P011-number-bitwise-not/task.md",
+      "docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md",
+      "docs/agent-tasks/README.md",
+      "docs/implementation-gaps.md",
+      "docs/number-bitwise-not.md",
+      "docs/sirv-target.md",
+      "docs/wiki/README.md",
+      "docs/wiki/number-bitwise-not.md",
+      "src/ASTResolvers.ts",
+      "src/Function/binding-patterns.ts",
+      "src/Object/static-key.ts",
+      "src/conversion/toNumber.ts",
+      "src/number/bitwise-not.ts",
+      "src/operators.ts",
+      "src/parseECMACompliant.ts",
+      "test/bitwise-not.spec.ts",
+      "test/p009-independent-review.spec.ts",
+      "test/p010-independent-review.spec.ts",
+      "test/sirv-target.spec.ts",
+      "test/string-lastindexof.spec.ts",
+      "test/test262.spec.ts",
+      "test/test262/README.md"
+    ],
+    "checks": [
+      "all historical skipped files reconciled to stable backlog",
+      "no active baseline removed",
+      "nine whole files added",
+      "no fixture/dependency changes",
+      "diff whitespace clean"
+    ]
+  },
+  "counts": {
+    "fullSuites": 136,
+    "fullPasses": 4181,
+    "historicalSkips": 46,
+    "newR1Tests": 68,
+    "activeTest262Files": 370,
+    "activeTest262Variants": 731,
+    "wholeBitwiseCandidates": 16,
+    "nativeWholeVariants": 32
+  },
+  "correction": {
+    "cause": "Cherow emits uncomputed BigInt Property keys as numeric-named Identifier without bigint marker; wrong rounded name supplies undefined, yielding false completed Number result",
+    "metadata": "transient parser offsets recover only omitted bigint admission marker from validated original token endpoint; offsets stripped to preserve ordinary AST shape; no source rewrite or global parse rejection",
+    "routes": "common staticPropertyName checks ObjectExpression after-context before current value, and binding-pattern current context after RHS/prior reads/defaults/bindings before bad lookup/default",
+    "preservation": "prior target heap entry, alias/prototype/console/RHS/default effects and mixed guest-throw/earlier-unsupported/supported siblings retained; no guest cleanup for typed stops",
+    "ordinaryDomain": "normal/large rounded Number keys, quoted BigInt-looking strings, names/shorthand/methods and uncalled bodies preserved; computed BigInt keys retain literal guard",
+    "numberArithmetic": "helper, dispatch and shared conversion byte-identical"
+  },
+  "consumer": {
+    "frontier": "String.prototype.substring callee lookup in unchanged mrmime/index.js:445",
+    "tmp": "hello.txt",
+    "idx": 5,
+    "incrementNotExecuted": true,
+    "cliExit": 2,
+    "allHistoriesRetained": "readdir call/return, stat call/return, isDirectory call/return and EMFILE readdir call/throw with matched call identities; actual P009/P010/sirv assertions unchanged",
+    "unchangedGoal": "full sirv factory/headers/Node setup/requests/file histories remain unfinished"
+  },
+  "artifactIsolation": "optional P011/P009 artifact directories; P010 distinct per-run PROPHET_REVIEW_RUN suffix; P009 diff is artifact routing only, assertions/fixture package bytes unchanged",
+  "runAttribution": [
+    "native-red: 25 passing native/control tests before production changes",
+    "vm-red: 30 intended static-key failures, 31 passes, 117 deselected old tests; not new skip sites",
+    "focused-first: five suites/307 passes",
+    "focused-final: 22 suites/1368 passes/46 skips, docs completed during run; later source-identical tests strengthen heap/read/binding controls",
+    "final-specs: two suites/212 passes, complete final specs",
+    "all frozen full/typecheck/audit bind clean corrected source once; old evidence/logs unchanged"
+  ],
+  "residuals": [
+    "BigInt value/key semantics remain unsupported",
+    "public Symbol/custom hooks, wrappers/exotics/descriptors and broader numeric/key domains remain prior gaps",
+    "general parser/AST traversal/allocation/branch/coercion/prototype limits not globally bounded",
+    "partial-host/cycle legacy checkpoint loss remains",
+    "substring/other bitwise/full sirv server/requests/resumption deferred"
+  ],
+  "hashVerification": "all listed file/commit/run/log/metadata/artifact/upstream/historical/audit hashes independently recomputed; every pre-existing local log verified byte-identical; readonly reviewer inputs hashed directly"
+}
