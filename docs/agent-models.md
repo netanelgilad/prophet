@@ -75,7 +75,7 @@ See [P010 evidence](agent-tasks/P010-string-lastindexof/evidence.json).
 
 P011 separately owner-authorizes sole `gpt-6.1-sol`/high Number-domain unary ~
 implementation writer in the assigned worktree/account. Full independent
-`gpt-6-astra`/high exact-source review is pending, with no trust/concurrency
+`gpt-6-astra`/high exact-source review accepts corrected 5c70d29 after retaining the original b920 rejection, with no trust/concurrency
 promotion. No subagents, model/account rotation, paid API, credentials/access,
 Atlas or Notion writes were used. Owner-reported account-wide 48% remaining at
 23:11UTC is capacity context, not a task allowance or live measurement.
@@ -86,3 +86,5 @@ arithmetic. Same owner-authorized sole Sol6.1/high writer performs the narrow
 correction with renewed full semantic review. Original source/evidence and reviewer
 history remain unchanged. No first-review streak, trust/concurrency promotion,
 model/account change or rotation is inferred.
+
+P011 correction1 independent verdict 245176e accepts exact source5c70d29: original41 probes plus18 new probes (1350 key/trivia/coordinate cases), affected56 suites/2531 passes/46 retained skips, typecheck/audit0. Corrected writer full136 suites/4181 passes/46 skips. Reviewer-native quoting and test-helper typing mistakes retain harness attribution and failed artifacts. Root integrates review-only deliverables and checks exact-head CI; [publication review](agent-tasks/P011-number-bitwise-not/publication-review.md) records the gates. No first-review streak or trust/concurrency/model/account promotion follows.
