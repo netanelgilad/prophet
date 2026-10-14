@@ -91,7 +91,7 @@ P011 correction1 independent verdict 245176e accepts exact source5c70d29: origin
 
 
 P012 separately authorizes the same sole `gpt-6.1-sol`/high writer on account mine
-for bounded generic substring. Independent Astra/high review is pending; no
+for bounded generic substring. Independent Astra/high accepts corrected b582e2c after retaining the original rejection; no
 trust/concurrency promotion or new feature follows. Owner-reported account-wide
 41% at00:34UTC, then40% at00:51UTC, is capacity context, not a per-feature estimate
 or live measurement by the writer. No provider error, account/model/reset change,
@@ -115,3 +115,5 @@ Owner resumed correction1 at03:12UTC with primary34%remaining and no provider
 errors, still account-wide context. Root verified approved archive storage
 recovery preserved content, paths, modes and mtimes; later measured headroom
 exceeded6GiB. The writer performs no further cleanup or dependency changes.
+
+Root publication checkpoint: same Astra/high correction review66ee9b0 accepts exact b582e2c, with no new production findings. Original29 probes and writer31 presence regressions pass;16 new holdouts pass. The disjoint independent batches total55 suites/2393 passes/46 historical skips and typecheck0. Writer corrected full140 suites/4442 passes/46 skips, typecheck/audit0. Root combined227 tests/typecheck0 and source/artifact alignment verified. Original3ef/527 rejection and all failed artifacts remain historical; no trust/concurrency promotion. See [publication review](agent-tasks/P012-string-substring/publication-review.md) for root integration and exact-head CI gates.

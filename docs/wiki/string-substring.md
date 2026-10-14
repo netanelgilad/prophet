@@ -1,6 +1,6 @@
 # Bounded generic UTF-16 substring
 
-P012 worker evidence is provisional until independent Astra/high review. See
+Same independent Astra/high reviewer accepts corrected source b582e2c in66ee9b0; original3ef/527 rejection remains preserved. Root exact-head CI is the final publication gate. See
 [boundary](../string-substring.md), [specs](../../test/string-substring.spec.ts),
 [task](../agent-tasks/P012-string-substring/task.md), and
 [handoff](../agent-tasks/P012-string-substring/handoff.md).
@@ -61,3 +61,5 @@ do not change production or weaken the expected Boolean. Correction's first
 stronger branch checks and unused-binding typecheck errors are retained as writer
 harness failures. Original P012 logs/reports/helpers stay byte-identical; compact
 correction captures and renewed acceptance are separate. No trust promotion.
+
+Renewed source-bound acceptance and integrated probes: [publication review](../agent-tasks/P012-string-substring/publication-review.md). No wider Stats, factory or callback completion follows from this correction.

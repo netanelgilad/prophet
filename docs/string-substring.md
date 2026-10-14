@@ -1,7 +1,7 @@
 # Bounded generic String.prototype.substring (P012)
 
 This worker implementation adds substring through the shared VM. Independent
-Astra/high review is pending; local passing checks do not establish acceptance,
+Astra/high accepts corrected source b582e2c in review66ee9b0; original source3ef remains rejected. Root integration and exact-head CI gates remain,
 full String coverage, or sirv factory/server/request completion.
 
 The operation follows [substring](https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.substring),
@@ -99,6 +99,5 @@ preparation, with equivalent pinned native assignments. They preserve snapshots,
 two instances, presence/finite correlations, read count, caller/console/prototype/
 heap prefix state and exact FS call/outcome/failure identities. The unchanged CLI
 continues to stop on Stats.size in sirv header preparation with ctype=text/plain;
-factory return is not reached. Renewed same-reviewer exact-source acceptance is
-pending. [Correction contract](agent-tasks/P012-string-substring/correction-1.md)
+factory return is not reached. Renewed same-reviewer exact-source acceptance is recorded in66ee9b0. Root publication and exact-head CI are tracked in [publication review](agent-tasks/P012-string-substring/publication-review.md). [Correction contract](agent-tasks/P012-string-substring/correction-1.md)
 and new correction handoff/evidence retain the original rejected artifacts.

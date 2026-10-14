@@ -1,0 +1,119 @@
+{
+  "acceptedSource": "b582e2c746863d4c02697bdd28db461098aee226",
+  "writerEvidence": "2a6b4d2b131fe82327fbff9ffbaf0d067d1c6d45",
+  "independentAcceptance": "66ee9b0db1a6bbeb5c2cd5f60866bd3214c5e712",
+  "integratedReviewHead": "77532b12f47f44a3a34f6341f121dff5b9539e31",
+  "correctedWriterHashVerification": {
+    "at": "2026-10-14T03:29:36.815304+00:00",
+    "correctedSource": "b582e2c746863d4c02697bdd28db461098aee226",
+    "sourceFiles": 1241,
+    "artifactFiles": 994,
+    "hashChecks": 3483,
+    "frozenRuns": [
+      "frozen-audit",
+      "frozen-candidate-provenance",
+      "frozen-full",
+      "frozen-typecheck"
+    ],
+    "unchangedCoreSource": true,
+    "evidenceSha256": "9f5fe6a7af8e27a89a1bfdc42143d882f6029ecbb30f6e45af00e17f686f58f9",
+    "result": "all corrected source/current files and declared artifacts verified; frozen metadata source/status/exit verified",
+    "rootHarnessNote": "first inspection incorrectly assumed per-run sourceFiles key; corrected reader uses actual schema, no source or evidence mutation"
+  },
+  "reviewHashVerification": {
+    "at": "2026-10-14T03:40:24.452141+00:00",
+    "integratedHead": "77532b12f47f44a3a34f6341f121dff5b9539e31",
+    "acceptedSource": "b582e2c746863d4c02697bdd28db461098aee226",
+    "acceptanceCommit": "66ee9b0db1a6bbeb5c2cd5f60866bd3214c5e712",
+    "checks": 8047,
+    "allAcceptedSourceFilesUnchanged": 1241,
+    "reviewCounts": {
+      "suites": 55,
+      "passed": 2393,
+      "historicalSkipped": 46,
+      "originalReview": 29,
+      "writerDisclosed": 31,
+      "newHeldout": 16,
+      "affected45": 2217,
+      "adjacent7": 100
+    },
+    "result": "all review artifacts/deliverables/original preserved report bytes and accepted source alignment verified"
+  },
+  "originalWriterArtifactsRechecked": 1471,
+  "runs": {
+    "integrated-v1": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "--runTestsByPath",
+        "test/p012-independent-review.spec.ts",
+        "test/p012-correction-review.spec.ts",
+        "test/node-filesystem-size-presence.spec.ts",
+        "test/string-substring.spec.ts",
+        "test/sirv-target.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p012-root-integrated-v1",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-v1/p011",
+        "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-v1/writer-controls",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-v1/p009",
+        "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-v1/original-review",
+        "PROPHET_P012_CORRECTION_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-v1/correction-review"
+      },
+      "headBefore": "77532b12f47f44a3a34f6341f121dff5b9539e31",
+      "statusBefore": "",
+      "capSeconds": 300,
+      "started": 1791949156.505402,
+      "exit": 0,
+      "timedOut": false,
+      "headAfter": "77532b12f47f44a3a34f6341f121dff5b9539e31",
+      "statusAfter": "",
+      "elapsedSeconds": 13.71548080444336,
+      "sourceUnchanged": true,
+      "sourceFiles": 309,
+      "logSha256": "f53681c2bf98ed99179c2d51b98916a409e753b95fd5e9c6f853631648f07f0a",
+      "sourceManifestSha256": "d7ca8a4633037f8f44833180c243deb908694e4ac8315d3ad83e88e7e3d3eaea"
+    },
+    "integrated-typecheck-v1": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p012-root-integrated-typecheck-v1",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-typecheck-v1/p011",
+        "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-typecheck-v1/writer-controls",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-typecheck-v1/p009",
+        "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-typecheck-v1/original-review",
+        "PROPHET_P012_CORRECTION_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012-root/integrated-typecheck-v1/correction-review"
+      },
+      "headBefore": "77532b12f47f44a3a34f6341f121dff5b9539e31",
+      "statusBefore": "",
+      "capSeconds": 300,
+      "started": 1791949224.502006,
+      "exit": 0,
+      "timedOut": false,
+      "headAfter": "77532b12f47f44a3a34f6341f121dff5b9539e31",
+      "statusAfter": "",
+      "elapsedSeconds": 1.8082358837127686,
+      "sourceUnchanged": true,
+      "sourceFiles": 309,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceManifestSha256": "d7ca8a4633037f8f44833180c243deb908694e4ac8315d3ad83e88e7e3d3eaea"
+    }
+  },
+  "onlyAddedBehaviorSpecs": [
+    "test/p012-independent-review.spec.ts",
+    "test/p012-correction-review.spec.ts"
+  ],
+  "rootPublicationDelta": "documentation only after integrated tests; all accepted production/existing tests unchanged",
+  "remainingGate": "exact final draft-head full suite and typecheck on push/PR CI",
+  "rootHarnessFailure": "first verification inspection assumed a per-run sourceFiles key; corrected schema reader verified actual source/artifact fields; no production/evidence changes"
+}
