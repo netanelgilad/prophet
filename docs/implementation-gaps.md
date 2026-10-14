@@ -1409,3 +1409,27 @@ closes.
 - LANG-006/REPORT-001: sirv's bound viaCache handler (thisArg 0) is now
   callable; request-path analysis still requires parse(req) and http
   modeling. No server or request claim.
+
+## P019 reconciliation — bounded generic UTF-16 String.prototype.indexOf (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[indexOf specs](../test/string-indexof.spec.ts),
+[sirv request specs](../test/sirv-request.spec.ts) and the task record
+[P019](agent-tasks/P019-string-indexof/task.md) retain residuals; no gap
+group closes.
+
+- LIB-001/LIB-002: indexOf leaves the deferred registry in bounded form.
+  Concrete UTF-16 operands with ordinary conversions and forward literal
+  scanning are modeled within the shared 65,536-unit admission and
+  1,048,576-comparison budgets; RegExp search values (native coerces via
+  RegExp toString, unmodeled), exotic conversions and symbolic operands
+  stay typed boundaries. The pinned 52-name inventory is thirteen
+  modeled/39 deferred.
+- HTTP-008/REPORT-001: the delivered request declares method, url and an
+  absent _parsedUrl slot, so a delivered GET /hello.txt runs unchanged
+  @polka/url parse to completion (both indexOf probes answer -1; the
+  opaque querystring builtin is never invoked). The measured stop moves to
+  req.headers['accept-encoding'] (sirv build.js:172), still a legacy
+  unmarked host property read. Incoming headers, the rest of the request
+  surface, viaCache lookup, the send path and fs streams remain open; no
+  response or success claim.

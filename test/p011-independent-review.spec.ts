@@ -135,7 +135,7 @@ test("independent reached BigInt metadata prevents fabricated Number across lite
 });
 
 test("independent prior unsupported operand bypass and disclosed legacy embedding checkpoints",()=>{
- const[d,s]=run('let mark=0;function operand(){mark=1;return "x".indexOf;}const n=~operand();');expect(d).toMatchObject({message:"String.prototype.indexOf is not yet supported"});expect(s.value.scope.mark).toMatchObject({value:1});
+ const[d,s]=run('let mark=0;function operand(){mark=1;return "x".charAt;}const n=~operand();');expect(d).toMatchObject({message:"String.prototype.charAt is not yet supported"});expect(s.value.scope.mark).toMatchObject({value:1});
  for(const category of ["partial","cycle"]){const input=ESObject({});if(category==="partial")input.unknownProperties="partial";else input.prototype=input;let error:any;try{run('let mark=1;const n=~input;',{input});}catch(e){error=e;}expect(error).toBeDefined();expect(error.message).toMatch(category==="partial"?/Unmodeled host/:/Cyclic/);expect(analysisFailureContext(error)!.value.scope.mark).toMatchObject({value:1});}
 });
 

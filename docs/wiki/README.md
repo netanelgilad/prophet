@@ -45,3 +45,4 @@ until review is recorded; a model-generated article is not independent evidence.
 - [Bounded no-match RegExp String.prototype.replace](string-replace.md): identity via the Boolean matcher's no-match answer; frontier now Function.prototype.bind; independent review pending.
 - [Bounded Function.prototype.bind](function-bind.md): captured receiver/partials, computed length, forwarding calls; unchanged sirv factory returns its request handler; independent review pending.
 - [Bounded sloppy receiver boxing](sloppy-boxing.md): fresh ToObject wrappers on original intrinsic prototypes; bound viaCache handler callable; independent review pending.
+- [Bounded generic UTF-16 String.prototype.indexOf](string-indexof.md): forward scan, NaN-as-+0 positions, shared budgets; delivered sirv GET completes @polka/url parse; independent review pending.

@@ -79,7 +79,7 @@ for(const hook of [Undefined,ESNull,ESNumber(7)])test('own symbol slot precedes 
  if(hook===Undefined||hook===ESNull){expect(d).toBe(Undefined);expect(s.value.scope.out).toMatchObject({value:'bc'});expect(s.value.scope.trace).toMatchObject({value:'t'});}else{expect(d).toMatchObject({type:'ExecutionBoundary',kind:'unsupported'});expect(s.value.scope.trace).toMatchObject({value:''});}
 });
 
-for(const expr of ['String.prototype.substring.bind','String.prototype.substring.caller','String.prototype.substring.name="bad"','Object.keys(String.prototype.substring)','"abc".indexOf'])test('held-out partial metadata '+expr,()=>{
+for(const expr of ['String.prototype.substring.bind','String.prototype.substring.caller','String.prototype.substring.name="bad"','Object.keys(String.prototype.substring)','"abc".charAt'])test('held-out partial metadata '+expr,()=>{
  const all=leaves(run('let n=0;if(a){n=1;'+expr+';n=9;}else n=2;',{a:ESBoolean()}));expect(all).toHaveLength(2);expect(all.find(([v])=>v.type==='ExecutionBoundary')[1].value.scope.n).toMatchObject({value:1});expect(all.find(([v])=>v===Undefined)[1].value.scope.n).toMatchObject({value:2});
 });
 

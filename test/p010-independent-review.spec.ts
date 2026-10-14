@@ -143,7 +143,7 @@ for(const where of ["receiver","search","position"])test("independent symbol gua
  }
  expect(native('const x=Object.create({[Symbol.toPrimitive](h){return h==="number"?2:"aba";}});process.stdout.write(JSON.stringify(String.prototype.lastIndexOf.call(input==="receiver"?x:"ababa",input==="search"?x:"a",input==="position"?x:2)));',where)).toBe(2);
 });
-for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.lastIndexOf.hasOwnProperty','String.prototype.lastIndexOf.caller','String.prototype.lastIndexOf.arguments','String.prototype.lastIndexOf.length=2','String.prototype.lastIndexOf.name="new"','Object.keys(String.prototype.lastIndexOf)','({...String.prototype.lastIndexOf})','"a".includes','"a".indexOf'])test("independent conservative metadata "+expression,()=>{
+for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.lastIndexOf.hasOwnProperty','String.prototype.lastIndexOf.caller','String.prototype.lastIndexOf.arguments','String.prototype.lastIndexOf.length=2','String.prototype.lastIndexOf.name="new"','Object.keys(String.prototype.lastIndexOf)','({...String.prototype.lastIndexOf})','"a".includes','"a".charAt'])test("independent conservative metadata "+expression,()=>{
  const all=leaves(run(`let mark=0;if(a){mark=1;const n=(${expression});mark=2;}else mark=3;`,{a:ESBoolean()}));
  expect(all).toHaveLength(2);expect(all.find(([v])=>v.type==="ExecutionBoundary")[1].value.scope.mark).toMatchObject({value:1});expect(all.find(([v])=>v===Undefined)[1].value.scope.mark).toMatchObject({value:3});
 });
@@ -163,7 +163,7 @@ test("independent supported unary after operand fork preserves throw and sibling
  const [done,state]=run(source+'const valid=a?(b?caught==="G"&&mark===1:result===-6&&!caught&&mark===2)&&cleaned:mark===3&&!cleaned;',{a:ESBoolean(),b:ESBoolean()});
  expect(done).toBe(Undefined);expect(state.value.scope.valid).toMatchObject({value:true});
  for(const a of [false,true])for(const b of [false,true])expect(native('process.stdout.write(JSON.stringify(Function(input+";return answer;")()));',`const a=${a},b=${b};`+source+'const answer=a?(b?caught==="G"&&mark===1:result===-6&&!caught&&mark===2)&&cleaned:mark===3&&!cleaned;')).toBe(true);
- const [early,current]=run('let mark=0;function operand(){mark=1;return "x".indexOf;}const n=~operand();');expect(early).toMatchObject({type:"ExecutionBoundary",message:"String.prototype.indexOf is not yet supported"});expect(current.value.scope.mark).toMatchObject({value:1});
+ const [early,current]=run('let mark=0;function operand(){mark=1;return "x".charAt;}const n=~operand();');expect(early).toMatchObject({type:"ExecutionBoundary",message:"String.prototype.charAt is not yet supported"});expect(current.value.scope.mark).toMatchObject({value:1});
 });
 
 test("independent all whole upstream candidates in pinned native and whole A11 inactive blocker",()=>{

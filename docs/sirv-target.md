@@ -51,11 +51,17 @@ factory with a directory evaluates two regular-expression literals and appends
  completion fork's healthy leaf is the returned function value, preserving
  every directory/stat/isDirectory call/outcome identity beside the EMFILE
  readdir call/throw sibling. No package source rewrite is introduced.
- Calling the returned handler (the pre-existing sloppy primitive receiver
- boxing rejection, request parsing, http modeling), full Unicode
- casing/normalization, other bitwise operations, remaining deferred String
- APIs, other Stats/Date metadata, bound-function name metadata and streams
- remain work.
+ Sloppy primitive receiver boxing now invokes the bound handler, and a
+ delivered GET /hello.txt request runs unchanged @polka/url parse to
+ completion: the delivered request declares its absent _parsedUrl cache
+ slot, and bounded generic UTF-16 indexOf answers both of parse's probes
+ (-1 for "/hello.txt"), so the handler observes parse's computed pathname
+ and stops at req.headers['accept-encoding'] (build.js:172), a legacy
+ unmarked host property read on the incoming request. Modeling the request
+ headers and remaining request/response surface, the viaCache lookup and
+ send path, full Unicode casing/normalization, other bitwise operations,
+ remaining deferred String APIs, other Stats/Date metadata, bound-function
+ name metadata and streams remain work.
  The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity

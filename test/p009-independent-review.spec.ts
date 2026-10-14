@@ -145,7 +145,7 @@ for(const expression of ['String.prototype.toLowerCase.caller','String.prototype
   'String.prototype.toLowerCase.name="changed"','String.prototype.toLowerCase.length=9',
   'String.prototype.toLowerCase.hasOwnProperty','Object.keys(String.prototype.toLowerCase)',
   '({...String.prototype.toLowerCase})','"ABC".toUpperCase',
-  'Object.prototype.hasOwnProperty.call(String.prototype,"indexOf")']){
+  'Object.prototype.hasOwnProperty.call(String.prototype,"charAt")']){
   test("independent conservative metadata/deferred boundary "+expression,()=>{
     const [completion]=run(`let mark=0;if(selected){mark=1;const result=(${expression});mark=2;}else mark=3;`,{selected:ESBoolean()});
     expect(isForkedCompletion(completion)).toBe(true);if(!isForkedCompletion(completion))throw Error("fork");

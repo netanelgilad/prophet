@@ -104,11 +104,11 @@ for(const reverse of [false,true])test('selected seeded/fresh objects retain pre
   const console=createConsoleModel();const {state,stat}=setup({a:ESBoolean(),b:ESBoolean(),c:ESBoolean(),console:console.module});
   const seeded=writeProperty(stat,'size',ESNumber(17),state);
   const source=`let trace="",caught=false,cleaned=false;const box={n:0},shared=box;function C(){}C.prototype.n=0;
-    function read(){trace="p";shared.n=8;C.prototype.n=9;console.log("p");if(b)fs.statSync("/missing");if(c)return "x".indexOf;const current=${reverse?'!a':'a'}?stat:second;return current.size;}
+    function read(){trace="p";shared.n=8;C.prototype.n=9;console.log("p");if(b)fs.statSync("/missing");if(c)return "x".charAt;const current=${reverse?'!a':'a'}?stat:second;return current.size;}
     try{const answer=read();trace=trace+answer;}catch(e){caught=e.code;}finally{cleaned=true;console.log("f");}`;
   const all=leaves(evaluateCode(source,seeded));expect(all.some(([v])=>v.type==='ExecutionBoundary')).toBe(true);expect(all.some(([v])=>v===Undefined)).toBe(true);
   for(const [value,after]of all){const stop=value.type==='ExecutionBoundary';
-    if(stop){const proof=value.message.includes('Node Stats fields')?`${reverse?'a':'!a'}&&!b&&!c`:'!b&&c';const [checked,current]=evaluateCode('const valid='+proof+';',after);expect(checked).toBe(Undefined);expect(resolveBoolean(current.value.scope.valid as any,current.value.knowledge)).toBe(true);expect(value.message).toMatch(/Node Stats fields|String.prototype.indexOf/);expect(after.value.scope.trace).toMatchObject({value:'p'});expect(after.value.scope.caught).toMatchObject({value:false});}
+    if(stop){const proof=value.message.includes('Node Stats fields')?`${reverse?'a':'!a'}&&!b&&!c`:'!b&&c';const [checked,current]=evaluateCode('const valid='+proof+';',after);expect(checked).toBe(Undefined);expect(resolveBoolean(current.value.scope.valid as any,current.value.knowledge)).toBe(true);expect(value.message).toMatch(/Node Stats fields|String.prototype.charAt/);expect(after.value.scope.trace).toMatchObject({value:'p'});expect(after.value.scope.caught).toMatchObject({value:false});}
     else {const [done,last]=evaluateCode('const valid=b?caught==="ENOENT"&&trace==="p":!caught&&trace==="p17";',after);expect(done).toBe(Undefined);expect(last.value.scope.valid).toMatchObject({value:true});}
     expect(after.value.scope.cleaned).toMatchObject({value:!stop});expect(console.inspectOutput(after).every(p=>p.chunks.map(x=>x.value).join('')===(stop?'p\n':'p\nf\n'))).toBe(true);
     const [done,last]=evaluateCode('const valid=box.n===8&&shared===box&&(new C()).n===9;',after);expect(done).toBe(Undefined);expect(last.value.scope.valid).toMatchObject({value:true});

@@ -439,8 +439,13 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
 
   function deliverRequest(server: Any, input: { method: TESString; url: TESString }, context: TExecutionContext) {
       if (!isESString(input.method) || !isESString(input.url)) unsupported("request method and URL must be strings");
-      const request = Object.assign(ESObject({ method: input.method, url: input.url }), {
-        unknownProperties: "Node HTTP incoming request API"
+      // A freshly delivered IncomingMessage has no cached parse: pinned Node
+      // 24.21.0 reads req._parsedUrl as undefined on raw dispatch. Declaring
+      // it absent lets @polka/url's parse probe fall through to its own
+      // computation; the package's write-back then caches on the request.
+      const request = Object.assign(ESObject({ method: input.method, url: input.url, _parsedUrl: Undefined }), {
+        unknownProperties: "Node HTTP incoming request API",
+        unmodeledOwnPropertyInspection: "Node HTTP incoming request descriptors"
       });
       const response = Object.assign(ESObject({ statusCode: ESNumber(200), statusMessage: Undefined,
         writableEnded: ESBoolean(false), writableFinished: ESBoolean(false),
