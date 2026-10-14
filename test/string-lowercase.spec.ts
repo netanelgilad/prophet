@@ -148,7 +148,7 @@ for (const expression of ['[]', 'function() {}', 'input']) test(`exotic receiver
 });
 for (const operation of ['const value = String.prototype.toLowerCase.bind;', 'const value = String.prototype.toLowerCase.caller;', 'const value = String.prototype.toLowerCase.arguments;', 'String.prototype.toLowerCase.name = "other";',
   'String.prototype.toLowerCase.length = 1;', 'const value = Object.keys(String.prototype.toLowerCase);', 'const value = ({...String.prototype.toLowerCase});',
-  'const value = "x".toLocaleLowerCase;', 'const value = Object.prototype.hasOwnProperty.call(String.prototype, "substring");']) {
+  'const value = "x".toLocaleLowerCase;', 'const value = Object.prototype.hasOwnProperty.call(String.prototype, "indexOf");']) {
   test(`metadata and deferred surface stays typed: ${operation}`, () => {
     const [completion] = run(`let trace = ""; if(selected) {trace = "prefix"; ${operation} trace = "wrong";} else trace = "sibling";`, {selected: ESBoolean()});
     expect(isForkedCompletion(completion)).toBe(true); if (!isForkedCompletion(completion)) throw new Error("expected fork");

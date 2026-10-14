@@ -77,15 +77,15 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
   // Both flagless filters execute on the unmodified filename. The next
-  // reached gap is substring property lookup after !~idx selects its alternate; idx is still 5 because the callee read precedes ++idx.
+  // reached gap is Stats.size after unchanged mrmime substring returns text/plain; ++idx executed once.
   // The filesystem failure sibling must survive that stop.
-  expect(result.diagnostic).toBe("String.prototype.substring is not yet supported");
+  expect(result.diagnostic).toBe("Unmodeled host property 'size': Node Stats fields");
   expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
   expect(isForkedCompletion(result.completion)).toBe(true);
   const boundaries = executionBoundaries(result.completion as Any);
   expect(boundaries).toHaveLength(1);
   expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "String.prototype.substring is not yet supported" });
+    message: "Unmodeled host property 'size': Node Stats fields" });
   const forked = result.completion as ForkedCompletion;
   const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
     leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
@@ -97,9 +97,12 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   if (!isThrownValue(failed[0])) throw new Error("expected filesystem throw");
   expect(getProperties(failed[0].value as WithProperties, failed[1]).code).toMatchObject({ value: "EMFILE" });
   const stopped = [forked.consequent, forked.alternate].find(leaf => !isThrownValue(leaf[0]))!;
-  expect(stopped[1].value.sourceFile).toMatch(/mrmime\/index\.js$/);
-  expect(stopped[1].value.scope.tmp).toMatchObject({value: "hello.txt"});
-  expect(stopped[1].value.scope.idx).toMatchObject({value: 5});
+  expect(stopped[1].value.sourceFile).toMatch(/sirv\/build\.js$/);
+  // This is a completed mrmime activation, outside the current lexical chain.
+  const mimeRecord = Array.from(stopped[1].value.environments.values()).find(record => record.has("tmp") && record.has("idx"))!;
+  expect(mimeRecord.get("tmp")!.value).toMatchObject({value: "hello.txt"});
+  expect(mimeRecord.get("idx")!.value).toMatchObject({value: 6});
+  expect(stopped[1].value.scope.ctype).toMatchObject({value: "text/plain"});
   // Both descriptor histories retain the reached enumeration and its outcome.
   for (const leaf of [stopped, failed]) {
     const kind = leaf === stopped ? "return" : "throw";
@@ -113,7 +116,7 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   }
   expect(effectPaths(stopped[1].value.effects).some(path => path.events.some(event =>
     event.call.operation === "fs.readdirSync"))).toBe(true);
-  expect(boundaries[0].frames.some(frame => frame.node.type === "CallExpression" && (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "substring")).toBe(true);
+  expect(boundaries[0].frames.some(frame => frame.node.type === "MemberExpression" && (frame.node as any).object.name === "stats" && (frame.node as any).property.name === "size")).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -186,7 +189,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
     });
   expect(child.error).toBeUndefined();
   expect(child.status).toBe(2);
-  expect(child.stderr).toBe("prophet: String.prototype.substring is not yet supported\n");
+  expect(child.stderr).toBe("prophet: Unmodeled host property 'size': Node Stats fields\n");
   const graph = JSON.parse(child.stdout);
   expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
   const nodes = new Map<string, any>(graph.nodes.map((node: any) => [node.id, node]));
@@ -204,26 +207,26 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
   expect(field(field(field(field(failed, "value"), "properties"), "code"), "value")).toBe("EMFILE");
   const boundary = values.find(value => field(value, "type") === "ExecutionBoundary");
   expect(field(boundary, "kind")).toBe("unsupported");
-  expect(field(boundary, "message")).toBe("String.prototype.substring is not yet supported");
+  expect(field(boundary, "message")).toBe("Unmodeled host property 'size': Node Stats fields");
   const stopped = leaves.find(leaf => field(field(leaf, "0"), "type") === "ExecutionBoundary");
-  expect(field(field(stopped, "1"), "sourceFile")).toMatch(/mrmime\/index\.js$/);
+  expect(field(field(stopped, "1"), "sourceFile")).toMatch(/sirv\/build\.js$/);
   // Inspect the public environment records, not the private flattened scope view.
   const state = field(stopped, "1");
   const environments = nodes.get(field(state, "environments").ref).entries;
-  let environment = field(state, "environment");
   let tmp: any, idx: any;
-  while (environment && environment.ref) {
-    const record = environments.find(([key]: [any]) => key.ref === environment.ref);
-    const binding = record && nodes.get(record[1].ref).entries.find(([name]: [string]) => name === "tmp");
-    if (binding) tmp = field(binding[1], "value");
-    const indexBinding = record && nodes.get(record[1].ref).entries.find(([name]: [string]) => name === "idx");
-    if (indexBinding) idx = field(indexBinding[1], "value");
+  for (const [, record] of environments) {
+    for (const name of ["tmp", "idx"]) {
+      const binding = nodes.get(record.ref).entries.find(([key]: [string]) => key === name);
+      if (binding) { if (name === "tmp") tmp = field(binding[1], "value"); else idx = field(binding[1], "value"); }
+    }
     if (tmp && idx) break;
-    environment = field(environment, "parent");
   }
+  const currentRecord = environments.find(([key]: [any]) => key.ref === field(state, "environment").ref);
+  const ctype = nodes.get(currentRecord[1].ref).entries.find(([key]: [string]) => key === "ctype");
+  expect(field(field(ctype[1], "value"), "value")).toBe("text/plain");
   expect(tmp).toBeDefined();
   expect(field(tmp, "value")).toBe("hello.txt");
-  expect(field(idx, "value")).toBe(5);
+  expect(field(idx, "value")).toBe(6);
   expect(graph.nodes.some((node: any) => (node.entries || []).some(([name, value]: [string, any]) =>
     name === "operation" && value === "fs.readdirSync"))).toBe(true);
 });

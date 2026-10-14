@@ -446,3 +446,16 @@ actually checks Windows realpath behavior for fileserver/drive paths, including
 asynchronous realpath and os.hostname. It is not evidence for a missing-file
 readFileSync case. None of these complete files is currently activated or
 counted passing, and none is trimmed to an easier fragment.
+
+## Supplied Stats data and the P012-R1 boundary
+
+Stats.size remains unmodeled for a fresh/unprovided Stats value. Correction1
+preserves an explicitly supplied current own data property through persistent
+heap state, including undefined/zero, conditional presence, finite values and
+alias replacement. Its read guard checks current own presence before a typed
+unknown-size stop; inherited Object.prototype.size does not establish native
+metadata. This repairs a regression introduced by P012's classification hook;
+it adds no initial native size, descriptor or Date semantics. Fresh unknown-size
+writes and other read/write/inspection/brand guards remain unchanged. See
+[specs](../test/node-filesystem-size-presence.spec.ts) and
+[correction contract](agent-tasks/P012-string-substring/correction-1.md).

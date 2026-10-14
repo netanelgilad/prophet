@@ -143,7 +143,7 @@ for(const where of ["receiver","search","position"])test("independent symbol gua
  }
  expect(native('const x=Object.create({[Symbol.toPrimitive](h){return h==="number"?2:"aba";}});process.stdout.write(JSON.stringify(String.prototype.lastIndexOf.call(input==="receiver"?x:"ababa",input==="search"?x:"a",input==="position"?x:2)));',where)).toBe(2);
 });
-for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.lastIndexOf.hasOwnProperty','String.prototype.lastIndexOf.caller','String.prototype.lastIndexOf.arguments','String.prototype.lastIndexOf.length=2','String.prototype.lastIndexOf.name="new"','Object.keys(String.prototype.lastIndexOf)','({...String.prototype.lastIndexOf})','"a".substring','"a".indexOf'])test("independent conservative metadata "+expression,()=>{
+for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.lastIndexOf.hasOwnProperty','String.prototype.lastIndexOf.caller','String.prototype.lastIndexOf.arguments','String.prototype.lastIndexOf.length=2','String.prototype.lastIndexOf.name="new"','Object.keys(String.prototype.lastIndexOf)','({...String.prototype.lastIndexOf})','"a".includes','"a".indexOf'])test("independent conservative metadata "+expression,()=>{
  const all=leaves(run(`let mark=0;if(a){mark=1;const n=(${expression});mark=2;}else mark=3;`,{a:ESBoolean()}));
  expect(all).toHaveLength(2);expect(all.find(([v])=>v.type==="ExecutionBoundary")[1].value.scope.mark).toMatchObject({value:1});expect(all.find(([v])=>v===Undefined)[1].value.scope.mark).toMatchObject({value:3});
 });
@@ -163,7 +163,7 @@ test("independent supported unary after operand fork preserves throw and sibling
  const [done,state]=run(source+'const valid=a?(b?caught==="G"&&mark===1:result===-6&&!caught&&mark===2)&&cleaned:mark===3&&!cleaned;',{a:ESBoolean(),b:ESBoolean()});
  expect(done).toBe(Undefined);expect(state.value.scope.valid).toMatchObject({value:true});
  for(const a of [false,true])for(const b of [false,true])expect(native('process.stdout.write(JSON.stringify(Function(input+";return answer;")()));',`const a=${a},b=${b};`+source+'const answer=a?(b?caught==="G"&&mark===1:result===-6&&!caught&&mark===2)&&cleaned:mark===3&&!cleaned;')).toBe(true);
- const [early,current]=run('let mark=0;function operand(){mark=1;return "x".substring;}const n=~operand();');expect(early).toMatchObject({type:"ExecutionBoundary",message:"String.prototype.substring is not yet supported"});expect(current.value.scope.mark).toMatchObject({value:1});
+ const [early,current]=run('let mark=0;function operand(){mark=1;return "x".indexOf;}const n=~operand();');expect(early).toMatchObject({type:"ExecutionBoundary",message:"String.prototype.indexOf is not yet supported"});expect(current.value.scope.mark).toMatchObject({value:1});
 });
 
 test("independent all whole upstream candidates in pinned native and whole A11 inactive blocker",()=>{
@@ -189,16 +189,18 @@ test("independent unchanged actual CLI retains every FS outcome, source frontier
  const binary=process.env.PROPHET_NODE_BINARY||process.execPath,argv=[join(root,"bin/prophet.js"),"--","entry.cjs"];
  const child=spawnSync(binary,argv,{cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
  writeFileSync(join(logRoot,"cli.stdout.json"),child.stdout);writeFileSync(join(logRoot,"cli.stderr.log"),child.stderr);writeFileSync(join(logRoot,"cli-command.json"),JSON.stringify({binary,argv,cwd:directory,status:child.status,signal:child.signal},null,2));
- expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.substring is not yet supported\n");
+ expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: Unmodeled host property 'size': Node Stats fields\n");
  const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
  const field=(ref:any,key:string)=>{const pair=nodes.get(ref.ref).entries.find(([name]:[string])=>name===key);return pair&&pair[1];};
  const completion=graph.roots.completion;expect(field(completion,"type")).toBe("ForkedCompletion");
  const all=[field(completion,"consequent"),field(completion,"alternate")];expect(all.map(l=>field(field(l,"0"),"type")).sort()).toEqual(["ExecutionBoundary","ThrownValue"]);
  for(const leaf of all){const value=field(leaf,"0"),state=field(leaf,"1"),stopped=field(value,"type")==="ExecutionBoundary";
-  if(stopped){expect(field(value,"message")).toBe("String.prototype.substring is not yet supported");expect(field(state,"sourceFile")).toMatch(/mrmime\/index\.js$/);
-   const envs=nodes.get(field(state,"environments").ref).entries;let env=field(state,"environment"),tmp:any,idx:any;
-   while(env&&env.ref){const record=envs.find(([key]:[any])=>key.ref===env.ref);for(const name of ["tmp","idx"]){const binding=record&&nodes.get(record[1].ref).entries.find(([key]:[string])=>key===name);if(binding){if(name==="tmp")tmp=field(binding[1],"value");else idx=field(binding[1],"value");}}if(tmp&&idx)break;env=field(env,"parent");}
-   expect(field(tmp,"value")).toBe("hello.txt");expect(field(idx,"value")).toBe(5);
+  if(stopped){expect(field(value,"message")).toBe("Unmodeled host property 'size': Node Stats fields");expect(field(state,"sourceFile")).toMatch(/sirv\/build\.js$/);
+   // Completed mrmime activation records remain; these are not current sirv locals.
+   const envs=nodes.get(field(state,"environments").ref).entries;let tmp:any,idx:any;
+   for(const [,record]of envs){for(const name of ["tmp","idx"]){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key===name);if(binding){if(name==="tmp")tmp=field(binding[1],"value");else idx=field(binding[1],"value");}}if(tmp&&idx)break;}
+   expect(field(tmp,"value")).toBe("hello.txt");expect(field(idx,"value")).toBe(6);
+   const currentRecord=envs.find(([key]:[any])=>key.ref===field(state,"environment").ref);const ctype=nodes.get(currentRecord[1].ref).entries.find(([key]:[string])=>key==="ctype");expect(field(field(ctype[1],"value"),"value")).toBe("text/plain");
   }else expect(field(field(field(field(value,"value"),"properties"),"code"),"value")).toBe("EMFILE");
   // Traverse trace edges only: heap snapshots may refer back to unrelated history.
   function paths(ref:any):any[][]{

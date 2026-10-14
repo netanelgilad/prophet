@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "python3",
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012/verify-evidence-v1.py"
+  ],
+  "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring",
+  "phase": "evidence-only validation",
+  "sourceCommit": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+  "head": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+  "status": "?? docs/agent-tasks/P012-string-substring/evidence.json\n?? docs/agent-tasks/P012-string-substring/handoff.md",
+  "start": "2026-10-14T01:15:25.748724+00:00",
+  "end": "2026-10-14T01:15:29.921494+00:00",
+  "elapsedSeconds": 4.172287917,
+  "exit": 0,
+  "artifacts": 1471,
+  "sourceFiles": 1236,
+  "runs": 22,
+  "evidencePath": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/docs/agent-tasks/P012-string-substring/evidence.json",
+  "evidenceSha256": "0859601cd7d60e3087cc40b31aa423c8eb576bf5605a301f9d78b655b522e94d"
+}

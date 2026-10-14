@@ -14,6 +14,7 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
+| [P012](P012-string-substring/task.md) | Bounded generic substring; unchanged mrmime MIME lookup to actual sirv Stats.size | Original3ef28e1 rejected forP012-R1; same Astra/high accepts correctedb582e2c; root integration/exact-headCI gates retained | [Boundary](../string-substring.md), [review](P012-string-substring/correction-1-independent-review.md), [publication](P012-string-substring/publication-review.md); no factory completion/trust promotion |
 | [P011](P011-number-bitwise-not/task.md) | Number-domain unary ~; advance unchanged mrmime | First source b920a64 rejected for P011-R1; corrected source 5c70d29 accepted by same Astra/high reviewer; integration/CI gates retained | [Boundary](../number-bitwise-not.md), [review](P011-number-bitwise-not/correction-1-independent-review.md), [publication review](P011-number-bitwise-not/publication-review.md); no trust promotion |
 | [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Accepted/pushed `b9c3864`; CI green; Atlas thread archived | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
 | [P002](P002-array-foreach/task.md) | Shared Array.forEach; next reached sirv operation | Accepted/pushed `7defa45`; CI green; Atlas thread archived | [One correction round](P002-array-foreach/review.md); 12 independent probes, full suite/typecheck pass; evidence artifacts cleaned up |
@@ -42,3 +43,11 @@ waiting/sleep through future limits; no model rotation is queued. Atlas completi
 does not automatically wake the orchestrator; no unattended review is configured.
 See [P005 review](P005-selection-membership/review.md) for source equivalence,
 publication and CI evidence; no concurrency gate has been relaxed.
+
+
+P012 correction1: original source3ef28e1/evidence82cb5c1 remain frozen and rejected
+by Astra/high report5273aa2 for one P2 findingP012-R1. The same sole Sol6.1/high
+writer corrects current known own Stats.size admission under the
+[correction contract](P012-string-substring/correction-1.md). Original artifacts
+remain byte-identical; corrected source/evidence require renewed same-reviewer
+acceptance. No broader Stats semantics, factory completion or trust promotion.

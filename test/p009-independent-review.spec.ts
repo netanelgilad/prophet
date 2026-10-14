@@ -145,7 +145,7 @@ for(const expression of ['String.prototype.toLowerCase.caller','String.prototype
   'String.prototype.toLowerCase.name="changed"','String.prototype.toLowerCase.length=9',
   'String.prototype.toLowerCase.hasOwnProperty','Object.keys(String.prototype.toLowerCase)',
   '({...String.prototype.toLowerCase})','"ABC".toUpperCase',
-  'Object.prototype.hasOwnProperty.call(String.prototype,"substring")']){
+  'Object.prototype.hasOwnProperty.call(String.prototype,"indexOf")']){
   test("independent conservative metadata/deferred boundary "+expression,()=>{
     const [completion]=run(`let mark=0;if(selected){mark=1;const result=(${expression});mark=2;}else mark=3;`,{selected:ESBoolean()});
     expect(isForkedCompletion(completion)).toBe(true);if(!isForkedCompletion(completion))throw Error("fork");
@@ -179,7 +179,7 @@ test("independent retained actual unchanged sirv CLI graph and both histories", 
     {cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
   writeFileSync(join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"cli.stdout.json"),child.stdout);writeFileSync(join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"cli.stderr.log"),child.stderr);
   console.log("INDEPENDENT_CLI_EXIT",child.status);
-  expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.substring is not yet supported\n");
+  expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: Unmodeled host property 'size': Node Stats fields\n");
   const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);
   const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
   const field=(ref:any,key:string)=>{const pair=nodes.get(ref.ref).entries.find(([name]:[string])=>name===key);return pair&&pair[1];};
@@ -188,10 +188,12 @@ test("independent retained actual unchanged sirv CLI graph and both histories", 
   for(const leaf of all){
     const value=field(leaf,"0"),state=field(leaf,"1"),stopped=field(value,"type")==="ExecutionBoundary";
     if(stopped){
-      expect(field(value,"message")).toBe("String.prototype.substring is not yet supported");expect(field(state,"sourceFile")).toMatch(/mrmime\/index\.js$/);
-      const envs=nodes.get(field(state,"environments").ref).entries;let env=field(state,"environment"),tmp:any,idx:any;
-      while(env&&env.ref){const record=envs.find(([key]:[any])=>key.ref===env.ref);const binding=record&&nodes.get(record[1].ref).entries.find(([name]:[string])=>name==="tmp");if(binding)tmp=field(binding[1],"value");const indexBinding=record&&nodes.get(record[1].ref).entries.find(([name]:[string])=>name==="idx");if(indexBinding)idx=field(indexBinding[1],"value");if(tmp&&idx)break;env=field(env,"parent");}
-      expect(field(tmp,"value")).toBe("hello.txt");expect(field(idx,"value")).toBe(5);
+      expect(field(value,"message")).toBe("Unmodeled host property 'size': Node Stats fields");expect(field(state,"sourceFile")).toMatch(/sirv\/build\.js$/);
+      // Completed mrmime activation records remain; these are not current sirv locals.
+   const envs=nodes.get(field(state,"environments").ref).entries;let tmp:any,idx:any;
+      for(const [,record]of envs){for(const name of ["tmp","idx"]){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key===name);if(binding){if(name==="tmp")tmp=field(binding[1],"value");else idx=field(binding[1],"value");}}if(tmp&&idx)break;}
+      expect(field(tmp,"value")).toBe("hello.txt");expect(field(idx,"value")).toBe(6);
+   const currentRecord=envs.find(([key]:[any])=>key.ref===field(state,"environment").ref);const ctype=nodes.get(currentRecord[1].ref).entries.find(([key]:[string])=>key==="ctype");expect(field(field(ctype[1],"value"),"value")).toBe("text/plain");
     }else expect(field(field(field(field(value,"value"),"properties"),"code"),"value")).toBe("EMFILE");
     // Walk only this leaf's effect graph: both call and outcome must be reachable.
     const seen=new Set<string>(),events:any[]=[];

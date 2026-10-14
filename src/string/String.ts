@@ -22,6 +22,7 @@ import { stringSlice } from "./slice";
 import { stringTrim } from "./trim";
 import { stringToLowerCase } from "./toLowerCase";
 import { stringLastIndexOf } from "./lastIndexOf";
+import { stringSubstring } from "./substring";
 import { markPartialIntrinsic } from "../execution-context/Heap";
 import { markUnsupportedBoundaryObject } from "../execution-context/analysis-failure";
 
@@ -45,7 +46,7 @@ const deferredPrototypeNames = ["anchor", "at", "big", "blink", "bold", "charAt"
   "includes", "indexOf", "isWellFormed", "italics", "link",
   "localeCompare", "match", "matchAll", "normalize", "padEnd", "padStart",
   "repeat", "replace", "replaceAll", "search", "small", "split", "strike",
-  "sub", "substr", "substring", "sup", "startsWith", "toWellFormed",
+  "sub", "substr", "sup", "startsWith", "toWellFormed",
   "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase",
   "toLocaleUpperCase", "toUpperCase"];
 export function getStringPrototype(): TESObject {
@@ -75,6 +76,14 @@ export function getStringPrototype(): TESObject {
       ...ESBuiltinFunction(stringLastIndexOf),
       properties: { length: ESNumber(1), name: ESString("lastIndexOf") },
       unknownProperties: "String.lastIndexOf metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.substring = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringSubstring),
+      properties: { length: ESNumber(2), name: ESString("substring") },
+      unknownProperties: "String.substring metadata",
       modeledInheritedProperties: ["call", "prototype"],
       unmodeledPropertyReads: ["caller", "arguments"],
       unmodeledPropertyWrites: ["length", "name"]

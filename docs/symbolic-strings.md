@@ -300,3 +300,13 @@ both filesystem histories survive through a narrowly typed resolver boundary.
 The bitwise operation itself, increment, substring and subsequent application
 work remain unsupported under LANG-001, LIB-001/002, OBJ-001/003, LANG-006,
 STRING-001, SYM-001/004, LEGACY-002, FS-001, TARGET-002, REPORT-001 and TEST-001/002/003.
+
+## Bounded generic substring (P012)
+
+[Substring](string-substring.md) now supports ordered ordinary receiver/start/end
+coercion, finite correlations and a bounded UTF-16 copy. It advances the unchanged
+mrmime lookup to its MIME-table result and the actual sirv Stats.size frontier.
+Older P008–P011 checkpoint paragraphs above retain their historical progression;
+substring lookup is no longer the current stop. Copy/open/exotic/metadata and
+shared parser/prototype/allocation limits remain explicit. Independent review is
+pending; factory/server/request completion is not reached.

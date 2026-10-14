@@ -250,6 +250,10 @@ for (const body of [
 ]) {
   test(`unmodeled filesystem behavior is an explicit analysis boundary: ${body}`, () => {
     expect(typeof createFileSystemModel).toBe("function");
+    if (body === 'fs.statSync("index.txt").size;') {
+      const {value: done} = load(body);expect(done).toMatchObject({type:"ExecutionBoundary",kind:"unsupported",message:"Unmodeled host property 'size': Node Stats fields"});
+      return;
+    }
     expect(() => load(body)).toThrow(/[Ff]ilesystem|[Ff]ile system|Unmodeled|Stats|encoding|options|receiver|helper/);
   });
 }
@@ -285,4 +289,15 @@ test("filesystem setup requires a directory root and an existing canonical cwd o
   }
   const root = selectValue(selected, tree(), fileSystemDirectory({}));
   expect(() => createFileSystemModel({ root, cwd: "/sandbox/site" })).toThrow(/cwd/);
+});
+
+test("Stats size classification retains prefix, normal sibling and filesystem histories",()=>{
+  const model=createFileSystemModel({root:tree(),cwd:"/sandbox/site"});
+  const initial=ExecutionContext({...nodeInitialExecutionContext.value,global:ESObject({...nodeInitialExecutionContext.value.global.properties,selected:ESBoolean()})});
+  const [done]=createCommonJSLoader({"/sandbox/entry.cjs":source('let mark=0,caught=false,cleaned=false;if(selected){try{mark=1;const s=fs.statSync("index.txt");s.size;mark=9;}catch(e){caught=true;}finally{cleaned=true;}}else mark=2;module.exports={mark,caught,cleaned};')},{builtins:{fs:model.module}}).load("/sandbox/entry.cjs",initial);
+  expect(isForkedCompletion(done)).toBe(true);if(!isForkedCompletion(done))throw Error("fork");
+  const all=[done.consequent,done.alternate],stop=all.find(([v])=>(v as any).type==="ExecutionBoundary")!,normal=all.find(([v])=>(v as any).type!=="ExecutionBoundary")!;
+  expect(stop[0]).toMatchObject({kind:"unsupported",message:"Unmodeled host property 'size': Node Stats fields"});
+  expect(stop[1].value.scope.mark).toMatchObject({value:1});expect(stop[1].value.scope.caught).toMatchObject({value:false});expect(stop[1].value.scope.cleaned).toMatchObject({value:false});expect(getProperties(normal[0] as any,normal[1]).mark).toMatchObject({value:2});expect(getProperties(normal[0] as any,normal[1]).caught).toMatchObject({value:false});expect(getProperties(normal[0] as any,normal[1]).cleaned).toMatchObject({value:false});
+  const histories=effectPaths(stop[1].value.effects);expect(histories.length).toBeGreaterThan(0);for(const history of histories){const fs=history.events.filter(e=>e.call.operation==="fs.statSync");expect(fs.map(e=>e.kind)).toEqual(["call","return"]);expect(fs[0].call).toBe(fs[1].call);}
 });

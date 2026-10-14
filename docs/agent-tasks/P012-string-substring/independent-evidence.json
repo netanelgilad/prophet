@@ -1,0 +1,855 @@
+{
+  "task": "P012 independent exact-source review",
+  "verdict": "reject",
+  "source": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+  "base": "22c109dd0bf67336f023f113055c3a63871684a6",
+  "reviewCheckoutBase": "f10c89c54f0207dafd2b04d2d2ac1142fbbef13c",
+  "branch": "review/p012-string-substring",
+  "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+  "createdAt": "2026-10-14T01:25:08.541220+00:00",
+  "authorizedProfile": {
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "account": "mine",
+    "providerSettingsChanged": false,
+    "providerUsageMeasured": false,
+    "agentsUsed": false,
+    "trustPromotion": false
+  },
+  "deliverables": {
+    "spec": {
+      "path": "test/p012-independent-review.spec.ts",
+      "sha256": "87d2973671281d95c41fe7e067281d36377457e42445c1bea866f4d23ddff485",
+      "bytes": 19577
+    },
+    "report": {
+      "path": "docs/agent-tasks/P012-string-substring/independent-review.md",
+      "sha256": "45ecab262c27f03aee3dc628281a757e04576f374e703f894cf736dff66dd225",
+      "bytes": 13995
+    }
+  },
+  "findings": [
+    {
+      "id": "P012-R1",
+      "priority": "P2",
+      "title": "Stats size hook masks current known own properties",
+      "location": "src/node/filesystem.ts:284-287",
+      "attribution": "new independently reproduced frozen-source regression; exact P011 base control succeeds",
+      "nativeExpected": [
+        17,
+        23
+      ],
+      "VMObserved": "typed unsupported size read, known current heap value retained",
+      "probes": [
+        {
+          "path": "logs/p012-independent/frozen-review/native/R1-false.json",
+          "sha256": "e8e6d5d389ff40a60d0a92956032fa1e2cf44c6e31401489c2a4737999458121",
+          "bytes": 8186
+        },
+        {
+          "path": "logs/p012-independent/frozen-review/native/R1-true.json",
+          "sha256": "e03490b94eed9284d2ebb671e0e986d69342e81f1d5edac7b95bd68dce6134b4",
+          "bytes": 10643
+        }
+      ],
+      "baseVsFrozen": {
+        "path": "logs/p012-independent/frozen-review/native/base-vs-frozen.json",
+        "sha256": "f57ad76fe65de52de8a3f1c32fe609f6e9db4cf8e446d75d1bb1a40a869639a7",
+        "bytes": 27207
+      }
+    }
+  ],
+  "runs": [
+    {
+      "name": "initial",
+      "classification": "FAILED reviewer harness: duplicate snapshot discovery/artifact collisions, raw U+2028 parser-domain mistake, unary-plus-object assumption, plus two R1 regressions. No pass claim from this run; duplicate child records overwritten in-run; original Jest log/source retained.",
+      "summary": [
+        "Test Suites: 2 failed, 2 total",
+        "Tests:       9 failed, 45 passed, 54 total",
+        "Time:        39.863s"
+      ],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "test/p012-independent-review.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-initial",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/initial/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/initial/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/initial/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:07:49.689305+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 1,
+        "end": "2026-10-14T01:08:33.078052+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "561541f24daed43a1da33c05cb60934fe13c291fa6958107751b983f08d54c16",
+          "before.json": "ef1060ad4186ff8a08e140517d4dc89d9e2bab55057e1b3c446180e965c6c220",
+          "after.json": "ef1060ad4186ff8a08e140517d4dc89d9e2bab55057e1b3c446180e965c6c220"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/initial/result.json",
+        "sha256": "103f92dc8726d8046285f3408870b1a8cfce5d1bf7cef009e04a21214be72592",
+        "bytes": 2296
+      },
+      "before": {
+        "path": "logs/p012-independent/initial/before.json",
+        "sha256": "ef1060ad4186ff8a08e140517d4dc89d9e2bab55057e1b3c446180e965c6c220",
+        "bytes": 214034
+      },
+      "after": {
+        "path": "logs/p012-independent/initial/after.json",
+        "sha256": "ef1060ad4186ff8a08e140517d4dc89d9e2bab55057e1b3c446180e965c6c220",
+        "bytes": 214034
+      },
+      "reviewSpecSha256": "943447cb9a4d75863430d348181efcd576dd810908b8fc19d4708b3399ea63c4"
+    },
+    {
+      "name": "corrected",
+      "classification": "27-probe predecessor version: 25 pass, 2 R1 failures. Raw matrix literals escaped and unrelated unary-plus control replaced.",
+      "summary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       2 failed, 25 passed, 27 total",
+        "Time:        14.808s, estimated 19s"
+      ],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "--runTestsByPath",
+          "test/p012-independent-review.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-corrected",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/corrected/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/corrected/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/corrected/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:09:32.044038+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 1,
+        "end": "2026-10-14T01:09:49.173856+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "218c65d9045065b15d510856a615b1750aa77704204cb11ad8d32e256ae2977f",
+          "before.json": "7564647871e01a7cd90c758f10e66e5174769b301f38f54e9c32b83e9047ff5d",
+          "after.json": "7564647871e01a7cd90c758f10e66e5174769b301f38f54e9c32b83e9047ff5d"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/corrected/result.json",
+        "sha256": "77d7380bc3766ce726a609b120f49bfe12fffd5f6fc6b8239ec8afe51ad24df2",
+        "bytes": 2328
+      },
+      "before": {
+        "path": "logs/p012-independent/corrected/before.json",
+        "sha256": "7564647871e01a7cd90c758f10e66e5174769b301f38f54e9c32b83e9047ff5d",
+        "bytes": 214034
+      },
+      "after": {
+        "path": "logs/p012-independent/corrected/after.json",
+        "sha256": "7564647871e01a7cd90c758f10e66e5174769b301f38f54e9c32b83e9047ff5d",
+        "bytes": 214034
+      },
+      "reviewSpecSha256": "ed2e741d1f6482e3f3756120ad834ec644790b9aee82a1bfb4a89d3ef4168e20"
+    },
+    {
+      "name": "final-probes",
+      "classification": "29-probe pre-final-helper version: 26 pass, 3 failures (two R1 plus ENOSPC saving native evidence). Not green.",
+      "summary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       3 failed, 26 passed, 29 total",
+        "Time:        37.97s"
+      ],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "--runTestsByPath",
+          "test/p012-independent-review.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-final-probes",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/final-probes/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/final-probes/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/final-probes/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:11:04.460754+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 1,
+        "end": "2026-10-14T01:11:45.183646+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "f20a66b3ab0456218281b18d7bcc375048debe52a76d77d34653bdd0a5ca1717",
+          "before.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+          "after.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/final-probes/result.json",
+        "sha256": "642b1ec44315ab72ea924d6eb3ed6ddfd22a3dee01e16ef81d42ce9d580e8064",
+        "bytes": 2340
+      },
+      "before": {
+        "path": "logs/p012-independent/final-probes/before.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "after": {
+        "path": "logs/p012-independent/final-probes/after.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "reviewSpecSha256": "8bd23d66f2636c5b49e44fbca109a1d6794b4c9dae27c15a2085ae73686c754a"
+    },
+    {
+      "name": "final-probes-retry",
+      "classification": "Unchanged 29-probe retry: 27 pass, 2 R1 failures, complete upstream/native controls.",
+      "summary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       2 failed, 27 passed, 29 total",
+        "Time:        38.855s"
+      ],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "--runTestsByPath",
+          "test/p012-independent-review.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-final-probes-retry",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/final-probes-retry/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/final-probes-retry/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/final-probes-retry/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:12:49.633027+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 1,
+        "end": "2026-10-14T01:13:31.277757+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "b53d3d2497bf5eb10e13be3e20c3a16c96cf7b36cb3aae1bb0b2c15e68bf62a7",
+          "before.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+          "after.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/final-probes-retry/result.json",
+        "sha256": "cedee532c5bacb4aa9a271349cefeef9f7a6f0a4b0746dc2908c38992c813812",
+        "bytes": 2364
+      },
+      "before": {
+        "path": "logs/p012-independent/final-probes-retry/before.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "after": {
+        "path": "logs/p012-independent/final-probes-retry/after.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "reviewSpecSha256": "8bd23d66f2636c5b49e44fbca109a1d6794b4c9dae27c15a2085ae73686c754a"
+    },
+    {
+      "name": "frozen-review",
+      "classification": "Final review spec with explicitly supplied/logged complete native child environment: 27 pass, 2 R1 failures. Exact source rejected.",
+      "summary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       2 failed, 27 passed, 29 total",
+        "Time:        35.667s"
+      ],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "--runTestsByPath",
+          "test/p012-independent-review.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-frozen-review",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/frozen-review/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/frozen-review/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/frozen-review/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:21:08.632693+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 1,
+        "end": "2026-10-14T01:21:47.381021+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "01fc93d2b13be5afc670c08c3e37a12b9a0b4ec385d9be6a916a89abb3d68700",
+          "before.json": "5034d3149555591476d5b384f3190b0f6f08f042d9b6e9136a35409d033f762a",
+          "after.json": "5034d3149555591476d5b384f3190b0f6f08f042d9b6e9136a35409d033f762a"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/frozen-review/result.json",
+        "sha256": "7c33b7bfae5e6cb2830c8e55f9de574553ff7d40cc1f5ccc4f0367038b55df17",
+        "bytes": 2344
+      },
+      "before": {
+        "path": "logs/p012-independent/frozen-review/before.json",
+        "sha256": "5034d3149555591476d5b384f3190b0f6f08f042d9b6e9136a35409d033f762a",
+        "bytes": 214099
+      },
+      "after": {
+        "path": "logs/p012-independent/frozen-review/after.json",
+        "sha256": "5034d3149555591476d5b384f3190b0f6f08f042d9b6e9136a35409d033f762a",
+        "bytes": 214099
+      },
+      "reviewSpecSha256": "87d2973671281d95c41fe7e067281d36377457e42445c1bea866f4d23ddff485"
+    },
+    {
+      "name": "affected",
+      "classification": "38 complete affected/predecessor/consumer suites: 2135 pass, 46 historical skips.",
+      "summary": [
+        "Test Suites: 38 passed, 38 total",
+        "Tests:       46 skipped, 2135 passed, 2181 total",
+        "Time:        153.527s"
+      ],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "--runTestsByPath",
+          "test/string-substring.spec.ts",
+          "test/string-trim.spec.ts",
+          "test/string-lowercase.spec.ts",
+          "test/string-lastindexof.spec.ts",
+          "test/string-concat.spec.ts",
+          "test/symbolic-strings.spec.ts",
+          "test/string-literals.spec.ts",
+          "test/template-literals.spec.ts",
+          "test/bitwise-not.spec.ts",
+          "test/p008-independent-review.spec.ts",
+          "test/p008-independent-correction.spec.ts",
+          "test/p009-independent-review.spec.ts",
+          "test/p010-independent-review.spec.ts",
+          "test/p011-independent-review.spec.ts",
+          "test/p011-correction-review.spec.ts",
+          "test/sirv-target.spec.ts",
+          "test/test262.spec.ts",
+          "test/test262/runner.spec.ts",
+          "test/node-filesystem.spec.ts",
+          "test/node-filesystem-readdir.spec.ts",
+          "test/node-filesystem-failures-reference.spec.ts",
+          "test/filesystem-capture.spec.ts",
+          "test/filesystem-enumeration-capture.spec.ts",
+          "test/filesystem-state.spec.ts",
+          "test/filesystem-failures.spec.ts",
+          "test/object-bindings.spec.ts",
+          "test/object-spread.spec.ts",
+          "test/legacy-intrinsic-boundaries.spec.ts",
+          "test/function-parameters-metadata.spec.ts",
+          "test/concrete-semantics.spec.ts",
+          "test/branch-state.spec.ts",
+          "test/evaluation-sequences.spec.ts",
+          "test/exception-boundaries.spec.ts",
+          "test/analysis-failure-context.spec.ts",
+          "test/execution-boundaries.spec.ts",
+          "test/compound-guards.spec.ts",
+          "test/arithmetic-soundness.spec.ts",
+          "test/arithmetic-bounds.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-affected",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/affected/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/affected/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/affected/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:11:18.732698+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 0,
+        "end": "2026-10-14T01:13:55.240611+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "bf43a720e4b7816d8b0e596d895f83239730d673708c63518d9437a6e40dfe79",
+          "before.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+          "after.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/affected/result.json",
+        "sha256": "35eac30fb58565a90981393eb66d4369f82f028a4beb7ca5f628fe29acc9677c",
+        "bytes": 3788
+      },
+      "before": {
+        "path": "logs/p012-independent/affected/before.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "after": {
+        "path": "logs/p012-independent/affected/after.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "reviewSpecSha256": "8bd23d66f2636c5b49e44fbca109a1d6794b4c9dae27c15a2085ae73686c754a"
+    },
+    {
+      "name": "adjacent",
+      "classification": "7 disjoint remaining adjacent suites: 82 pass.",
+      "summary": [
+        "Test Suites: 7 passed, 7 total",
+        "Tests:       82 passed, 82 total",
+        "Time:        12.182s"
+      ],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand",
+          "--runTestsByPath",
+          "test/arguments-boundaries.spec.ts",
+          "test/symbolic-values.spec.ts",
+          "test/symbolic-choice-equality.spec.ts",
+          "test/symbolic-soundness.spec.ts",
+          "test/prototype-state.spec.ts",
+          "test/source-locations.spec.ts",
+          "test/symbolic-numbers.spec.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-adjacent",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/adjacent/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/adjacent/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/adjacent/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:14:32.973411+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 0,
+        "end": "2026-10-14T01:14:48.241910+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "fa8a95785588a1b1aac49889067fa6424292385d769f26d201f41861336127c3",
+          "before.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+          "after.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/adjacent/result.json",
+        "sha256": "51fd5dce2a387f899baa311cd241a2f192618a9043692bc9d7844b358f06ade7",
+        "bytes": 2551
+      },
+      "before": {
+        "path": "logs/p012-independent/adjacent/before.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "after": {
+        "path": "logs/p012-independent/adjacent/after.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "reviewSpecSha256": "8bd23d66f2636c5b49e44fbca109a1d6794b4c9dae27c15a2085ae73686c754a"
+    },
+    {
+      "name": "typecheck",
+      "classification": "Typecheck passes on pre-final-native-environment helper version.",
+      "summary": [],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-typecheck",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/typecheck/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/typecheck/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/typecheck/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:11:19.827780+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 0,
+        "end": "2026-10-14T01:11:31.281283+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "before.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+          "after.json": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/typecheck/result.json",
+        "sha256": "3b77cf4df3afb4498e3b529802ca88325503fc69957b4c178e165a586fa7ba8a",
+        "bytes": 2246
+      },
+      "before": {
+        "path": "logs/p012-independent/typecheck/before.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "after": {
+        "path": "logs/p012-independent/typecheck/after.json",
+        "sha256": "938257acfc24a5d38015a3a5c6f5e39ae87268ac8194b6dfea1ae462bc8b57ac",
+        "bytes": 214034
+      },
+      "reviewSpecSha256": "8bd23d66f2636c5b49e44fbca109a1d6794b4c9dae27c15a2085ae73686c754a"
+    },
+    {
+      "name": "frozen-review-typecheck",
+      "classification": "Typecheck passes on final review-spec bytes.",
+      "summary": [],
+      "metadata": {
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring",
+        "env": {
+          "PATH": "/Users/netanelgilad/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/netanelgilad/.cargo/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/netanelgilad/.codex/tmp/arg0/codex-arg03TmWgj",
+          "HOME": "/Users/netanelgilad",
+          "TMPDIR": "/var/folders/cb/v29mv24j4xj4z3_gh127lyhr0000gn/T/",
+          "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          "NODE_OPTIONS": "",
+          "NODE_PATH": "",
+          "CI": "1",
+          "PROPHET_REVIEW_RUN": "p012-frozen-review-typecheck",
+          "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/frozen-review-typecheck/p009",
+          "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/frozen-review-typecheck/p012-writer-controls",
+          "PROPHET_P012_REVIEW_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/review-p012-string-substring/logs/p012-independent/frozen-review-typecheck/native"
+        },
+        "capSeconds": 900,
+        "start": "2026-10-14T01:21:09.342934+00:00",
+        "frozenSource": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+        "binarySha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+        "exit": 0,
+        "end": "2026-10-14T01:21:17.766064+00:00",
+        "changedFiles": [],
+        "logs": {
+          "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "before.json": "5034d3149555591476d5b384f3190b0f6f08f042d9b6e9136a35409d033f762a",
+          "after.json": "5034d3149555591476d5b384f3190b0f6f08f042d9b6e9136a35409d033f762a"
+        }
+      },
+      "metadataFile": {
+        "path": "logs/p012-independent/frozen-review-typecheck/result.json",
+        "sha256": "e536e6c64ca62d70928baadf08ac2363434af8e71ae98635a1ddc45bea7f7880",
+        "bytes": 2302
+      },
+      "before": {
+        "path": "logs/p012-independent/frozen-review-typecheck/before.json",
+        "sha256": "5034d3149555591476d5b384f3190b0f6f08f042d9b6e9136a35409d033f762a",
+        "bytes": 214099
+      },
+      "after": {
+        "path": "logs/p012-independent/frozen-review-typecheck/after.json",
+        "sha256": "5034d3149555591476d5b384f3190b0f6f08f042d9b6e9136a35409d033f762a",
+        "bytes": 214099
+      },
+      "reviewSpecSha256": "87d2973671281d95c41fe7e067281d36377457e42445c1bea866f4d23ddff485"
+    }
+  ],
+  "runSnapshotVerification": {
+    "allBehaviorSnapshotsRehashed": true,
+    "allBeforeAfterLogManifestHashesRecomputed": true,
+    "errors": [],
+    "initialRenames": {
+      "path": "logs/p012-independent/initial/snapshot-renames.json",
+      "sha256": "bfcf90de2cc487393f62070ba9ebce647ad79a53203cf41831ff707a1cbb553c",
+      "bytes": 73222
+    },
+    "initialCaptureLimitation": "FAILED reviewer harness: duplicate snapshot discovery/artifact collisions, raw U+2028 parser-domain mistake, unary-plus-object assumption, plus two R1 regressions. No pass claim from this run; duplicate child records overwritten in-run; original Jest log/source retained.",
+    "initialHelperRecovery": "run-v1-reconstructed.py is reconstructed from recorded tool source, not a contemporaneous helper snapshot"
+  },
+  "native": {
+    "binary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    "version": "v24.21.0",
+    "sha256": "e4b5a3af0e05c75de2eae013904145f40fe7fc2a6e6f17510128bf45cca4e79b",
+    "finalCalls": 102,
+    "matrixCases": 1810,
+    "matrix": {
+      "path": "logs/p012-independent/frozen-review/native/matrix.json",
+      "sha256": "b1d5ddbc5823d064f6d18f03e7a60afdc5f981370a8a123e8f5bed2fe65edc57",
+      "bytes": 124865
+    },
+    "completeNativeChildEnvironment": "explicit whitelist supplied and fully recorded in every final native record; older records contain overrides plus parent runner environment, not claimed full child-environment snapshots"
+  },
+  "regressionTotals": {
+    "suites": 45,
+    "passed": 2217,
+    "historicalSkipped": 46,
+    "heldOutPassed": 27,
+    "heldOutFailed": 2,
+    "heldOutTotal": 29,
+    "finalTypecheckExit": 0
+  },
+  "upstream": {
+    "wholeFiles": 43,
+    "nativeVariantsPassed": 86,
+    "wholeVMFilesPassed": 14,
+    "wholeVMVariantsPassed": 28,
+    "incompatibleWholeFiles": 29,
+    "incompatibleVariants": 58,
+    "activeFiles": 384,
+    "activeVariants": 759,
+    "baseActiveFiles": 370,
+    "removedActive": [],
+    "historicalSkips": 46,
+    "sameSkipNames": true,
+    "inventory": {
+      "path": "logs/p012-independent/audit/inventory.json",
+      "sha256": "56072e337fb0693e3e6776aa8d81f78cd9bdccd73671612e27a7973d4e7a52c3",
+      "bytes": 287612
+    },
+    "dispositions": {
+      "path": "logs/p012-independent/frozen-review/native/upstream.json",
+      "sha256": "6f90ab9bc288b8da279aa1b6af9c7678a50caf7f16f2a7dcd71aff46b15f87f4",
+      "bytes": 259099
+    },
+    "rawVsParsedReconciliation": {
+      "path": "logs/p012-independent/audit/candidate-hashes-final.json",
+      "sha256": "d1ed063099cab834e6814939160e54fc4f4fc894bae0690de6df1d4a3d37979a",
+      "bytes": 20811
+    },
+    "cacheVerification": {
+      "path": "logs/p012-independent/audit/upstream-cache-verification.json",
+      "sha256": "5ffc8f5d7dac46132eb7b494001d7088a299bfcc2bc18d8e9e0155669091870b",
+      "bytes": 201
+    }
+  },
+  "consumer": {
+    "factoryReturned": false,
+    "currentBoundary": "Unmodeled host property 'size': Node Stats fields",
+    "currentSource": "sirv/build.js:110",
+    "bodyLocal": {
+      "ctype": "text/plain"
+    },
+    "parentParameter": {
+      "name": "hello.txt"
+    },
+    "completedMrmime": {
+      "tmp": "hello.txt",
+      "idx": 6,
+      "inCurrentLexicalChain": false
+    },
+    "graphAudit": {
+      "path": "logs/p012-independent/audit/cli-current-state.json",
+      "sha256": "5db850ff54780efe6e382fd09c97229a28919ef7fd5105f872953315b6881121",
+      "bytes": 7250
+    },
+    "histories": {
+      "path": "logs/p011-independent/p012-affected/cli-histories.json",
+      "sha256": "c9f7d3be7f1a8914fddb85b473ccc6c3f8045c390f29c63a3659fb58f6eb90d6",
+      "bytes": 1184
+    },
+    "unicodeBoundary": {
+      "path": "logs/p012-independent/frozen-review/native/mrmime-controls.json",
+      "sha256": "18ea9bcd8b2b9662fe01b8577724addfd4af8d0dd31064e83ada2a6d1468fb4b",
+      "bytes": 850
+    }
+  },
+  "writerHandoff": {
+    "evidenceSha256": "0859601cd7d60e3087cc40b31aa423c8eb576bf5605a301f9d78b655b522e94d",
+    "originalPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/docs/agent-tasks/P012-string-substring/evidence.json",
+    "copy": {
+      "path": "logs/p012-independent/audit/writer-handoff-evidence.json",
+      "sha256": "0859601cd7d60e3087cc40b31aa423c8eb576bf5605a301f9d78b655b522e94d",
+      "bytes": 524618
+    },
+    "verification": {
+      "path": "logs/p012-independent/audit/handoff-verification.json",
+      "sha256": "786dc32ae7086e8c3dbd861d5c945b7a2fd4f81c0a74f86cc23a45ed5cb60a6d",
+      "bytes": 14925
+    },
+    "frozenSourceVerification": {
+      "path": "logs/p012-independent/audit/writer-source-verification.json",
+      "sha256": "25c3a17d9322cf951d430a9b5c911994d8d20dd6c616ecee9ddd6bdeec1a4a1c",
+      "bytes": 36744
+    },
+    "excludedGitRecovery": {
+      "path": "logs/p012-independent/audit/excluded-git-recovery.json",
+      "sha256": "497e73cb680e388a5ad9126de89f4831dd10672ca52141316fe864beb4cd0a36",
+      "bytes": 1810
+    },
+    "artifactsVerified": 1471,
+    "capturesVerified": 22,
+    "installedJSVerified": 36091,
+    "preservedArtifactsVerified": 229,
+    "full": {
+      "argv": [
+        "node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring",
+      "head": "3ef28e197fbfae2b5081346e901d85b780c965e0",
+      "status": "",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "PROPHET_REVIEW_RUN": "p012/frozen-full",
+        "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012/frozen-full/p009",
+        "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012/frozen-full/p011",
+        "PROPHET_P012_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012/frozen-full/candidates",
+        "NODE_OPTIONS": "",
+        "NODE_PATH": ""
+      },
+      "capSeconds": 900,
+      "start": "2026-10-14T01:01:26.559235+00:00",
+      "phase": "frozen",
+      "exit": 0,
+      "timedOut": false,
+      "end": "2026-10-14T01:09:26.569943+00:00",
+      "elapsedSeconds": 479.97100525,
+      "statusAfter": ""
+    },
+    "fullCounts": {
+      "suites": 139,
+      "passed": 4411,
+      "skipped": 46
+    },
+    "candidateLabels": "Disclosed parsed-body versus raw-file distinction, verified independently; not a hidden defect."
+  },
+  "failureAttribution": {
+    "reviewerInitial": "FAILED reviewer harness: duplicate snapshot discovery/artifact collisions, raw U+2028 parser-domain mistake, unary-plus-object assumption, plus two R1 regressions. No pass claim from this run; duplicate child records overwritten in-run; original Jest log/source retained.",
+    "reviewerENOSPC": "29-probe pre-final-helper version: 26 pass, 3 failures (two R1 plus ENOSPC saving native evidence). Not green.",
+    "inspectionFailures": {
+      "path": "logs/p012-independent/audit/inspection-failures.json",
+      "sha256": "c9e58114354dc7db616a28c19952cad4cf98dedcad0de324da3aca20ea8b1d46",
+      "bytes": 1205
+    },
+    "archiveReaderFailure": {
+      "path": "logs/p012-independent/audit/verify-handoff-v1-failure.json",
+      "sha256": "e01eb17b896d11894c3bdabc1297a5e8e9945c4a2d72e5e17139b7a5cc023df1",
+      "bytes": 423
+    },
+    "archiveReaderCorrected": {
+      "path": "logs/p012-independent/audit/verify-handoff-v2-run.json",
+      "sha256": "23d0519db5eaffbc8521c63b663c73abd5fdcac306ac28bdf1f510f42dd60c22",
+      "bytes": 382
+    },
+    "writerHistoricalFailures": "Retained and independently hashed; original interrupted capture and prefreeze/mixed sources not relabeled green/frozen."
+  },
+  "artifacts": {
+    "index": {
+      "path": "logs/p012-independent/independent-artifacts.json",
+      "sha256": "bf024f8c784c17d9748fd44de00a4eb959408b2fc4b8a8dc6330f7601d9497fa",
+      "bytes": 1029070
+    },
+    "files": 5513,
+    "bytes": 59795049,
+    "allRecomputedAndReverified": true,
+    "policy": "Complete ignored artifact index plus source/spec snapshots; unchanged .yarn/cache payloads referenced by complete hashes and git blobs, never copied per run."
+  },
+  "rootGates": [
+    "Correct R1 in writer worktree; no production correction made by reviewer.",
+    "Preserve red probes and every earlier failure/artifact.",
+    "Run corrected full suite, typecheck, affected reviews and consumer graph checks.",
+    "Renew independent acceptance of exact changed source/spec freeze.",
+    "Root integrates review deliverables/stack and verifies exact-head CI before publication."
+  ],
+  "limitations": [
+    "No complete JavaScript/Node conformance or unbounded symbolic proof claimed.",
+    "No Stats size, Date, header, factory, server/request or future callback completion claimed.",
+    "Initial duplicate discovery overwrote some child records; original Jest output/source retained, no green inference.",
+    "Review-only rejection; no push, merge or release."
+  ]
+}
