@@ -101,3 +101,94 @@ even when a human could prove more about it.
 - Legacy URL parsing still assumes unchanged dynamic string intrinsics: its
   slice guard now checks the modeled intrinsic's identity. Replacing the method
   still stops URL analysis instead of discarding the replacement's effects.
+
+
+## Bounded String.prototype.trim (P008)
+
+The shared inherited, nonconstructible `trim` intrinsic implements
+[TrimString with both ends](https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.trim).
+It performs RequireObjectCoercible before ordinary string-hint conversion,
+using the existing interpreted ToString, current heap and branch completions.
+Null/undefined throw guest TypeError; conversion can mutate state or throw.
+Concrete strings, finite correlated choices, numbers, booleans, ordinary objects,
+and String.prototype's empty string value are supported. Existing strings see
+prototype replacements; captured intrinsic aliases and earlier heap snapshots
+retain their identities. Metadata values are `name: "trim"`, `length: 0`; shared
+metadata-write guards remain in force, without claiming descriptor support.
+
+The explicit modern WhiteSpace + LineTerminator table removes only edge units.
+Interior whitespace, U+0085/U+180E/U+200B, NUL, astral pairs and lone surrogates
+are preserved. No native regex matching, Unicode normalization or native trim
+backend is used. A 65,536 UTF-16-unit input cap is checked after coercion and
+before any scan/copy/output allocation. The two scans visit at most that many
+distinct units (at most input length + 1 predicate calls); the single slice's
+output is bounded by input length. Exceeding the cap is an analysis-budget leaf,
+not a guest RangeError, empty result or resource-availability proof.
+
+Open symbolic strings/numbers after ToString and legacy chunk-valued strings
+stop explicitly; no string or proof is guessed. Array/function receivers,
+including customized ones, stop before conversion because shared converters
+still have legacy failure paths. Nonnull own/inherited Symbol.toPrimitive hooks
+stop rather than invoking invented symbol semantics. Shared partial-host,
+cyclic-prototype, descriptor/getter and wrapper guards remain; legacy errors in
+those shared operations can still retain only a partial checkpoint rather than
+all siblings. This increment does not repair arbitrary coercion or bound its
+runtime, prototype depth, symbolic frontier growth, parser work or embedding
+input allocation. Successful allocation inside the admitted cap remains an
+assumption (STRING-001), not a modeled V8 resource contract.
+
+[Local specs](../test/string-trim.spec.ts) include independent Node 24.21.0
+controls, branch correlations and mandatory unknowns, normal/throw/stopped
+siblings, current prototype state, snapshots and externally timed large inputs.
+Forty complete unmodified Test262 files add 80 variants; the
+[whole candidate inventory](agent-tasks/P008-string-trim/upstream-candidates.md)
+records all 128 pinned trim files. The unchanged sirv factory now passes trim
+and reaches toLowerCase; its CLI graph retains the EMFILE sibling. That lookup is classified by the partial String surface described below,
+without implementing case conversion or claiming factory completion. See LIB-001/002, OBJ-001/003, STRING-001, SYM-001/004, LEGACY-002,
+REPORT-001, TEST-001/002/003 and TARGET-002 in the backlog.
+
+
+### Truthful partial String surface (P008 correction 1)
+
+The String prototype is a closed standard surface with seven modeled own names
+and 45 deferred string-keyed names, checked against all 52 native own names in
+Node 24.21.0. The deferred list includes modern methods, Annex B HTML helpers and
+trim aliases. Direct `String.prototype.split`/`substr` are deferred; the existing
+primitive-own legacy implementations are unchanged (LEGACY-002). No additional
+String method is implemented by this correction.
+
+A private generic `markPartialIntrinsic` registry records deferred own names.
+Shared member lookup and `hasOwnProperty` check `assertModeledOwnAbsence` only on
+the absent-storage branch, after the current heap's conditional presence split.
+An unmodeled builtin thus stops instead of becoming `undefined`/false or choosing
+a fake feature-detection fallback. A current replacement, including explicit
+`undefined`, remains an actual own property; conditional replacements retain
+the installed side beside the stopped original side. Other absent names and
+closed ordinary objects retain their true/false behavior. Key coercion and
+prefix effects precede the stop; guest catch/finally cannot consume it.
+
+The String prototype and trim function are marked for existing typed own-key
+inspection guards. `Object.keys` and object spread stop instead of raising a
+legacy host error or inventing enumerable keys. Trim metadata keeps precise
+`name`/`length`, shared `.call`, absent own `prototype`/`call`, and its existing
+nonconstruction rule. Unknown metadata reads and name/length writes are typed
+boundaries. This does not implement descriptors/getters or missing Object/Function
+APIs: e.g. Object.getOwnPropertyDescriptor and Function.bind remain separate.
+Older concat/slice/converter metadata retains its existing boundaries.
+
+The registry changes no public value/report schema. Its identity information,
+like other intrinsic registries, is not a serialized resumption model. Low-level
+heap presence remains a storage fact; internal `hasProperty` still serves existing
+host mutation checks (notably URL's unchanged charCodeAt assumption). This is not
+a new JavaScript HasProperty/`in` implementation. The `in` operator remains the
+pre-existing LANG-001 boundary; the root's claimed false `in` result was not
+reproduced. Full Object/Function surface honesty and broader host assumptions
+remain LIB-001/002, OBJ-001/003, LANG-006, URL-001 and REPORT-001 work.
+
+The original P007 trim replacement assertion is retained byte-for-byte; its
+superseded rejection assertion now checks actual trimmed result, prefix effects
+and branch correlation. Root-disclosed reproduction cases are explicitly labeled
+in the [specs](../test/string-trim.spec.ts), not presented as hidden holdouts.
+[Correction contract](agent-tasks/P008-string-trim/correction-1.md) and
+[correction evidence](agent-tasks/P008-string-trim/correction-1-evidence.json)
+are separate from the original failed full-suite handoff.
