@@ -79,3 +79,10 @@ implementation writer in the assigned worktree/account. Full independent
 promotion. No subagents, model/account rotation, paid API, credentials/access,
 Atlas or Notion writes were used. Owner-reported account-wide 48% remaining at
 23:11UTC is capacity context, not a task allowance or live measurement.
+
+P011-R1 (Astra/high review df9ab53) rejects first source b920a64: a pre-existing
+Cherow static-key metadata loss supplies a false operand to correct complement
+arithmetic. Same owner-authorized sole Sol6.1/high writer performs the narrow
+correction with renewed full semantic review. Original source/evidence and reviewer
+history remain unchanged. No first-review streak, trust/concurrency promotion,
+model/account change or rotation is inferred.

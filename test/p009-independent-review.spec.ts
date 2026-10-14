@@ -170,14 +170,14 @@ test("independent complete unchanged upstream candidates on pinned Node", () => 
 });
 
 test("independent retained actual unchanged sirv CLI graph and both histories", () => {
-  const directory=join(root,"logs/p009-independent/sirv-fixture");mkdirSync(directory,{recursive:true});
+  const directory=join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"sirv-fixture");mkdirSync(directory,{recursive:true});
   for(const [fixture,name] of [["sirv-3.0.2","sirv"],["mrmime-2.0.1","mrmime"],["totalist-3.0.1","totalist"],["polka-url-1.0.0-next.29","@polka/url"]])
     copySync(join(__dirname,"fixtures",fixture,"package"),join(directory,"node_modules",name));
   mkdirSync(join(directory,"site"),{recursive:true});writeFileSync(join(directory,"site/hello.txt"),"hello from sirv\n");
   writeFileSync(join(directory,"entry.cjs"),'module.exports=require("sirv")("./site");');
   const child=spawnSync(process.env.PROPHET_NODE_BINARY||process.execPath,[join(root,"bin/prophet.js"),"--","entry.cjs"],
     {cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
-  writeFileSync(join(root,"logs/p009-independent/cli.stdout.json"),child.stdout);writeFileSync(join(root,"logs/p009-independent/cli.stderr.log"),child.stderr);
+  writeFileSync(join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"cli.stdout.json"),child.stdout);writeFileSync(join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"cli.stderr.log"),child.stderr);
   console.log("INDEPENDENT_CLI_EXIT",child.status);
   expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.substring is not yet supported\n");
   const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);
