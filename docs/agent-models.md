@@ -55,3 +55,11 @@ not qualify a worker for less-reviewed solver or state implementation. All core
 VM changes retain full semantic review regardless of pilot success.
 
 Oct13 overnight request: use existing Atlas capacity for bounded independently reviewed draft PRs; no merges/releases or paid API/access expansion. Latest owner conversation criticized P006 quota cost and favored one capable Astra implementer. P007 used Astra/ultra; subsequent turns normally use high unless a specific hard issue warrants more. Recheck actual quota before substantial work and preserve review capacity. No model/account rotation or trust transfer.
+
+
+P009 explicit owner authorization (2026-10-13/14): `gpt-6.1-sol`, high,
+sole implementation writer for bounded ASCII String.toLowerCase in its assigned
+worktree. This model/family starts **uncalibrated**, separately from P006 Sol and
+P008 Astra. Independent `gpt-6-astra`/high accepts corrected source c52c3f4 after full semantic review. A stale parameterized predecessor assertion caused one disclosed extra freeze/full run; review found one evidence-label defect corrected by root. See [publication review](agent-tasks/P009-ascii-lowercase/publication-review.md). No first-review streak, trust transfer or concurrency promotion is inferred. Same model/account retained; no rotation,
+paid API, credentials/access expansion or subagents used. Exact backend weights
+are unknown; current runtime identity is owner-authorized Sol6.1/high.

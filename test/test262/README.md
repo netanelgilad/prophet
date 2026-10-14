@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **341 complete files / 673 strictness variants**,
+The active corpus contains **351 complete files / 693 strictness variants**,
 including 25 parse-negative files / 49 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -378,3 +378,17 @@ in local controls. Unselected numeric/individual whitespace files remain future
 coverage, not claimed VM failures; wrappers, array/function conversion, RegExp,
 arguments objects and descriptor harness candidates retain their actual gaps.
 All 46 historical skipped filenames and metadata remain unchanged.
+
+
+P009 adds ten complete unmodified `String/prototype/toLowerCase` files / 20
+variants: `A1_T3/T4/T5/T10/T11/T12/T13`, `A6`, `A7`, and
+`this-value-not-obj-coercible.js` (prefix `S15.5.4.16_`). These cover ASCII,
+empty strings, ordinary conversion/fallback/throws, nullish errors and
+nonconstruction. All 27 pinned lowercase files were inspected and all 54
+strict/sloppy native controls pass on Node 24.21.0. The
+[complete candidate record](../../docs/agent-tasks/P009-ascii-lowercase/upstream-candidates.md)
+keeps the 17 inactive files and exact whole-file blockers visible. In particular,
+`A11` requires direct function `.hasOwnProperty`, outside the conservative
+metadata surface; a failed development selection was removed whole, with its log
+retained. No source was reduced, harness weakened or new skip added. The full
+46-file historical skip inventory remains unchanged, audited against `fc7d503`.

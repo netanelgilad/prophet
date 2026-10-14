@@ -126,15 +126,13 @@ for (const text of [" ".repeat(65537), "x".repeat(1000000)]) test("over-limit co
   expect(completion.alternate[1].value.scope.trace).toMatchObject({value: "ok!"});
 });
 
-test("next missing intrinsic retains reached coercion state, siblings and own replacements", () => {
-  const [completion] = run(`let trace = "";
-    if(selected) { const text = String.prototype.trim.call({toString() {trace = "converted"; return " X ";}}); text.toLowerCase(); }
-    else { trace = "sibling"; }`, {selected: ESBoolean()});
-  expect(isForkedCompletion(completion)).toBe(true);
-  if (!isForkedCompletion(completion)) throw new Error("expected fork");
-  expect(completion.consequent[0]).toMatchObject({type: "ExecutionBoundary", kind: "unsupported", message: "String.prototype.toLowerCase is not yet supported"});
-  expect(completion.consequent[1].value.scope.trace).toMatchObject({value: "converted"});
-  expect(completion.alternate[1].value.scope.trace).toMatchObject({value: "sibling"});
+test("lowercase retains reached trim coercion state, siblings and own replacements", () => {
+  const [normal, state] = run(`let trace = "";
+    if(selected) { const text = String.prototype.trim.call({toString() {trace = "converted"; return " X ";}}); trace = trace + text.toLowerCase(); }
+    else { trace = "sibling"; }
+    const proof = selected ? trace === "convertedx" : trace === "sibling";`, {selected: ESBoolean()});
+  expect(normal).toBe(Undefined);
+  expect(state.value.scope.proof).toMatchObject({value: true});
   const [done, after] = run('String.prototype.toLowerCase = function() {"use strict"; return "custom";}; const answer = " X ".trim().toLowerCase();');
   expect(done).toBe(Undefined);
   expect(after.value.scope.answer).toMatchObject({value: "custom"});
@@ -274,9 +272,9 @@ const deferredStringNames = ["anchor", "at", "big", "blink", "bold", "charAt", "
   "normalize", "padEnd", "padStart", "repeat", "replace", "replaceAll", "search", "small",
   "split", "strike", "sub", "substr", "substring", "sup", "startsWith", "toWellFormed",
   "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase", "toLocaleUpperCase",
-  "toLowerCase", "toUpperCase"];
+  "toUpperCase"];
 test("native pinned String prototype own-name inventory", () => {
-  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "valueOf"]).sort();
+  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "toLowerCase", "valueOf"]).sort();
   withModuleFixture(`module.exports = Object.getOwnPropertyNames(String.prototype).sort().join("|") === ${JSON.stringify(names.join("|"))};`, file => {
     expect(nodeModuleObservation(file)).toEqual({kind: "return", value: {type: "boolean", value: true}});
   });
