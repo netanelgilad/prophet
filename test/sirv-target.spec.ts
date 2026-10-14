@@ -76,18 +76,19 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
-  // Both flagless filters execute on the unmodified filename. Stats.size now
-  // completes with the observed byte count (16) after unchanged mrmime
-  // substring returns text/plain; the next reached gap is Stats.mtime during
-  // Last-Modified header preparation. The filesystem failure sibling must
-  // survive that stop.
-  expect(result.diagnostic).toBe("Unmodeled host property 'mtime': Node Stats fields");
+  // Both flagless filters execute on the unmodified filename. Stats.size and
+  // Stats.mtime now complete with the observed byte count (16) and declared
+  // mtime, so header preparation (Content-Length, Content-Type from unchanged
+  // mrmime substring, Last-Modified) finishes and the next reached gap is
+  // String.prototype.normalize in the FILES key expression. The filesystem
+  // failure sibling must survive that stop.
+  expect(result.diagnostic).toBe("String.prototype.normalize is not yet supported");
   expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
   expect(isForkedCompletion(result.completion)).toBe(true);
   const boundaries = executionBoundaries(result.completion as Any);
   expect(boundaries).toHaveLength(1);
   expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "Unmodeled host property 'mtime': Node Stats fields" });
+    message: "String.prototype.normalize is not yet supported" });
   const forked = result.completion as ForkedCompletion;
   const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
     leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
@@ -100,11 +101,15 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   expect(getProperties(failed[0].value as WithProperties, failed[1]).code).toMatchObject({ value: "EMFILE" });
   const stopped = [forked.consequent, forked.alternate].find(leaf => !isThrownValue(leaf[0]))!;
   expect(stopped[1].value.sourceFile).toMatch(/sirv\/build\.js$/);
-  // This is a completed mrmime activation, outside the current lexical chain.
+  // The current lexical chain is the totalist callback processing hello.txt.
+  expect(stopped[1].value.scope.name).toMatchObject({value: "hello.txt"});
+  // Completed mrmime and toHeaders activations persist outside that chain.
   const mimeRecord = Array.from(stopped[1].value.environments.values()).find(record => record.has("tmp") && record.has("idx"))!;
   expect(mimeRecord.get("tmp")!.value).toMatchObject({value: "hello.txt"});
   expect(mimeRecord.get("idx")!.value).toMatchObject({value: 6});
-  expect(stopped[1].value.scope.ctype).toMatchObject({value: "text/plain"});
+  const headersRecord = Array.from(stopped[1].value.environments.values()).find(record => record.has("ctype") && record.has("headers"))!;
+  expect(headersRecord.get("ctype")!.value).toMatchObject({value: "text/plain"});
+  expect(headersRecord.get("headers")!.value).toBeDefined();
   // Both descriptor histories retain the reached enumeration and its outcome.
   for (const leaf of [stopped, failed]) {
     const kind = leaf === stopped ? "return" : "throw";
@@ -118,7 +123,7 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   }
   expect(effectPaths(stopped[1].value.effects).some(path => path.events.some(event =>
     event.call.operation === "fs.readdirSync"))).toBe(true);
-  expect(boundaries[0].frames.some(frame => frame.node.type === "MemberExpression" && (frame.node as any).object.name === "stats" && (frame.node as any).property.name === "mtime")).toBe(true);
+  expect(boundaries[0].frames.some(frame => frame.node.type === "CallExpression" && (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "normalize")).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -191,7 +196,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
     });
   expect(child.error).toBeUndefined();
   expect(child.status).toBe(2);
-  expect(child.stderr).toBe("prophet: Unmodeled host property 'mtime': Node Stats fields\n");
+  expect(child.stderr).toBe("prophet: String.prototype.normalize is not yet supported\n");
   const graph = JSON.parse(child.stdout);
   expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
   const nodes = new Map<string, any>(graph.nodes.map((node: any) => [node.id, node]));
@@ -209,7 +214,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
   expect(field(field(field(field(failed, "value"), "properties"), "code"), "value")).toBe("EMFILE");
   const boundary = values.find(value => field(value, "type") === "ExecutionBoundary");
   expect(field(boundary, "kind")).toBe("unsupported");
-  expect(field(boundary, "message")).toBe("Unmodeled host property 'mtime': Node Stats fields");
+  expect(field(boundary, "message")).toBe("String.prototype.normalize is not yet supported");
   const stopped = leaves.find(leaf => field(field(leaf, "0"), "type") === "ExecutionBoundary");
   expect(field(field(stopped, "1"), "sourceFile")).toMatch(/sirv\/build\.js$/);
   // Inspect the public environment records, not the private flattened scope view.
@@ -223,8 +228,18 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
     }
     if (tmp && idx) break;
   }
+  // The innermost callback block holds the completed headers object; the
+  // parameter record with name/abs/stats is its parent in the chain.
   const currentRecord = environments.find(([key]: [any]) => key.ref === field(state, "environment").ref);
-  const ctype = nodes.get(currentRecord[1].ref).entries.find(([key]: [string]) => key === "ctype");
+  const headersBinding = nodes.get(currentRecord[1].ref).entries.find(([key]: [string]) => key === "headers");
+  expect(headersBinding).toBeDefined();
+  // ctype persists in the completed toHeaders activation, outside the chain.
+  let ctype: any;
+  for (const [, record] of environments) {
+    const binding = nodes.get(record.ref).entries.find(([key]: [string]) => key === "ctype");
+    if (binding) { ctype = binding; break; }
+  }
+  expect(ctype).toBeDefined();
   expect(field(field(ctype[1], "value"), "value")).toBe("text/plain");
   expect(tmp).toBeDefined();
   expect(field(tmp, "value")).toBe("hello.txt");

@@ -37,15 +37,17 @@ factory with a directory evaluates two regular-expression literals and appends
  activation records remain in persistent state, outside the later current
  lexical chain. Header preparation then completes `stats.size` with the
  observed byte count (16 for `site/hello.txt`) through the
- [bounded Stats.size model](node-filesystem.md#bounded-statssize-and-the-p012-r1-boundary),
- so `Content-Length` is set and the next measured stop is `stats.mtime` in
- `toHeaders` during `Last-Modified` preparation, with current
- `ctype === "text/plain"` and `name === "hello.txt"`. The mtime stop is a
- retained typed boundary, preserving source frames and every
- directory/stat/isDirectory call/outcome identity beside the EMFILE readdir
- call/throw sibling. The factory has not returned. No package source rewrite
- is introduced. Full Unicode casing, other bitwise operations, deferred
- String APIs, Stats/Date metadata (including mtime) and streams remain work.
+ [bounded Stats.size and Stats.mtime model](node-filesystem.md#bounded-statssize-and-statsmtime-and-the-p012-r1-boundary),
+ so `Content-Length` and `Last-Modified` (a bounded-Date `toUTCString` of the
+ observed mtime) are set, header preparation completes, and the next measured
+ stop is `String.prototype.normalize` in the `FILES` key expression, with the
+ completed `toHeaders` activation (ctype `text/plain`, headers object)
+ retained outside the current totalist callback chain. The stop is a retained
+ typed boundary, preserving source frames and every directory/stat/isDirectory
+ call/outcome identity beside the EMFILE readdir call/throw sibling. The
+ factory has not returned. No package source rewrite is introduced. Full
+ Unicode casing, other bitwise operations, deferred String APIs (including
+ normalize/replace), other Stats/Date metadata and streams remain work.
  The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity

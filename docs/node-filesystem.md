@@ -452,22 +452,33 @@ asynchronous realpath and os.hostname. It is not evidence for a missing-file
 readFileSync case. None of these complete files is currently activated or
 counted passing, and none is trimmed to an easier fragment.
 
-## Bounded Stats.size and the P012-R1 boundary
+## Bounded Stats.size and Stats.mtime, and the P012-R1 boundary
 
 A regular file's `size` is modeled only from declared facts: concrete declared
 contents fix their UTF-8 byte length, and an observed file may carry a
 validated nonnegative safe-integer size recorded at acquisition (the CLI
 capture passes the memoized `lstat` size; no new host call and no
-change-revalidation at read time). The first read persists the reached fact
-onto the Stats value after the current own property check, so the P012-R1
-correction is preserved: an explicitly supplied current own data property
-(including undefined/zero, conditional presence, finite values and alias
-replacement) still wins, and inherited Object.prototype.size establishes no
-metadata. Directory sizes and files without a declared size stop at the typed
-unknown-size boundary. Other Stats fields (mtime/Date/mode/BigInt), fresh
-unknown-size writes, descriptor reflection and constructors remain guarded.
-Stats instances are boundary-marked, so reached unmodeled fields stop as
-retained typed boundaries beside their siblings rather than host failures
-that drop the CLI graph. See [size specs](../test/node-stats-size.spec.ts),
-[presence specs](../test/node-filesystem-size-presence.spec.ts) and the
-[P013 task](agent-tasks/P013-stats-size/task.md).
+change-revalidation at read time). A regular file's `mtime` is modeled only
+from an explicit declared observation (the capture passes the memoized
+`lstat` `mtimeMs`; contents never imply one), clipped to an integral
+millisecond within the ECMAScript Date range the way `new Date(milliseconds)`
+clips, including negative-zero normalization. The read returns a bounded Date
+instance whose `getTime` and `toUTCString` are deterministic UTC arithmetic
+over that declared value (proleptic Gregorian conversion, the pinned host's
+year formatting); every other Date method, the Date constructor, `Date.now`
+and timezone/locale behavior stay guarded. The first read of either field
+persists the reached fact onto the Stats value after the current own property
+check, so the P012-R1 correction is preserved: an explicitly supplied current
+own data property (including undefined/zero, conditional presence, finite
+values and alias replacement) still wins, and inherited Object.prototype
+members establish no metadata. Directory metadata and files without a
+declared value stop at the corresponding typed boundary. Other Stats fields
+(mode/BigInt/atime/ctime), fresh unknown-size writes, descriptor reflection
+and constructors remain guarded. Stats instances and bounded Date instances
+are boundary-marked, so reached unmodeled fields stop as retained typed
+boundaries beside their siblings rather than host failures that drop the CLI
+graph. See [size specs](../test/node-stats-size.spec.ts),
+[mtime specs](../test/node-stats-mtime.spec.ts),
+[presence specs](../test/node-filesystem-size-presence.spec.ts),
+[P013](agent-tasks/P013-stats-size/task.md) and
+[P014](agent-tasks/P014-stats-mtime/task.md).

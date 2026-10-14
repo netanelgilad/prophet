@@ -13,9 +13,11 @@ import { ESString } from "../string/String";
 import { choiceOf, resolveBoolean } from "../symbolic";
 import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isUndefined, isFunction, TESBoolean, ThrownValue, Undefined } from "../types";
 import { createBufferValue } from "./buffer";
+import { boundedDate, validateDateMilliseconds } from "../date/Date";
 
 const entries = new WeakMap<object, "directory" | "file">();
 const fileSizes = new WeakMap<object, number>();
+const fileMtimes = new WeakMap<object, number>();
 const openDirectories = new WeakSet<object>();
 const access = new WeakMap<object, { readable: TESBoolean; searchable: TESBoolean }>();
 type LookupFailure = "ENOENT" | "ENOTDIR" | "EACCES";
@@ -60,23 +62,27 @@ function entry(kind: "directory" | "file", properties: { [key: string]: Any },
 }
 
 /** Embedding input: regular UTF-8 file with concrete or symbolic effective read access. */
-export function fileSystemFile(contents: string, options: { readable?: TESBoolean } = {}): TESObject {
+export function fileSystemFile(contents: string, options: { readable?: TESBoolean; mtimeMs?: number } = {}): TESObject {
   if (typeof contents !== "string") return unsupported("open file contents or non-text setup");
   const text = utf8(contents);
   const node = entry("file", { text: ESString(text) }, options);
   // Node's Stats.size counts bytes on disk. Declared concrete contents fix
   // exactly those bytes, so the byte length is a fact, not a host inference.
   fileSizes.set(node, Buffer.byteLength(text, "utf8"));
+  // An mtime, unlike a size, is never implied by contents; only an explicit
+  // observation declares it.
+  if (options.mtimeMs !== undefined) fileMtimes.set(node, validateDateMilliseconds(options.mtimeMs));
   return node;
 }
 
 /** An observed regular file whose contents have not yet been acquired. */
-export function fileSystemUnobservedFile(options: { readable?: TESBoolean; size?: number } = {}): TESObject {
+export function fileSystemUnobservedFile(options: { readable?: TESBoolean; size?: number; mtimeMs?: number } = {}): TESObject {
   if (options.size !== undefined && (!Number.isSafeInteger(options.size) || options.size < 0)) {
     throw new Error("Filesystem file size observations require nonnegative safe integers");
   }
   const node = entry("file", { text: ESString() }, options);
   if (options.size !== undefined) fileSizes.set(node, options.size);
+  if (options.mtimeMs !== undefined) fileMtimes.set(node, validateDateMilliseconds(options.mtimeMs));
   return node;
 }
 
@@ -296,19 +302,25 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
       // their persistent presence/value, without inferring native Stats fields
       // or substituting inherited metadata. Split conditional presence once.
       propertyAccess: { read(name: string, context: TExecutionContext): BranchResult | undefined {
-        if (name !== "size") return undefined;
+        if (name !== "size" && name !== "mtime") return undefined;
         return evaluateBranches(ownPropertyPresence(result, name, context), context, branch => {
           const value = getProperties(result, branch)[name];
           // Match ordinary reads of legacy native method values: identity is
           // the implementation object, not a fresh wrapper on every lookup.
           return [isFunction(value) ? { type: "function", id: value, properties: {}, function: value } : value, branch];
         }, absent => {
-          // Bounded Stats.size: the declared byte size of a regular file,
-          // persisted as a reached fact on first read. Directory metadata and
-          // files without an observed size stay a typed boundary.
-          const size = fileSizes.get(node);
-          if (size === undefined) throw new UnsupportedAnalysisError("Unmodeled host property 'size': Node Stats fields");
-          return [ESNumber(size), writeProperty(result, name, ESNumber(size), absent)];
+          // Bounded Stats.size/mtime: declared facts of a regular file,
+          // persisted as reached facts on first read. Directory metadata and
+          // files without an observed value stay a typed boundary.
+          if (name === "size") {
+            const size = fileSizes.get(node);
+            if (size === undefined) throw new UnsupportedAnalysisError("Unmodeled host property 'size': Node Stats fields");
+            return [ESNumber(size), writeProperty(result, name, ESNumber(size), absent)];
+          }
+          const milliseconds = fileMtimes.get(node);
+          if (milliseconds === undefined) throw new UnsupportedAnalysisError("Unmodeled host property 'mtime': Node Stats fields");
+          const date = boundedDate(milliseconds);
+          return [date, writeProperty(result, name, date, absent)];
         });
       }, write(): undefined { return undefined; } }
     }));
