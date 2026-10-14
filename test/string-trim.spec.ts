@@ -269,12 +269,12 @@ test("available own-inspection syntax stops at the typed String metadata boundar
 const deferredStringNames = ["anchor", "at", "big", "blink", "bold", "charAt", "charCodeAt",
   "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed", "includes", "indexOf",
   "isWellFormed", "italics", "link", "localeCompare", "match", "matchAll",
-  "normalize", "padEnd", "padStart", "repeat", "replace", "replaceAll", "search", "small",
+  "padEnd", "padStart", "repeat", "replace", "replaceAll", "search", "small",
   "split", "strike", "sub", "substr", "sup", "startsWith", "toWellFormed",
   "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase", "toLocaleUpperCase",
   "toUpperCase"];
 test("native pinned String prototype own-name inventory", () => {
-  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "toLowerCase", "lastIndexOf", "substring", "valueOf"]).sort();
+  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "toLowerCase", "lastIndexOf", "normalize", "substring", "valueOf"]).sort();
   withModuleFixture(`module.exports = Object.getOwnPropertyNames(String.prototype).sort().join("|") === ${JSON.stringify(names.join("|"))};`, file => {
     expect(nodeModuleObservation(file)).toEqual({kind: "return", value: {type: "boolean", value: true}});
   });

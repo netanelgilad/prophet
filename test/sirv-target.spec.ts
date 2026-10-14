@@ -77,18 +77,19 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
   // Both flagless filters execute on the unmodified filename. Stats.size and
-  // Stats.mtime now complete with the observed byte count (16) and declared
-  // mtime, so header preparation (Content-Length, Content-Type from unchanged
-  // mrmime substring, Last-Modified) finishes and the next reached gap is
-  // String.prototype.normalize in the FILES key expression. The filesystem
+  // Stats.mtime complete with the observed byte count (16) and declared
+  // mtime, header preparation (Content-Length, Content-Type from unchanged
+  // mrmime substring, Last-Modified) finishes, and the ASCII filename
+  // normalize is the identity, so the next reached gap is
+  // String.prototype.replace in the FILES key expression. The filesystem
   // failure sibling must survive that stop.
-  expect(result.diagnostic).toBe("String.prototype.normalize is not yet supported");
+  expect(result.diagnostic).toBe("String.prototype.replace is not yet supported");
   expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
   expect(isForkedCompletion(result.completion)).toBe(true);
   const boundaries = executionBoundaries(result.completion as Any);
   expect(boundaries).toHaveLength(1);
   expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "String.prototype.normalize is not yet supported" });
+    message: "String.prototype.replace is not yet supported" });
   const forked = result.completion as ForkedCompletion;
   const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
     leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
@@ -123,7 +124,7 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   }
   expect(effectPaths(stopped[1].value.effects).some(path => path.events.some(event =>
     event.call.operation === "fs.readdirSync"))).toBe(true);
-  expect(boundaries[0].frames.some(frame => frame.node.type === "CallExpression" && (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "normalize")).toBe(true);
+  expect(boundaries[0].frames.some(frame => frame.node.type === "CallExpression" && (frame.node as any).callee.type === "MemberExpression" && (frame.node as any).callee.property.name === "replace")).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -196,7 +197,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
     });
   expect(child.error).toBeUndefined();
   expect(child.status).toBe(2);
-  expect(child.stderr).toBe("prophet: String.prototype.normalize is not yet supported\n");
+  expect(child.stderr).toBe("prophet: String.prototype.replace is not yet supported\n");
   const graph = JSON.parse(child.stdout);
   expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
   const nodes = new Map<string, any>(graph.nodes.map((node: any) => [node.id, node]));
@@ -214,7 +215,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
   expect(field(field(field(field(failed, "value"), "properties"), "code"), "value")).toBe("EMFILE");
   const boundary = values.find(value => field(value, "type") === "ExecutionBoundary");
   expect(field(boundary, "kind")).toBe("unsupported");
-  expect(field(boundary, "message")).toBe("String.prototype.normalize is not yet supported");
+  expect(field(boundary, "message")).toBe("String.prototype.replace is not yet supported");
   const stopped = leaves.find(leaf => field(field(leaf, "0"), "type") === "ExecutionBoundary");
   expect(field(field(stopped, "1"), "sourceFile")).toMatch(/sirv\/build\.js$/);
   // Inspect the public environment records, not the private flattened scope view.

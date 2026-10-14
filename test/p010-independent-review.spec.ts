@@ -189,13 +189,13 @@ test("independent unchanged actual CLI retains every FS outcome, source frontier
  const binary=process.env.PROPHET_NODE_BINARY||process.execPath,argv=[join(root,"bin/prophet.js"),"--","entry.cjs"];
  const child=spawnSync(binary,argv,{cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
  writeFileSync(join(logRoot,"cli.stdout.json"),child.stdout);writeFileSync(join(logRoot,"cli.stderr.log"),child.stderr);writeFileSync(join(logRoot,"cli-command.json"),JSON.stringify({binary,argv,cwd:directory,status:child.status,signal:child.signal},null,2));
- expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.normalize is not yet supported\n");
+ expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.replace is not yet supported\n");
  const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
  const field=(ref:any,key:string)=>{const pair=nodes.get(ref.ref).entries.find(([name]:[string])=>name===key);return pair&&pair[1];};
  const completion=graph.roots.completion;expect(field(completion,"type")).toBe("ForkedCompletion");
  const all=[field(completion,"consequent"),field(completion,"alternate")];expect(all.map(l=>field(field(l,"0"),"type")).sort()).toEqual(["ExecutionBoundary","ThrownValue"]);
  for(const leaf of all){const value=field(leaf,"0"),state=field(leaf,"1"),stopped=field(value,"type")==="ExecutionBoundary";
-  if(stopped){expect(field(value,"message")).toBe("String.prototype.normalize is not yet supported");expect(field(state,"sourceFile")).toMatch(/sirv\/build\.js$/);
+  if(stopped){expect(field(value,"message")).toBe("String.prototype.replace is not yet supported");expect(field(state,"sourceFile")).toMatch(/sirv\/build\.js$/);
    // Completed mrmime activation records remain; these are not current sirv locals.
    const envs=nodes.get(field(state,"environments").ref).entries;let tmp:any,idx:any;
    for(const [,record]of envs){for(const name of ["tmp","idx"]){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key===name);if(binding){if(name==="tmp")tmp=field(binding[1],"value");else idx=field(binding[1],"value");}}if(tmp&&idx)break;}
