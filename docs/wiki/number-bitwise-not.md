@@ -1,7 +1,7 @@
 # Number-domain complement and late primitive admission
 
 First P011 source b920a64 is independently rejected by Astra/high for P011-R1;
-correction 1 validation/renewed exact-source acceptance are pending.
+corrected source 5c70d29 is independently accepted by the same reviewer after renewed validation. Integration and exact-head CI are root gates; see [publication review](../agent-tasks/P011-number-bitwise-not/publication-review.md).
 First [source/evidence](../agent-tasks/P011-number-bitwise-not/evidence.json) is preserved.
 [Correction evidence](../agent-tasks/P011-number-bitwise-not/correction-1-evidence.json) binds the corrected freeze and commands.
 

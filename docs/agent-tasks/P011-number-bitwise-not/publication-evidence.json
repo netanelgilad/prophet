@@ -1,0 +1,94 @@
+{
+  "acceptedSource": "5c70d29ef65012c4615d6e9c39e63d99a6cf3047",
+  "writerEvidence": "9881c919c03c3096cefb05f56c0ad3eff5bd1a75",
+  "independentReview": "245176e4751809761e7cf3fe8880e9a45b65b851",
+  "integratedReviewHead": "a2e67b4629d20fcfd8533b81d89fc13609dad22a",
+  "writerHashVerification": {
+    "source": "5c70d29ef65012c4615d6e9c39e63d99a6cf3047",
+    "checks": 8076,
+    "oldLogsPreserved": 235,
+    "result": "verified",
+    "manifestHash": "0c2a0f6d601e5f397df3541df48bb6f1a4e674aa5dac558020609a32737f3912"
+  },
+  "reviewHashVerification": {
+    "head": "a2e67b4629d20fcfd8533b81d89fc13609dad22a",
+    "acceptedSource": "5c70d29ef65012c4615d6e9c39e63d99a6cf3047",
+    "sourceAndReviewHashChecks": 2182,
+    "reviewCommit": "245176e4751809761e7cf3fe8880e9a45b65b851",
+    "result": "all accepted source and original review files unchanged, review artifacts verified"
+  },
+  "runs": {
+    "integrated-probes": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p011-independent-review.spec.ts",
+        "test/p011-correction-review.spec.ts",
+        "test/bitwise-not.spec.ts",
+        "test/object-bindings.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "sourceHead": "a2e67b4629d20fcfd8533b81d89fc13609dad22a",
+      "exit": 1,
+      "seconds": 28.25280499458313,
+      "timedOut": false,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-root/integrated-probes.log",
+      "sha256": "ca183c9f33d415a6b2d73b81597e5a027861486a92244c7433eea7ff3276b36e"
+    },
+    "integrated-probes-retry": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/p011-independent-review.spec.ts",
+        "test/p011-correction-review.spec.ts",
+        "test/bitwise-not.spec.ts",
+        "test/object-bindings.spec.ts"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "sourceHead": "a2e67b4629d20fcfd8533b81d89fc13609dad22a",
+      "exit": 0,
+      "seconds": 8.086947917938232,
+      "timedOut": false,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-root/integrated-probes-retry.log",
+      "sha256": "1942e4464c99ff841f90b76d6135943c9084d1a99def9fad252fbe9a5b2bc466"
+    },
+    "integrated-typecheck": {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not",
+      "environment": {
+        "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+      },
+      "sourceHead": "a2e67b4629d20fcfd8533b81d89fc13609dad22a",
+      "exit": 0,
+      "seconds": 1.6662211418151855,
+      "timedOut": false,
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-root/integrated-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "artifactRouting": {
+    "PROPHET_REVIEW_RUN": "p011-root-RUN_NAME",
+    "PROPHET_P011_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-root/RUN_NAME",
+    "PROPHET_P009_LOG_ROOT": "/Users/netanelgilad/development/prophet-worktrees/sol-p011-number-bitwise-not/logs/p011-root/RUN_NAME/p009"
+  },
+  "runner": {
+    "path": "/tmp/prophet-p011-root-run.py",
+    "sha256": "623d6122e3a9e972179accc96615787f19e0e402742fe6da1a291e650576b1ee"
+  },
+  "classification": "root integration evidence; earlier failed run preserved, no production or accepted behavioral spec changes",
+  "remainingGate": "draft exact-head full/typecheck CI"
+}
