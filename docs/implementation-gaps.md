@@ -1390,3 +1390,22 @@ closes.
   call/outcome identity beside it is preserved. No server startup, request
   or success claim; request-path analysis (parse(req), http modeling)
   remains open.
+
+## P018 reconciliation — bounded sloppy primitive receiver boxing (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[boxing specs](../test/sloppy-receiver-boxing.spec.ts) and the task record
+[P018](agent-tasks/P018-sloppy-boxing/task.md) retain residuals; no gap group
+closes.
+
+- LANG-003: the "Sloppy receiver boxing is not yet supported" host assertion
+  is replaced by bounded ToObject boxing for concrete number/string/boolean
+  receivers: fresh per-call wrappers on the original intrinsic prototypes,
+  own-write visibility within the activation, guarded slot/prototype reads.
+  instanceof/Symbol.hasInstance and constructor/prototype mutation remain
+  guarded legacy host assertions; wrapper slot semantics (valueOf/toString
+  tags) remain unmodeled. Direct symbolic choice receivers and unregistered
+  receiver types stop as typed boundaries.
+- LANG-006/REPORT-001: sirv's bound viaCache handler (thisArg 0) is now
+  callable; request-path analysis still requires parse(req) and http
+  modeling. No server or request claim.

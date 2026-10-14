@@ -16,6 +16,9 @@ import { registerDefinition } from "./definition";
 import { hasUseStrict } from "./instantiate";
 import { initializeParameters, instantiateFunctionBody } from "./parameters";
 import { isObjectValue } from "../conversion/toString";
+import { choiceOf } from "../symbolic";
+import { UnsupportedAnalysisError } from "../execution-context/analysis-failure";
+import { boxSloppyReceiver } from "./boxing";
 
 export function ESFunction(implementation: FunctionImplementation) {
   const result = {
@@ -94,7 +97,13 @@ export function createFunction(
     let thisValue = kind.arrow ? lexicalThis : self;
     if (!kind.arrow && !strict) {
       if (isUndefined(self) || isESNull(self)) thisValue = creationContext.value.global;
-      else if (!isObjectValue(self)) throw new Error("Sloppy receiver boxing is not yet supported");
+      else if (!isObjectValue(self)) {
+        if (choiceOf(self)) throw new UnsupportedAnalysisError("Sloppy receiver boxing is not yet supported for symbolic receivers");
+        const boxed = boxSloppyReceiver(self);
+        if (!boxed) throw new UnsupportedAnalysisError(
+          "Sloppy receiver boxing is not yet supported for " + (self as { type: string }).type + " receivers");
+        thisValue = boxed;
+      }
     }
     activation = setCurrentThisValue(activation, thisValue);
     const execution = bindNormal(initializeParameters(params, args, activation, !!kind.arrow, statements),

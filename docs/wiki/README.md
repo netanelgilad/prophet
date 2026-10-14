@@ -44,3 +44,4 @@ until review is recorded; a model-generated article is not independent evidence.
 - [Bounded ASCII String.prototype.normalize](string-normalize.md): NFC identity on concrete ASCII, typed boundaries elsewhere; frontier now String.prototype.replace; independent review pending.
 - [Bounded no-match RegExp String.prototype.replace](string-replace.md): identity via the Boolean matcher's no-match answer; frontier now Function.prototype.bind; independent review pending.
 - [Bounded Function.prototype.bind](function-bind.md): captured receiver/partials, computed length, forwarding calls; unchanged sirv factory returns its request handler; independent review pending.
+- [Bounded sloppy receiver boxing](sloppy-boxing.md): fresh ToObject wrappers on original intrinsic prototypes; bound viaCache handler callable; independent review pending.

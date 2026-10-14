@@ -1,3 +1,4 @@
+import { sloppyBoxPrototypes } from "../Function/boxing";
 import { split } from "./split";
 import { substr } from "./substr";
 import {
@@ -154,6 +155,9 @@ export const StringConstructor = Object.assign(ESFunction(function*(
   unmodeledPropertyWrites: ["prototype"] });
 StringConstructor.properties.prototype = getStringPrototype();
 Object.assign(getStringPrototype().properties, { constructor: StringConstructor });
+
+// The original intrinsic prototype boxes sloppy primitive receivers (ToObject).
+sloppyBoxPrototypes.string = getStringPrototype();
 
 function calculateLength(value?: string | Array<TESString>): TESNumber {
   if (typeof value === "string") return ESNumber(value.length);
