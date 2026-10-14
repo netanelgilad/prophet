@@ -1256,3 +1256,45 @@ preserved. Correction runs isolate P011 candidate/P009 CLI/P010 review outputs
 through optional artifact-directory environment inputs; only artifact writing
 paths change in P009, with all behavior assertions retained. New evidence and
 handoff are separate files/commit after one corrected source freeze.
+
+## P012 reconciliation — bounded generic substring
+
+Worker implementation; independent Astra/high acceptance is pending.
+[Boundary](string-substring.md), [candidates](agent-tasks/P012-string-substring/upstream-candidates.md)
+and source-bound evidence retain residuals rather than closing groups.
+
+- LIB-001/LIB-002: substring alone leaves the deferred registry. Name/length2,
+  identity, call and nonconstruction are modeled; descriptor/reflection/writes,
+  other String APIs and wrapper construction stay open. The pinned 52-name
+  inventory is ten modeled/42 deferred.
+- **STRING-002 — open — unsupported/precision:** substring's open symbolic
+  receiver/index values and legacy chunks finish all completing conversions,
+  then stop honestly. Finite correlated choices are supported; no unrestricted
+  string/index summary or silent narrowing is claimed. Extend reusable value
+  reasoning with positive proofs and mandatory-unknown/effect regressions.
+- **STRING-003 — open — budget:** converted substring receiver exceeds 65,536
+  UTF-16 units, including empty outputs. The guard follows required conversions
+  and precedes copying/preparation. Below/at/above, throwing-end, and mixed
+  normal/guest-throw/budget histories are tested. This analysis cap is not a JS
+  restriction or native allocation guarantee.
+- OBJ-001/003, LANG-002/003/004, LEGACY-002: custom nonnull symbol hooks,
+  arrays/functions/wrappers, BigInt/public Symbol/late exotic primitives,
+  descriptors/accessors and shared partial-host/cyclic prototype errors remain.
+  String.prototype's empty-string identity is supported; no wider wrapper or
+  BigInt representation is added. P011 static-key guards remain byte-identical.
+- SYM-001/004, STRING-001, SECURITY-002, REPORT-001: numeric-string parsing has
+  no new cap. Shared Number parsing/formatting, interpreted coercion, parser/input
+  allocations, prototype depth, branch growth and successful allocation remain
+  inherited limits/assumptions. Only bounded copy/output is established.
+- FS-001/FS-002, LANG-003, TARGET-002: actual next Stats.size read in unchanged
+  sirv is typed, preserving current ctype/name, completed mrmime activation,
+  frames and every success/EMFILE call/outcome identity. Size/mtime/Date/header
+  semantics and factory return stay deferred; other legacy Stats guards remain.
+  No header/Node startup/network feature or future callback analysis is inferred.
+- TEST-001/REPORT-001: 14 complete substring files/28 variants are added, no
+  active file removed, all 43/86 native candidates checked, 29 whole inactive
+  blockers retained. Complete corpus:384/759 with 46 unchanged historical skips.
+  Audits scan guards/assertions/skips/key routes/checkpoints/provenance; counts
+  are not complete language or host coverage. Historical reports/manifests and
+  all prior log bytes are retained. P012 ENOSPC capture and failed checks remain
+  classified; versioned compact capture references unchanged committed bytes.

@@ -278,7 +278,13 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
     const result = Object.assign(ESObject(), { prototype: statsPrototype,
       unknownProperties: "Node Stats fields", modeledInheritedProperties: ["isDirectory", "isFile"],
       unmodeledOwnPropertyInspection: "Node Stats descriptors",
-      unmodeledPropertyReads: ["mode", "_checkModeProperty"], unmodeledPropertyWrites: ["mode", "_checkModeProperty", "__proto__"]
+      unmodeledPropertyReads: ["mode", "_checkModeProperty"], unmodeledPropertyWrites: ["mode", "_checkModeProperty", "__proto__"],
+      // Only classify the actually reached next frontier. No size value or
+      // wider Stats API is modeled; preserve completed filesystem siblings.
+      propertyAccess: { read(name: string): undefined {
+        if (name === "size") throw new UnsupportedAnalysisError("Unmodeled host property 'size': Node Stats fields");
+        return undefined;
+      }, write(): undefined { return undefined; } }
     });
     statsKinds.set(result, entries.get(node)!);
     return result;

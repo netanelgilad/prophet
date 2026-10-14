@@ -31,15 +31,20 @@ factory with a directory evaluates two regular-expression literals and appends
  `('' + extn).trim()` through the shared bounded String.trim intrinsic, and bounded ASCII `.toLowerCase()`; it then
  computes `idx === 5` through bounded generic UTF-16 String.lastIndexOf,
  then computes Number-domain unary `~` and selects the alternate of `!~idx`.
- The next measured stop is String.prototype.substring callee lookup
- (mrmime/index.js:445), with `tmp === "hello.txt"` and `idx === 5`; its argument
- `++idx` has not executed. See [the Number boundary](number-bitwise-not.md).
- The actual CLI JSON graph retains this stopped leaf with its source frame and
- prior directory effects beside the EMFILE filesystem throw (descriptor
- availability remains symbolic). No package source rewrite is introduced. The shared partial-intrinsic
- lookup guard prevents a legacy noncallable assertion from dropping that sibling;
- own replacements still use normal lookup. Full Unicode case conversion, other bitwise operations,
- substring, later Stats/Date metadata and streams remain separate work. The retained state contains the regex
+ Shared bounded generic UTF-16 substring now executes the already-resolved
+ callee's argument `++idx` exactly once and completes unchanged mrmime lookup:
+ `tmp === "hello.txt"`, `idx === 6`, result `"text/plain"`. Those completed
+ activation records remain in persistent state, outside the later current
+ lexical chain. The next measured stop is `stats.size` in sirv/build.js:110,
+ during header preparation, with current `ctype === "text/plain"` and
+ `name === "hello.txt"`. See [substring boundaries](string-substring.md).
+ The size-only existing Stats guard is typed, preserving source frames and
+ every directory/stat/isDirectory call/outcome identity beside EMFILE readdir
+ call/throw; other legacy Stats guards remain unchanged. No size/Stats/Date
+ value or semantic implementation is added. The factory has not returned.
+ No package source rewrite is introduced. Full Unicode casing, other bitwise
+ operations, deferred String APIs, Stats/Date metadata and streams remain work.
+ The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity
 and provide shared bounded directory enumeration, without pretending the factory

@@ -88,3 +88,15 @@ history remain unchanged. No first-review streak, trust/concurrency promotion,
 model/account change or rotation is inferred.
 
 P011 correction1 independent verdict 245176e accepts exact source5c70d29: original41 probes plus18 new probes (1350 key/trivia/coordinate cases), affected56 suites/2531 passes/46 retained skips, typecheck/audit0. Corrected writer full136 suites/4181 passes/46 skips. Reviewer-native quoting and test-helper typing mistakes retain harness attribution and failed artifacts. Root integrates review-only deliverables and checks exact-head CI; [publication review](agent-tasks/P011-number-bitwise-not/publication-review.md) records the gates. No first-review streak or trust/concurrency/model/account promotion follows.
+
+
+P012 separately authorizes the same sole `gpt-6.1-sol`/high writer on account mine
+for bounded generic substring. Independent Astra/high review is pending; no
+trust/concurrency promotion or new feature follows. Owner-reported account-wide
+41% at00:34UTC, then40% at00:51UTC, is capacity context, not a per-feature estimate
+or live measurement by the writer. No provider error, account/model/reset change,
+paid fallback, agents or access expansion occurred. Local ENOSPC interrupted
+source capture before affected tests started; root recovered storage while
+preserving archive/cache bytes. Failed selector/harness/typecheck/audit attempts
+remain attributed in P012 evidence. Full semantic review and exact-head root
+publication/CI gates remain required.

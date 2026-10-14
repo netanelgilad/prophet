@@ -1,0 +1,44 @@
+# Bounded generic UTF-16 substring
+
+P012 worker evidence is provisional until independent Astra/high review. See
+[boundary](../string-substring.md), [specs](../../test/string-substring.spec.ts),
+[task](../agent-tasks/P012-string-substring/task.md), and
+[handoff](../agent-tasks/P012-string-substring/handoff.md).
+
+Capture the intrinsic before ordinary argument evaluation; leave the generic
+CallExpression resolver unchanged. Receiver string-hint, start number-hint and
+nonundefined end number-hint conversions execute in order. A directly undefined
+end and an object returning undefined have different semantics. Preserve all
+completing conversions before late open/copy admission; empty results do not
+justify skipping effects or the receiver cap. A genuinely earlier conversion
+failure still prevents later stages.
+
+Ordinary conversion needs operation-local primitive finishing to classify late
+BigInt/Symbol/exotic returns honestly. Export the existing string-hint traversal
+with the same finish parameter as number-hint; keep prior APIs unchanged. Use
+persistent lookup/calls, bindNormal and withValue, not sample-name recognition.
+Copy bounded UTF-16 units directly after independent clamping/swapping; no native
+substring backend or surrogate repair. The copy cap does not bound Number string
+parsing, arbitrary user coercion, branch/prototype recursion or allocation failure.
+
+Measured unchanged mrmime returns its actual MIME result and increments idx to 6
+once. A subsequent Stats.size boundary is a different source/current environment:
+completed activation records can retain idx, but it is not a current sirv local.
+Classify only the actually reached absent Stats read; preserve all filesystem
+call/outcome identities and EMFILE sibling, without adding header/Date/Stats
+semantics or claiming factory return.
+
+Scan both literal and parameterized predecessor inventories. Supported-name
+checks gain actual native/VM observations; generic earlier-stop witnesses move
+to existing deferred indexOf/includes while retaining all state/order/cleanup
+assertions. Historical reports and logs describe their original sources and are
+not rewritten as current claims.
+
+Capture exact source before each run. A selector matching no tests is no
+verification. A partial source archive without run metadata is no executed test.
+P012 hit ENOSPC by duplicating immutable dependency caches. Preserve the old
+helper/logs; version the new capture and archive only behavioral/changed files,
+referencing committed excluded bytes by HEAD and recomputed hashes. Frozen
+committed source needs no duplicate cache archive. Root recovered storage with
+byte-preserving sharing; that is resource recovery, not a dependency installation
+or provider/model change. Retain failed harness/tooling evidence with attribution.

@@ -13,6 +13,22 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // P012: whole unmodified bounded generic substring candidates.
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T10.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T11.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T13.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T14.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T4.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T7.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T8.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A3_T10.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A3_T5.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A3_T6.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A3_T7.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A6.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A7.js",
+  "built-ins/String/prototype/substring/this-value-not-obj-coercible.js",
+
   // P011: whole Number-domain complement/GetValue/ordinary conversion cases.
   "language/expressions/bitwise-not/S11.4.8_A1.js",
   "language/expressions/bitwise-not/S11.4.8_A2.1_T1.js",
