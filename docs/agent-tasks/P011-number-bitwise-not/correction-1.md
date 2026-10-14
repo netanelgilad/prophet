@@ -18,3 +18,14 @@ Required red/native evidence and regression matrix: both complete counterexample
 Run focused/all affected parser/literal/object-binding/operator/consumer/previous review suites and typecheck, then freeze corrected source/spec/docs once. Full suite900s/typecheck/all guard/skip/provenance audit exact source; whole original corpus/46 historical skips unchanged and no literal/fixture/assertion removal. Current unchanged sirv substring frontier/idx5/tmp/history must persist. Preserve old evidence.json unchanged; record correction-1-evidence.json with exact source, generated/independently recomputed hashes, commands/exits/counts/rawignoredlogs. Evidence-only commit and handoff then freeze. Independent same Astra reviewer re-reviews corrected source and counterexamples; root publishes only after renewed acceptance/exacthead CI. Review tests are disclosed now, not hidden holdouts.
 
 No push/merge/release/main/Atlas/otherworktree edits, subagents/model/account/subscription changes/paid API/credentials/access/Notion writes. Continue economically and preserve review capacity; exact current quota rechecked by root before dispatch. Report a true structural blocker/split, don't silently broaden/narrow. User authorization already covers recovery needed for faithful Number-domain result and explicit BigInt boundary.
+
+
+Writer correction checkpoint: ranges are enabled only transiently to recover
+omitted Property-key `bigint` metadata from original token endpoints, then stripped.
+The common staticPropertyName helper guards both object construction and binding
+at current after-context. Number helper/operators/conversion are unchanged.
+Native/red/focused evidence and all old artifacts are retained; one corrected
+source freeze and full/typecheck/audit gates precede correction-1-evidence.json
+and a separate handoff, then renewed independent Astra/high review. P009 changes
+are limited to an optional artifact directory required to preserve the first
+handoff's CLI bytes; no behavioral oracle/fixture source is changed.

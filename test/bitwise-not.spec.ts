@@ -1,3 +1,5 @@
+import { invoke } from "../src/ASTResolvers";
+import { parseECMACompliant } from "../src/parseECMACompliant";
 import { execFileSync } from "child_process";
 import { createHash } from "crypto";
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "fs";
@@ -85,7 +87,7 @@ test("whole upstream inventory native reference and inactive VM blockers",()=>{
   }
   rows.push({path:prefix+name,sha256:createHash("sha256").update(readFileSync(join(dir,name))).digest("hex"),attrs:file.attrs,runs});
  }
- expect(rows).toHaveLength(16);const logs=join(__dirname,"../logs/p011");mkdirSync(logs,{recursive:true});writeFileSync(join(logs,"whole-candidates.json"),JSON.stringify(rows,null,2));
+ expect(rows).toHaveLength(16);const logs=process.env.PROPHET_P011_LOG_ROOT||join(__dirname,"../logs/p011");mkdirSync(logs,{recursive:true});writeFileSync(join(logs,"whole-candidates.json"),JSON.stringify(rows,null,2));
 },30000);
 
 for(const expression of ['1n','0n','0x5an','{valueOf(){mark=2;return 1n;}}','{valueOf(){mark=2;return {};},toString(){mark=3;return 1n;}}'])test("reached BigInt literal never becomes Number "+expression,()=>{
@@ -96,3 +98,75 @@ for(const expression of ['1n','0n','0x5an','{valueOf(){mark=2;return 1n;}}','{va
 test("current conditional fallback method preserves correlated mutation",()=>{const [done,s]=run('let trace="";const x={valueOf(){trace="v";this.toString=a?function(){trace=trace+"s";return "5";}:function(){trace=trace+"t";return null;};return [];}};const n=~x;const valid=a?n===-6&&trace==="vs":n===-1&&trace==="vt";',{a:ESBoolean()});expect(done).toBe(Undefined);expect(s.value.scope.valid).toMatchObject({value:true});});
 test("native conditional fallback mutation witnesses",()=>withModuleFixture('function check(a){let trace="";const x={valueOf(){trace="v";this.toString=a?function(){trace=trace+"s";return "5";}:function(){trace=trace+"t";return null;};return [];}};const n=~x;return a?n===-6&&trace==="vs":n===-1&&trace==="vt";}module.exports=check(true)&&check(false);',f=>expect(nodeModuleObservation(f)).toEqual({kind:"return",value:{type:"boolean",value:true}})));
 test("embedding wrapper remains typed without Number assumption",()=>{const input=ESObject({});(input as any).stringData=true;const result=run('let mark=0;if(a){mark=1;const n=~input;}else mark=2;',{input,a:ESBoolean()});const all=leaves(result);expect(all).toHaveLength(2);expect(all.find(([v])=>v.type==="ExecutionBoundary")[1].value.scope.mark).toMatchObject({value:1});expect(all.find(([v])=>v===Undefined)[1].value.scope.mark).toMatchObject({value:2});});
+
+// P011-R1 disclosed Astra counterexamples, now intended unsupported admission.
+const staticBigIntKeys=["0n","1n","9007199254740993n","0xffn","0XABn","0b101n","0B11n","0o77n","0O10n"];
+const nativeKeyNames=["0","1","9007199254740993","255","171","5","3","63","8"];
+for(const key of staticBigIntKeys)for(const route of ["object","binding"])test(`R1 native static key ${route} ${key}`,()=>withModuleFixture(route==="object"?`const x={${key}:8};module.exports=~x[${JSON.stringify(nativeKeyNames[staticBigIntKeys.indexOf(key)])}];`:`const {${key}:x}={${JSON.stringify(nativeKeyNames[staticBigIntKeys.indexOf(key)])}:8};module.exports=~x;`,f=>expect(nodeModuleObservation(f)).toEqual({kind:"return",value:{type:"number",value:"-9"}})));
+for(const key of staticBigIntKeys)for(const route of ["object","binding"])test(`R1 VM static key ${route} ${key}`,()=>{
+ const source=route==="object"?`const x={${key}:8};const n=~x["9007199254740993"];`:`const {${key}:x}={"9007199254740993":8};const n=~x;`;
+ const [done]=run(source);expect(done).toMatchObject({type:"ExecutionBoundary",kind:"unsupported",message:"BigInt static property keys are not yet supported"});
+});
+for(const prefix of ["", "// comment\n", "/*😀*/\r\n", "const 文=1;\u2028", "/*comment*/\n\r\n"])for(const route of ["object","binding"])test(`R1 original source positions ${JSON.stringify(prefix)} ${route}`,()=>{
+ const source=route==="object"?'let mark=0;const x={prior:(mark=1),/*key*/\r\n9007199254740993n:(mark=9)};': 'let mark=0;const {ok= (mark=2),/*key*/\r\n0xABn:bad=(mark=9)}=rhs();';
+ const [done,s]=run(prefix+'function rhs(){mark=1;return {};}'+source);expect(done).toMatchObject({type:"ExecutionBoundary",message:"BigInt static property keys are not yet supported"});expect(s.value.scope.mark).toMatchObject({value:route==="object"?1:2});
+});
+for(const key of ['[1n]','[0xABn]'])for(const route of ["object","binding"])test(`R1 computed keeps literal boundary ${route} ${key}`,()=>{
+ const source=route==="object"?`let mark=0;const x={prior:(mark=1),${key}:(mark=9)};`:`let mark=0;function rhs(){mark=1;return {};}const {ok=(mark=2),${key}:bad=(mark=9)}=rhs();`;
+ const [done,s]=run(source);expect(done).toMatchObject({type:"ExecutionBoundary",message:"BigInt literal evaluation is not yet supported"});expect(s.value.scope.mark).toMatchObject({value:route==="object"?1:2});
+});
+for(const route of ["object","binding"])test("R1 conditional effects throws stops cleanup "+route,()=>{
+ const console=createConsoleModel();const source=route==="object"?`const x={ok:prior(),9007199254740993n:later()};const n=~x["9007199254740993"];`:`const {ok:x=prior(),9007199254740993n:y=later()}=rhs();const n=~y;`;
+ const result=run(`let trace="",caught=false,cleaned=false;const box={n:0};const alias=box;function rhs(){trace="r";console.log("r");return {};}
+ function prior(){trace=trace+"p";alias.n=7;Object.prototype.current=8;console.log("p");if(b)throw "G";if(c)return "x".substring;return 8;}function later(){trace="wrong";return 9;}
+ if(a){try{${source}}catch(e){caught=e;}finally{cleaned=true;console.log("finally");}}else trace="sibling";`,{a:ESBoolean(),b:ESBoolean(),c:ESBoolean(),console:console.module});
+ const all=leaves(result);expect(all.some(([v])=>v.type==="ExecutionBoundary")).toBe(true);expect(all.some(([v])=>v===Undefined)).toBe(true);
+ for(const [done,s]of all){const stop=done.type==="ExecutionBoundary";if(stop){expect(done.message).toMatch(/BigInt static property keys|String.prototype.substring/);expect(s.value.scope.trace).toMatchObject({value:route==="object"?"p":"rp"});expect(s.value.scope.caught).toMatchObject({value:false});expect(s.value.scope.cleaned).toMatchObject({value:false});}else{const [d,z]=evaluateCode('const valid=a?b&&caught==="G"&&cleaned:trace==="sibling"&&!cleaned;',s);expect(d).toBe(Undefined);expect(z.value.scope.valid).toMatchObject({value:true});}
+ const [d,z]=evaluateCode('const current=a?box.n===7&&alias===box&&({}).current===8:box.n===0;',s);expect(d).toBe(Undefined);expect(z.value.scope.current).toMatchObject({value:true});expect(console.inspectOutput(s).every(p=>p.chunks.length===(stop?(route==="object"?1:2):aWitness(s)?(route==="object"?2:3):0))).toBe(true);}
+ function aWitness(s:any){const [d,z]=evaluateCode('const selected=a===true;',s);expect(d).toBe(Undefined);return (z.value.scope.selected as any).value===true;}
+});
+for(const route of ["object","binding"])test("R1 early throws and unsupported bypass later key "+route,()=>{
+ const source=route==="object"?'const x={ok:early(),1n:later()};':'const {1n:x=later()}=early();';
+ for(const unsupported of [false,true]){const [done,s]=run(`let mark=0,caught=false;function early(){mark=1;${unsupported?'return "x".substring;':'throw "E";'}}function later(){mark=9;}try{${source}}catch(e){caught=e;}const valid=caught==="E"&&mark===1;`);expect(s.value.scope.mark).toMatchObject({value:1});if(unsupported)expect(done).toMatchObject({type:"ExecutionBoundary",message:"String.prototype.substring is not yet supported"});else{expect(done).toBe(Undefined);expect(s.value.scope.valid).toMatchObject({value:true});}}
+});
+const staticKeyControls=[
+ 'const x={9007199254740993:8};module.exports=~x["9007199254740992"]===-9&&~x["9007199254740993"]===-1;',
+ 'const {9007199254740993:x}={"9007199254740992":8};module.exports=~x===-9;',
+ 'const x={"9007199254740993n":8,"1n":7,1:6,1.5:5,0xAB:4,n:3};const {"9007199254740993n":a,"1n":b,1:c,1.5:d,0xAB:e,n:f}=x;module.exports=a===8&&b===7&&c===6&&d===5&&e===4&&f===3;',
+ 'const name=3;const x={name,method(){return 8;}};const {name:y}=x;module.exports=y===3&&~x.method()===-9;',
+ 'function unused(){const x={9007199254740993n:8};const {1n:y}={};return ~y;}module.exports=true;',
+ 'const x={"":1,100000000000000000000:2,0:3,0b11:4,0o10:5};module.exports=x[""]===1&&x["100000000000000000000"]===2&&x["0"]===3&&x["3"]===4&&x["8"]===5;'
+];
+for(const [i,source]of staticKeyControls.entries())test("R1 native and VM ordinary static key controls "+i,()=>expect(compareModule(source).actual).toEqual({kind:"return",value:{type:"boolean",value:true}}));
+test("R1 native prefix and binding evaluation order",()=>withModuleFixture('let trace="";function prior(){trace=trace+"p";return 8;}function rhs(){trace=trace+"r";return {};}function later(){trace=trace+"l";return 8;}const x={ok:prior(),1n:later()};const {ok:a=prior(),1n:b=later()}=rhs();module.exports=trace==="plrpl"&&~x["1"]===-9&&~b===-9;',f=>expect(nodeModuleObservation(f)).toEqual({kind:"return",value:{type:"boolean",value:true}})));
+
+test("R1 parser restores only static admission metadata with original AST shape",()=>{
+ const ordinary='const name=1;const x={9007199254740993:8,"1n":7,name,method(){return 2;}};const {9007199254740993:y}=x;';
+ expect(parseECMACompliant(ordinary)).toEqual(require("cherow").parseScript(ordinary,{raw:true,loc:true}));
+ const source='/*😀*/\r\nfunction unused(){const x={/*a*/\n9007199254740993n:8};const {/*b*/0XABn:y}=x;}';
+ const ast:any=parseECMACompliant(source),body=ast.body[0].body.body;
+ for(const key of [body[0].declarations[0].init.properties[0].key,body[1].declarations[0].id.properties[0].key]){expect(Object.prototype.hasOwnProperty.call(key,"bigint")).toBe(true);expect(key).not.toHaveProperty("start");expect(key).not.toHaveProperty("end");expect(key.loc.start.line).toBeGreaterThan(1);}
+ const [done]=run(source);expect(done).toBe(Undefined);
+});
+test("R1 BigInt method key stops after prefix, ordinary method remains supported",()=>{
+ const [done,s]=run('let mark=0;const x={prior:(mark=1),1n(){mark=9;return 8;}};');expect(done).toMatchObject({type:"ExecutionBoundary",message:"BigInt static property keys are not yet supported"});expect(s.value.scope.mark).toMatchObject({value:1});
+ withModuleFixture('const x={1n(){return 8;}};module.exports=~x["1"]()===-9;',f=>expect(nodeModuleObservation(f)).toEqual({kind:"return",value:{type:"boolean",value:true}}));
+});
+
+test("R1 object guard retains the built prefix heap entry at current context",()=>{
+ const [done,s]=run('let mark=0;const box={n:0};const x={prior:(box.n=7),1n:(mark=9)};');
+ expect(done).toMatchObject({type:"ExecutionBoundary",message:"BigInt static property keys are not yet supported"});expect(s.value.scope.mark).toMatchObject({value:0});
+ const prefix=Array.from(s.value.heap!.values()).filter(entry=>Object.prototype.hasOwnProperty.call(entry.properties,"prior"));expect(prefix).toHaveLength(1);expect(prefix[0].properties.prior).toMatchObject({value:7});
+ const [d,z]=evaluateCode('const current=box.n===7;',s);expect(d).toBe(Undefined);expect(z.value.scope.current).toMatchObject({value:true});
+});
+for(const kind of ["var","let","const"])test("R1 binding stops before bad shared read/default after prior binding "+kind,()=>{
+ const [done,s]=run(`let mark=0;function rhs(){mark=1;return {};}const source=rhs();${kind} {ok:first=(mark=2),1n:bad=(mark=9)}=source;`);
+ expect(done).toMatchObject({type:"ExecutionBoundary",message:"BigInt static property keys are not yet supported"});expect(s.value.scope.mark).toMatchObject({value:2});expect(s.value.scope.first).toMatchObject({value:2});
+});
+
+test("R1 binding guard precedes observable bad lookup after RHS/read/default effects",()=>{
+ const input=ESObject({});input.propertyAccess={write(){return undefined;},read(name,context){return invoke(context.value.scope.read,[ESString(name)],context,input);}};
+ const [done,s]=run('let trace="",caught=false,cleaned=false;function rhs(){trace="r";return input;}function read(name){if(name==="ok"){trace=trace+"o";return undefined;}trace=trace+"w";throw "read";}function prior(){trace=trace+"d";return 8;}try{const {ok:first=prior(),9007199254740993n:bad=prior()}=rhs();}catch(e){caught=e;}finally{cleaned=true;}',{input});
+ expect(done).toMatchObject({type:"ExecutionBoundary",message:"BigInt static property keys are not yet supported"});expect(s.value.scope.trace).toMatchObject({value:"rod"});expect(s.value.scope.caught).toMatchObject({value:false});expect(s.value.scope.cleaned).toMatchObject({value:false});
+ withModuleFixture('let trace="",caught;const input={get ok(){trace=trace+"o";return undefined;},get "9007199254740993"(){trace=trace+"w";throw "read";}};function rhs(){trace="r";return input;}function prior(){trace=trace+"d";return 8;}try{const {ok:first=prior(),9007199254740993n:bad=prior()}=rhs();}catch(e){caught=e;}module.exports=trace==="rodw"&&caught==="read";',f=>expect(nodeModuleObservation(f)).toEqual({kind:"return",value:{type:"boolean",value:true}}));
+});

@@ -1,7 +1,9 @@
 # Number-domain complement and late primitive admission
 
-P011 worker validation; independent Astra/high exact-source review pending.
-Source/run/hash binding will be in [evidence](../agent-tasks/P011-number-bitwise-not/evidence.json).
+First P011 source b920a64 is independently rejected by Astra/high for P011-R1;
+correction 1 validation/renewed exact-source acceptance are pending.
+First [source/evidence](../agent-tasks/P011-number-bitwise-not/evidence.json) is preserved.
+[Correction evidence](../agent-tasks/P011-number-bitwise-not/correction-1-evidence.json) binds the corrected freeze and commands.
 
 Unary coercion can branch/throw; put only the new operation in an effectful unary
 map analogous to effectful binary dispatch. Preserve existing pure unary rules.
@@ -36,3 +38,22 @@ freeze precedes full regression/typecheck/audit; evidence is committed separatel
 
 See [boundary](../number-bitwise-not.md), [implementation](../../src/number/bitwise-not.ts),
 [specs](../../test/bitwise-not.spec.ts) and [upstream candidates](../agent-tasks/P011-number-bitwise-not/upstream-candidates.md).
+
+
+Correction 1 lesson: a Literal guard does not cover static Property consumers.
+Cherow can turn an uncomputed BigInt key into a numeric-named Identifier with
+no bigint marker. Inspect every actual key route and original token positions;
+recover admission metadata, not a rounded property identity. ObjectExpression
+and binding-patterns both need the same checked static-key helper. Do not reject
+valid ordinary large Number keys, quoted n-suffixed strings or uncalled bodies.
+Transient ranges allow constant endpoint inspection even after CRLF/Unicode/
+comments; strip them to preserve ordinary AST shape.
+
+Imperative object builds accumulate after-context outside evaluate's entry
+checkpoint. A thrown typed guard must retain after, or prior property/coercion/
+heap effects disappear. The shared static helper receives current context and
+uses withAnalysisFailureContext; binding calls likewise use current state after
+RHS and prior defaults. Native and mixed-branch controls verify this ordering.
+The complement helper, operator dispatch and ToNumber factoring need no change.
+Preserve first-run logs: optional P011/P009 artifact directories and distinct
+P010 review suffixes isolate correction output without changing behavior oracles.
