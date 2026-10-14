@@ -157,14 +157,13 @@ test("independent lengths and exact comparison limit with native witnesses",()=>
   expect(state.value.scope.mark).toMatchObject({value:1});if(r.budget)expect(done).toMatchObject({type:"ExecutionBoundary",kind:"budget"});else{expect(done).toBe(Undefined);expect(state.value.scope.n).toMatchObject({value:expected[i]});}});
 },15000);
 
-test("independent unary boundary after operand fork preserves normal throw and unsupported histories",()=>{
- const source='let mark=0,caught=false,cleaned=false;function operand(){mark=1;if(b)throw "G";return 5;}if(a){try{const n=~operand();mark=2;}catch(e){caught=e;}finally{cleaned=true;}}else mark=3;';
- const all=leaves(run(source,{a:ESBoolean(),b:ESBoolean()}));expect(all).toHaveLength(3);
- const stop=all.find(([v])=>v.type==="ExecutionBoundary");expect(stop[0]).toMatchObject({kind:"unsupported",message:"Unary operator resolver for ~ hasn't been implemented yet"});
- expect(stop[1].value.scope.mark).toMatchObject({value:1});expect(stop[1].value.scope.caught).toMatchObject({value:false});expect(stop[1].value.scope.cleaned).toMatchObject({value:false});
- for(const [,s]of all.filter(([v])=>v===Undefined)){const [d,c]=evaluateCode('const valid=a?caught==="G"&&cleaned&&mark===1:mark===3&&!cleaned;',s);expect(d).toBe(Undefined);expect(c.value.scope.valid).toMatchObject({value:true});}
- for(const a of [false,true])for(const b of [false,true])expect(native('process.stdout.write(JSON.stringify(Function(input+";return answer;")()));',`const a=${a},b=${b};`+source+'const answer=a?(b?caught==="G"&&mark===1:mark===2)&&cleaned:mark===3&&!cleaned;')).toBe(true);
- const [early,state]=run('let mark=0;function operand(){mark=1;return "x".substring;}const n=~operand();');expect(early).toMatchObject({type:"ExecutionBoundary",message:"String.prototype.substring is not yet supported"});expect(state.value.scope.mark).toMatchObject({value:1});
+// P011 migrates only the now-supported unary path; earlier stops/guest throws remain.
+test("independent supported unary after operand fork preserves throw and sibling histories",()=>{
+ const source='let mark=0,caught=false,cleaned=false,result;function operand(){mark=1;if(b)throw "G";return 5;}if(a){try{result=~operand();mark=2;}catch(e){caught=e;}finally{cleaned=true;}}else mark=3;';
+ const [done,state]=run(source+'const valid=a?(b?caught==="G"&&mark===1:result===-6&&!caught&&mark===2)&&cleaned:mark===3&&!cleaned;',{a:ESBoolean(),b:ESBoolean()});
+ expect(done).toBe(Undefined);expect(state.value.scope.valid).toMatchObject({value:true});
+ for(const a of [false,true])for(const b of [false,true])expect(native('process.stdout.write(JSON.stringify(Function(input+";return answer;")()));',`const a=${a},b=${b};`+source+'const answer=a?(b?caught==="G"&&mark===1:result===-6&&!caught&&mark===2)&&cleaned:mark===3&&!cleaned;')).toBe(true);
+ const [early,current]=run('let mark=0;function operand(){mark=1;return "x".substring;}const n=~operand();');expect(early).toMatchObject({type:"ExecutionBoundary",message:"String.prototype.substring is not yet supported"});expect(current.value.scope.mark).toMatchObject({value:1});
 });
 
 test("independent all whole upstream candidates in pinned native and whole A11 inactive blocker",()=>{
@@ -190,13 +189,13 @@ test("independent unchanged actual CLI retains every FS outcome, source frontier
  const binary=process.env.PROPHET_NODE_BINARY||process.execPath,argv=[join(root,"bin/prophet.js"),"--","entry.cjs"];
  const child=spawnSync(binary,argv,{cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
  writeFileSync(join(logRoot,"cli.stdout.json"),child.stdout);writeFileSync(join(logRoot,"cli.stderr.log"),child.stderr);writeFileSync(join(logRoot,"cli-command.json"),JSON.stringify({binary,argv,cwd:directory,status:child.status,signal:child.signal},null,2));
- expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: Unary operator resolver for ~ hasn't been implemented yet\n");
+ expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: String.prototype.substring is not yet supported\n");
  const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
  const field=(ref:any,key:string)=>{const pair=nodes.get(ref.ref).entries.find(([name]:[string])=>name===key);return pair&&pair[1];};
  const completion=graph.roots.completion;expect(field(completion,"type")).toBe("ForkedCompletion");
  const all=[field(completion,"consequent"),field(completion,"alternate")];expect(all.map(l=>field(field(l,"0"),"type")).sort()).toEqual(["ExecutionBoundary","ThrownValue"]);
  for(const leaf of all){const value=field(leaf,"0"),state=field(leaf,"1"),stopped=field(value,"type")==="ExecutionBoundary";
-  if(stopped){expect(field(value,"message")).toBe("Unary operator resolver for ~ hasn't been implemented yet");expect(field(state,"sourceFile")).toMatch(/mrmime\/index\.js$/);
+  if(stopped){expect(field(value,"message")).toBe("String.prototype.substring is not yet supported");expect(field(state,"sourceFile")).toMatch(/mrmime\/index\.js$/);
    const envs=nodes.get(field(state,"environments").ref).entries;let env=field(state,"environment"),tmp:any,idx:any;
    while(env&&env.ref){const record=envs.find(([key]:[any])=>key.ref===env.ref);for(const name of ["tmp","idx"]){const binding=record&&nodes.get(record[1].ref).entries.find(([key]:[string])=>key===name);if(binding){if(name==="tmp")tmp=field(binding[1],"value");else idx=field(binding[1],"value");}}if(tmp&&idx)break;env=field(env,"parent");}
    expect(field(tmp,"value")).toBe("hello.txt");expect(field(idx,"value")).toBe(5);

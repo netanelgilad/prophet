@@ -30,12 +30,15 @@ factory with a directory evaluates two regular-expression literals and appends
  on the unchanged filename. Header preparation reaches mrmime.lookup's
  `('' + extn).trim()` through the shared bounded String.trim intrinsic, and bounded ASCII `.toLowerCase()`; it then
  computes `idx === 5` through bounded generic UTF-16 String.lastIndexOf,
- then stops at the unary `~` in `!~idx` (mrmime/index.js:445), with `tmp === "hello.txt"`.
+ then computes Number-domain unary `~` and selects the alternate of `!~idx`.
+ The next measured stop is String.prototype.substring callee lookup
+ (mrmime/index.js:445), with `tmp === "hello.txt"` and `idx === 5`; its argument
+ `++idx` has not executed. See [the Number boundary](number-bitwise-not.md).
  The actual CLI JSON graph retains this stopped leaf with its source frame and
  prior directory effects beside the EMFILE filesystem throw (descriptor
  availability remains symbolic). No package source rewrite is introduced. The shared partial-intrinsic
  lookup guard prevents a legacy noncallable assertion from dropping that sibling;
- own replacements still use normal lookup. Full Unicode case conversion, bitwise `~`, increment,
+ own replacements still use normal lookup. Full Unicode case conversion, other bitwise operations,
  substring, later Stats/Date metadata and streams remain separate work. The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity

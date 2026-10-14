@@ -3,6 +3,7 @@ import { Any, Undefined, isUndefined, isESNull, ThrownValue } from "../types";
 import { createError } from "../error/Error";
 import { ESString } from "../string/String";
 import { bindNormal, evaluate } from "../evaluate";
+import { staticPropertyName } from "../Object/static-key";
 import { propertyName, readMember } from "../ASTResolvers";
 import { isObjectValue, withValue } from "../conversion/toString";
 import { BranchResult } from "../execution-context/branches";
@@ -74,7 +75,7 @@ export function initializeBindingPattern(pattern: ESTree.Pattern, value: Any,
       };
       return property.computed ? bindNormal(evaluate(property.key, current), (key, afterKey) =>
         withValue(key, afterKey, (selected, afterChoice) => read(propertyName(selected), afterChoice))) :
-        read(property.key.type === "Identifier" ? property.key.name : String((property.key as ESTree.Literal).value), current);
+        read(staticPropertyName(property.key, current), current);
     };
     return initialize(0, branch);
   });

@@ -4,7 +4,7 @@ import { UnsupportedAnalysisError } from "./execution-context/analysis-failure";
 export function parseECMACompliant(code: string): ESTree.Program {
   let program: ESTree.Program;
   try {
-    program = parseScript(code, { loc: true, raw: true });
+    program = parseScript(code, { loc: true, raw: true, ranges: true });
   } catch (error) {
     // Cherow also rejects some valid quoted CRLF continuations before it can
     // return an AST. Do not expose that known lexer failure as a JavaScript
@@ -29,6 +29,7 @@ export function parseECMACompliant(code: string): ESTree.Program {
     }
     throw error;
   }
+  restoreBigIntStaticKeyMetadata(program, code);
   sanitizeRegExpLiterals(program);
   correctStringLiteralValues(program);
   validateFunctionDeclarations(program);
@@ -158,4 +159,28 @@ function collectBoundNames(pattern: any, names: Set<string>): void {
         collectBoundNames(property.type === "RestElement" ? property.argument : property.value, names));
       break;
   }
+}
+
+// Cherow drops BigInt metadata on noncomputed Property keys and gives their
+// Identifier a rounded Number name. Restore only admission metadata from the
+// original token endpoint, never that rounded value. This does not reject syntax:
+// an uncalled function still has no reached key evaluation. Parser offsets are
+// transient; retain the prior AST shape apart from the missing bigint marker.
+function restoreBigIntStaticKeyMetadata(node: any, source: string): void {
+  if (!node || typeof node !== "object") return;
+  if (node.type === "Property" && !node.computed && node.key &&
+      node.key.type === "Identifier" && typeof node.key.name === "number") {
+    const end = node.key.end;
+    if (typeof end === "number" && end > 0 && end <= source.length && source[end - 1] === "n") {
+      node.key.bigint = "";
+    }
+  }
+  delete node.start;
+  delete node.end;
+  Object.keys(node).forEach(key => {
+    if (key === "loc") return;
+    const child = node[key];
+    if (Array.isArray(child)) child.forEach(item => restoreBigIntStaticKeyMetadata(item, source));
+    else restoreBigIntStaticKeyMetadata(child, source);
+  });
 }

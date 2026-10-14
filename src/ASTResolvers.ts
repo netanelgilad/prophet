@@ -10,7 +10,7 @@ import {
   isESNumber, isESString, isArray, isUndefined, isESNull, isESBoolean
 } from "./types";
 import { evaluate, evaluateThrowableIterator, evaluateStatements, mapCompletions, bindNormal } from "./evaluate";
-import { BinaryOperatorResolvers, EffectfulBinaryOperatorResolvers, LogicalOperatorResolvers, UnaryOperatorResolvers, plus, minus } from "./operators";
+import { BinaryOperatorResolvers, EffectfulBinaryOperatorResolvers, LogicalOperatorResolvers, UnaryOperatorResolvers, EffectfulUnaryOperatorResolvers, plus, minus } from "./operators";
 import {
   TExecutionContext, setCurrentThisValue, enterEnvironment, setEnvironment,
   declareBinding, ExecutionContext
@@ -43,6 +43,7 @@ import { prototypeOf, withoutPrototypeSetter } from "./Object/prototype";
 import { copyDataProperties } from "./Object/enumeration";
 import { toString, withValue } from "./conversion/toString";
 import { concatenateStrings } from "./string/concat";
+import { staticPropertyName } from "./Object/static-key";
 import { createRegExpLiteral } from "./regexp/RegExp";
 
 export type ASTResolver<TAST extends ESTree.Node> = (
@@ -53,6 +54,11 @@ export const IdentifierResolver: ASTResolver<ESTree.Identifier> = (ast, context)
   readBinding(context, ast.name);
 
 export const LiteralResolver: ASTResolver<ESTree.Literal> = (ast, context) => {
+  // Cherow retains an empty-string bigint marker beside a Number-valued field.
+  // Without a BigInt representation, never admit that field as a Number.
+  if (Object.prototype.hasOwnProperty.call(ast, "bigint")) {
+    throw new UnsupportedAnalysisError("BigInt literal evaluation is not yet supported");
+  }
   const regex = (ast as ESTree.RegExpLiteral).regex;
   if (regex) return tuple(createRegExpLiteral(regex.pattern, regex.flags), context);
   if (typeof ast.value === "string") return tuple(ESString(ast.value), context);
@@ -390,7 +396,7 @@ export const ObjectExpressionResolver: ASTResolver<ESTree.ObjectExpression> = (a
         });
         name = propertyName(key[0]);
         after = key[1];
-      } else name = entry.key.type === "Identifier" ? entry.key.name : String((entry.key as ESTree.Literal).value);
+      } else name = staticPropertyName(entry.key, after);
       assert(entry.computed || entry.method || entry.shorthand || name !== "__proto__",
         "Object literal prototype setters are not yet supported");
       const value = evaluate(entry.value!, after);
@@ -574,12 +580,8 @@ export const UnaryExpressionResolver: ASTResolver<ESTree.UnaryExpression> = (ast
   }
   return bindNormal(evaluate(ast.argument, context), (value, after) => {
     const resolver = UnaryOperatorResolvers.get(ast.operator);
-    // The reached mrmime frontier must retain operand effects and siblings.
-    // Classify only this missing operation; do not implement bitwise semantics
-    // or change unrelated legacy unary guards in this String increment.
-    if (!resolver && ast.operator === "~") {
-      throw new UnsupportedAnalysisError("Unary operator resolver for ~ hasn't been implemented yet");
-    }
+    const effectful = EffectfulUnaryOperatorResolvers.get(ast.operator);
+    if (effectful) return effectful(value, after);
     assert(resolver, `Unary operator resolver for ${ast.operator} hasn't been implemented yet`);
     return resolver!(value, after);
   });

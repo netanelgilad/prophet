@@ -1,0 +1,31 @@
+# P011 correction 1 — unsupported BigInt static-key admission
+
+Independent Astra/high rejects b920a64 with one high finding P011-R1. Preserve first source/full/evidence fa927de and reviewer df9ab53, failed probes and original artifact hashes. Same sole Sol6.1/high writer, same worktree/branch/account; no new agent/model/dependency or feature bundle. Root authorizes this narrow correction because explicit BigInt boundaries must not feed false completed Number results.
+
+Pinned Node returns -9 for both complete programs, frozen VM returns -1 normally:
+
+    const x={9007199254740993n:8};const n=~x["9007199254740993"];
+    const {9007199254740993n:x}={"9007199254740993":8};const n=~x;
+
+Cherow emits these noncomputed keys as Identifier with NUMBER name9007199254740992, no bigint marker. Marked Literal guard cannot intercept direct static-key consumption in ObjectExpressionResolver and Function/binding-patterns. This is a predecessor parser/key defect newly exposed as a completed Number result by P011, not a complement arithmetic defect. Reviewer's exact evidence/report is in review-p011-number-bitwise-not/docs/agent-tasks/P011-number-bitwise-not/independent-review.md and logs/p011-independent/bigint-key-probe. Native/full reviewed source remains rejected until corrected exact source is accepted.
+
+Goal: conservatively stop reached unsupported BigInt key syntax before it is silently consumed as Number/string property identity. No BigInt value/key semantics or parser/dependency overhaul. Restore/disambiguate only omitted static-key syntax metadata from original source/parser locations if necessary; native Identifier names are not always strings here. Do not reject all numeric keys or large ordinary Number keys: their existing rounded Number semantics are valid and must remain. Preserve quoted BigInt-looking strings and ordinary identifier/Number/string/RegExp literals. Uncalled functions with unsupported syntax remain unexecuted; do not globally pre-reject programs at parse time.
+
+Additional ownership: src/parseECMACompliant.ts for minimal metadata restoration if required; src/Function/binding-patterns.ts plus src/ASTResolvers.ts/common checked static-key helper; regression specs in test/bitwise-not.spec.ts and existing object-bindings/object-literal specs as justified; correction-1.md/implementation/evidence/report and affected gap/boundary/wiki docs. Keep Number mapping/effectful dispatch/shared numeric conversion unchanged unless a demonstrated necessity is returned. No unrelated semantic feature, source rewriting, dependency edit or weakened oracle. Inspect all actual parser key routes, avoid a literal-only patch that leaves object/binding consumers bypassing it.
+
+Required red/native evidence and regression matrix: both complete counterexamples above; small/large/zero decimal/hex/binary/octal BigInt key spellings; computed keys retain earlier Literal rejection; quoted BigInt-looking key strings and ordinary numeric keys including beyond safe integer retain exact native Number semantics; comments, multiline/CRLF/Unicode-prefix source locations if used; object shorthand/method/ordinary names preserve behavior. One precise metadata mechanism, not package/program recognition. Guard uncomputed object keys at their reached property step before that property's value evaluation, AFTER all prior property/evaluation/heap effects. Binding keys stop after RHS evaluation (and prior binding/default effects), before bad lookup/default evaluation. Native RHS guest throw and early unsupported paths bypass later key guard. Conditional supported/throw/unsupported siblings, external logs and current prototype/alias mutations remain intact. Analysis failures must not execute guest catch/finally. Beware imperative object-build loops: throw/capture at the current after-context, not the entry checkpoint, or earlier effects are lost. Do not replace this with blanket parse rejection.
+
+Run focused/all affected parser/literal/object-binding/operator/consumer/previous review suites and typecheck, then freeze corrected source/spec/docs once. Full suite900s/typecheck/all guard/skip/provenance audit exact source; whole original corpus/46 historical skips unchanged and no literal/fixture/assertion removal. Current unchanged sirv substring frontier/idx5/tmp/history must persist. Preserve old evidence.json unchanged; record correction-1-evidence.json with exact source, generated/independently recomputed hashes, commands/exits/counts/rawignoredlogs. Evidence-only commit and handoff then freeze. Independent same Astra reviewer re-reviews corrected source and counterexamples; root publishes only after renewed acceptance/exacthead CI. Review tests are disclosed now, not hidden holdouts.
+
+No push/merge/release/main/Atlas/otherworktree edits, subagents/model/account/subscription changes/paid API/credentials/access/Notion writes. Continue economically and preserve review capacity; exact current quota rechecked by root before dispatch. Report a true structural blocker/split, don't silently broaden/narrow. User authorization already covers recovery needed for faithful Number-domain result and explicit BigInt boundary.
+
+
+Writer correction checkpoint: ranges are enabled only transiently to recover
+omitted Property-key `bigint` metadata from original token endpoints, then stripped.
+The common staticPropertyName helper guards both object construction and binding
+at current after-context. Number helper/operators/conversion are unchanged.
+Native/red/focused evidence and all old artifacts are retained; one corrected
+source freeze and full/typecheck/audit gates precede correction-1-evidence.json
+and a separate handoff, then renewed independent Astra/high review. P009 changes
+are limited to an optional artifact directory required to preserve the first
+handoff's CLI bytes; no behavioral oracle/fixture source is changed.
