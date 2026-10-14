@@ -26,8 +26,21 @@ and wrappers stop as typed unsupported leaves. Own or inherited nonnullish
 Symbol.toPrimitive hooks stop before ordinary conversion; undefined/null hooks
 are absent. Public Symbol creation/keys/descriptors and BigInt representation
 remain gaps. The old parser exposes a `bigint` marker beside a Number-valued
-literal; evaluation must reject that reached marker rather than treating it as
-Number. No BigInt representation or new grammar is implemented. Partial-host
+literal; evaluation rejects that reached marker rather than treating it as
+Number. Independent Astra/high rejected first source b920a64 for a separate
+unmarked static-key bypass (P011-R1): noncomputed object/binding keys were emitted
+as Identifiers with rounded Number names. Correction 1 restores only the omitted
+`bigint` marker using the validated original token endpoint from transient parser
+offsets; offsets are removed afterward to preserve the earlier AST shape.
+Both static-key consumers use one checked helper with the current context.
+Object construction stops before that property's value, after prior property
+and heap effects. Binding stops after RHS and prior binding/default effects,
+before bad lookup/default. Earlier throws/unsupported paths bypass the later
+key; typed stops preserve siblings and do not execute guest catch/finally.
+This is reached admission, not a global parse rejection: uncalled function
+bodies remain unexecuted. Ordinary Number keys (including legitimate rounding
+above 2^53), quoted BigInt-looking strings, names/shorthand/methods and existing
+literal behavior remain supported. No BigInt representation or new grammar is implemented. Partial-host
 symbol/prototype reads and cyclic embedding chains retain their existing legacy
 failure checkpoints, which may omit siblings; general descriptors, proxies,
 accessors, symbol mutation and broader exotic behavior remain unsupported.

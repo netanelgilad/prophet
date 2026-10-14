@@ -43,6 +43,7 @@ import { prototypeOf, withoutPrototypeSetter } from "./Object/prototype";
 import { copyDataProperties } from "./Object/enumeration";
 import { toString, withValue } from "./conversion/toString";
 import { concatenateStrings } from "./string/concat";
+import { staticPropertyName } from "./Object/static-key";
 import { createRegExpLiteral } from "./regexp/RegExp";
 
 export type ASTResolver<TAST extends ESTree.Node> = (
@@ -395,7 +396,7 @@ export const ObjectExpressionResolver: ASTResolver<ESTree.ObjectExpression> = (a
         });
         name = propertyName(key[0]);
         after = key[1];
-      } else name = entry.key.type === "Identifier" ? entry.key.name : String((entry.key as ESTree.Literal).value);
+      } else name = staticPropertyName(entry.key, after);
       assert(entry.computed || entry.method || entry.shorthand || name !== "__proto__",
         "Object literal prototype setters are not yet supported");
       const value = evaluate(entry.value!, after);

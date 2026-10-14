@@ -14,7 +14,7 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P011](P011-number-bitwise-not/task.md) | Number-domain unary ~; advance unchanged mrmime | Sole Sol6.1/high writer; frozen validation/handoff then independent Astra/high review | [Boundary](../number-bitwise-not.md), [wiki](../wiki/number-bitwise-not.md); no push/integration/trust promotion |
+| [P011](P011-number-bitwise-not/task.md) | Number-domain unary ~; advance unchanged mrmime | First source b920a64 rejected for disclosed P011-R1 static-key bypass; same Sol6.1/high correction then renewed Astra/high review | [Boundary](../number-bitwise-not.md), [wiki](../wiki/number-bitwise-not.md); no push/integration/trust promotion |
 | [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Accepted/pushed `b9c3864`; CI green; Atlas thread archived | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
 | [P002](P002-array-foreach/task.md) | Shared Array.forEach; next reached sirv operation | Accepted/pushed `7defa45`; CI green; Atlas thread archived | [One correction round](P002-array-foreach/review.md); 12 independent probes, full suite/typecheck pass; evidence artifacts cleaned up |
 | [P003](P003-for-statement/task.md) | Shared ForStatement at totalist and bounded loop-min proof | Accepted and integrated in master merge `f6da7af`; thread archived Oct10 | 14 independent probes; combined P005 suite fully green; full semantic review/corrections recorded |

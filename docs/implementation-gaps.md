@@ -1210,3 +1210,49 @@ Worker validation; independent Astra/high exact-source review remains pending.
   checked and tried whole in the VM; seven incompatible files remain inactive.
   No active predecessor is removed or upstream source modified. All 46 historical
   skipped files remain; full inventories/audit evidence are recorded separately.
+
+
+## P011 correction 1 — BigInt static-key admission (P011-R1)
+
+Independent Astra/high **rejects first frozen b920a64**, retained as historical
+source/evidence. Review df9ab53 disclosed two complete counterexamples: native
+n=-9, VM normal n=-1 because Cherow drops the key marker and rounds its Number
+name before the new complement consumes a falsely missing property. This is a
+predecessor parser/key defect, not complement arithmetic. Corrected source
+acceptance remains pending. [Contract](agent-tasks/P011-number-bitwise-not/correction-1.md),
+[boundary](number-bitwise-not.md), [specs](../test/bitwise-not.spec.ts).
+
+- LANG-002, LANG-004, OBJ-001/003: original parser offsets restore only omitted
+  noncomputed BigInt key admission metadata on validated numeric-named Identifier
+  keys whose original token ends in n. No rounded value determines identity.
+  Transient ranges are stripped; no source rewrite, BigInt representation, new
+  grammar or global early rejection is supplied. Existing parser traversal,
+  allocation/stack and newer-grammar limits remain open, not globally bounded by
+  this constant token-end inspection. All complete upstream files remain unchanged.
+- LANG-003, REPORT-001: shared static-key checking executes at each reached
+  object property/binding key and captures the **current after-context**. Prior
+  property/RHS/default/read/binding mutations, alias/prototype state and console
+  effects survive; bad value/lookup/default and subsequent work do not run.
+  Earlier guest throws and unsupported paths bypass the later key guard. Normal,
+  throw and typed-stopped siblings remain distinct; catch/finally consume only
+  guest throws. General legacy context loss and broader key/descriptor/exotic
+  domains remain open.
+- LIB-002, SYM-001/004: Number complement arithmetic, effectful dispatch and
+  shared numeric conversion are byte-identical to b920a64. BigInt static keys are
+  explicitly unsupported; ordinary rounded large Number keys and quoted
+  BigInt-looking strings retain native Number/string identity. Computed BigInt
+  keys keep the earlier reached Literal guard. Uncalled functions are not
+  rejected merely because their retained syntax contains an unsupported key.
+- TEST-001/002/003, FS-001, TARGET-002: disclosed probes are now regression tests,
+  not hidden holdouts. Native Number/key/order controls and position-prefix,
+  method/shorthand, mixed effect/throw/boundary controls accompany the correction.
+  Corpus remains 370 files/731 variants, 46 historical skips, all original whole
+  bitwise-not candidates retained. Unchanged sirv still stops at substring callee
+  lookup with tmp=hello.txt, idx=5 and every FS history beside EMFILE. Its full
+  factory/server/request goal and resumption remain unfinished; no gap closes.
+
+Original first evidence.json, handoff and all existing ignored log bytes are
+preserved. Correction runs isolate P011 candidate/P009 CLI/P010 review outputs
+through optional artifact-directory environment inputs; only artifact writing
+paths change in P009, with all behavior assertions retained. New evidence and
+handoff are separate files/commit after one corrected source freeze.
