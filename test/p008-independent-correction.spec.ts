@@ -29,7 +29,7 @@ function leaves(value:any,context?:any):any[] {
 
 test("native-discovered prototype own names guard every unmodeled read and own presence",()=>{
   const names:string[]=native('process.stdout.write(JSON.stringify(Object.getOwnPropertyNames(String.prototype).sort()));');
-  const supported=["length","constructor","concat","slice","toString","trim","toLowerCase","lastIndexOf","normalize","substring","valueOf"];
+  const supported=["length","constructor","concat","slice","toString","trim","toLowerCase","lastIndexOf","normalize","replace","substring","valueOf"];
   expect(names).toHaveLength(52);
   // P009 supersedes only lowercase's old deferred checkpoint. Keep the native
   // name discovery and every residual guard; assert its actual supported result.
@@ -42,6 +42,8 @@ test("native-discovered prototype own names guard every unmodeled read and own p
   expect(nativeAnswer(search)).toBe(true);const [searched,searchState]=run(search);expect(searched).toBe(Undefined);expect(searchState.value.scope.answer).toMatchObject({value:true});
   const normalized='const answer=typeof String.prototype.normalize === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"normalize") && "hello.txt".normalize() === "hello.txt";';
   expect(nativeAnswer(normalized)).toBe(true);const [normalizedDone,normalizedState]=run(normalized);expect(normalizedDone).toBe(Undefined);expect(normalizedState.value.scope.answer).toMatchObject({value:true});
+  const replaced='const answer=typeof String.prototype.replace === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"replace") && "hello.txt".replace(/\\+/g,"/") === "hello.txt";';
+  expect(nativeAnswer(replaced)).toBe(true);const [replacedDone,replacedState]=run(replaced);expect(replacedDone).toBe(Undefined);expect(replacedState.value.scope.answer).toMatchObject({value:true});
   const slice='const answer=typeof String.prototype.substring === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"substring") && "abcdef".substring(4,2) === "cd";';
   expect(nativeAnswer(slice)).toBe(true);const [sliced,sliceState]=run(slice);expect(sliced).toBe(Undefined);expect(sliceState.value.scope.answer).toMatchObject({value:true});
   for(const name of names.filter(n=>!supported.includes(n))) {
