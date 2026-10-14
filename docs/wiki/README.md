@@ -40,3 +40,4 @@ until review is recorded; a model-generated article is not independent evidence.
 
 - [Number-domain unary bitwise NOT](number-bitwise-not.md): late ToNumeric admission, signed32 conversion, callee-before-argument frontier; P011 review pending.
 - [Bounded Node Stats.size](stats-size.md): declared-fact acquisition, P012-R1 precedence, boundary-marked Stats; frontier now stats.mtime; independent review pending.
+- [Bounded Node Stats.mtime](stats-mtime.md): declared-observation bounded Date, clipped getTime and deterministic toUTCString; frontier now String.prototype.normalize; independent review pending.
