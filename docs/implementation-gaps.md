@@ -1323,3 +1323,41 @@ regression. Correction1 is provisional until renewed Astra/high acceptance.
   rejected review files, hardlinked archives, helpers and all old logs retain
   their bytes. VM red and failed correction harness/typecheck artifacts are
   classified by exact snapshots; compact capture does not duplicate dependencies.
+
+## P013/P014/P015 reconciliation — bounded Stats.size, bounded Stats.mtime Date, bounded ASCII normalize (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[Filesystem boundary](node-filesystem.md#bounded-statssize-and-statsmtime-and-the-p012-r1-boundary),
+[size specs](../test/node-stats-size.spec.ts),
+[mtime specs](../test/node-stats-mtime.spec.ts),
+[normalize specs](../test/string-normalize.spec.ts) and task records
+[P013](agent-tasks/P013-stats-size/task.md),
+[P014](agent-tasks/P014-stats-mtime/task.md),
+[P015](agent-tasks/P015-string-normalize/task.md) retain residuals; no gap
+group closes.
+
+- FS-001/FS-002: regular-file Stats.size from declared facts and Stats.mtime
+  from an explicit declared observation (CLI capture passes memoized lstat
+  size/mtimeMs) complete; directory metadata, undeclared files, other Stats
+  fields (mode/BigInt/atime/ctime), writes, descriptors and constructors stay
+  bounded. Stats and bounded Date instances are boundary-marked, so reached
+  gaps stop as retained typed boundaries beside siblings.
+- LIB-001/LIB-002: normalize alone leaves the deferred registry. Only the
+  omitted/undefined form (NFC) on concrete ASCII receivers is modeled (ASCII
+  is NFC-closed, so identity); explicit forms, non-ASCII text, symbolic
+  receivers and exotic conversion stay typed boundaries. The pinned 52-name
+  inventory is eleven modeled/41 deferred; descriptor/reflection/writes and
+  wrapper construction stay open.
+- STRING-002/003: normalize keeps the 65,536-unit analysis cap discipline and
+  ordered receiver conversion (nullish guest TypeError, Symbol.toPrimitive
+  absence before ordinary conversion); no allocation-failure semantics.
+- LANG-003/REPORT-001: unchanged sirv now completes header preparation
+  (Content-Length, Content-Type, Last-Modified) and ASCII name.normalize,
+  stopping at String.prototype.replace in the FILES key expression with the
+  completed toHeaders activation retained outside the current callback chain.
+  No factory return, server, request or success claim; every filesystem
+  call/outcome identity beside EMFILE is preserved.
+- Date residual: only bounded instances from Stats.mtime with getTime and
+  toUTCString (deterministic UTC arithmetic, the pinned host's actual year
+  formatting, TimeClip including -0) are modeled. Date construction, Date.now,
+  other methods and timezone/locale behavior remain guarded.
