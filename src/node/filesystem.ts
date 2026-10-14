@@ -11,7 +11,7 @@ import { ESObject, TESObject } from "../Object";
 import { getObjectPrototype, hasProperty } from "../Object/prototype";
 import { ESString } from "../string/String";
 import { choiceOf, resolveBoolean } from "../symbolic";
-import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isUndefined, TESBoolean, ThrownValue, Undefined } from "../types";
+import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isUndefined, isFunction, TESBoolean, ThrownValue, Undefined } from "../types";
 import { createBufferValue } from "./buffer";
 
 const entries = new WeakMap<object, "directory" | "file">();
@@ -279,11 +279,17 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
       unknownProperties: "Node Stats fields", modeledInheritedProperties: ["isDirectory", "isFile"],
       unmodeledOwnPropertyInspection: "Node Stats descriptors",
       unmodeledPropertyReads: ["mode", "_checkModeProperty"], unmodeledPropertyWrites: ["mode", "_checkModeProperty", "__proto__"],
-      // Only classify the actually reached next frontier. No size value or
-      // wider Stats API is modeled; preserve completed filesystem siblings.
-      propertyAccess: { read(name: string): undefined {
-        if (name === "size") throw new UnsupportedAnalysisError("Unmodeled host property 'size': Node Stats fields");
-        return undefined;
+      // Only classify absent current own size. Supplied data properties use
+      // their persistent presence/value, without inferring native Stats fields
+      // or substituting inherited metadata. Split conditional presence once.
+      propertyAccess: { read(name: string, context: TExecutionContext): BranchResult | undefined {
+        if (name !== "size") return undefined;
+        return evaluateBranches(ownPropertyPresence(result, name, context), context, branch => {
+          const value = getProperties(result, branch)[name];
+          // Match ordinary reads of legacy native method values: identity is
+          // the implementation object, not a fresh wrapper on every lookup.
+          return [isFunction(value) ? { type: "function", id: value, properties: {}, function: value } : value, branch];
+        }, () => { throw new UnsupportedAnalysisError("Unmodeled host property 'size': Node Stats fields"); });
       }, write(): undefined { return undefined; } }
     });
     statsKinds.set(result, entries.get(node)!);

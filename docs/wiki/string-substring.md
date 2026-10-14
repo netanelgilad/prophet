@@ -42,3 +42,22 @@ referencing committed excluded bytes by HEAD and recomputed hashes. Frozen
 committed source needs no duplicate cache archive. Root recovered storage with
 byte-preserving sharing; that is resource recovery, not a dependency installation
 or provider/model change. Retain failed harness/tooling evidence with attribution.
+
+## P012-R1: classify absence after current own presence
+
+Frozen independent Astra review5273aa2 rejects source3ef28e1 for one P2 defect:
+the size-only Stats hook ran before ordinary own selection and masked seeded
+known values17/23. Correction1 reads current persistent presence/value before
+classifying an unprovided size. A known undefined field is present; raw storage
+keys alone do not establish branch-specific presence after joins. Use the
+existing ownPropertyPresence/evaluateBranches/getProperties operations, with
+ordinary legacy method normalization and no read replay. Known input data is not
+an inference of native Stats metadata; inherited properties cannot substitute
+for an unknown native own field. Fresh writes remain the older guard.
+
+A proof expression may be a symbolic Boolean whose raw value remains unset while
+leaf knowledge proves it true. Inspect with resolveBoolean and the leaf's facts;
+do not change production or weaken the expected Boolean. Correction's first
+stronger branch checks and unused-binding typecheck errors are retained as writer
+harness failures. Original P012 logs/reports/helpers stay byte-identical; compact
+correction captures and renewed acceptance are separate. No trust promotion.

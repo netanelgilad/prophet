@@ -43,3 +43,11 @@ waiting/sleep through future limits; no model rotation is queued. Atlas completi
 does not automatically wake the orchestrator; no unattended review is configured.
 See [P005 review](P005-selection-membership/review.md) for source equivalence,
 publication and CI evidence; no concurrency gate has been relaxed.
+
+
+P012 correction1: original source3ef28e1/evidence82cb5c1 remain frozen and rejected
+by Astra/high report5273aa2 for one P2 findingP012-R1. The same sole Sol6.1/high
+writer corrects current known own Stats.size admission under the
+[correction contract](P012-string-substring/correction-1.md). Original artifacts
+remain byte-identical; corrected source/evidence require renewed same-reviewer
+acceptance. No broader Stats semantics, factory completion or trust promotion.

@@ -1298,3 +1298,28 @@ and source-bound evidence retain residuals rather than closing groups.
   are not complete language or host coverage. Historical reports/manifests and
   all prior log bytes are retained. P012 ENOSPC capture and failed checks remain
   classified; versioned compact capture references unchanged committed bytes.
+
+## P012 correction1 — current own Stats size admission (P012-R1)
+
+Independent frozen review5273aa2 rejects source3ef28e1 for one P2 introduced
+regression. Correction1 is provisional until renewed Astra/high acceptance.
+
+- FS-001/FS-002: supplied current own size values are data facts, not inferred
+  native file sizes. Admission splits persistent own presence, reads its current
+  value and preserves alias replacement, finite choices, undefined/zero, two
+  instances and old snapshots. Unknown/unprovided size stays typed; inherited
+  size cannot replace unknown native own metadata. Fresh unknown-size writes,
+  broader Stats fields/brands/inspection/descriptors/Date remain existing gaps.
+- LANG-003/REPORT-001: no read/effect replay or guest catch/finally on an analysis
+  stop. Supported, stopped, earlier-unsupported and guest filesystem-error
+  siblings retain caller/prefix/console/prototype/heap state and exact FS
+  call/outcome identity. The actual sirv frontier stays Stats.size, not factory
+  return or completed header/startup/request behavior.
+- STRING-001/002/003, LIB-002, SYM-001/004 and TEST-001/002/003: substring,
+  ordinaryStringHint, registration, every prior spec/corpus and P011 guards stay
+  byte-identical. Same384 active files/759 variants/46 historical skipped files;
+  no extra method, conformance claim, new skip or gap-group closure.
+- Correction source/evidence are separately frozen. Original evidence/handoff,
+  rejected review files, hardlinked archives, helpers and all old logs retain
+  their bytes. VM red and failed correction harness/typecheck artifacts are
+  classified by exact snapshots; compact capture does not duplicate dependencies.

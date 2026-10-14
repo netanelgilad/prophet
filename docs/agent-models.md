@@ -100,3 +100,18 @@ source capture before affected tests started; root recovered storage while
 preserving archive/cache bytes. Failed selector/harness/typecheck/audit attempts
 remain attributed in P012 evidence. Full semantic review and exact-head root
 publication/CI gates remain required.
+
+
+P012 original3ef28e1 is rejected by frozen Astra/high review5273aa2 for one P2
+Stats admission regression (known current own size17/23). Same sole owner-authorized
+Sol6.1/high writer/account performs correction1 with renewed same-reviewer
+acceptance required. No first-review streak or trust/concurrency promotion.
+Owner-reported primary35%remaining at01:26UTC is account-wide context, not a
+per-feature forecast/live writer measurement. No provider error or account/model/
+plan/reset/paid/API/access change occurred. Original evidence/review and all
+physical artifacts remain preserved; root owns renewed review/draft/exact-head CI.
+
+Owner resumed correction1 at03:12UTC with primary34%remaining and no provider
+errors, still account-wide context. Root verified approved archive storage
+recovery preserved content, paths, modes and mtimes; later measured headroom
+exceeded6GiB. The writer performs no further cleanup or dependency changes.

@@ -78,3 +78,27 @@ files remain inactive with retained errors, not new skips or edited fragments.
 The full corpus becomes 384 active files/759 variants; all 46 historical skipped
 files retain names, metadata and bytes. Coverage counts do not establish complete
 JavaScript or Node conformance.
+
+## P012-R1 correction — supplied current own Stats.size
+
+Independent Astra/high rejects original source3ef28e1 in frozen review5273aa2
+for one P2 Stats admission regression; substring semantic checks passed that
+review, but the complete source was not accepted. Correction1 branches the size
+hook on current persistent own presence. A supplied data property's current
+value is read normally, including undefined/zero, open assigned values, finite
+choices and alias replacements; absent/unprovided size still stops typed.
+Conditional presence retains its supported and stopped alternatives with no
+replayed read or guest effect. Legacy method values retain ordinary stable
+read/call identity. Inherited size cannot substitute for unknown native own
+metadata. Fresh unknown-size writes and all other Stats guards remain unchanged;
+no native file-size value, descriptor, Date or header semantics is introduced.
+
+[Regression specs](../test/node-filesystem-size-presence.spec.ts) reproduce the
+disclosed17/23 counterexamples through existing writeProperty starting-state
+preparation, with equivalent pinned native assignments. They preserve snapshots,
+two instances, presence/finite correlations, read count, caller/console/prototype/
+heap prefix state and exact FS call/outcome/failure identities. The unchanged CLI
+continues to stop on Stats.size in sirv header preparation with ctype=text/plain;
+factory return is not reached. Renewed same-reviewer exact-source acceptance is
+pending. [Correction contract](agent-tasks/P012-string-substring/correction-1.md)
+and new correction handoff/evidence retain the original rejected artifacts.
