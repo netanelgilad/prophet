@@ -2,7 +2,7 @@ import { spawnSync } from "child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import { copySync } from "fs-extra";
 import { join } from "path";
-import { evaluateCode, isForkedCompletion, nodeInitialExecutionContext, createFileSystemModel, fileSystemDirectory, fileSystemFile } from "../src";
+import { evaluateCode, isForkedCompletion, nodeInitialExecutionContext, createFileSystemModel, fileSystemDirectory, fileSystemUnobservedFile } from "../src";
 import { Any, ESNumber, Undefined, isThrownValue, WithProperties } from "../src/types";
 import { ESBoolean } from "../src/boolean/ESBoolean";
 import { ESString } from "../src/string/String";
@@ -31,7 +31,8 @@ function native(source:string){
  expect(child.error).toBeUndefined();expect(child.status).toBe(0);expect(child.stderr).toBe('');expect(JSON.parse(child.stdout)).toBe(true);
 }
 function setup(inputs:{[name:string]:Any}={}){
- const model=createFileSystemModel({root:fileSystemDirectory({file:fileSystemFile('abc'),dir:fileSystemDirectory({})}),cwd:'/'});
+ // Undeclared-size file: presence/admission guards stay on unknown metadata.
+ const model=createFileSystemModel({root:fileSystemDirectory({file:fileSystemUnobservedFile(),dir:fileSystemDirectory({})}),cwd:'/'});
  const[d,state]=evaluateCode('const stat=fs.statSync("/file"),alias=stat,second=fs.statSync("/file");const plain={};',setVariablesInScope(nodeInitialExecutionContext,{fs:model.module,...inputs}));expect(d).toBe(Undefined);
  return {state,stat:state.value.scope.stat as any,second:state.value.scope.second as any,plain:state.value.scope.plain as any};
 }
@@ -92,7 +93,14 @@ for(const reverse of [false,true])test('conditional own guest callee retains cal
 test('fresh-size admission precedes inherited callable and arguments; other guards stay prior behavior',()=>{
  const {state,stat}=setup();const seeded=writeProperty(stat,'size',Undefined,state);
  const[d,s]=evaluateCode('let mark=1;Object.prototype.size=function(){mark=9;};const own=stat.size;second.size(mark=7);',seeded);expect(d).toMatchObject({kind:'unsupported',message:"Unmodeled host property 'size': Node Stats fields"});expect(s.value.scope.own).toBe(Undefined);expect(s.value.scope.mark).toMatchObject({value:1});history(s);
- for(const expr of ['second.size=1','second.mtime','stat.mode','stat._checkModeProperty','Object.keys(stat)','stat.isDirectory.call({})']){let error:any;try{evaluateCode('let mark=3;'+expr+';',seeded);}catch(e){error=e;}expect(error).toBeDefined();expect(analysisFailureContext(error)!.value.scope.mark).toMatchObject({value:3});}
+ // Marked Stats objects now retain reached guards as typed boundary
+ // completions; legacy host failures keep their checkpoint. Both shapes must
+ // preserve the mark=3 prefix and classified message.
+ for(const expr of ['second.size=1','second.mtime','stat.mode','stat._checkModeProperty','Object.keys(stat)','stat.isDirectory.call({})']){
+  let error:any,completion:any,after:any;try{[completion,after]=evaluateCode('let mark=3;'+expr+';',seeded);}catch(e){error=e;}
+  if(error){expect(analysisFailureContext(error)!.value.scope.mark).toMatchObject({value:3});}
+  else{expect(completion).toMatchObject({type:'ExecutionBoundary',kind:'unsupported'});expect(after.value.scope.mark).toMatchObject({value:3});}
+ }
  native('const own=stat.size;Object.prototype.size=()=>999;let caught;try{stat.isFile.call(null);}catch(e){caught=e.name;}const answer=stat.size===own&&caught==="TypeError";');
 });
 
@@ -102,16 +110,16 @@ test('actual unchanged consumer keeps complete FS histories and honest current a
  mkdirSync(join(directory,'site'),{recursive:true});writeFileSync(join(directory,'site/hello.txt'),'hello from sirv\n');writeFileSync(join(directory,'entry.cjs'),'module.exports=require("sirv")("./site");');
  const result=runFile({script:'entry.cjs',args:[],maxSteps:100000,runtime:'node@24.21.0'},directory);expect(result.status).toBe('analysis-stop');
  const all=leaves([result.completion,result.current]);expect(all).toHaveLength(2);expect(all.every(([v])=>v.type==='ExecutionBoundary'||isThrownValue(v))).toBe(true);
- const rows:any[]=[];for(const[v,s]of all){const stop=v.type==='ExecutionBoundary';if(stop){expect(v.message).toBe("Unmodeled host property 'size': Node Stats fields");expect(s.value.sourceFile).toBe(join(directory,'node_modules/sirv/build.js'));expect(s.value.scope.ctype).toMatchObject({value:'text/plain'});const entries=Array.from(s.value.environments.entries()) as any[];const completed=entries.find(([,record])=>record.has('tmp')&&record.has('idx'));expect(completed[1].get('tmp').value).toMatchObject({value:'hello.txt'});expect(completed[1].get('idx').value).toMatchObject({value:6});let env=s.value.environment;const chain:any[]=[];while(env){chain.push(env);env=env.parent;}expect(chain).not.toContain(completed[0]);expect(entries.some(([env,record])=>chain.indexOf(env)>=0&&record.has('name')&&record.get('name').value.value==='hello.txt')).toBe(true);expect(v.frames.some((f:any)=>f.node.type==='MemberExpression'&&f.node.object.name==='stats'&&f.node.property.name==='size')).toBe(true);}else expect(getProperties(v.value as WithProperties,s).code).toMatchObject({value:'EMFILE'});
+ const rows:any[]=[];for(const[v,s]of all){const stop=v.type==='ExecutionBoundary';if(stop){expect(v.message).toBe("Unmodeled host property 'mtime': Node Stats fields");expect(s.value.sourceFile).toBe(join(directory,'node_modules/sirv/build.js'));expect(s.value.scope.ctype).toMatchObject({value:'text/plain'});const entries=Array.from(s.value.environments.entries()) as any[];const completed=entries.find(([,record])=>record.has('tmp')&&record.has('idx'));expect(completed[1].get('tmp').value).toMatchObject({value:'hello.txt'});expect(completed[1].get('idx').value).toMatchObject({value:6});let env=s.value.environment;const chain:any[]=[];while(env){chain.push(env);env=env.parent;}expect(chain).not.toContain(completed[0]);expect(entries.some(([env,record])=>chain.indexOf(env)>=0&&record.has('name')&&record.get('name').value.value==='hello.txt')).toBe(true);expect(v.frames.some((f:any)=>f.node.type==='MemberExpression'&&f.node.object.name==='stats'&&f.node.property.name==='mtime')).toBe(true);}else expect(getProperties(v.value as WithProperties,s).code).toMatchObject({value:'EMFILE'});
  for(const path of effectPaths(s.value.effects,s.value.knowledge)){const events=path.events;const calls=events.filter(e=>e.kind==='call');rows.push({completion:v.type,events:events.map(e=>({kind:e.kind,operation:e.call.operation,callIndex:calls.findIndex(c=>c.call===e.call)}))});save('consumer-histories.json',rows);expect(events.length).toBe(calls.length*2);for(const call of calls){const matching=events.filter(e=>e.call===call.call);expect(matching.map(e=>e.kind)).toEqual(['call',!stop&&call.call.operation==='fs.readdirSync'?'throw':'return']);}const fs=events.filter(e=>/^(fs\.|Stats\.)/.test(e.call.operation));expect(fs.map(e=>e.call.operation)).toEqual(stop?['fs.readdirSync','fs.readdirSync','fs.statSync','fs.statSync','fs.Stats.isDirectory','fs.Stats.isDirectory']:['fs.readdirSync','fs.readdirSync']);}}
  save('consumer-histories.json',rows);expect(rows.some(r=>r.events.some((e:any)=>e.operation==='fs.readdirSync'))).toBe(true);expect(rows.some(r=>r.events.some((e:any)=>e.operation==='fs.statSync'))).toBe(true);expect(rows.some(r=>r.events.some((e:any)=>e.operation==='fs.Stats.isDirectory'))).toBe(true);
  for(const [path,source]of result.input.sources)if(path.indexOf('/node_modules/')>=0)expect(source.text).toBe(readFileSync(path,'utf8'));
  const binary=process.env.PROPHET_NODE_BINARY||process.execPath,argv=[join(root,'bin/prophet.js'),'--','entry.cjs'];const env={PATH:process.env.PATH||'',HOME:process.env.HOME||'',TMPDIR:process.env.TMPDIR||'',NODE_OPTIONS:'',NODE_PATH:''};const start=new Date().toISOString();
  const child=spawnSync(binary,argv,{cwd:directory,env,encoding:'utf8',timeout:60000,maxBuffer:80*1024*1024});
  save('consumer-cli.json',{binary,argv,cwd:directory,env,start,end:new Date().toISOString(),capMs:60000,status:child.status,signal:child.signal,error:child.error&&String(child.error)});writeFileSync(join(logs,'consumer-cli.stdout'),child.stdout);writeFileSync(join(logs,'consumer-cli.stderr'),child.stderr);
- expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: Unmodeled host property 'size': Node Stats fields\n");const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(['nodes','roots']);const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
+ expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: Unmodeled host property 'mtime': Node Stats fields\n");const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(['nodes','roots']);const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
  const field=(ref:any,key:string)=>{const entry=nodes.get(ref.ref).entries.find(([name]:[string])=>name===key);return entry&&entry[1];};const fork=graph.roots.completion;expect(field(fork,'type')).toBe('ForkedCompletion');expect(field(fork,'state')).toBe('partial');const endings=[field(fork,'consequent'),field(fork,'alternate')];expect(endings.map(x=>field(field(x,'0'),'type')).sort()).toEqual(['ExecutionBoundary','ThrownValue']);
- const stopped=endings.find(x=>field(field(x,'0'),'type')==='ExecutionBoundary');expect(field(field(stopped,'0'),'message')).toBe("Unmodeled host property 'size': Node Stats fields");const stoppedState=field(stopped,'1');expect(field(stoppedState,'sourceFile')).toBe(join(directory,'node_modules/sirv/build.js'));const currentRecord=nodes.get(field(stoppedState,'environments').ref).entries.find(([env]:[any])=>env.ref===field(stoppedState,'environment').ref)[1];expect(field(field(field(currentRecord,'ctype'),'value'),'value')).toBe('text/plain');
+ const stopped=endings.find(x=>field(field(x,'0'),'type')==='ExecutionBoundary');expect(field(field(stopped,'0'),'message')).toBe("Unmodeled host property 'mtime': Node Stats fields");const stoppedState=field(stopped,'1');expect(field(stoppedState,'sourceFile')).toBe(join(directory,'node_modules/sirv/build.js'));const currentRecord=nodes.get(field(stoppedState,'environments').ref).entries.find(([env]:[any])=>env.ref===field(stoppedState,'environment').ref)[1];expect(field(field(field(currentRecord,'ctype'),'value'),'value')).toBe('text/plain');
  const failed=endings.find(x=>field(field(x,'0'),'type')==='ThrownValue');expect(field(field(field(field(field(failed,'0'),'value'),'properties'),'code'),'value')).toBe('EMFILE');
 
 },60000);

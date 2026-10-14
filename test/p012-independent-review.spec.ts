@@ -2,7 +2,7 @@ import { spawnSync } from "child_process";
 import { createHash } from "crypto";
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "fs";
 import { join } from "path";
-import { evaluateCode, isForkedCompletion, nodeInitialExecutionContext, createCommonJSLoader, createFileSystemModel, fileSystemDirectory, fileSystemFile } from "../src";
+import { evaluateCode, isForkedCompletion, nodeInitialExecutionContext, createCommonJSLoader, createFileSystemModel, fileSystemDirectory, fileSystemUnobservedFile } from "../src";
 import { ESBoolean } from "../src/boolean/ESBoolean";
 import { ESString } from "../src/string/String";
 import { ESObject } from "../src/Object";
@@ -83,7 +83,8 @@ for(const expr of ['String.prototype.substring.bind','String.prototype.substring
  const all=leaves(run('let n=0;if(a){n=1;'+expr+';n=9;}else n=2;',{a:ESBoolean()}));expect(all).toHaveLength(2);expect(all.find(([v])=>v.type==='ExecutionBoundary')[1].value.scope.n).toMatchObject({value:1});expect(all.find(([v])=>v===Undefined)[1].value.scope.n).toMatchObject({value:2});
 });
 
-function fsSetup(){return createFileSystemModel({root:fileSystemDirectory({file:fileSystemFile('abc'),dir:fileSystemDirectory({})}),cwd:'/'});}
+// Undeclared-size file: the fresh-Stats guards below keep unknown metadata.
+function fsSetup(){return createFileSystemModel({root:fileSystemDirectory({file:fileSystemUnobservedFile(),dir:fileSystemDirectory({})}),cwd:'/'});}
 function stats(){const model=fsSetup();const[d,s]=run('const stat=fs.statSync("/file");const alias=stat;',{fs:model.module});expect(d).toBe(Undefined);return {model,state:s,stat:s.value.scope.stat as any};}
 
 test('fresh Stats guard preserves caller heap console prototype and FS identities',()=>{
@@ -97,7 +98,13 @@ test('fresh Stats guard preserves caller heap console prototype and FS identitie
 
 test('Stats brand/method replacements, other reads/writes remain predecessor behavior',()=>{
  const {state}=stats();const[d,s]=evaluateCode('const dir=fs.statSync("/dir");const f=stat.isDirectory;stat.isDirectory=function(){return "replacement";};const answer=alias.isDirectory()==="replacement"&&f.call(stat)===false&&f.call(dir)===true&&stat.isFile();',state);expect(d).toBe(Undefined);expect(s.value.scope.answer).toMatchObject({value:true});
- for(const expr of ['stat.size=4','stat.mtime','stat.mode','stat.unknown','Object.keys(stat)','stat.isFile.call({})']){let error:any;try{evaluateCode('let mark=1;'+expr+';',state);}catch(e){error=e;}expect(error).toBeDefined();expect(analysisFailureContext(error)!.value.scope.mark).toMatchObject({value:1});}
+ // Marked Stats objects retain reached guards as typed boundary completions;
+ // legacy host failures keep their checkpoint. Both preserve mark=1.
+ for(const expr of ['stat.size=4','stat.mtime','stat.mode','stat.unknown','Object.keys(stat)','stat.isFile.call({})']){
+  let error:any,completion:any,after:any;try{[completion,after]=evaluateCode('let mark=1;'+expr+';',state);}catch(e){error=e;}
+  if(error){expect(analysisFailureContext(error)!.value.scope.mark).toMatchObject({value:1});}
+  else{expect(completion).toMatchObject({type:'ExecutionBoundary',kind:'unsupported'});expect(after.value.scope.mark).toMatchObject({value:1});}
+ }
  expect(native('const fs=require("fs"),s=fs.statSync(input);const f=s.isFile;s.isFile=()=>"own";let invalid;try{f.call(null);}catch(e){invalid=e.name;}process.stdout.write(JSON.stringify({own:s.isFile(),brand:f.call(s),invalid}));',join(root,'package.json'))).toEqual({own:'own',brand:true,invalid:'TypeError'});
 });
 

@@ -5,7 +5,7 @@ import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
-import { UnsupportedAnalysisError } from "../execution-context/analysis-failure";
+import { markUnsupportedBoundaryObject, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { getArrayElements, getProperties, ownPropertyPresence, writeProperty } from "../execution-context/Heap";
 import { ESObject, TESObject } from "../Object";
 import { getObjectPrototype, hasProperty } from "../Object/prototype";
@@ -15,6 +15,7 @@ import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isUndefined, 
 import { createBufferValue } from "./buffer";
 
 const entries = new WeakMap<object, "directory" | "file">();
+const fileSizes = new WeakMap<object, number>();
 const openDirectories = new WeakSet<object>();
 const access = new WeakMap<object, { readable: TESBoolean; searchable: TESBoolean }>();
 type LookupFailure = "ENOENT" | "ENOTDIR" | "EACCES";
@@ -61,12 +62,22 @@ function entry(kind: "directory" | "file", properties: { [key: string]: Any },
 /** Embedding input: regular UTF-8 file with concrete or symbolic effective read access. */
 export function fileSystemFile(contents: string, options: { readable?: TESBoolean } = {}): TESObject {
   if (typeof contents !== "string") return unsupported("open file contents or non-text setup");
-  return entry("file", { text: ESString(utf8(contents)) }, options);
+  const text = utf8(contents);
+  const node = entry("file", { text: ESString(text) }, options);
+  // Node's Stats.size counts bytes on disk. Declared concrete contents fix
+  // exactly those bytes, so the byte length is a fact, not a host inference.
+  fileSizes.set(node, Buffer.byteLength(text, "utf8"));
+  return node;
 }
 
 /** An observed regular file whose contents have not yet been acquired. */
-export function fileSystemUnobservedFile(options: { readable?: TESBoolean } = {}): TESObject {
-  return entry("file", { text: ESString() }, options);
+export function fileSystemUnobservedFile(options: { readable?: TESBoolean; size?: number } = {}): TESObject {
+  if (options.size !== undefined && (!Number.isSafeInteger(options.size) || options.size < 0)) {
+    throw new Error("Filesystem file size observations require nonnegative safe integers");
+  }
+  const node = entry("file", { text: ESString() }, options);
+  if (options.size !== undefined) fileSizes.set(node, options.size);
+  return node;
 }
 
 /** Closed by default; complete:false leaves unlisted names unobserved. */
@@ -275,7 +286,9 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
       return [ESBoolean(kind === (name === "isDirectory" ? "directory" : "file")), branch];
     }), "");
   const stats = (node: TESObject) => {
-    const result = Object.assign(ESObject(), { prototype: statsPrototype,
+    // Marked so reached unmodeled Stats fields stop as retained typed
+    // boundaries beside their siblings, never as host failures losing state.
+    const result = markUnsupportedBoundaryObject(Object.assign(ESObject(), { prototype: statsPrototype,
       unknownProperties: "Node Stats fields", modeledInheritedProperties: ["isDirectory", "isFile"],
       unmodeledOwnPropertyInspection: "Node Stats descriptors",
       unmodeledPropertyReads: ["mode", "_checkModeProperty"], unmodeledPropertyWrites: ["mode", "_checkModeProperty", "__proto__"],
@@ -289,9 +302,16 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
           // Match ordinary reads of legacy native method values: identity is
           // the implementation object, not a fresh wrapper on every lookup.
           return [isFunction(value) ? { type: "function", id: value, properties: {}, function: value } : value, branch];
-        }, () => { throw new UnsupportedAnalysisError("Unmodeled host property 'size': Node Stats fields"); });
+        }, absent => {
+          // Bounded Stats.size: the declared byte size of a regular file,
+          // persisted as a reached fact on first read. Directory metadata and
+          // files without an observed size stay a typed boundary.
+          const size = fileSizes.get(node);
+          if (size === undefined) throw new UnsupportedAnalysisError("Unmodeled host property 'size': Node Stats fields");
+          return [ESNumber(size), writeProperty(result, name, ESNumber(size), absent)];
+        });
       }, write(): undefined { return undefined; } }
-    });
+    }));
     statsKinds.set(result, entries.get(node)!);
     return result;
   };

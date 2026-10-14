@@ -76,16 +76,18 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   writeFileSync(join(directory, "entry.cjs"), 'module.exports = require("sirv")("./site");');
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
   expect(result.status).toBe("analysis-stop");
-  // Both flagless filters execute on the unmodified filename. The next
-  // reached gap is Stats.size after unchanged mrmime substring returns text/plain; ++idx executed once.
-  // The filesystem failure sibling must survive that stop.
-  expect(result.diagnostic).toBe("Unmodeled host property 'size': Node Stats fields");
+  // Both flagless filters execute on the unmodified filename. Stats.size now
+  // completes with the observed byte count (16) after unchanged mrmime
+  // substring returns text/plain; the next reached gap is Stats.mtime during
+  // Last-Modified header preparation. The filesystem failure sibling must
+  // survive that stop.
+  expect(result.diagnostic).toBe("Unmodeled host property 'mtime': Node Stats fields");
   expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
   expect(isForkedCompletion(result.completion)).toBe(true);
   const boundaries = executionBoundaries(result.completion as Any);
   expect(boundaries).toHaveLength(1);
   expect(boundaries[0]).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
-    message: "Unmodeled host property 'size': Node Stats fields" });
+    message: "Unmodeled host property 'mtime': Node Stats fields" });
   const forked = result.completion as ForkedCompletion;
   const kinds = [forked.consequent[0], forked.alternate[0]].map(leaf =>
     leaf && (leaf as { type: string }).type === "ExecutionBoundary" ? "boundary" :
@@ -116,7 +118,7 @@ test("the unchanged sirv factory exposes the next reached VM boundary", () => {
   }
   expect(effectPaths(stopped[1].value.effects).some(path => path.events.some(event =>
     event.call.operation === "fs.readdirSync"))).toBe(true);
-  expect(boundaries[0].frames.some(frame => frame.node.type === "MemberExpression" && (frame.node as any).object.name === "stats" && (frame.node as any).property.name === "size")).toBe(true);
+  expect(boundaries[0].frames.some(frame => frame.node.type === "MemberExpression" && (frame.node as any).object.name === "stats" && (frame.node as any).property.name === "mtime")).toBe(true);
 });
 
 test("pinned Node serves GET, HEAD and missing-file requests through unchanged sirv and its dependencies", () => {
@@ -189,7 +191,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
     });
   expect(child.error).toBeUndefined();
   expect(child.status).toBe(2);
-  expect(child.stderr).toBe("prophet: Unmodeled host property 'size': Node Stats fields\n");
+  expect(child.stderr).toBe("prophet: Unmodeled host property 'mtime': Node Stats fields\n");
   const graph = JSON.parse(child.stdout);
   expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
   const nodes = new Map<string, any>(graph.nodes.map((node: any) => [node.id, node]));
@@ -207,7 +209,7 @@ test("the real CLI factory graph retains the next boundary and filesystem throw"
   expect(field(field(field(field(failed, "value"), "properties"), "code"), "value")).toBe("EMFILE");
   const boundary = values.find(value => field(value, "type") === "ExecutionBoundary");
   expect(field(boundary, "kind")).toBe("unsupported");
-  expect(field(boundary, "message")).toBe("Unmodeled host property 'size': Node Stats fields");
+  expect(field(boundary, "message")).toBe("Unmodeled host property 'mtime': Node Stats fields");
   const stopped = leaves.find(leaf => field(field(leaf, "0"), "type") === "ExecutionBoundary");
   expect(field(field(stopped, "1"), "sourceFile")).toMatch(/sirv\/build\.js$/);
   // Inspect the public environment records, not the private flattened scope view.

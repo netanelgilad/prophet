@@ -2,7 +2,7 @@ import { spawnSync } from "child_process";
 import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import { evaluateCode, nodeInitialExecutionContext, isForkedCompletion,
-  createFileSystemModel, fileSystemDirectory, fileSystemFile } from "../src";
+  createFileSystemModel, fileSystemDirectory, fileSystemUnobservedFile } from "../src";
 import { Any, ESNumber, ESNull, Undefined } from "../src/types";
 import { ESBoolean } from "../src/boolean/ESBoolean";
 import { ESString } from "../src/string/String";
@@ -13,7 +13,6 @@ import { getProperties, ownPropertyPresence, writeProperty } from "../src/execut
 import { mergeContexts } from "../src/execution-context/branches";
 import { createConsoleModel } from "../src/node/console";
 import { effectPaths } from "../src/effects";
-import { analysisFailureContext } from "../src/execution-context/analysis-failure";
 
 // P012-R1 was disclosed by frozen independent review 5273aa2. These are writer
 // correction regressions, not a new independent holdout or initial Stats model.
@@ -31,7 +30,9 @@ function native(body:string):any {
   expect(child.error).toBeUndefined();expect(child.status).toBe(0);expect(child.stderr).toBe("");return JSON.parse(child.stdout);
 }
 function setup(inputs:{[name:string]:Any}={}) {
-  const model=createFileSystemModel({root:fileSystemDirectory({file:fileSystemFile("abc"),dir:fileSystemDirectory({})}),cwd:"/"});
+  // An undeclared-size file keeps presence semantics on genuinely unknown
+  // metadata; the bounded modeled size has its own focused spec.
+  const model=createFileSystemModel({root:fileSystemDirectory({file:fileSystemUnobservedFile(),dir:fileSystemDirectory({})}),cwd:"/"});
   const [done,state]=evaluateCode('const stat=fs.statSync("/file");const alias=stat;const second=fs.statSync("/file");const dir=fs.statSync("/dir");',setVariablesInScope(nodeInitialExecutionContext,{fs:model.module,...inputs}));
   expect(done).toBe(Undefined);
   return {state,stat:state.value.scope.stat as any,second:state.value.scope.second as any,dir:state.value.scope.dir as any};
@@ -119,8 +120,10 @@ test('inherited size never substitutes for unknown own metadata; fresh writes re
   const {state,stat}=setup();const seeded=writeProperty(stat,'size',ESNumber(17),state);
   const [done,after]=evaluateCode('Object.prototype.size=99;let mark=1;const known=stat.size;second.size;',seeded);
   expect(done).toMatchObject({type:'ExecutionBoundary',message:"Unmodeled host property 'size': Node Stats fields"});expect(after.value.scope.known).toMatchObject({value:17});expect(after.value.scope.mark).toMatchObject({value:1});
-  let error:any;try{evaluateCode('let mark=1;second.size=23;',seeded);}catch(e){error=e;}
-  expect(error).toBeDefined();expect(error.message).toMatch(/Unmodeled host property 'size'/);expect(analysisFailureContext(error)!.value.scope.mark).toMatchObject({value:1});
+  // Fresh writes now stop as the same retained typed boundary as fresh reads.
+  const [writeStop,writeAfter]=evaluateCode('let mark=1;second.size=23;',seeded);
+  expect(writeStop).toMatchObject({type:'ExecutionBoundary',kind:'unsupported',message:expect.stringMatching(/Unmodeled host property.*'size'/)});
+  expect(writeAfter.value.scope.mark).toMatchObject({value:1});
   const [old,before]=evaluateCode('let mark=1;stat.size;',state);expect(old).toMatchObject({type:'ExecutionBoundary'});expect(before.value.scope.mark).toMatchObject({value:1});
 });
 

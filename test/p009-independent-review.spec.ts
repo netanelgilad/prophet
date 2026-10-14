@@ -179,7 +179,7 @@ test("independent retained actual unchanged sirv CLI graph and both histories", 
     {cwd:directory,encoding:"utf8",timeout:60000,maxBuffer:80*1024*1024,env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""}});
   writeFileSync(join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"cli.stdout.json"),child.stdout);writeFileSync(join(process.env.PROPHET_P009_LOG_ROOT||join(root,"logs/p009-independent"),"cli.stderr.log"),child.stderr);
   console.log("INDEPENDENT_CLI_EXIT",child.status);
-  expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: Unmodeled host property 'size': Node Stats fields\n");
+  expect(child.error).toBeUndefined();expect(child.status).toBe(2);expect(child.stderr).toBe("prophet: Unmodeled host property 'mtime': Node Stats fields\n");
   const graph=JSON.parse(child.stdout);expect(Object.keys(graph).sort()).toEqual(["nodes","roots"]);
   const nodes=new Map<string,any>(graph.nodes.map((n:any)=>[n.id,n]));
   const field=(ref:any,key:string)=>{const pair=nodes.get(ref.ref).entries.find(([name]:[string])=>name===key);return pair&&pair[1];};
@@ -188,7 +188,7 @@ test("independent retained actual unchanged sirv CLI graph and both histories", 
   for(const leaf of all){
     const value=field(leaf,"0"),state=field(leaf,"1"),stopped=field(value,"type")==="ExecutionBoundary";
     if(stopped){
-      expect(field(value,"message")).toBe("Unmodeled host property 'size': Node Stats fields");expect(field(state,"sourceFile")).toMatch(/sirv\/build\.js$/);
+      expect(field(value,"message")).toBe("Unmodeled host property 'mtime': Node Stats fields");expect(field(state,"sourceFile")).toMatch(/sirv\/build\.js$/);
       // Completed mrmime activation records remain; these are not current sirv locals.
    const envs=nodes.get(field(state,"environments").ref).entries;let tmp:any,idx:any;
       for(const [,record]of envs){for(const name of ["tmp","idx"]){const binding=nodes.get(record.ref).entries.find(([key]:[string])=>key===name);if(binding){if(name==="tmp")tmp=field(binding[1],"value");else idx=field(binding[1],"value");}}if(tmp&&idx)break;}

@@ -241,7 +241,7 @@ test("invalid existsSync argument types retain an explicit deprecation-warning g
 for (const body of [
   'fs.statSync("index.txt", { throwIfNoEntry: false });',
   'fs.readFileSync("index.txt", "hex");', 'fs.readFileSync(3, "utf8");', 'fs.statSync({});',
-  'fs.statSync("index.txt").size;', 'fs.statSync("index.txt").mode = 0;',
+  'fs.statSync("nested").size;', 'fs.statSync("index.txt").mode = 0;',
   'fs.statSync("index.txt")._checkModeProperty = function() { return true; };',
   'fs.statSync("index.txt").__proto__ = {};',
   'fs.statSync("index.txt").isDirectory.call({});',
@@ -250,8 +250,14 @@ for (const body of [
 ]) {
   test(`unmodeled filesystem behavior is an explicit analysis boundary: ${body}`, () => {
     expect(typeof createFileSystemModel).toBe("function");
-    if (body === 'fs.statSync("index.txt").size;') {
+    if (body === 'fs.statSync("nested").size;') {
       const {value: done} = load(body);expect(done).toMatchObject({type:"ExecutionBoundary",kind:"unsupported",message:"Unmodeled host property 'size': Node Stats fields"});
+      return;
+    }
+    if (/^fs\.statSync\("index\.txt"\)\.(mode|_checkModeProperty|__proto__)/.test(body)) {
+      // Reached unmodeled Stats fields now stop as retained typed boundaries.
+      const {value: done} = load(body);
+      expect(done).toMatchObject({type:"ExecutionBoundary",kind:"unsupported",message:expect.stringMatching(/Unmodeled host property write/)});
       return;
     }
     expect(() => load(body)).toThrow(/[Ff]ilesystem|[Ff]ile system|Unmodeled|Stats|encoding|options|receiver|helper/);
@@ -294,7 +300,7 @@ test("filesystem setup requires a directory root and an existing canonical cwd o
 test("Stats size classification retains prefix, normal sibling and filesystem histories",()=>{
   const model=createFileSystemModel({root:tree(),cwd:"/sandbox/site"});
   const initial=ExecutionContext({...nodeInitialExecutionContext.value,global:ESObject({...nodeInitialExecutionContext.value.global.properties,selected:ESBoolean()})});
-  const [done]=createCommonJSLoader({"/sandbox/entry.cjs":source('let mark=0,caught=false,cleaned=false;if(selected){try{mark=1;const s=fs.statSync("index.txt");s.size;mark=9;}catch(e){caught=true;}finally{cleaned=true;}}else mark=2;module.exports={mark,caught,cleaned};')},{builtins:{fs:model.module}}).load("/sandbox/entry.cjs",initial);
+  const [done]=createCommonJSLoader({"/sandbox/entry.cjs":source('let mark=0,caught=false,cleaned=false;if(selected){try{mark=1;const s=fs.statSync("nested");s.size;mark=9;}catch(e){caught=true;}finally{cleaned=true;}}else mark=2;module.exports={mark,caught,cleaned};')},{builtins:{fs:model.module}}).load("/sandbox/entry.cjs",initial);
   expect(isForkedCompletion(done)).toBe(true);if(!isForkedCompletion(done))throw Error("fork");
   const all=[done.consequent,done.alternate],stop=all.find(([v])=>(v as any).type==="ExecutionBoundary")!,normal=all.find(([v])=>(v as any).type!=="ExecutionBoundary")!;
   expect(stop[0]).toMatchObject({kind:"unsupported",message:"Unmodeled host property 'size': Node Stats fields"});
