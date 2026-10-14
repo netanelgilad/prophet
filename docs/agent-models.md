@@ -63,3 +63,11 @@ worktree. This model/family starts **uncalibrated**, separately from P006 Sol an
 P008 Astra. Independent `gpt-6-astra`/high accepts corrected source c52c3f4 after full semantic review. A stale parameterized predecessor assertion caused one disclosed extra freeze/full run; review found one evidence-label defect corrected by root. See [publication review](agent-tasks/P009-ascii-lowercase/publication-review.md). No first-review streak, trust transfer or concurrency promotion is inferred. Same model/account retained; no rotation,
 paid API, credentials/access expansion or subagents used. Exact backend weights
 are unknown; current runtime identity is owner-authorized Sol6.1/high.
+
+
+P010 separately owner-authorizes the same `gpt-6.1-sol`/high writer/account for
+bounded generic UTF-16 lastIndexOf, based on reviewed c06374f. Independent `gpt-6-astra`/high accepts frozen fcb650f source and evidence with no production or writer-evidence findings. One source freeze/full run; reviewer-only harness corrections are disclosed separately. See [publication review](agent-tasks/P010-string-lastindexof/publication-review.md). No trust transfer or concurrency promotion is claimed.
+No subagents, model/account rotation, paid API or access expansion. Account-wide
+quota at dispatch was owner-reported 52% remaining at22:19UTC, not a measured
+task allowance; no live quota measurement or provider limit error is inferred.
+See [P010 evidence](agent-tasks/P010-string-lastindexof/evidence.json).

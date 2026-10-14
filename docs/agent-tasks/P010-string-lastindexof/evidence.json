@@ -1,0 +1,1070 @@
+{
+  "task": "P010 bounded generic UTF-16 String.prototype.lastIndexOf",
+  "requestedWriter": {
+    "model": "gpt-6.1-sol",
+    "reasoning": "high",
+    "scope": "sole implementation writer, owner-authorized; same account; independent Astra/high review pending"
+  },
+  "baseCommit": "c06374f905b27215c436ae0e3f565fd0abb184fb",
+  "taskCommit": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+  "sourceCommit": "fcb650fdaf3c1994e2d01beb6a2984592d964965",
+  "branch": "agent/p010-string-lastindexof",
+  "worktree": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+  "freeze": "One local source/spec/doc commit, followed only by evidence-only handoff. No extra frozen full run. All prefreeze runs explicitly classified by actual status, including initial untracked-spec runner correction and mixed development run.",
+  "pinnedNode": {
+    "path": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    "version": "v24.21.0",
+    "env": "PROPHET_NODE_BINARY",
+    "dependencies": "existing linked node_modules; no installs/edits"
+  },
+  "commands": [
+    {
+      "label": "consumer-frontier-red",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/sirv-target.spec.ts",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 180,
+      "exit": 1,
+      "timedOut": false,
+      "seconds": 14.884785175323486,
+      "diffSha256": "00327de707bd2ef2e1d04b3f606f29378f80c2816f8dd2170beafd71faea01ca",
+      "snapshotSha256": "ba08aa300aa9dee9acbbacc696fc6840a9424e9830c7cf511620ae7d27954773",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/consumer-frontier-red.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/consumer-frontier-red.json",
+      "metadataSha256": "c52bde6d3acb6d7c0964119586142cde3e431eaf0df089dff0765940716868c0",
+      "logSha256": "3755a08b1c232f9892af53aee34d3a0ee6acfb735d80f297bf9b3a79089a91b9"
+    },
+    {
+      "label": "development-focused",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-lastindexof.spec.ts",
+        "test/test262.spec.ts",
+        "test/sirv-target.spec.ts",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 180,
+      "exit": 1,
+      "timedOut": false,
+      "seconds": 24.677040100097656,
+      "diffSha256": "4c1516af05ec1cf90228861059f72747a45cfe3941847711250e722f460daf95",
+      "snapshotSha256": "fcb44c1ac3615fea9c854deb34099d9189f870b5b70fe49de1890f2a48bb9ff5",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/development-focused.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/development-focused.json",
+      "metadataSha256": "2afbf7af3ef5f834eb2f1be6a05fb7ccf78df66c89689dce726674ab4cfee041",
+      "logSha256": "3d9386c52cb98bae4ede439410d95895938aa164bc1cbf801edfb0bfcad77bc8"
+    },
+    {
+      "label": "development-typecheck",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 120,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 9.49770998954773,
+      "diffSha256": "4c1516af05ec1cf90228861059f72747a45cfe3941847711250e722f460daf95",
+      "snapshotSha256": "fcb44c1ac3615fea9c854deb34099d9189f870b5b70fe49de1890f2a48bb9ff5",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/development-typecheck.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/development-typecheck.json",
+      "metadataSha256": "82c75778b777249129b70e6f773250e0851b05a44acce37e849b42d472b0d99c",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "frozen-discovery",
+      "head": "fcb650fdaf3c1994e2d01beb6a2984592d964965",
+      "status": "committed source",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 60,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 2.0445430278778076,
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshotSha256": "59557c7bf1c52d8c3d28ead0780ba5d924a0fd9eacf91b5ac460cd8fb70d22bd",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-discovery.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-discovery.json",
+      "metadataSha256": "9c9157bc8ef7ec5229d639596e988be642682d3d810d77189a4f5d4d82ac5f83",
+      "logSha256": "4ae5fbf9ed4e4ad605a1ef31b598d1353eccbac52ebffe9d196bbb6aa43d5f37"
+    },
+    {
+      "label": "frozen-full-suite",
+      "head": "fcb650fdaf3c1994e2d01beb6a2984592d964965",
+      "status": "committed source",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 900,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 416.4776129722595,
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshotSha256": "59557c7bf1c52d8c3d28ead0780ba5d924a0fd9eacf91b5ac460cd8fb70d22bd",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-full-suite.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-full-suite.json",
+      "metadataSha256": "7235c04755449ef2820787a21445ccfc73d97c11feda52312bf312327b8e0209",
+      "logSha256": "2c42cb8ec6d286a37543fec7349dc07b3e862ce3259405f041357ef7d46f9315",
+      "suitesPassed": 134,
+      "suitesTotal": 134,
+      "skipped": 46,
+      "passed": 3935,
+      "total": 3981
+    },
+    {
+      "label": "frozen-inventory",
+      "head": "fcb650fdaf3c1994e2d01beb6a2984592d964965",
+      "status": "committed source",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "logs/p010/inventory.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 120,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 13.176443099975586,
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshotSha256": "59557c7bf1c52d8c3d28ead0780ba5d924a0fd9eacf91b5ac460cd8fb70d22bd",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-inventory.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-inventory.json",
+      "metadataSha256": "0374c1a4c2990aa9d1fffa9f94dfa919581d554101952c3316cad08943e50354",
+      "logSha256": "b6d7fc7677ee0a1d5e884b16cfefe6ce2e15041d4dd126c2b81cb772a4e9d4b0"
+    },
+    {
+      "label": "frozen-typecheck",
+      "head": "fcb650fdaf3c1994e2d01beb6a2984592d964965",
+      "status": "committed source",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 120,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 9.143801927566528,
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshotSha256": "59557c7bf1c52d8c3d28ead0780ba5d924a0fd9eacf91b5ac460cd8fb70d22bd",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-typecheck.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-typecheck.json",
+      "metadataSha256": "4b0a242fd78a8d28aea85032ccddd48931b8c8b1a5a68e7077607d8cee12e0db",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "frozen-upstream-native",
+      "head": "fcb650fdaf3c1994e2d01beb6a2984592d964965",
+      "status": "committed source",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "logs/p010/upstream-native.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 60,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 0.6391239166259766,
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshotSha256": "59557c7bf1c52d8c3d28ead0780ba5d924a0fd9eacf91b5ac460cd8fb70d22bd",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-upstream-native.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-upstream-native.json",
+      "metadataSha256": "cabcd93d08fc57d68edca363714a12022dc89454a8b8adfb1ec06d334ac17d6b",
+      "logSha256": "dba111b2e0ef2c16f5bcae05682163df3eb569489ce7c965abbae256aafd1cf9"
+    },
+    {
+      "label": "native-controls-red",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-lastindexof.spec.ts",
+        "--testNamePattern",
+        "^native"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 180,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 5.762533187866211,
+      "diffSha256": "71bb4712a6d0041044deee979b95ddd9ab3a5796109e645e7145c85134e6ea4f",
+      "snapshotSha256": "2428f07b00c4fa19d73159b828c819b0db0598ad7a6efc3c5d4e2a8c6c1f088b",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/native-controls-red.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/native-controls-red.json",
+      "metadataSha256": "15479e0b6b14a2ed84ab3861c7b3e32422e24299fa3915921a7d75aae9f45c1c",
+      "logSha256": "07700a3b8521a478f392993b97bc9158f0546fc82796e1668b3e030d1148a9cb"
+    },
+    {
+      "label": "native-red",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree (untracked spec; initial runner missed status)",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-lastindexof.spec.ts",
+        "--testNamePattern",
+        "native"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 180,
+      "exit": 1,
+      "timedOut": false,
+      "seconds": 11.493228197097778,
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshotSha256": "14ebd2a699bf08a3e0a3198411df9ff56a89e3e4579a61f2614802658ee5d67d",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/native-red.log",
+      "note": "Filter native also matched alternatives in VM test names. All 14 native controls passed; 10 VM missing-intrinsic failures retained. Corrected anchored filter in native-controls-red.",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/native-red.json",
+      "metadataSha256": "23d29c4ce535ac391148deff2b1b8fd2f5375de46c79485585a7d1f786597f95",
+      "logSha256": "5865432c9765a95ce4feae900bade892649b5eea0baf6934574a209f0570c1ef"
+    },
+    {
+      "label": "prefreeze-affected-green",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-lastindexof.spec.ts",
+        "test/string-trim.spec.ts",
+        "test/string-lowercase.spec.ts",
+        "test/p008-independent-review.spec.ts",
+        "test/p008-independent-correction.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/test262/runner.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/object-bindings.spec.ts",
+        "test/function-parameters-metadata.spec.ts",
+        "test/legacy-intrinsic-boundaries.spec.ts",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 240,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 61.804604053497314,
+      "diffSha256": "17a29bdf971e4610fd13e37ff0be635bf4f3db513f1f5763ed419700198eacf0",
+      "snapshotSha256": "59557c7bf1c52d8c3d28ead0780ba5d924a0fd9eacf91b5ac460cd8fb70d22bd",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-affected-green.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-affected-green.json",
+      "metadataSha256": "364c0056f3149e5470c4013e3572acaa5e7446ca47b936eff0f973ba25f6fb49",
+      "logSha256": "fdc0f3acb2022c0152fc6ad5d07da22b593be5a3bd6cc161ee58a24eb06d3d05"
+    },
+    {
+      "label": "prefreeze-affected",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree; mixed development snapshots",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-lastindexof.spec.ts",
+        "test/string-trim.spec.ts",
+        "test/string-lowercase.spec.ts",
+        "test/p008-independent-review.spec.ts",
+        "test/p008-independent-correction.spec.ts",
+        "test/p009-independent-review.spec.ts",
+        "test/sirv-target.spec.ts",
+        "test/test262.spec.ts",
+        "test/object-spread.spec.ts",
+        "test/has-own-property.spec.ts",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 240,
+      "exit": 1,
+      "timedOut": false,
+      "seconds": 59.37682032585144,
+      "diffSha256": "d7ceb6770976aa4f88f94a12581035307c44b8af1bfec3902f1278cdf177b3a3",
+      "snapshotSha256": "9a2f1034bc414b968df79c60ebcb3e83869538f803659de8ad81e6f2fce48a39",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-affected.log",
+      "note": "During run, appended local proof/native controls and deliberately activated whole upstream A11 for a separate incompatibility probe; this affected suite loaded A11 and failed its two variants. Initial snapshot hash is start only. Not frozen green evidence. Re-run all affected suites with restored selection.",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-affected.json",
+      "metadataSha256": "0fc86ba071d1320f4cd78c70d3dfa8b114b98826aaf73da8f86bd764c52c8ae8",
+      "logSha256": "734fe277cb06ae103098460f62b8ebfb07babe91b5a51328cf62f2a0b8ed31c7"
+    },
+    {
+      "label": "prefreeze-discovery",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--listTests",
+        "--runInBand"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 60,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 1.9914460182189941,
+      "diffSha256": "d7ceb6770976aa4f88f94a12581035307c44b8af1bfec3902f1278cdf177b3a3",
+      "snapshotSha256": "2a22a29932b343980895ae51c5dd303db62f83f476f14b27566b455249d084ad",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-discovery.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-discovery.json",
+      "metadataSha256": "75e14b03c10cbfcd8a8f09c3d91e7c13edf000628c4758e770b374b2ce1341bc",
+      "logSha256": "9a3a9f087047ce0fadca177dc94424bf913ad92e051d880ac34637f88084bafd"
+    },
+    {
+      "label": "prefreeze-inventory",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "logs/p010/inventory.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 120,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 11.719084978103638,
+      "diffSha256": "17a29bdf971e4610fd13e37ff0be635bf4f3db513f1f5763ed419700198eacf0",
+      "snapshotSha256": "59557c7bf1c52d8c3d28ead0780ba5d924a0fd9eacf91b5ac460cd8fb70d22bd",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-inventory.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-inventory.json",
+      "metadataSha256": "c855e4863271f415be884bf54dcaad7332a3d69bb90bf63f19fdbe497887af47",
+      "logSha256": "b6d7fc7677ee0a1d5e884b16cfefe6ce2e15041d4dd126c2b81cb772a4e9d4b0"
+    },
+    {
+      "label": "prefreeze-typecheck",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 120,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 7.348879098892212,
+      "diffSha256": "17a29bdf971e4610fd13e37ff0be635bf4f3db513f1f5763ed419700198eacf0",
+      "snapshotSha256": "59557c7bf1c52d8c3d28ead0780ba5d924a0fd9eacf91b5ac460cd8fb70d22bd",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-typecheck.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-typecheck.json",
+      "metadataSha256": "2b03d093d21fc58d7afee42a6144eacbabaf896697ad7abdb83ad583e1366edc",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "red-specs",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-lastindexof.spec.ts",
+        "test/test262.spec.ts",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 180,
+      "exit": 1,
+      "timedOut": false,
+      "seconds": 11.405241012573242,
+      "diffSha256": "71bb4712a6d0041044deee979b95ddd9ab3a5796109e645e7145c85134e6ea4f",
+      "snapshotSha256": "2428f07b00c4fa19d73159b828c819b0db0598ad7a6efc3c5d4e2a8c6c1f088b",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/red-specs.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/red-specs.json",
+      "metadataSha256": "578a7f430e54d180a3e62db829e828449b2ff0c21d153431a820836192af417a",
+      "logSha256": "d183bbbfdaae99579d936d9f107cc21e822189fbeff83416b97cc88477272730"
+    },
+    {
+      "label": "unary-frontier-red",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/string-lastindexof.spec.ts",
+        "--testNamePattern",
+        "unary boundary",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 60,
+      "exit": 1,
+      "timedOut": false,
+      "seconds": 4.593426942825317,
+      "diffSha256": "00327de707bd2ef2e1d04b3f606f29378f80c2816f8dd2170beafd71faea01ca",
+      "snapshotSha256": "c3c7a27df85475d54978acd070d56815b49a5095a24b4cd38a6aea9d71f8ef7f",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/unary-frontier-red.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/unary-frontier-red.json",
+      "metadataSha256": "23a29b5245ddf3bf3821c88a666b68b740cc2f97508de2cb0bdd6cafd044e7df",
+      "logSha256": "12592f391a37bc49f269126f7970bff866a7ea35eeffffc5d0b3b6a5d9429ba9"
+    },
+    {
+      "label": "upstream-incompatible-A11",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/test262.spec.ts",
+        "--testNamePattern",
+        "lastIndexOf",
+        "--silent"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 60,
+      "exit": 1,
+      "timedOut": false,
+      "seconds": 8.374958992004395,
+      "diffSha256": "1825bc755977934e1cebf408801fd3abab4b7b390015e6091b823596b64a6452",
+      "snapshotSha256": "deedea277b72b566e375db2129f680bdb9942ab81ad717476de60bd01c3242d6",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-incompatible-A11.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-incompatible-A11.json",
+      "metadataSha256": "9139e3fe7998106e85dc46d9d4b22c2f5d3d2945b6b950407c41557c031ce678",
+      "logSha256": "e032e78d3bbb6c4ab64f6f161323c50315bac76e7bb45d33554c676eda09540a"
+    },
+    {
+      "label": "upstream-native-red",
+      "head": "8a05fce0e8fabf852e859bbffe83372a011d0e26",
+      "status": "prefreeze working tree",
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        "logs/p010/upstream-native.cjs"
+      ],
+      "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+      "capSeconds": 60,
+      "exit": 0,
+      "timedOut": false,
+      "seconds": 0.44195008277893066,
+      "diffSha256": "71bb4712a6d0041044deee979b95ddd9ab3a5796109e645e7145c85134e6ea4f",
+      "snapshotSha256": "2428f07b00c4fa19d73159b828c819b0db0598ad7a6efc3c5d4e2a8c6c1f088b",
+      "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-native-red.log",
+      "metadataPath": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-native-red.json",
+      "metadataSha256": "23453b0f2de54d774c5766bb9b7162435002b87ec0bcca41f1bd167243904541",
+      "logSha256": "dba111b2e0ef2c16f5bcae05682163df3eb569489ce7c965abbae256aafd1cf9"
+    }
+  ],
+  "frozenSource": {
+    "manifest": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-source-manifest.json",
+    "aggregateSha256": "5a96e27efc2824e45a59458c404338cbc796dd06f2390d6385a9413a7ba9f926",
+    "fileCount": 438,
+    "changedFiles": {
+      "docs/agent-models.md": {
+        "sha256": "8100beb175d895c5691ac40bb2849867976771df52e7308332e6813a994c25c7",
+        "bytes": 7733
+      },
+      "docs/agent-tasks/P010-string-lastindexof/task.md": {
+        "sha256": "93f2c794da8835fc94e18b4b81d36d0c43960b61290e67cb4b60f7681bac4fe8",
+        "bytes": 8061
+      },
+      "docs/agent-tasks/P010-string-lastindexof/upstream-candidates.md": {
+        "sha256": "166a0444378ade30937ee0411277f75587feaaf6ea660662222bbcc431602d14",
+        "bytes": 2263
+      },
+      "docs/agent-tasks/README.md": {
+        "sha256": "ed1e2ed7c29a234a271f1c599ebc9cc1fef4fc339dcff449385eeef798b381ad",
+        "bytes": 5693
+      },
+      "docs/execution-boundaries.md": {
+        "sha256": "c4bae071e795aa8d264810a673104679c3a5d84d40c424bed871a4fa034a59ce",
+        "bytes": 5815
+      },
+      "docs/implementation-gaps.md": {
+        "sha256": "52fd7ef57b0b6f5d2e73cb583cdf7c9441c6c8ebe252da0b56204abbc7ef947f",
+        "bytes": 162525
+      },
+      "docs/sirv-target.md": {
+        "sha256": "c50ce3ad5ca66a71a195d2891b558cf2f47b0d558b884354b7c99994205fc0ec",
+        "bytes": 4838
+      },
+      "docs/symbolic-strings.md": {
+        "sha256": "e86fdaa2f5ae758ece18a183498d24fba50ef2c776b5b43128aab02009e44fb6",
+        "bytes": 19023
+      },
+      "docs/wiki/README.md": {
+        "sha256": "15a5d0493277a26e9f97de00d8cb998f557952433b9bfec0f23d0e4c7fe5ea5f",
+        "bytes": 2831
+      },
+      "docs/wiki/string-lastindexof.md": {
+        "sha256": "b24181bcd3382fb3b6fc678715fd5f094d3986c78c32afebddfdecebac4d64d5",
+        "bytes": 3406
+      },
+      "src/ASTResolvers.ts": {
+        "sha256": "0c5a8e5a1864415264233bad73ead35efc765207f372a15573b96ae21033a574",
+        "bytes": 33907
+      },
+      "src/string/String.ts": {
+        "sha256": "3710993fbc4c5213afdb8481519099e2c59c34e83759bccfac16fa91924e31fc",
+        "bytes": 6359
+      },
+      "src/string/lastIndexOf.ts": {
+        "sha256": "a828afe9eacc4388c5bf31c7d531be6080e51881c2b5c6ae579708aa1d219fb4",
+        "bytes": 4813
+      },
+      "test/p008-independent-correction.spec.ts": {
+        "sha256": "b710930f985904b89551d06c1271f21bc92e87a058b441b998e8287eaac58fb6",
+        "bytes": 12367
+      },
+      "test/p009-independent-review.spec.ts": {
+        "sha256": "ef13015d8634c85edcc1d0eab29b6a24723ad410aec931eab8705dcca9b61917",
+        "bytes": 17979
+      },
+      "test/sirv-target.spec.ts": {
+        "sha256": "35a9227b4db5f01dbf466f3f4415529de6c5e853a09d7f9347d3d95079ff29a5",
+        "bytes": 12791
+      },
+      "test/string-lastindexof.spec.ts": {
+        "sha256": "c5db3f851ddf041d3b60afb7bd0e8c992037c70d03366ec80fffc2bfd32275dc",
+        "bytes": 19358
+      },
+      "test/string-lowercase.spec.ts": {
+        "sha256": "8bc415efcbf903817e88b35d22ce19dfa61eae63b4db8d3dfd43771f61ddf32c",
+        "bytes": 16811
+      },
+      "test/string-trim.spec.ts": {
+        "sha256": "99d82502c90db3e7f5607581929b3363a56307b3246a5d69887c5be4756940f6",
+        "bytes": 20878
+      },
+      "test/test262.spec.ts": {
+        "sha256": "3b9f74d479c916a9860b9a2ec17c09d429d002b624532a56e6ae3b679b90b7ac",
+        "bytes": 27370
+      },
+      "test/test262/README.md": {
+        "sha256": "ce70b4235f18f121bcd7be6d1a72370fef63ca59098991f7bddbf1f2c132c631",
+        "bytes": 27186
+      }
+    }
+  },
+  "audits": {
+    "head": "fcb650fdaf3c1994e2d01beb6a2984592d964965",
+    "commands": {
+      "guards": {
+        "command": [
+          "rg",
+          "-n",
+          "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+          "src",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+        "exit": 0,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-guards.log",
+        "sha256": "f6185b27fc1fefd74ddbbfbd5a062080f846fe47913c42561ce96f1a53bb90df"
+      },
+      "assertions": {
+        "command": [
+          "rg",
+          "-n",
+          "assert\\(|unimplemented\\(",
+          "src",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+        "exit": 0,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-assertions.log",
+        "sha256": "e9e7706c6cfd97db8998ae3b68f8e511af1c1f86e838dfa4131d54659bcac266"
+      },
+      "skip-sites": {
+        "command": [
+          "rg",
+          "-n",
+          "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+          "test",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+        "exit": 0,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-skip-sites.log",
+        "sha256": "c9c4d22d0e6ff452c0bf50af15e7f60adec20af1354b342ecf5b33bb0a5db7e6"
+      },
+      "boundary-docs": {
+        "command": [
+          "rg",
+          "-n",
+          "gap|unsupported|assum|remain|limit|not yet|not modeled",
+          "README.md",
+          "docs",
+          "test/commonjs/README.md",
+          "test/test262/README.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+        "exit": 0,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-boundary-docs.log",
+        "sha256": "eaa9a88d2ea0a326f3dafcd274b1dc5024b3a9601bdbc0443db6b7f513fe14b0"
+      },
+      "checkpoint-search": {
+        "command": [
+          "rg",
+          "-n",
+          "lastIndexOf|supported.*=|deferred.*=|String.*own|String.*metadata",
+          "test",
+          "--glob",
+          "*.ts"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+        "exit": 0,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-checkpoint-search.log",
+        "sha256": "00438c8076ec2da3fd692965ef3b77e9b943d3597441d06d24b0e3042fb24a58"
+      },
+      "diff-check": {
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "c06374f"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+        "exit": 0,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-diff-check.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "cumulative-diff": {
+        "command": [
+          "git",
+          "diff",
+          "c06374f",
+          "--",
+          "src",
+          "test",
+          "README.md",
+          "docs",
+          "AGENTS.md"
+        ],
+        "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof",
+        "exit": 0,
+        "log": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-cumulative-diff.log",
+        "sha256": "32bfb96305d41466b1754750c630ec0af3be71cbfffb4c06acaa7467426a985f"
+      }
+    },
+    "changed": [
+      "docs/agent-models.md",
+      "docs/agent-tasks/P010-string-lastindexof/task.md",
+      "docs/agent-tasks/P010-string-lastindexof/upstream-candidates.md",
+      "docs/agent-tasks/README.md",
+      "docs/execution-boundaries.md",
+      "docs/implementation-gaps.md",
+      "docs/sirv-target.md",
+      "docs/symbolic-strings.md",
+      "docs/wiki/README.md",
+      "docs/wiki/string-lastindexof.md",
+      "src/ASTResolvers.ts",
+      "src/string/String.ts",
+      "src/string/lastIndexOf.ts",
+      "test/p008-independent-correction.spec.ts",
+      "test/p009-independent-review.spec.ts",
+      "test/sirv-target.spec.ts",
+      "test/string-lastindexof.spec.ts",
+      "test/string-lowercase.spec.ts",
+      "test/string-trim.spec.ts",
+      "test/test262.spec.ts",
+      "test/test262/README.md"
+    ],
+    "untracked": [],
+    "ownershipPass": true,
+    "guardsReconciled": {
+      "src/string/lastIndexOf.ts": [
+        "LIB-002/OBJ-001/003: reached unsupported exotic conversion or nonnull primitive hook",
+        "SYM-001/LEGACY-002: open/chunk converted operands after all conversions",
+        "SYM-004/SECURITY-002: independent operand and comparison budgets"
+      ],
+      "src/ASTResolvers.ts": [
+        "LANG-001/003,REPORT-001: only reached unary ~ missing-resolver guard after operand evaluation"
+      ],
+      "src/string/String.ts": [
+        "LIB-001,LANG-006,OBJ-001: lastIndexOf conservative metadata; remove only implemented name from deferred list"
+      ]
+    },
+    "noPublicSchemaChange": true
+  },
+  "upstream": {
+    "revision": "47bf9d1db9f6e7632120ac1b1946ad092e6c214e",
+    "candidateFiles": 23,
+    "nativeVariants": 46,
+    "activeFiles": 10,
+    "activeVariants": 20,
+    "inactiveFiles": 13,
+    "completeInventory": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/inventory.json",
+    "counts": {
+      "active": 361,
+      "variants": 713,
+      "historicalSkipped": 46,
+      "candidates": 23,
+      "candidateActive": 10,
+      "installed": 36091,
+      "installedNonFixture": 35960
+    },
+    "baselinePreserved": true
+  },
+  "jestDiscovery": {
+    "count": 134,
+    "productionHelpersDiscovered": false
+  },
+  "consumer": {
+    "actual": "Unchanged sirv factory CLI passes trim/lowercase/lastIndexOf; tmp=hello.txt and idx=5 at unary ~ in mrmime/index.js:445. No substring/increment/bitwise semantics implemented. No completed headers/factory/server/request claim.",
+    "stdout": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/consumer.stdout.json",
+    "stderr": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/consumer.stderr.log",
+    "shape": "roots/nodes directly; no public schema or policy prose added",
+    "histories": "readdirSync call/return and EMFILE call/throw sibling, actual source frames retained; asserted by in-process, CLI and migrated independent suites"
+  },
+  "domain": "Supported primitive/ordinary receiver/search/position conversions, finite choices/current heap/prototypes, captured aliases and earlier snapshots. RequireObjectCoercible -> receiver ToString -> search ToString -> position ToNumber -> admission/length/clamp/search. Unknown converted operands cannot suppress later effects or guest throws. Literal UTF-16 unit equality, overlaps, NaN/omitted/undefined +Infinity, truncation, clamping, empty-search unit position/+0.",
+  "budgets": "Each converted text/search length <=65536 units checked after ALL required conversions before scans/copies/preprocessing. At most65537 candidate visits and1048576 actual comparisons, next comparison stops before executing. No preprocessing/result buffer; empty needle constant search but length admitted. Early matches charge reached work only. External cap900s full,240s affected,180s initial focused/native; successful frozen runs no timeout.",
+  "redInspection": "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/red-inspection.json",
+  "developmentCorrections": [
+    "Initial native filter also matched alternatives in VM names: all14 native controls passed,10 expected VM failures retained. Anchored ^native rerun passed. Initial runner status missed untracked spec; corrected metadata explicitly marks prefreeze.",
+    "Red specs:103 missing-intrinsic failures,726passes,46historical skips. All23/46 whole native candidates passed before production implementation.",
+    "First implementation focused: lastIndexOf and20 upstream variants passed; two unchanged sirv expectations measured actual unary ~ legacy assertion.",
+    "Consumer red replacement and unary operand red regression demonstrate missing completion/sibling before narrowly typed ~ guard. No bitwise implementation.",
+    "A11 whole trial fails both variants at direct function hasOwnProperty; stays inactive with failed log. All other inactive blockers are source inspection, not claimed executed failures.",
+    "An affected development run overlapped appended local controls and the deliberate A11 selection; retained as mixed/start-snapshot-only, failed2 A11 variants. Restored selection, then complete13-suite prefreeze affected run passes1347tests/46skips. No frozen source/spec changes.",
+    "Additional native fallback/exotic/resource witnesses and stronger normal-branch assertions were added during development; never attributed to independent review."
+  ],
+  "residualGapIds": [
+    "LANG-001",
+    "LANG-003",
+    "LIB-001",
+    "LIB-002",
+    "OBJ-001",
+    "OBJ-003",
+    "LANG-006",
+    "STRING-001",
+    "SYM-001",
+    "SYM-004",
+    "LEGACY-002",
+    "SECURITY-002",
+    "REPORT-001",
+    "FS-001",
+    "TARGET-002",
+    "TEST-001",
+    "TEST-002",
+    "TEST-003"
+  ],
+  "residuals": [
+    "Open converted text/search/position and legacy chunks are unsupported after required conversions; no guessed index/open-string proof.",
+    "Array/function or other exotic conversion, including custom array/function methods, and nonnull own/inherited internal Symbol.toPrimitive remain conservative guards. Public symbols/wrappers/descriptors/accessors/partial hosts/cyclic shared paths remain gaps; some shared legacy errors can retain only a checkpoint.",
+    "Per-search caps do not bound arbitrary coercion, prototype traversal, parser/embedding allocations, branch growth or total VM/CLI volume. Allocation success/V8 resource failures remain unmodeled.",
+    "Only missing unary ~ resolver classified; other unary legacy assertions, bitwise/increment/substring, broader String APIs, Unicode/locale casing and later Stats/Date/streams/server/request work remain deferred."
+  ],
+  "authorizationAudit": "No push/merge/release/main/Atlas/other-worktree/dependency edits, subagents/model/account/subscription changes, paid API, credentials/access expansion or Notion writes. No provider limit error observed. Owner quota52%remaining22:19UTC is dispatch/account-wide information, not a task estimate or newly measured allowance. Stop for independent Astra/high review; no publication/acceptance claim.",
+  "artifacts": {
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/audit.py": {
+      "sha256": "42f629355eb615d31287c2b18b097b8ba53cfe5e4b16d4c18b68c9a74cc7d1f4",
+      "bytes": 3307
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/consumer-frontier-red.json": {
+      "sha256": "c52bde6d3acb6d7c0964119586142cde3e431eaf0df089dff0765940716868c0",
+      "bytes": 811
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/consumer-frontier-red.log": {
+      "sha256": "3755a08b1c232f9892af53aee34d3a0ee6acfb735d80f297bf9b3a79089a91b9",
+      "bytes": 1881
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/consumer.stderr.log": {
+      "sha256": "cc108cd22159294b3f4aeeda16e914b463c8cc073338a2ca7b8099905f7d09e0",
+      "bytes": 67
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/consumer.stdout.json": {
+      "sha256": "0d06ab1633e4be9cf35207f5b477ab358ed58e2ee844008871a99cefb4a6c4b4",
+      "bytes": 1267112
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/development-focused.json": {
+      "sha256": "2afbf7af3ef5f834eb2f1be6a05fb7ccf78df66c89689dce726674ab4cfee041",
+      "bytes": 874
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/development-focused.log": {
+      "sha256": "3d9386c52cb98bae4ede439410d95895938aa164bc1cbf801edfb0bfcad77bc8",
+      "bytes": 2350
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/development-typecheck.json": {
+      "sha256": "82c75778b777249129b70e6f773250e0851b05a44acce37e849b42d472b0d99c",
+      "bytes": 747
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/development-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/evidence.py": {
+      "sha256": "48dba8f14ec72a000aa0d888125118da5a780c189d576f641682fdc4052fb499",
+      "bytes": 9562
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-assertions.log": {
+      "sha256": "e9e7706c6cfd97db8998ae3b68f8e511af1c1f86e838dfa4131d54659bcac266",
+      "bytes": 2402
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-audit.json": {
+      "sha256": "90a781bef8aa61d8d5e5d6e6f92a3585b0d014964931e0c7f5915a6ed8d7a095",
+      "bytes": 5170
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-boundary-docs.log": {
+      "sha256": "eaa9a88d2ea0a326f3dafcd274b1dc5024b3a9601bdbc0443db6b7f513fe14b0",
+      "bytes": 313835
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-checkpoint-search.log": {
+      "sha256": "00438c8076ec2da3fd692965ef3b77e9b943d3597441d06d24b0e3042fb24a58",
+      "bytes": 27436
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-cumulative-diff.log": {
+      "sha256": "32bfb96305d41466b1754750c630ec0af3be71cbfffb4c06acaa7467426a985f",
+      "bytes": 76349
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-diff-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-discovery.json": {
+      "sha256": "9c9157bc8ef7ec5229d639596e988be642682d3d810d77189a4f5d4d82ac5f83",
+      "bytes": 765
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-discovery.log": {
+      "sha256": "4ae5fbf9ed4e4ad605a1ef31b598d1353eccbac52ebffe9d196bbb6aa43d5f37",
+      "bytes": 14653
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-full-suite.json": {
+      "sha256": "7235c04755449ef2820787a21445ccfc73d97c11feda52312bf312327b8e0209",
+      "bytes": 764
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-full-suite.log": {
+      "sha256": "2c42cb8ec6d286a37543fec7349dc07b3e862ce3259405f041357ef7d46f9315",
+      "bytes": 5414
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-guards.log": {
+      "sha256": "f6185b27fc1fefd74ddbbfbd5a062080f846fe47913c42561ce96f1a53bb90df",
+      "bytes": 66452
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-inventory.json": {
+      "sha256": "0374c1a4c2990aa9d1fffa9f94dfa919581d554101952c3316cad08943e50354",
+      "bytes": 710
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-inventory.log": {
+      "sha256": "b6d7fc7677ee0a1d5e884b16cfefe6ce2e15041d4dd126c2b81cb772a4e9d4b0",
+      "bytes": 136
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-skip-sites.log": {
+      "sha256": "c9c4d22d0e6ff452c0bf50af15e7f60adec20af1354b342ecf5b33bb0a5db7e6",
+      "bytes": 55
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-source-manifest.json": {
+      "sha256": "8229119b963c6dbffd6f4ec3be7fc7c2bb2141684a2d59a2bea645aee6fc32b2",
+      "bytes": 68921
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-typecheck.json": {
+      "sha256": "4b0a242fd78a8d28aea85032ccddd48931b8c8b1a5a68e7077607d8cee12e0db",
+      "bytes": 732
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-upstream-native.json": {
+      "sha256": "cabcd93d08fc57d68edca363714a12022dc89454a8b8adfb1ec06d334ac17d6b",
+      "bytes": 727
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/frozen-upstream-native.log": {
+      "sha256": "dba111b2e0ef2c16f5bcae05682163df3eb569489ce7c965abbae256aafd1cf9",
+      "bytes": 7024
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/inventory.cjs": {
+      "sha256": "8ca0adc6758daf507ff6f0ecbd0acff9b93334194e189d766b51687e88ce7f02",
+      "bytes": 2517
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/inventory.json": {
+      "sha256": "19fe45d5e762f4e8f58f677385b36abb458949e270bb0f3967d78eaffa1f0303",
+      "bytes": 6711904
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/native-controls-red.json": {
+      "sha256": "15479e0b6b14a2ed84ab3861c7b3e32422e24299fa3915921a7d75aae9f45c1c",
+      "bytes": 837
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/native-controls-red.log": {
+      "sha256": "07700a3b8521a478f392993b97bc9158f0546fc82796e1668b3e030d1148a9cb",
+      "bytes": 1132
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/native-red.json": {
+      "sha256": "23d29c4ce535ac391148deff2b1b8fd2f5375de46c79485585a7d1f786597f95",
+      "bytes": 1061
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/native-red.log": {
+      "sha256": "5865432c9765a95ce4feae900bade892649b5eea0baf6934574a209f0570c1ef",
+      "bytes": 12084
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/post-handoff-check.py": {
+      "sha256": "f360d78f624d35c3b6bb08af6b71c33ef65cadedef032ea50f89f61f082bfa2a",
+      "bytes": 1451
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-affected-green.json": {
+      "sha256": "364c0056f3149e5470c4013e3572acaa5e7446ca47b936eff0f973ba25f6fb49",
+      "bytes": 1291
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-affected-green.log": {
+      "sha256": "fdc0f3acb2022c0152fc6ad5d07da22b593be5a3bd6cc161ee58a24eb06d3d05",
+      "bytes": 830
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-affected.json": {
+      "sha256": "0fc86ba071d1320f4cd78c70d3dfa8b114b98826aaf73da8f86bd764c52c8ae8",
+      "bytes": 1498
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-affected.log": {
+      "sha256": "734fe277cb06ae103098460f62b8ebfb07babe91b5a51328cf62f2a0b8ed31c7",
+      "bytes": 2041
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-assertions.log": {
+      "sha256": "e9e7706c6cfd97db8998ae3b68f8e511af1c1f86e838dfa4131d54659bcac266",
+      "bytes": 2402
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-audit.json": {
+      "sha256": "0f402aff1878098dd7deac66e94fe845f4fd803d7ee8f36d68c379abf8ba4c83",
+      "bytes": 5193
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-boundary-docs.log": {
+      "sha256": "2a8c329bd53ec970ec8cd1d1c12eeb65c1160eb8dd5e0d77352e5c4b8e194fc4",
+      "bytes": 313835
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-checkpoint-search.log": {
+      "sha256": "00438c8076ec2da3fd692965ef3b77e9b943d3597441d06d24b0e3042fb24a58",
+      "bytes": 27436
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-cumulative-diff.log": {
+      "sha256": "7ede9de460d54a76268b9680add2ad7ea97dfdc42ad620630907818211ea28d1",
+      "bytes": 45313
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-diff-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-discovery.json": {
+      "sha256": "75e14b03c10cbfcd8a8f09c3d91e7c13edf000628c4758e770b374b2ce1341bc",
+      "bytes": 777
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-discovery.log": {
+      "sha256": "9a3a9f087047ce0fadca177dc94424bf913ad92e051d880ac34637f88084bafd",
+      "bytes": 14653
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-guards.log": {
+      "sha256": "f6185b27fc1fefd74ddbbfbd5a062080f846fe47913c42561ce96f1a53bb90df",
+      "bytes": 66452
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-inventory.json": {
+      "sha256": "c855e4863271f415be884bf54dcaad7332a3d69bb90bf63f19fdbe497887af47",
+      "bytes": 722
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-inventory.log": {
+      "sha256": "b6d7fc7677ee0a1d5e884b16cfefe6ce2e15041d4dd126c2b81cb772a4e9d4b0",
+      "bytes": 136
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-skip-sites.log": {
+      "sha256": "c9c4d22d0e6ff452c0bf50af15e7f60adec20af1354b342ecf5b33bb0a5db7e6",
+      "bytes": 55
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-typecheck.json": {
+      "sha256": "2b03d093d21fc58d7afee42a6144eacbabaf896697ad7abdb83ad583e1366edc",
+      "bytes": 744
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/prefreeze-typecheck.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/red-inspection.json": {
+      "sha256": "692d4a0ef15ec0f4fd84171f9e360b724c16ec8fe50023ff862b3547de272032",
+      "bytes": 17467
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/red-specs.json": {
+      "sha256": "578a7f430e54d180a3e62db829e828449b2ff0c21d153431a820836192af417a",
+      "bytes": 822
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/red-specs.log": {
+      "sha256": "d183bbbfdaae99579d936d9f107cc21e822189fbeff83416b97cc88477272730",
+      "bytes": 1107620
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/red-string-lastindexof.spec.ts.txt": {
+      "sha256": "791bf23ab8ef9c7dd419864905aea8a9292b3a386243c36157ff48f3b99ee850",
+      "bytes": 15440
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/red-tracked.diff": {
+      "sha256": "71bb4712a6d0041044deee979b95ddd9ab3a5796109e645e7145c85134e6ea4f",
+      "bytes": 1294
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/run.py": {
+      "sha256": "a4a7df3d374671e5239237d8a8617a83a1efc2664f27c8e42251b3b644d3b310",
+      "bytes": 1503
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/source-manifest.py": {
+      "sha256": "a6edcc0f1c07ea13f2596da856f2f1b4a6a3b6833c345494c6cb78234becc5fc",
+      "bytes": 843
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/unary-frontier-red.json": {
+      "sha256": "23a29b5245ddf3bf3821c88a666b68b740cc2f97508de2cb0bdd6cafd044e7df",
+      "bytes": 857
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/unary-frontier-red.log": {
+      "sha256": "12592f391a37bc49f269126f7970bff866a7ea35eeffffc5d0b3b6a5d9429ba9",
+      "bytes": 1398
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-incompatible-A11.json": {
+      "sha256": "9139e3fe7998106e85dc46d9d4b22c2f5d3d2945b6b950407c41557c031ce678",
+      "bytes": 857
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-incompatible-A11.log": {
+      "sha256": "e032e78d3bbb6c4ab64f6f161323c50315bac76e7bb45d33554c676eda09540a",
+      "bytes": 1700
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-native-red.json": {
+      "sha256": "23453b0f2de54d774c5766bb9b7162435002b87ec0bcca41f1bd167243904541",
+      "bytes": 728
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-native-red.log": {
+      "sha256": "dba111b2e0ef2c16f5bcae05682163df3eb569489ce7c965abbae256aafd1cf9",
+      "bytes": 7024
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/upstream-native.cjs": {
+      "sha256": "c546bc51aeec394adfdd2509dfb53c70549ce36ff04b9fd80077076b6facce37",
+      "bytes": 1249
+    },
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p010-string-lastindexof/logs/p010/validate-evidence.py": {
+      "sha256": "bb89bd46c3204eb3662f91660a0566c185d50177275dcaaa8bfa9e91245b464b",
+      "bytes": 2333
+    }
+  },
+  "hashValidation": "Run logs/p010/validate-evidence.py: recompute every artifact/command log/changed file/full frozen-source aggregate and all installed upstream inventory hashes from bytes/git show. Validation output excluded from self-hash and delivered with exact counts."
+}

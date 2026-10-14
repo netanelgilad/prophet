@@ -240,3 +240,63 @@ The unchanged mrmime lookup retains `tmp = "hello.txt"` and reaches lastIndexOf.
 Actual sirv CLI stdout is still the direct roots/nodes graph, with source frames,
 filesystem enumeration return/throw histories and EMFILE preserved. Headers,
 factory return, server setup and request behavior remain uncompleted.
+
+
+## Bounded String.prototype.lastIndexOf (P010)
+
+The shared inherited nonconstructible intrinsic performs RequireObjectCoercible,
+receiver ToString, search ToString, and position ToNumber in that order. Argument
+evaluation precedes invocation, including ignored extra arguments. Each ordinary
+conversion uses interpreted calls and current heap/prototype state with shared
+branch/abrupt composition. Nullish receivers throw guest TypeError; null/undefined
+search stringify normally. Only after all required conversions do concrete/open
+operand checks, lengths, clamping and literal search run. Open or oversized
+converted text/search therefore cannot suppress later position effects or throws.
+An earlier unsupported conversion or guest throw still stops at that earlier step.
+
+The domain admits concrete UTF-16 strings and finite correlated choices of
+supported primitive/ordinary receiver, search and position values. Positions use
+NaN/omitted/undefined as +Infinity, truncate finite fractions toward zero and
+clamp to [0,length]. Empty search returns that clamped unit position, with +0.
+Backward candidate positions and forward unit comparisons return the greatest
+match or -1, preserving overlaps, non-ASCII, astral pairs and unpaired surrogates.
+No native search, normalization, package recognition or source rewrite is used.
+Captured aliases, current replacements and earlier snapshots retain their normal
+shared heap semantics. Metadata name=lastIndexOf, length=1, inherited call,
+absent own prototype/call and nonconstruction follow P008's conservative model.
+This is the ninth modeled own name of the pinned String prototype; 43 remain
+deferred, keeping the full 52-name surface truthful (supersedes P009's 8/44 count).
+
+After conversions, both operand lengths must be <=65,536 UTF-16 units, even for
+empty/longer-than-receiver needles. Checks precede scans, copies, preprocessing
+or search allocation. At most length+1 candidate visits are possible. Independently,
+at most 1,048,576 actual unit comparisons may execute; another comparison yields
+a budget leaf before it executes. Early matches charge only reached work. Empty
+needles have constant search work but obey the length cap. No result buffer or
+preprocessing table is allocated. Below/at/above comparison-cap near-matches,
+operand-length controls, empty searches and large early matches are tested under
+external caps; VM AST limits alone cannot constrain synchronous host loops.
+
+Open converted text/search/position and legacy chunk strings produce unsupported
+analysis leaves, never guessed indices or catchable guest errors. Arrays/functions
+and exotic operand kinds are conservatively rejected at their reached conversion;
+custom converters on arrays/functions remain gaps. Nonnull own/inherited internal
+Symbol.toPrimitive hooks are guarded for every operand; absent/null hooks permit
+ordinary conversion. Public symbols, wrappers, descriptors/accessors, partial-host
+and cyclic-prototype shared conversion paths remain separate work. Some shared
+legacy guards still retain only one checkpoint; no general conversion repair is
+claimed. Allocation success, arbitrary coercion/prototype/parser/embedding work,
+branch growth and VM/CLI volume remain outside these per-search caps.
+
+[Local native/VM specs](../test/string-lastindexof.spec.ts) cover order/throws,
+late fallback/prototype mutation, unknown operands with later effects/throws,
+finite correlations/mandatory unknowns, normal/guest-throw/unsupported/budget
+alternatives and ordered external histories. Ten whole upstream files / 20
+variants are active; the [complete 23-file inventory](agent-tasks/P010-string-lastindexof/upstream-candidates.md)
+retains 13 inactive files and the A11 failed metadata probe. No baseline selections
+or historical skips are removed. The actual unchanged sirv CLI computes idx=5
+beside tmp=hello.txt and stops at unary ~ before substring; source frames and
+both filesystem histories survive through a narrowly typed resolver boundary.
+The bitwise operation itself, increment, substring and subsequent application
+work remain unsupported under LANG-001, LIB-001/002, OBJ-001/003, LANG-006,
+STRING-001, SYM-001/004, LEGACY-002, FS-001, TARGET-002, REPORT-001 and TEST-001/002/003.
