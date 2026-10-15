@@ -65,11 +65,13 @@ factory with a directory evaluates two regular-expression literals and appends
  the completed FILES record, and the handler reaches send(), where the
  object spread of the file headers completes and send's for-in
  enumeration over them visits nothing (the raw dispatch carries no own
- header names). The measured stop is the response header read
- res.getHeader (build.js:67), an unmodeled member of the Node HTTP
- response API surfaced as a legacy host error. Modeling the response
- getHeader/setHeader/writeHead surface, fs streams, header-carrying
- requests, constructor-prototype descriptors (for-in inherited keys),
+ header names), and the getHeader probes answer undefined through the
+ modeled setHeader store. res.writeHead(code, headers) then serializes
+ the FILES record's Content-Type and Content-Length fields; the measured
+ stop is the projection's pre-existing transport-sensitive exclusion of
+ content-length (build.js:95), kept deliberately. Deciding the
+ content-length projection, fs streams, header-carrying requests,
+ constructor-prototype descriptors (for-in inherited keys),
  DeleteExpression (for-in deletion visits), remaining deferred String
  APIs, rest parameters, the implicit arguments object, full Unicode
  casing/normalization, other bitwise operations, other Stats/Date

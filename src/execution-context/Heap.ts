@@ -94,6 +94,35 @@ export function writeArrayElements(
   return writeEntry(value, { properties, presence, elements: elements.slice() }, context);
 }
 
+// Host-side removal mirroring writeProperty's entry bookkeeping: properties,
+// presence and every key-order branch drop the name together.
+export function removeProperty(
+  value: WithProperties,
+  name: string,
+  context: TExecutionContext
+): TExecutionContext {
+  const properties = getProperties(value, context);
+  const prior = context.value.heap && context.value.heap.get(value);
+  const nextProperties = { ...properties };
+  delete nextProperties[name];
+  const nextPresence: { [name: string]: TESBoolean } = { ...(prior && prior.presence) };
+  delete nextPresence[name];
+  const filterOrder = (order: PropertyKeys): PropertyKeys => {
+    if (order.kind === "choice") {
+      return { ...order, consequent: filterOrder(order.consequent), alternate: filterOrder(order.alternate) };
+    }
+    return { kind: "keys", keys: order.keys.filter(key => key !== name) };
+  };
+  return writeEntry(value, {
+    properties: nextProperties,
+    presence: nextPresence,
+    keyOrder: filterOrder(getPropertyKeys(value, context)),
+    elements: isArray(value)
+      ? getArrayElements(value as WithProperties & TArray<any>, context)
+      : undefined
+  }, context);
+}
+
 export function writeProperty(
   value: WithProperties,
   name: string,

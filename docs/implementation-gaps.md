@@ -1482,10 +1482,12 @@ gap group closes.
   constructor prototypes, ownPropertyModel "unmodeled") stop with the
   legacy enumeration error; deletion-driven visits await DeleteExpression;
   labeled jumps, destructuring heads and completion values remain open.
-- HTTP-008/REPORT-001: viaCache's cache[arr[i]] finds the completed FILES
-  record on a delivered GET /hello.txt, send's for-in over the file
-  headers completes (no own names on the raw dispatch), and the measured
-  stop is the response header read res.getHeader (build.js:67), a legacy
-  host error on the unmarked response object. The response
-  getHeader/setHeader/writeHead surface and fs streams remain open. No
-  response or success claim.
+- HTTP-008/REPORT-001: the response getHeader/setHeader surface is
+  modeled (P023) with the lazily-created store, raw values and the
+  writeHead merge pinned against Node 24.21.0. On the delivered GET,
+  send's getHeader probes answer undefined, the range branch skips, and
+  writeHead serializes the FILES record's headers until the projection's
+  pre-existing transport-sensitive exclusion of content-length
+  (build.js:95) — the measured stop, a legacy host error kept
+  deliberately. The content-length projection decision and fs streams
+  remain open. No response or success claim.

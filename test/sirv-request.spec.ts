@@ -77,10 +77,12 @@ test("a delivered GET request runs the unchanged sirv handler through @polka/url
   // "/hello.txt", and the handler reaches send(). The object spread of the
   // file headers completes, and send's
   // for-in enumeration over them visits nothing (the raw dispatch carries
-  // no own header names). The measured stop is the response header read
-  // res.getHeader (build.js:67), an unmodeled member of the Node HTTP
-  // response API; the response object is not boundary-marked, so the stop
-  // is a legacy host error asserted through toThrow.
+  // no own header names). send's getHeader probes answer undefined (no
+  // headers stored), the range branch is skipped, and res.writeHead(code,
+  // headers) serializes the FILES record's Content-Type and Content-Length
+  // fields. The measured stop is the projection's transport-sensitive
+  // exclusion of content-length (build.js:95), a legacy host error asserted
+  // through toThrow.
   expect(() => http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready))
-    .toThrow("Unmodeled host property 'getHeader': Node HTTP response API");
+    .toThrow("HTTP header analysis is not yet supported: transport-sensitive header 'content-length'");
 });
