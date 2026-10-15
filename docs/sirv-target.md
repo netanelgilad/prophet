@@ -78,10 +78,14 @@ factory with a directory evaluates two regular-expression literals and appends
  response, and the inspected wire projection matches the pinned Node
  24.21.0 reference for GET /hello.txt (status 200, body "hello from
  sirv\n", content-type text/plain, content-length "16", last-modified
- from the pinned mtime). Stream delivery is an explicit embedding
- operation matching the model's scheduling convention; the 'open'/fd
- event, options and multi-chunk flows are declared gaps. Range and
- header-carrying requests, HEAD/404 dispatch, the remaining
+ from the pinned mtime). HEAD /hello.txt completes with the same
+ headers and an empty body, and GET /missing falls through isNotFound
+ to is404's comma sequence and completes with status 404 and an empty
+ body - both matching the pinned reference through the bounded sequence
+ (comma) expression resolver (P026). Stream delivery is an explicit
+ embedding operation matching the model's scheduling convention; the
+ 'open'/fd event, options and multi-chunk flows are declared gaps.
+ Range and header-carrying requests, the remaining
  transport-sensitive exclusions, constructor-prototype descriptors
  (for-in inherited keys),
  DeleteExpression (for-in deletion visits), remaining deferred String

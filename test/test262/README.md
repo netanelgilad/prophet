@@ -58,18 +58,18 @@ and `String`. Local NaN and reference-identity specs cover supported values;
 they do not count as passing these complete upstream cases. Their sources are
 not reduced to the currently supported assertions.
 
-Fourteen complete `built-ins/String/prototype/slice` files add 28 variants:
-`S15.5.4.13_A1_T4/T7/T8/T10/T11/T13/T14`, `A3_T1/T2/T3`, `A6`, `A7`,
+Fifteen complete `built-ins/String/prototype/slice` files add 30 variants:
+`S15.5.4.13_A1_T4/T7/T8/T10/T11/T13/T14`, `A3_T1/T2/T3/T4`, `A6`, `A7`,
 `A11`, and `this-value-not-obj-coercible`. The numeric-hint conversions, their
 ordered effects/throws, generic receivers and constructor/nullish failures run
 through shared VM semantics. The [symbolic string specs](../symbolic-strings.spec.ts)
 add unrestricted-string length/boundary proofs and mandatory unknowns.
 
-All 35 files in the pinned slice directory were inspected. The other 21 remain
+All 35 files in the pinned slice directory were inspected. The other 20 remain
 inactive: `A1_T1/T2/T6/T9/T12` and `A2_T1` through `A2_T9` need Boolean/String/Object
 primitive wrappers; `A1_T5` additionally needs omitted-argument Function
 construction and function source conversion; `A1_T15` needs modeled Number
-prototype lookup for primitive receivers; `A3_T4` needs sequence expressions;
+prototype lookup for primitive receivers;
 `A8` needs propertyIsEnumerable and for-in; `A9` needs delete/descriptors;
 `A10` and `name.js` need propertyHelper and descriptor semantics. No complete
 file was reduced to only its currently supported assertions. Slice metadata
@@ -341,7 +341,7 @@ environments (`scope-body-lex-boundary`). Six complete parse-negative files
 (twelve variants: `A7_T1/A8_T1`, `decl-let/decl-const`, `break/A1_T1`,
 `continue/A1_T1`) pin the malformed-head and stray-jump parser boundaries the
 loop driver relies on. Each runs in both language variants. Files needing
-labels, while/do-while/for-in/of, switch, sequence expressions, compound
+labels, while/do-while/for-in/of, switch, compound
 assignment, wrapper construction, completion values or harness includes stay
 inactive rather than trimmed. See [loop boundaries](../../docs/for-statement.md)
 for iteration budgets, jump composition and the remaining loop candidates.

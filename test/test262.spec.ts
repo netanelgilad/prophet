@@ -279,6 +279,7 @@ const activeCorpus = [
   "built-ins/String/prototype/slice/S15.5.4.13_A3_T1.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A3_T2.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A3_T3.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A3_T4.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A6.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A11.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A7.js",
@@ -314,8 +315,8 @@ const activeCorpus = [
 
   // Whole ordinary instanceof cases: operand evaluation/throws, constructor
   // identity and prototype chains, primitive left operands and invalid RHS.
-  // A2.4_T3's RHS comma expression is unreachable after its reference error;
-  // this does not claim general SequenceExpression support.
+  // A2.4_T3's RHS comma expression is unreachable after its reference error.
+  // Bounded sequence expressions are covered separately (P026).
   "language/expressions/instanceof/S11.8.6_A1.js",
   "language/expressions/instanceof/S11.8.6_A2.1_T1.js",
   "language/expressions/instanceof/S11.8.6_A2.1_T2.js",

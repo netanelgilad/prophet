@@ -479,6 +479,15 @@ export const ArrowFunctionExpressionResolver: ASTResolver<ESTree.ArrowFunctionEx
 export const ExpressionStatementResolver: ASTResolver<ESTree.ExpressionStatement> = (ast, context) =>
   bindNormal(evaluate(ast.expression, context), (_value, after) => tuple(Undefined, after));
 
+// The comma operator evaluates every operand left to right, discards each
+// value except the last, and completes with the last operand's value.
+export const SequenceExpressionResolver: ASTResolver<ESTree.SequenceExpression> = (ast, context) => {
+  const visit = (index: number, current: TExecutionContext): BranchResult =>
+    bindNormal(evaluate(ast.expressions[index], current), (value, after) =>
+      index === ast.expressions.length - 1 ? tuple(value, after) : visit(index + 1, after));
+  return visit(0, context);
+};
+
 export const VariableDeclarationResolver: ASTResolver<ESTree.VariableDeclaration> = (ast, context) => {
   const declare = (index: number, current: TExecutionContext): BranchResult => {
     let after = current;
@@ -626,5 +635,6 @@ export const ASTResolvers = new Map<string, ASTResolver<any>>([
   ["ThrowStatement", ThrowStatementResolver], ["DoWhileStatement", DoWhileStatementResolver],
   ["ForStatement", ForStatementResolver], ["ForInStatement", ForInStatementResolver], ["BreakStatement", BreakStatementResolver],
   ["ContinueStatement", ContinueStatementResolver],
-  ["UpdateExpression", UpdateExpressionResolver], ["UnaryExpression", UnaryExpressionResolver]
+  ["UpdateExpression", UpdateExpressionResolver], ["UnaryExpression", UnaryExpressionResolver],
+  ["SequenceExpression", SequenceExpressionResolver]
 ]);

@@ -105,4 +105,43 @@ test("a delivered GET request runs the unchanged sirv handler through @polka/url
   expect(wireHeaders["content-type"]).toMatchObject({ value: "text/plain" });
   expect(wireHeaders["content-length"]).toMatchObject({ value: "16" });
   expect(wireHeaders["last-modified"]).toMatchObject({ value: "Fri, 03 Oct 2025 14:00:00 GMT" });
+
+  // Pinned Node 24.21.0 answers HEAD /hello.txt with status 200, an empty
+  // body, and the same content-length, content-type and last-modified
+  // headers as the GET (the sirv-target pinned reference). send() still
+  // opens the read stream for the HEAD; the delivered bytes leave the
+  // response body empty.
+  const headDelivered = http.deliverRequest(server, { method: ESString("HEAD"), url: ESString("/hello.txt") }, ready);
+  expect(isThrownValue(headDelivered.result[0])).toBe(false);
+  expect(isForkedCompletion(headDelivered.result[0])).toBe(false);
+  expect(filesystem.createdReadStreams.length).toBe(2);
+  const headAfterStream = filesystem.deliverReadStream(filesystem.createdReadStreams[1], headDelivered.result[1]);
+  expect(isThrownValue(headAfterStream[0])).toBe(false);
+  const headComplete = http.completeResponse(headDelivered.response, headAfterStream[1]);
+  expect(isThrownValue(headComplete[0])).toBe(false);
+  const headWire = http.inspectResponse(headDelivered.response, headComplete[1]);
+  expect(headWire.statusCode).toMatchObject({ value: 200 });
+  expect(headWire.body).toMatchObject({ value: "" });
+  const headWireHeaders = getProperties(headWire.headers as TESObject, headComplete[1]);
+  expect(Object.keys(headWireHeaders).sort()).toEqual(["content-length", "content-type", "last-modified"]);
+  expect(headWireHeaders["content-type"]).toMatchObject({ value: "text/plain" });
+  expect(headWireHeaders["content-length"]).toMatchObject({ value: "16" });
+  expect(headWireHeaders["last-modified"]).toMatchObject({ value: "Fri, 03 Oct 2025 14:00:00 GMT" });
+
+  // Pinned Node 24.21.0 answers GET /missing with status 404 and an empty
+  // body (the sirv-target pinned reference). viaCache finds no FILES record,
+  // the handler falls to isNotFound, and is404's comma sequence
+  // (res.statusCode = 404, res.end()) completes through the modeled
+  // SequenceExpression resolver; no read stream is opened.
+  const missingDelivered = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/missing") }, ready);
+  expect(isThrownValue(missingDelivered.result[0])).toBe(false);
+  expect(isForkedCompletion(missingDelivered.result[0])).toBe(false);
+  expect(filesystem.createdReadStreams.length).toBe(2);
+  const missingComplete = http.completeResponse(missingDelivered.response, missingDelivered.result[1]);
+  expect(isThrownValue(missingComplete[0])).toBe(false);
+  const missingWire = http.inspectResponse(missingDelivered.response, missingComplete[1]);
+  expect(missingWire.statusCode).toMatchObject({ value: 404 });
+  expect(missingWire.body).toMatchObject({ value: "" });
+  const missingWireHeaders = getProperties(missingWire.headers as TESObject, missingComplete[1]);
+  expect(Object.keys(missingWireHeaders)).toEqual([]);
 });

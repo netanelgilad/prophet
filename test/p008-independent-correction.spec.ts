@@ -142,10 +142,15 @@ test("unknown extra trim metadata now stops conservatively after RHS effects",()
   expect(paths.find(p=>p[0]===Undefined)[1].value.scope.trace).toMatchObject({value:'sibling'});
 });
 
-test("reviewer sequence-expression false alarm stops before RHS effects",()=>{
+test("sequence-expression RHS effects now run before the trim metadata boundary",()=>{
+  // P026 models bounded sequence expressions, so the comma sequence evaluates
+  // its RHS assignment; the conservative stop moved to the unmodeled
+  // String.trim extra-property write, after the RHS effects.
   const [completion,after]=run('let trace="";String.prototype.trim.extra=(trace="rhs",17);');
-  expect(completion).toMatchObject({type:'ExecutionBoundary',kind:'unsupported',message:"Can't resolve type of ast type SequenceExpression"});
-  expect(after.value.scope.trace).toMatchObject({value:''});
+  const paths=leaves(completion,after);
+  const stopped=paths.find(p=>p[0].type==='ExecutionBoundary');expect(stopped).toBeDefined();
+  expect(stopped[0]).toMatchObject({kind:'unsupported',message:"Unmodeled host property 'extra': String.trim metadata"});
+  expect(stopped[1].value.scope.trace).toMatchObject({value:'rhs'});
 });
 
 test("conditional receiver and converted key preserve closed-object absence",()=>{

@@ -50,7 +50,8 @@ Semantic traps, each with pinned Node 24.21.0 evidence behind it:
   unknown.
 
 Limits: ordinary `for` only; while/do-while/for-in/of, labels, switch,
-sequence expressions, compound assignment and completion values remain gaps.
+compound assignment and completion values remain gaps. Bounded sequence
+expressions are supported (P026).
 Array/rest head patterns stop explicitly. Per-path budgets (1024 body
 entries) and the shared visit cap (checked between walks at >= 8192 visits,
 counting re-walks past finished leaves as well as phase steps; one walk may
