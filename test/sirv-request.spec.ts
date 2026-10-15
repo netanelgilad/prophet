@@ -8,7 +8,7 @@ import { createLegacyURLModel } from "../src/node/url";
 import { createOpaqueBuiltinModule } from "../src/node/opaque";
 import { ESObject } from "../src/Object";
 import { ESString } from "../src/string/String";
-import { isExecutionBoundary } from "../src/execution-context/Completion";
+import { } from "../src/execution-context/Completion";
 import { isThrownValue } from "../src/types";
 
 function collectFiles(base: string, parent: string, into: Record<string, string>, prefix: string) {
@@ -75,10 +75,12 @@ test("a delivered GET request runs the unchanged sirv handler through @polka/url
   // uri.charCodeAt(len) answers 116 (the final "t"), the candidate list
   // builds, viaCache's cache[arr[i]] finds the completed FILES record for
   // "/hello.txt", and the handler reaches send(). The object spread of the
-  // file headers completes; the measured stop is send's for-in enumeration
-  // over those headers (build.js:66), the unmodeled ForInStatement.
-  const delivered = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready);
-  expect(isExecutionBoundary(delivered.result[0])).toBe(true);
-  expect(delivered.result[0]).toMatchObject({ kind: "unsupported",
-    message: "Can't resolve type of ast type ForInStatement" });
+  // file headers completes, and send's
+  // for-in enumeration over them visits nothing (the raw dispatch carries
+  // no own header names). The measured stop is the response header read
+  // res.getHeader (build.js:67), an unmodeled member of the Node HTTP
+  // response API; the response object is not boundary-marked, so the stop
+  // is a legacy host error asserted through toThrow.
+  expect(() => http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready))
+    .toThrow("Unmodeled host property 'getHeader': Node HTTP response API");
 });

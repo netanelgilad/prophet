@@ -48,3 +48,4 @@ until review is recorded; a model-generated article is not independent evidence.
 - [Bounded generic UTF-16 String.prototype.indexOf](string-indexof.md): forward scan, NaN-as-+0 positions, shared budgets; delivered sirv GET completes @polka/url parse; independent review pending.
 - [Bounded ordinary-array call spread](call-spread.md): proven intrinsic iteration, holes as undefined, conditional operand splits; sirv extns.push spread completes; independent review pending.
 - [Bounded String.prototype.charCodeAt](string-charcodeat.md): ToIntegerOrInfinity positions, single-unit reads, no scan budget; viaCache lookup completes on the delivered sirv GET; independent review pending.
+- [Bounded for-in enumeration](for-in.md): snapshot keys, native mutation semantics, per-iteration cells; send header loop completes on the delivered sirv GET; independent review pending.

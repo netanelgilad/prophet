@@ -61,16 +61,20 @@ factory with a directory evaluates two regular-expression literals and appends
  control), skipping the disabled gzip/brotli negotiation; bounded
  ordinary-array call spread then completes extns.push(...extensions), toAssume's
  trailing-slash probe uri.charCodeAt(len) answers 116 through bounded
- charCodeAt, the candidate list builds, and viaCache's cache[arr[i]] finds
- the completed FILES record; the handler reaches send(), where the object
- spread of the file headers completes and the measured stop is send's
- for-in enumeration over those headers (build.js:66). Modeling
- ForInStatement enumeration, the response getHeader/setHeader/writeHead
- surface consumed by send, fs streams, header-carrying requests, remaining
- deferred String APIs, rest parameters, the implicit arguments object,
- full Unicode casing/normalization, other bitwise operations, other
- Stats/Date metadata, bound-function name metadata and array-literal
- spread remain work.
+ charCodeAt, the candidate list builds, viaCache's cache[arr[i]] finds
+ the completed FILES record, and the handler reaches send(), where the
+ object spread of the file headers completes and send's for-in
+ enumeration over them visits nothing (the raw dispatch carries no own
+ header names). The measured stop is the response header read
+ res.getHeader (build.js:67), an unmodeled member of the Node HTTP
+ response API surfaced as a legacy host error. Modeling the response
+ getHeader/setHeader/writeHead surface, fs streams, header-carrying
+ requests, constructor-prototype descriptors (for-in inherited keys),
+ DeleteExpression (for-in deletion visits), remaining deferred String
+ APIs, rest parameters, the implicit arguments object, full Unicode
+ casing/normalization, other bitwise operations, other Stats/Date
+ metadata, bound-function name metadata and array-literal spread remain
+ work.
  The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity

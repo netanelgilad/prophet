@@ -39,6 +39,7 @@ import { initializeBindingPattern } from "./Function/binding-patterns";
 import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
 import { evalFn, evaluateEval } from "./eval/eval";
 import { evaluateForStatement } from "./loops/for";
+import { evaluateForInStatement } from "./loops/for-in";
 import { isExecutionBoundary, isForkedCompletion } from "./execution-context/Completion";
 import { prototypeOf, withoutPrototypeSetter } from "./Object/prototype";
 import { copyDataProperties } from "./Object/enumeration";
@@ -140,7 +141,7 @@ export function propertyName(key: Any): string {
 
 // A reference is VM bookkeeping, not a JavaScript value. Consume it within
 // each normal continuation rather than joining references with selectValue.
-function withMemberReference(
+export function withMemberReference(
   ast: ESTree.MemberExpression, context: TExecutionContext,
   continuation: (object: Any, name: string, context: TExecutionContext) => BranchResult,
   symbolicRead?: (object: Any, index: TESNumber, context: TExecutionContext) => BranchResult
@@ -342,7 +343,7 @@ export const AssignmentExpressionResolver: ASTResolver<ESTree.AssignmentExpressi
   return bindNormal(evaluate(ast.right, context), (value, after) => assignBinding(after, name, value, reference));
 };
 
-function assignMember(object: Any, name: string, assigned: Any, context: TExecutionContext): BranchResult {
+export function assignMember(object: Any, name: string, assigned: Any, context: TExecutionContext): BranchResult {
   const choice = choiceOf(object);
   if (choice) return evaluateBranches(choice.condition, context,
     branch => assignMember(choice.consequent, name, assigned, branch),
@@ -577,6 +578,9 @@ export const ContinueStatementResolver: ASTResolver<ESTree.ContinueStatement> = 
 export const ForStatementResolver: ASTResolver<ESTree.ForStatement> = (ast, context) =>
   evaluateForStatement(ast, context);
 
+export const ForInStatementResolver: ASTResolver<ESTree.ForInStatement> = (ast, context) =>
+  evaluateForInStatement(ast, context);
+
 export const UpdateExpressionResolver: ASTResolver<ESTree.UpdateExpression> = (ast, context) => {
   if (ast.argument.type !== "Identifier") return unimplemented();
   const name = ast.argument.name;
@@ -620,7 +624,7 @@ export const ASTResolvers = new Map<string, ASTResolver<any>>([
   ["BlockStatement", BlockStatementResolver], ["NewExpression", NewExpressionResolver],
   ["LogicalExpression", LogicalExpressionResolver], ["TryStatement", TryStatementResolver],
   ["ThrowStatement", ThrowStatementResolver], ["DoWhileStatement", DoWhileStatementResolver],
-  ["ForStatement", ForStatementResolver], ["BreakStatement", BreakStatementResolver],
+  ["ForStatement", ForStatementResolver], ["ForInStatement", ForInStatementResolver], ["BreakStatement", BreakStatementResolver],
   ["ContinueStatement", ContinueStatementResolver],
   ["UpdateExpression", UpdateExpressionResolver], ["UnaryExpression", UnaryExpressionResolver]
 ]);

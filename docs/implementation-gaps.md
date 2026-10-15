@@ -1475,10 +1475,17 @@ gap group closes.
   indexOf nullish TypeError message read "lastIndexOf"; it now matches the
   pinned native "String.prototype.indexOf called on null or undefined" and
   the spec asserts the message text.
-- LANG-001: the measured stop on the delivered sirv GET is send's for-in
-  enumeration (build.js:66): ForInStatement remains unmodeled (inherited
-  enumeration, deletion-during-iteration and key ordering semantics open).
-- HTTP-008/REPORT-001: viaCache's cache[arr[i]] now finds the completed
-  FILES record on a delivered GET /hello.txt and the handler reaches
-  send(); the response getHeader/setHeader/writeHead surface and fs
-  streams remain open. No response or success claim.
+- LANG-001: ordinary for-in enumeration is modeled (P022): snapshot keys
+  own-before-inherited with native mutation semantics (additions unseen,
+  deletions skipped, reveals and re-additions visited) and per-iteration
+  let/const cells. Chains through unmodeled prototype objects (VM
+  constructor prototypes, ownPropertyModel "unmodeled") stop with the
+  legacy enumeration error; deletion-driven visits await DeleteExpression;
+  labeled jumps, destructuring heads and completion values remain open.
+- HTTP-008/REPORT-001: viaCache's cache[arr[i]] finds the completed FILES
+  record on a delivered GET /hello.txt, send's for-in over the file
+  headers completes (no own names on the raw dispatch), and the measured
+  stop is the response header read res.getHeader (build.js:67), a legacy
+  host error on the unmarked response object. The response
+  getHeader/setHeader/writeHead surface and fs streams remain open. No
+  response or success claim.
