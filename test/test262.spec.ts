@@ -563,7 +563,14 @@ const activeCorpus = [
   "language/statements/try/S12.14_A7_T2.js",
   "language/statements/try/S12.14_A13_T1.js",
   "language/statements/try/S12.14_A13_T2.js",
-  "language/statements/try/S12.14_A13_T3.js"
+  "language/statements/try/S12.14_A13_T3.js",
+
+  // P032: whole unmodified concrete String.prototype.split cases: an empty
+  // receiver with an omitted separator yields the whole string, and an
+  // empty receiver splitting on an absent separator keeps its single
+  // empty element.
+  "built-ins/String/prototype/split/S15.5.4.14_A1_T4.js",
+  "built-ins/String/prototype/split/S15.5.4.14_A2_T19.js"
 ];
 
 describe("Test262 active corpus", () => {

@@ -21,9 +21,13 @@ export const split: FunctionImplementation<
     if (args.length > 1 && !(args[1] === undefined)) {
       throw new UnsupportedAnalysisError("String.split limit arguments are not yet supported");
     }
+    // Spec 22.1.3.20: an absent (undefined) separator yields the whole
+    // string as the single element; the ES2015+ TS lib typings reject
+    // split(undefined), so the absent case is spelled out directly.
+    const pieces = separator === undefined ? [self.value]
+      : self.value.split((separator as TESString).value as string);
     return tuple(
-      Array(self.value.split(separator === undefined ? undefined : (separator as TESString).value as string)
-        .map(string => ESString(string)), "elements"),
+      Array(pieces.map((part: string) => ESString(part)), "elements"),
       execContext
     );
   }

@@ -55,9 +55,15 @@ from {start: 0} (now supported) to {encoding: "utf8"}; sirv-target.md and
 LEGACY-002 reworded.
 
 Validation (sandbox, Node 24.21.0, PROPHET_NODE_BINARY pinned): full suite
-and typecheck on the shipped tree (totals in the ledger);
+green on the shipped tree (totals in the ledger);
 fs-readstream-range, string-split, node-fs-readstream and sirv-request
-suites green individually.
+suites green individually. Amended 2026-10-15: the typecheck claim above
+was wrong - the shipped tree carried two latent TypeScript errors in
+src/string/split.ts (an implicit-any arrow parameter and a
+split(undefined) call the ES2015+ lib typings reject), because the suite
+runner's SUITE_DONE line is unconditional and was misread as a clean
+typecheck. Runtime semantics were always correct (all specs green); P032
+fixes the types and hardens the validation to grep for "error TS".
 
 ## Frontier after P030
 
