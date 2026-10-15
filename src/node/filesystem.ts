@@ -7,11 +7,15 @@ import { ExecutionContext, TExecutionContext } from "../execution-context/Execut
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { markUnsupportedBoundaryObject, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { getArrayElements, getProperties, ownPropertyPresence, writeProperty } from "../execution-context/Heap";
-import { ESObject, TESObject } from "../Object";
+import { ESObject, isESObject, TESObject } from "../Object";
+import { invoke, readMember } from "../ASTResolvers";
+import { bindNormal } from "../evaluate";
+import { createEventEmitterModel } from "./events";
 import { getObjectPrototype, hasProperty } from "../Object/prototype";
 import { ESString } from "../string/String";
 import { choiceOf, resolveBoolean } from "../symbolic";
-import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isUndefined, isFunction, TESBoolean, ThrownValue, Undefined } from "../types";
+import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isThrownValue, isUndefined, isFunction, TESBoolean, ThrownValue, Undefined } from "../types";
+import { isESFunction } from "../Function/Function";
 import { createBufferValue } from "./buffer";
 import { boundedDate, validateDateMilliseconds } from "../date/Date";
 
@@ -455,6 +459,154 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
           }), exhausted => [systemError("EMFILE", "open", path), exhausted]);
       });
     }));
-  return { module, state, inspectRoot: (context: TExecutionContext) => getProperties(state, context).root,
+  // fs.ReadStream delivery is an explicit embedding operation, matching the
+  // http.completeResponse convention: Node delivers stream events
+  // asynchronously while guest code continues, so the embedding picks the
+  // delivery point instead of the model pretending pipe() reads synchronously.
+  const streamEvents = createEventEmitterModel();
+  const streamEventsPolicy = {
+    restrictedEvents: ["data", "end", "close"],
+    // 'open' carries a file descriptor number; descriptor identity is not
+    // modeled, so registration fails honestly instead of delivering a fake fd.
+    unsupportedRegistrations: ["open", "ready", "readable", "pause", "resume"]
+  };
+  type ReadStreamFacts = { path: string; node?: TESObject; error?: LookupFailure | "EISDIR" | "EMFILE" };
+  const readStreamFacts = new WeakMap<object, ReadStreamFacts>();
+  const createdReadStreams: TESObject[] = [];
+  const readStreamOf = (receiver: Any): { facts: ReadStreamFacts; state: TESObject } => {
+    if (!isESObject(receiver) || !readStreamFacts.has(receiver)) {
+      return unsupported("fs ReadStream operations on foreign receivers");
+    }
+    return { facts: readStreamFacts.get(receiver)!, state: receiver.hostSlots!["node.fs.stream"] as TESObject };
+  };
+  const pipe = Object.assign(createHostFunction("fs.createReadStream.pipe", (call, context) => {
+    readStreamOf(call.receiver);
+    return evaluateBranches(getProperties(readStreamOf(call.receiver).state, context).delivered as TESBoolean, context,
+      () => unsupported("fs pipe after stream delivery"),
+      pending => withValue(call.args[0] || Undefined, pending, (dest, branch) => {
+        if (!isESObject(dest)) return unsupported("fs pipe to non-object destinations");
+        if (!isUndefined(call.args[1] || Undefined)) return unsupported("fs pipe options");
+        return bindNormal(readMember(dest, "on", branch), (onMember, afterOn) => {
+          // Pinned Node 24.21.0: pipe requires the destination's 'on' method
+          // and throws synchronously when it is absent.
+          if (!isESFunction(onMember)) {
+            const error = createError("TypeError", ESString("dest.on is not a function"));
+            Object.assign(error, { unmodeledPropertyReads: ["stack", "constructor"],
+              unmodeledPropertyWrites: ["stack", "constructor"],
+              unmodeledOwnPropertyInspection: "Node error descriptors" });
+            return [ThrownValue(error), afterOn];
+          }
+          // Node also registers dest.on("unpipe") and emits 'pipe' on the
+          // destination; response destinations gate both surfaces honestly
+          // (unsupportedRegistrations), so pipe models only data/end wiring.
+          const onData = createHostFunction("fs.pipe.data", (dataCall, dataContext) =>
+            bindNormal(readMember(dest, "write", dataContext), (writeMember, afterWrite) =>
+              invoke(writeMember, [dataCall.args[0] || Undefined], afterWrite, dest)));
+          const onEnd = createHostFunction("fs.pipe.end", (_endCall, endContext) =>
+            bindNormal(readMember(dest, "end", endContext), (endMember, afterEnd) =>
+              invoke(endMember, [], afterEnd, dest)));
+          return bindNormal(streamEvents.register(call.receiver, "data", onData, false, afterOn), (_data, withData) =>
+            bindNormal(streamEvents.register(call.receiver, "end", onEnd, false, withData), (_end, registered) =>
+              [dest, registered]));
+        });
+      }));
+  }), {
+    nonConstructible: false,
+    unmodeledConstruct: "fs pipe construction is not yet supported",
+    unknownProperties: "Node fs pipe function API",
+    modeledInheritedProperties: ["call"],
+    unmodeledOwnPropertyInspection: "Node fs pipe function descriptors",
+    unmodeledPropertyReads: ["caller", "arguments"],
+    unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
+  });
+  Object.assign(pipe.properties, { name: ESString("pipe"), length: ESNumber(1) });
+  module.properties.createReadStream = operation("createReadStream", 2, (call, context) =>
+    withValue(call.args[1] || Undefined, context, (option, afterOption) => {
+      // Node accepts undefined or an options object. Range slicing, encodings,
+      // flags, fds and the remaining fields are separate gaps; consult the
+      // known option names, including inherited fields, before path work.
+      if (!isUndefined(option)) {
+        if (!isESObject(option)) return unsupported("fs createReadStream non-object options");
+        for (const name of ["start", "end", "flags", "encoding", "fd", "mode", "autoClose", "emitClose", "highWaterMark"]) {
+          if (resolveBoolean(hasProperty(option, name, afterOption), afterOption.value.knowledge) !== false) {
+            return unsupported(`fs createReadStream option '${name}'`);
+          }
+        }
+      }
+      return withPath(call.args[0] || Undefined, afterOption, (path, afterPath) => {
+        if (path.includes("\0")) return [nullByteError(), afterPath];
+        const streamState = ESObject({ delivered: ESBoolean(false) });
+        const stream = Object.assign(ESObject({ bytesRead: ESNumber(0), closed: ESBoolean(false),
+          path: ESString(path), pipe }), {
+          unknownProperties: "Node fs ReadStream API",
+          unmodeledOwnPropertyInspection: "Node fs ReadStream descriptors",
+          unmodeledPropertyWrites: ["bytesRead", "closed", "path"],
+          hostSlots: Object.freeze({ "node.fs.stream": streamState })
+        });
+        readStreamFacts.set(stream, { path });
+        createdReadStreams.push(stream);
+        const attached = streamEvents.attach(stream, afterPath, streamEventsPolicy);
+        return evaluateBranches(getProperties(state, attached).fileDescriptorsAvailable as TESBoolean, attached,
+          available => lookup(path, available, (result, after) => {
+            if ("error" in result) {
+              readStreamFacts.set(stream, { path, error: result.error });
+              return [stream, after];
+            }
+            return evaluateBranches(access.get(result.node)!.readable, after, readable => {
+              if (entries.get(result.node) === "directory") {
+                readStreamFacts.set(stream, { path, error: "EISDIR" });
+                return [stream, readable];
+              }
+              readStreamFacts.set(stream, { path, node: result.node });
+              return [stream, readable];
+            }, denied => {
+              readStreamFacts.set(stream, { path, error: "EACCES" });
+              return [stream, denied];
+            });
+          }), exhausted => {
+            readStreamFacts.set(stream, { path, error: "EMFILE" });
+            return [stream, exhausted];
+          });
+      });
+    }));
+  const deliverReadStream = (stream: Any, context: TExecutionContext): BranchResult => {
+    const { facts, state: streamState } = readStreamOf(stream);
+    return evaluateBranches(getProperties(streamState, context).delivered as TESBoolean, context,
+      () => unsupported("repeat fs ReadStream delivery"), pending => {
+        if (facts.error) {
+          // systemError wraps the error in a ThrownValue completion for fs
+          // call sites; the 'error' event payload is the bare error object.
+          const completion = systemError(facts.error, facts.error === "EISDIR" ? "read" : "open", facts.path);
+          const payload = isThrownValue(completion) ? completion.value : completion;
+          return bindNormal(streamEvents.emit(stream, "error", [payload], pending),
+            (_value, after) => [stream, after]);
+        }
+        // Contents are read at delivery, like the native asynchronous read.
+        let text = getProperties(facts.node!, pending).text;
+        let current = pending;
+        if (isESString(text) && typeof text.value !== "string") {
+          if (!observeContents) return unsupported("unobserved file contents");
+          const contents = observeContents(facts.node!);
+          if (typeof contents !== "string" || utf8(contents) !== contents) return unsupported("invalid captured UTF-8 contents");
+          text = ESString(contents);
+          current = writeProperty(facts.node!, "text", text, current);
+        }
+        if (!isESString(text) || typeof text.value !== "string") return unsupported("invalid file text state");
+        const bytes = Array.from(Buffer.from(text.value, "utf8"));
+        // Pinned Node 24.21.0: the default 64 KiB highWaterMark reads files up
+        // to that size as one chunk; larger multi-chunk flows are a recorded
+        // gap, as is the async 'open' event (descriptor identity is unmodeled).
+        if (bytes.length > 65536) return unsupported("multi-chunk fs ReadStream delivery (files over 64 KiB)");
+        const delivering = writeProperty(streamState, "delivered", ESBoolean(true), current);
+        return bindNormal(streamEvents.emit(stream, "data", [createBufferValue(bytes)], delivering), (_data, afterData) =>
+          bindNormal(streamEvents.emit(stream, "end", [], afterData), (_end, afterEnd) =>
+            bindNormal(streamEvents.emit(stream, "close", [], afterEnd), (_close, afterClose) => {
+              const counted = writeProperty(stream as TESObject, "bytesRead", ESNumber(bytes.length), afterClose);
+              return [stream, writeProperty(stream as TESObject, "closed", ESBoolean(true), counted)];
+            })));
+      });
+  };
+  return { module, state, deliverReadStream, createdReadStreams,
+    inspectRoot: (context: TExecutionContext) => getProperties(state, context).root,
     inspectFileDescriptorsAvailable: (context: TExecutionContext) => getProperties(state, context).fileDescriptorsAvailable as TESBoolean };
 }

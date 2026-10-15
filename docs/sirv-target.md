@@ -71,11 +71,19 @@ factory with a directory evaluates two regular-expression literals and appends
  (content-length is an ordinary explicit serialized field: pinned Node
  24.21.0 stores and would send the application's value verbatim and
  enforces no body-length coupling without a socket transport, which the
- projection excludes). The measured stop is fs.createReadStream(file,
- opts).pipe(res) (build.js:95), an unmodeled member of the Node
- filesystem API surfaced as a legacy host error. Modeling fs streams and
- pipe, the remaining transport-sensitive exclusions, header-carrying
- requests, constructor-prototype descriptors (for-in inherited keys),
+ projection excludes). send's
+ fs.createReadStream(file, opts).pipe(res) (build.js:95) completes
+ through the modeled fs.ReadStream: pipe wires data and end to res.write
+ and res.end, the embedding delivers the file bytes and completes the
+ response, and the inspected wire projection matches the pinned Node
+ 24.21.0 reference for GET /hello.txt (status 200, body "hello from
+ sirv\n", content-type text/plain, content-length "16", last-modified
+ from the pinned mtime). Stream delivery is an explicit embedding
+ operation matching the model's scheduling convention; the 'open'/fd
+ event, options and multi-chunk flows are declared gaps. Range and
+ header-carrying requests, HEAD/404 dispatch, the remaining
+ transport-sensitive exclusions, constructor-prototype descriptors
+ (for-in inherited keys),
  DeleteExpression (for-in deletion visits), remaining deferred String
  APIs, rest parameters, the implicit arguments object, full Unicode
  casing/normalization, other bitwise operations, other Stats/Date

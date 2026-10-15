@@ -1487,7 +1487,12 @@ gap group closes.
   writeHead and enforces no body-length coupling without a socket, the
   transport layer the projection excludes; the other six
   transport-sensitive exclusions keep their automatic-behavior coupling.
-  On the delivered GET, writeHead(code, headers) now completes and the
-  measured stop is fs.createReadStream(file, opts).pipe(res)
-  (build.js:95), a legacy host error on the unmodeled filesystem member.
-  fs streams and pipe remain open. No response or success claim.
+  fs.ReadStream and pipe are modeled with explicit embedding-driven
+  delivery (P025): single-chunk files, pinned error-event and TypeError
+  behavior, declared gaps for 'open'/fd identity, options and multi-chunk
+  flows. On the delivered GET /hello.txt the unchanged sirv handler now
+  completes end to end and the wire projection matches the pinned Node
+  24.21.0 reference (status 200, body "hello from sirv\n", content-type
+  text/plain, content-length "16", last-modified from the pinned mtime).
+  Header-carrying requests, range requests, 404/HEAD dispatch and the
+  remaining exclusions remain open.

@@ -285,7 +285,14 @@ the temporary descriptor; an EACCES/EMFILE open failure creates no descriptor.
 An EISDIR result still assumes successful allocation/cleanup on that read path.
 Stats guards keep unmodeled metadata observations outside the proof domain.
 
-Other APIs, asynchronous/promises/stream operations, writes, Buffer/typed-array
+fs.createReadStream returns a modeled EventEmitter with explicit
+embedding-driven delivery (deliverReadStream emits data/end/close
+synchronously inside the operation; files up to the pinned 64 KiB
+highWaterMark arrive as one Buffer chunk, and pipe wires data/end to the
+destination's write/end and returns it). The 'open' event and descriptor
+identity, stream options, multi-chunk flows, pause/resume/destroy and
+repeat delivery reject analysis. Other APIs, asynchronous/promises and
+remaining stream operations, writes, Buffer/typed-array
 or URL path arguments, file descriptors, richer encodings and options remain
 gaps. Non-string path diagnostics, including existsSync's DEP0187 warning,
 reject analysis. Partial Stats is not full mode/Date/BigInt/metadata behavior.

@@ -28,6 +28,6 @@ projection excludes. The other six transport-sensitive exclusions keep
 their automatic-behavior coupling.
 
 The unchanged consumer advances: sirv's send() getHeader probes answer
-undefined and writeHead completes; the measured stop is
-fs.createReadStream(file, opts).pipe(res) (build.js:95). Heap gained a
-host-side removeProperty for removeHeader.
+undefined and writeHead completes; P025 then models
+fs.createReadStream/pipe and the delivered GET completes end to end.
+Heap gained a host-side removeProperty for removeHeader.

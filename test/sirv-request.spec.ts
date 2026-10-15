@@ -6,10 +6,11 @@ import { ExecutionContext, setVariablesInScope } from "../src/execution-context/
 import { createProcessModel } from "../src/node/process";
 import { createLegacyURLModel } from "../src/node/url";
 import { createOpaqueBuiltinModule } from "../src/node/opaque";
-import { ESObject } from "../src/Object";
+import { ESObject, TESObject } from "../src/Object";
 import { ESString } from "../src/string/String";
 import { } from "../src/execution-context/Completion";
 import { isThrownValue } from "../src/types";
+import { getProperties } from "../src/execution-context/Heap";
 
 function collectFiles(base: string, parent: string, into: Record<string, string>, prefix: string) {
   for (const name of readdirSync(join(base, parent))) {
@@ -80,11 +81,28 @@ test("a delivered GET request runs the unchanged sirv handler through @polka/url
   // no own header names). send's getHeader probes answer undefined (no
   // headers stored), the range branch is skipped, and res.writeHead(code,
   // headers) serializes the FILES record's Content-Type and Content-Length
-  // fields. writeHead(code, headers) serializes them (content-length is an
-  // ordinary explicit field, pinned verbatim), and the measured stop is
-  // fs.createReadStream(file, opts).pipe(res) (build.js:95), an unmodeled
-  // member of the Node filesystem API surfaced as a legacy host error
-  // asserted through toThrow.
-  expect(() => http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready))
-    .toThrow("Unmodeled host property 'createReadStream': Node filesystem API");
+  // fields (content-length is an ordinary explicit field, pinned verbatim).
+  // send's fs.createReadStream(file, opts).pipe(res) (build.js:95) now
+  // completes: the stream is a modeled EventEmitter, pipe wires its data and
+  // end events to res.write and res.end, and the embedding delivers the file
+  // bytes and completes the response. Pinned Node 24.21.0 answers GET
+  // /hello.txt with status 200, body "hello from sirv\n", content-type
+  // text/plain, content-length "16" and the pinned mtime as last-modified
+  // (the sirv-target pinned reference).
+  const delivered = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready);
+  expect(isThrownValue(delivered.result[0])).toBe(false);
+  expect(isForkedCompletion(delivered.result[0])).toBe(false);
+  expect(filesystem.createdReadStreams.length).toBe(1);
+  const afterStream = filesystem.deliverReadStream(filesystem.createdReadStreams[0], delivered.result[1]);
+  expect(isThrownValue(afterStream[0])).toBe(false);
+  const afterComplete = http.completeResponse(delivered.response, afterStream[1]);
+  expect(isThrownValue(afterComplete[0])).toBe(false);
+  const wire = http.inspectResponse(delivered.response, afterComplete[1]);
+  expect(wire.statusCode).toMatchObject({ value: 200 });
+  expect(wire.body).toMatchObject({ value: "hello from sirv\n" });
+  const wireHeaders = getProperties(wire.headers as TESObject, afterComplete[1]);
+  expect(Object.keys(wireHeaders).sort()).toEqual(["content-length", "content-type", "last-modified"]);
+  expect(wireHeaders["content-type"]).toMatchObject({ value: "text/plain" });
+  expect(wireHeaders["content-length"]).toMatchObject({ value: "16" });
+  expect(wireHeaders["last-modified"]).toMatchObject({ value: "Fri, 03 Oct 2025 14:00:00 GMT" });
 });
