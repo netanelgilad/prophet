@@ -570,7 +570,32 @@ const activeCorpus = [
   // empty receiver splitting on an absent separator keeps its single
   // empty element.
   "built-ins/String/prototype/split/S15.5.4.14_A1_T4.js",
-  "built-ins/String/prototype/split/S15.5.4.14_A2_T19.js"
+  "built-ins/String/prototype/split/S15.5.4.14_A2_T19.js",
+
+  // P033: whole unmodified concrete String.prototype.includes cases: found
+  // and missing searches with and without positions, out-of-bounds and
+  // coerced positions, empty search strings, abrupt conversions of this,
+  // search string and position, nullish receiver TypeErrors and the
+  // length-1 metadata property. RegExp identity checks, Symbol-keyed
+  // matching and harness property-helper files stay inactive.
+  "built-ins/String/prototype/includes/String.prototype.includes_FailBadLocation.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_FailLocation.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_FailMissingLetter.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_Success.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_SuccessNoLocation.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_lengthProp.js",
+  "built-ins/String/prototype/includes/coerced-values-of-position.js",
+  "built-ins/String/prototype/includes/return-abrupt-from-position.js",
+  "built-ins/String/prototype/includes/return-abrupt-from-searchstring.js",
+  "built-ins/String/prototype/includes/return-abrupt-from-this.js",
+  "built-ins/String/prototype/includes/return-false-with-out-of-bounds-position.js",
+  "built-ins/String/prototype/includes/return-true-if-searchstring-is-empty.js",
+  "built-ins/String/prototype/includes/searchstring-found-with-position.js",
+  "built-ins/String/prototype/includes/searchstring-found-without-position.js",
+  "built-ins/String/prototype/includes/searchstring-not-found-with-position.js",
+  "built-ins/String/prototype/includes/searchstring-not-found-without-position.js",
+  "built-ins/String/prototype/includes/this-is-null-throws.js",
+  "built-ins/String/prototype/includes/this-is-undefined-throws.js"
 ];
 
 describe("Test262 active corpus", () => {

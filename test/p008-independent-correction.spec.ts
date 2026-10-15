@@ -29,7 +29,7 @@ function leaves(value:any,context?:any):any[] {
 
 test("native-discovered prototype own names guard every unmodeled read and own presence",()=>{
   const names:string[]=native('process.stdout.write(JSON.stringify(Object.getOwnPropertyNames(String.prototype).sort()));');
-  const supported=["length","constructor","concat","slice","toString","trim","toLowerCase","charCodeAt","indexOf","lastIndexOf","normalize","replace","substring","valueOf"];
+  const supported=["length","constructor","concat","slice","toString","trim","toLowerCase","charCodeAt","includes","indexOf","lastIndexOf","normalize","replace","substring","valueOf"];
   expect(names).toHaveLength(52);
   // P009 supersedes only lowercase's old deferred checkpoint. Keep the native
   // name discovery and every residual guard; assert its actual supported result.
@@ -50,6 +50,8 @@ test("native-discovered prototype own names guard every unmodeled read and own p
   expect(nativeAnswer(coded)).toBe(true);const [codedDone,codedState]=run(coded);expect(codedDone).toBe(Undefined);expect(codedState.value.scope.answer).toMatchObject({value:true});
   const slice='const answer=typeof String.prototype.substring === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"substring") && "abcdef".substring(4,2) === "cd";';
   expect(nativeAnswer(slice)).toBe(true);const [sliced,sliceState]=run(slice);expect(sliced).toBe(Undefined);expect(sliceState.value.scope.answer).toMatchObject({value:true});
+  const included='const answer=typeof String.prototype.includes === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"includes") && "hello.txt".includes("llo") === true && "hello.txt".includes("he",1) === false;';
+  expect(nativeAnswer(included)).toBe(true);const [incl,inclState]=run(included);expect(incl).toBe(Undefined);expect(inclState.value.scope.answer).toMatchObject({value:true});
   for(const name of names.filter(n=>!supported.includes(n))) {
     for(const expression of ['String.prototype['+JSON.stringify(name)+']','Object.prototype.hasOwnProperty.call(String.prototype,'+JSON.stringify(name)+')']) {
       const [completion,after]=run('let trace="prefix";const answer='+expression+';trace="wrong";');

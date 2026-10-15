@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **363 complete files / 717 strictness variants**,
+The active corpus contains **381 complete files / 753 strictness variants**,
 including 25 parse-negative files / 49 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,

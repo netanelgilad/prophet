@@ -155,7 +155,7 @@ for(const hook of [Undefined,ESNull,ESNumber(1)]) test(`own/inherited hook absen
     else expect(done).toMatchObject({type:"ExecutionBoundary",kind:"unsupported"});
   }
 });
-for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.lastIndexOf.caller','String.prototype.lastIndexOf.arguments','String.prototype.lastIndexOf.name="x"','String.prototype.lastIndexOf.length=2','Object.keys(String.prototype.lastIndexOf)','({...String.prototype.lastIndexOf})','"x".includes','"x".charAt']) test(`residual metadata/deferred ${expression}`,()=>{
+for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.lastIndexOf.caller','String.prototype.lastIndexOf.arguments','String.prototype.lastIndexOf.name="x"','String.prototype.lastIndexOf.length=2','Object.keys(String.prototype.lastIndexOf)','({...String.prototype.lastIndexOf})','"x".endsWith','"x".charAt']) test(`residual metadata/deferred ${expression}`,()=>{
   const result=run(`let trace="";if(selected){trace="prefix";const n=(${expression});trace="wrong";}else trace="sibling";`,{selected:ESBoolean()});
   const all=leaves(result);expect(all.find(([v])=>v.type==="ExecutionBoundary")[1].value.scope.trace).toMatchObject({value:"prefix"});expect(all.find(([v])=>v===Undefined)[1].value.scope.trace).toMatchObject({value:"sibling"});
 });

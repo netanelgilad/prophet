@@ -143,7 +143,7 @@ for(const where of ["receiver","search","position"])test("independent symbol gua
  }
  expect(native('const x=Object.create({[Symbol.toPrimitive](h){return h==="number"?2:"aba";}});process.stdout.write(JSON.stringify(String.prototype.lastIndexOf.call(input==="receiver"?x:"ababa",input==="search"?x:"a",input==="position"?x:2)));',where)).toBe(2);
 });
-for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.lastIndexOf.hasOwnProperty','String.prototype.lastIndexOf.caller','String.prototype.lastIndexOf.arguments','String.prototype.lastIndexOf.length=2','String.prototype.lastIndexOf.name="new"','Object.keys(String.prototype.lastIndexOf)','({...String.prototype.lastIndexOf})','"a".includes','"a".charAt'])test("independent conservative metadata "+expression,()=>{
+for(const expression of ['String.prototype.lastIndexOf.bind','String.prototype.lastIndexOf.hasOwnProperty','String.prototype.lastIndexOf.caller','String.prototype.lastIndexOf.arguments','String.prototype.lastIndexOf.length=2','String.prototype.lastIndexOf.name="new"','Object.keys(String.prototype.lastIndexOf)','({...String.prototype.lastIndexOf})','"a".endsWith','"a".charAt'])test("independent conservative metadata "+expression,()=>{
  const all=leaves(run(`let mark=0;if(a){mark=1;const n=(${expression});mark=2;}else mark=3;`,{a:ESBoolean()}));
  expect(all).toHaveLength(2);expect(all.find(([v])=>v.type==="ExecutionBoundary")[1].value.scope.mark).toMatchObject({value:1});expect(all.find(([v])=>v===Undefined)[1].value.scope.mark).toMatchObject({value:3});
 });

@@ -86,7 +86,7 @@ even when a human could prove more about it.
   slots and partial-host symbol lookups rather than silently taking an ordinary
   conversion path. The internal symbol key does not implement public Symbol APIs.
   Slice's `name`/`length` values are modeled; descriptor mutation is guarded.
-- `startsWith`, `endsWith`, `includes`, replacement/regex operations and general
+- `startsWith`, `endsWith`, replacement/regex operations and general
   character indexing remain future work. Arbitrary string equations, repeated
   opaque-slice identities, constraints inferred from equality, arbitrary slice
   composition and general length algebra remain precision gaps. Mixed string /
