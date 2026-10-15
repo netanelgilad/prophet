@@ -294,11 +294,18 @@ never a fallback for Prophet execution or for the Test262 corpus.
 Forty-five complete object declaration binding files (90 variants) now cover
 `var`, `let` and `const` renaming, undefined defaults/skipped defaults, nested
 objects, trailing commas and computed-key/default/nullish abrupt completions.
-The runner evaluates the full pinned `harness/sta.js` in a fresh interpreted
+Seventy-eight complete array declaration binding files (156 variants) join
+them: ordered element binding over ordinary array literals, source and
+pattern holes, defaults and skipped defaults, nested array/object patterns,
+nullish TypeErrors, and parse-negative rest-initializer and rest-not-final
+forms. Custom iterables, generators, rest elements and function-name metadata
+stay inactive rather than trimmed. The runner evaluates the full pinned
+`harness/sta.js` in a fresh interpreted
 context, preserving Test262Error constructor identity before installing the
 existing assertion adapters. It never executes that harness or tests natively.
-See [binding boundaries](../../docs/object-bindings.md) for remaining array/rest,
-parameter, getter-construction, function-name and primitive-boxing candidates.
+See [binding boundaries](../../docs/object-bindings.md) for remaining
+iterator/rest, parameter, getter-construction, function-name and
+primitive-boxing candidates.
 
 The RegExp literal increment adds one complete identity case and six complete
 parse-negative cases (14 variants). [RegExp boundaries](../../docs/regexp-literals.md)

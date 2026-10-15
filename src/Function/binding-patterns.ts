@@ -1,5 +1,5 @@
 import { ESTree } from "cherow";
-import { Any, Undefined, isUndefined, isESNull, ThrownValue } from "../types";
+import { Any, Undefined, isUndefined, isESNull, ThrownValue, isArray, isESString } from "../types";
 import { createError } from "../error/Error";
 import { ESString } from "../string/String";
 import { bindNormal, evaluate } from "../evaluate";
@@ -24,7 +24,16 @@ export function boundNames(pattern: ESTree.Pattern): string[] {
     }
     return names;
   }
-  throw new Error("Array and rest binding patterns are not yet supported");
+  if (pattern.type === "ArrayPattern") {
+    let names: string[] = [];
+    for (const element of pattern.elements) {
+      if (element === null) continue;
+      if (element.type === "RestElement") throw new Error("Array binding rest elements are not yet supported");
+      names = names.concat(boundNames(element));
+    }
+    return names;
+  }
+  throw new Error("Rest binding patterns are not yet supported");
 }
 
 /** BindingInitialization for declarations. Ordinary Get is shared with member
@@ -45,7 +54,42 @@ export function initializeBindingPattern(pattern: ESTree.Pattern, value: Any,
       isUndefined(selected) ? evaluate(pattern.right, branch) : [selected, branch],
       (supplied, after) => initializeBindingPattern(target, supplied, kind, after, resolved)));
   }
-  if (pattern.type !== "ObjectPattern") throw new Error("Array and rest binding patterns are not yet supported");
+  if (pattern.type === "ArrayPattern") {
+    return withValue(value, context, (source, branch) => {
+      // Pinned Node 24.21.0: array binding applies the iterator protocol, but
+      // for null/undefined, non-iterable plain objects and non-string
+      // primitives the protocol lookup itself throws a TypeError, even for an
+      // empty pattern. Ordinary arrays read indices 0..elements.length-1 in
+      // order through ordinary Get (a source hole binds undefined) and stop
+      // after the last pattern element. Assumption: the ordinary sources
+      // modeled here carry no Symbol.iterator override; strings and custom
+      // iterables take the real protocol and stay an explicit gap, as do
+      // accessor-driven index reads.
+      if (isArray(source)) {
+        const initializeElement = (index: number, current: TExecutionContext): BranchResult => {
+          if (index >= pattern.elements.length) return [Undefined, current];
+          const element = pattern.elements[index];
+          if (element === null) return initializeElement(index + 1, current);
+          if (element.type === "RestElement") throw new Error("Array binding rest elements are not yet supported");
+          const target = element.type === "AssignmentPattern" ? element.left : element;
+          // Mirror KeyedBindingInitialization: a var target's reference is
+          // resolved before the read or any default initializer runs.
+          const resolved = kind === "var" && target.type === "Identifier"
+            ? bindingReference(current, target.name) : undefined;
+          return bindNormal(readMember(source, String(index), current), (item, afterRead) =>
+            bindNormal(initializeBindingPattern(element, item, kind, afterRead, resolved),
+              (_value, afterBinding) => initializeElement(index + 1, afterBinding)));
+        };
+        return initializeElement(0, branch);
+      }
+      if (isESString(source)) {
+        throw new Error("Array binding pattern sources must be ordinary arrays; the iterator protocol is not yet supported");
+      }
+      // Preserve the TypeError type without inventing a concrete message.
+      return [ThrownValue(createError("TypeError", ESString())), branch];
+    });
+  }
+  if (pattern.type !== "ObjectPattern") throw new Error("Rest binding patterns are not yet supported");
   return withValue(value, context, (source, branch) => {
     // RequireObjectCoercible applies even when there are no bindings.
     if (isUndefined(source) || isESNull(source)) {
