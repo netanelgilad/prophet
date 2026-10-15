@@ -1457,3 +1457,28 @@ group closes.
   typed boundaries; native non-iterable TypeErrors are not fabricated.
   Array-literal spread, rest parameters and the implicit arguments object
   remain gaps.
+
+## P021 reconciliation — bounded String.prototype.charCodeAt (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[charCodeAt specs](../test/string-charcodeat.spec.ts),
+[sirv request specs](../test/sirv-request.spec.ts) and the task record
+[P021](agent-tasks/P021-string-charcodeat/task.md) retain residuals; no
+gap group closes.
+
+- LIB-001/LIB-002: charCodeAt leaves the deferred registry in bounded
+  form: concrete receivers with ToIntegerOrInfinity positions (NaN as +0,
+  truncating fractions, infinities out of range) read one code unit with
+  no scan budget; symbolic operands, array/function/symbol conversions and
+  custom Symbol.toPrimitive hooks stay typed boundaries. The pinned
+  52-name inventory is fourteen modeled/38 deferred. Correction: P019's
+  indexOf nullish TypeError message read "lastIndexOf"; it now matches the
+  pinned native "String.prototype.indexOf called on null or undefined" and
+  the spec asserts the message text.
+- LANG-001: the measured stop on the delivered sirv GET is send's for-in
+  enumeration (build.js:66): ForInStatement remains unmodeled (inherited
+  enumeration, deletion-during-iteration and key ordering semantics open).
+- HTTP-008/REPORT-001: viaCache's cache[arr[i]] now finds the completed
+  FILES record on a delivered GET /hello.txt and the handler reaches
+  send(); the response getHeader/setHeader/writeHead surface and fs
+  streams remain open. No response or success claim.

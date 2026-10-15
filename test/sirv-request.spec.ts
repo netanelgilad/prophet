@@ -71,11 +71,14 @@ test("a delivered GET request runs the unchanged sirv handler through @polka/url
   // builtin is never invoked), reads accept-encoding as undefined through
   // ordinary lookup, skips the disabled gzip/brotli negotiation, and spreads
   // the concrete default extensions into extns.push through bounded
-  // ordinary-array call spread. The measured stop moves into sirv's
-  // toAssume: the trailing-slash probe uri.charCodeAt(len) (build.js:17) is
-  // the first still-deferred String API the request path reaches.
+  // ordinary-array call spread. toAssume's trailing-slash probe
+  // uri.charCodeAt(len) answers 116 (the final "t"), the candidate list
+  // builds, viaCache's cache[arr[i]] finds the completed FILES record for
+  // "/hello.txt", and the handler reaches send(). The object spread of the
+  // file headers completes; the measured stop is send's for-in enumeration
+  // over those headers (build.js:66), the unmodeled ForInStatement.
   const delivered = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready);
   expect(isExecutionBoundary(delivered.result[0])).toBe(true);
   expect(delivered.result[0]).toMatchObject({ kind: "unsupported",
-    message: "String.prototype.charCodeAt is not yet supported" });
+    message: "Can't resolve type of ast type ForInStatement" });
 });

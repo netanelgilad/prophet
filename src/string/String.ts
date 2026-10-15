@@ -23,6 +23,7 @@ import { stringSlice } from "./slice";
 import { stringTrim } from "./trim";
 import { stringToLowerCase } from "./toLowerCase";
 import { stringLastIndexOf } from "./lastIndexOf";
+import { stringCharCodeAt } from "./charCodeAt";
 import { stringIndexOf } from "./indexOf";
 import { stringSubstring } from "./substring";
 import { stringNormalize } from "./normalize";
@@ -46,7 +47,7 @@ var stringPrototype: TESObject | undefined;
 // legacy own implementations; borrowing those methods from the prototype is not
 // modeled. Other absent string-keyed names still use ordinary prototype lookup.
 const deferredPrototypeNames = ["anchor", "at", "big", "blink", "bold", "charAt",
-  "charCodeAt", "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed",
+  "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed",
   "includes", "isWellFormed", "italics", "link",
   "localeCompare", "match", "matchAll", "padEnd", "padStart",
   "repeat", "replaceAll", "search", "small", "split", "strike",
@@ -72,6 +73,14 @@ export function getStringPrototype(): TESObject {
       ...ESBuiltinFunction(stringToLowerCase),
       properties: { length: ESNumber(0), name: ESString("toLowerCase") },
       unknownProperties: "String.toLowerCase metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.charCodeAt = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringCharCodeAt),
+      properties: { length: ESNumber(1), name: ESString("charCodeAt") },
+      unknownProperties: "String.charCodeAt metadata",
       modeledInheritedProperties: ["call", "prototype"],
       unmodeledPropertyReads: ["caller", "arguments"],
       unmodeledPropertyWrites: ["length", "name"]

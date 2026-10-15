@@ -10,7 +10,6 @@ import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getProperties, writeProperty } from "../execution-context/Heap";
 import { isESFunction } from "../Function/Function";
 import { ESObject } from "../Object";
-import { hasProperty } from "../Object/prototype";
 import { ESString, getStringPrototype } from "../string/String";
 import { resolveBoolean, strictEquality } from "../symbolic";
 import { Any, ESNull, ESNumber, TESBoolean, ThrownValue, Undefined } from "../types";
@@ -98,22 +97,24 @@ export function createLegacyURLModel(warnings = createWarningModel()) {
     });
   const parseString = (input: unknown, host: boolean, context: TExecutionContext): BranchResult => {
     if (typeof input !== "string") return unsupported("open symbolic URL string");
-    // These methods are dynamic in Node's JS implementation. charCodeAt is
-    // still absent from the VM; slice now exists and must retain its intrinsic
-    // identity. Never ignore an interpreted replacement's effects.
-    if (resolveBoolean(hasProperty(getStringPrototype(), "charCodeAt", context), context.value.knowledge) !== false) {
-      return unsupported("modified String.prototype.charCodeAt");
-    }
-    return bindNormal(readMember(getStringPrototype(), "slice", context), (slice, afterRead) => {
-      if (resolveBoolean(strictEquality(slice, getStringPrototype().properties.slice), afterRead.value.knowledge) !== true) {
-        return unsupported("modified String.prototype.slice");
+    // These methods are dynamic in Node's JS implementation. charCodeAt and
+    // slice now exist and must retain their intrinsic identities. Never
+    // ignore an interpreted replacement's effects.
+    return bindNormal(readMember(getStringPrototype(), "charCodeAt", context), (charCodeAt, afterCharCode) => {
+      if (resolveBoolean(strictEquality(charCodeAt, getStringPrototype().properties.charCodeAt), afterCharCode.value.knowledge) !== true) {
+        return unsupported("modified String.prototype.charCodeAt");
       }
+      return bindNormal(readMember(getStringPrototype(), "slice", afterCharCode), (slice, afterRead) => {
+        if (resolveBoolean(strictEquality(slice, getStringPrototype().properties.slice), afterRead.value.knowledge) !== true) {
+          return unsupported("modified String.prototype.slice");
+        }
       const fields = parsePath(input, host);
       const properties: { [name: string]: Any } = {};
       fieldNames.forEach(name => { properties[name] = fields[name] === null ? ESNull : ESString(fields[name]!); });
       const result = Object.assign(ESObject(properties), { prototype });
       instances.add(result);
       return [result, afterRead];
+      });
     });
   };
   const parse = Object.assign(createHostFunction("url.parse", (call, context) =>

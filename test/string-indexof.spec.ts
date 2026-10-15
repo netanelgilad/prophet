@@ -73,7 +73,7 @@ const programs = [
   `let trace=""; function arg(label,x){trace=trace+label;return x;} const r={toString(){trace=trace+"r";return "abcabc";}};
     const s={toString(){trace=trace+"s";return "bc";}};const p={valueOf(){trace=trace+"p";return 3;}};
     const n=String.prototype.indexOf.call(r,arg("a",s),arg("b",p),arg("x",0));module.exports=n===4 && trace==="abxrsp";`,
-  `let trace="";let caught;const s={toString(){trace="wrong";return "a";}};try{String.prototype.indexOf.call(null,s,{valueOf(){throw "wrong";}});}catch(e){caught=e instanceof TypeError;}module.exports=caught && trace==="";`,
+  `let trace="";let caught;const s={toString(){trace="wrong";return "a";}};try{String.prototype.indexOf.call(null,s,{valueOf(){throw "wrong";}});}catch(e){caught=e instanceof TypeError && e.message==="String.prototype.indexOf called on null or undefined";}module.exports=caught && trace==="";`,
   `let trace="";let caught;function extra(){trace="arg";throw "extra";}try{String.prototype.indexOf.call(null,"a",0,extra());}catch(e){caught=e;}module.exports=trace==="arg" && caught==="extra";`,
   `let trace="";let caught;try{String.prototype.indexOf.call({toString(){trace="r";throw "R";}},{toString(){trace="wrong";}},{valueOf(){trace="wrong";}});}catch(e){caught=e;}module.exports=trace==="r" && caught==="R";`,
   `let trace="";let caught;try{String.prototype.indexOf.call({toString(){trace="r";return "a";}},{toString(){trace=trace+"s";throw "S";}},{valueOf(){trace="wrong";}});}catch(e){caught=e;}module.exports=trace==="rs" && caught==="S";`,

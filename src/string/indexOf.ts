@@ -36,7 +36,7 @@ function convert(input: Any, context: TExecutionContext, numeric: boolean): Bran
 export const stringIndexOf: FunctionImplementation = function*(self, args, context) {
   return withValue(self, context, (receiver, branch) => {
     if (isESNull(receiver) || isUndefined(receiver)) return [ThrownValue(createError(
-      "TypeError", ESString("String.prototype.lastIndexOf called on null or undefined"))), branch];
+      "TypeError", ESString("String.prototype.indexOf called on null or undefined"))), branch];
     // Do not inspect converted values yet: even an open string or an oversized
     // operand must allow later conversions to mutate, fork or throw first.
     return bindNormal(convert(receiver, branch, false), (string, afterReceiver) =>
