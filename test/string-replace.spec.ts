@@ -51,11 +51,11 @@ test("nullish receivers are guest TypeErrors, matching native", () => {
   expect(result.context.value.scope.answer).toMatchObject({ value: "TypeError" });
 });
 
-test("matches, string patterns, other flags and symbolic inputs stop as typed boundaries", () => {
+test("matches, non-string searches, other flags and symbolic inputs stop as typed boundaries", () => {
   const cases: Array<[string, string]> = [
     ['"aa".replace(/a+/, "b")', "String.replace matched substitutions are not yet supported"],
     ['"aa".replace(/a+/g, "b")', "String.replace matched substitutions are not yet supported"],
-    ['"abc".replace("b", "x")', "String.replace non-RegExp search values are not yet supported"],
+    ['"a1c".replace(1, "-")', "String.replace non-string search values are not yet supported"],
     ['"ABC".replace(/z/i, "x")', "String.replace regexp flags other than g are not yet supported"]
   ];
   for (const [code, message] of cases) {
@@ -83,4 +83,68 @@ test("a conditional no-match replace completes on both symbolic branches and pre
     expect(checkDone).toBe(Undefined);
     expect(checked.value.scope.answer).toMatchObject({ value: true });
   }
+});
+
+
+// P028: concrete string search values replace the first occurrence, with the
+// bounded GetSubstitution forms ($$, $&, $`, $'); $n/$< stay literal with no
+// capture groups. Function replacements and non-string search/replacement
+// conversions stay out.
+describe("string search values", () => {
+  function compare(expression: string) {
+    const expected = native(expression);
+    const { value, context } = run("const result = " + expression + ";");
+    expect(isThrownValue(value)).toBe(false);
+    expect(isForkedCompletion(value)).toBe(false);
+    expect(context.value.scope.result).toMatchObject({ value: expected });
+  }
+
+  test("replaces only the first occurrence", () => {
+    compare(String.raw`"aaa".replace("a", "b")`);
+    compare(String.raw`"abcabc".replace("bc", "-")`);
+  });
+
+  test("a missing search value is the identity", () => {
+    compare(String.raw`"abc".replace("x", "y")`);
+  });
+
+  test("an empty search value inserts at position zero", () => {
+    compare(String.raw`"abc".replace("", "-")`);
+    compare(String.raw`"".replace("", "-")`);
+  });
+
+  test("search values are literal, not patterns", () => {
+    compare(String.raw`"a.c".replace(".", "-")`);
+    compare(String.raw`"a*c".replace("*", "-")`);
+  });
+
+  test("matched, prefix, suffix and dollar substitutions", () => {
+    compare(String.raw`"abc".replace("b", "[$&]")`);
+    compare(String.raw`"abc".replace("b", "[$\u0060]")`);
+    compare(String.raw`"abc".replace("b", "[$']")`);
+    compare(String.raw`"abc".replace("b", "$$")`);
+    compare(String.raw`"abc".replace("b", "$$[$&]$$")`);
+  });
+
+  test("capture substitutions stay literal without groups", () => {
+    compare(String.raw`"abc".replace("b", "$1x")`);
+    compare(String.raw`"abc".replace("b", "$<n>")`);
+    compare(String.raw`"abc".replace("b", "x$")`);
+  });
+
+  test("substitutions apply at the match position", () => {
+    compare(String.raw`"aXbXc".replace("Xb", "[$\u0060|$&|$']")`);
+  });
+
+  test("function replacements remain an explicit gap", () => {
+    const { value } = run(String.raw`"abc".replace("b", function () { return "x"; });`);
+    expect(value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+      message: "String.replace function replacements are not yet supported" });
+  });
+
+  test("non-string replacement values remain an explicit gap", () => {
+    const { value } = run(String.raw`"abc".replace("b", 7)`);
+    expect(value).toMatchObject({ type: "ExecutionBoundary", kind: "unsupported",
+      message: "String.replace non-string replacement values are not yet supported" });
+  });
 });

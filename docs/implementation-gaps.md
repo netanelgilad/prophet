@@ -1373,10 +1373,12 @@ closes.
 
 - LIB-001/LIB-002: replace alone leaves the deferred registry. Only
   intrinsic-layout flagless/g RegExp search values with no match are modeled
-  (identity; the replacement is never observed). Ordered match positions,
-  replacement observation, string patterns, custom exec/Symbol.replace
-  dispatch, other flags, non-RegExp search values and exotic receiver
-  conversion stay typed boundaries. The pinned 52-name inventory is twelve
+  (identity; the replacement is never observed). Concrete string search and
+  replacement values replace the first literal occurrence through the bounded
+  GetSubstitution forms ($$, $&, $`, $'), with $n/$< literal (P028). Ordered
+  match positions, RegExp replacement observation, custom exec/Symbol.replace
+  dispatch, other flags, function replacements, non-string conversions and
+  exotic receiver conversion stay typed boundaries. The pinned 52-name inventory is twelve
   modeled/40 deferred.
 - LANG-006: Function.prototype.bind leaves the gap list in bounded form:
   concrete callable receivers capture thisArg/partial arguments into a fresh
