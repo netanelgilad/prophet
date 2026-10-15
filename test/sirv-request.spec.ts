@@ -144,4 +144,30 @@ test("a delivered GET request runs the unchanged sirv handler through @polka/url
   expect(missingWire.body).toMatchObject({ value: "" });
   const missingWireHeaders = getProperties(missingWire.headers as TESObject, missingComplete[1]);
   expect(Object.keys(missingWireHeaders)).toEqual([]);
+
+  // Pinned Node 24.21.0 answers GET /hello.txt with Range "bytes=2-5" with
+  // status 206, body "llo ", content-range "bytes 2-5/16", content-length
+  // "4" and accept-ranges "bytes" (host-pinned against the unchanged
+  // packages, 2026-10-15). send() parses the header through the modeled
+  // String.replace, array binding pattern and parseInt, and the range opens
+  // a third read stream whose {start,end} slice delivers the four bytes.
+  const rangeDelivered = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt"),
+    headers: { range: "bytes=2-5" } }, ready);
+  expect(isThrownValue(rangeDelivered.result[0])).toBe(false);
+  expect(isForkedCompletion(rangeDelivered.result[0])).toBe(false);
+  expect(filesystem.createdReadStreams.length).toBe(3);
+  const rangeAfterStream = filesystem.deliverReadStream(filesystem.createdReadStreams[2], rangeDelivered.result[1]);
+  expect(isThrownValue(rangeAfterStream[0])).toBe(false);
+  const rangeComplete = http.completeResponse(rangeDelivered.response, rangeAfterStream[1]);
+  expect(isThrownValue(rangeComplete[0])).toBe(false);
+  const rangeWire = http.inspectResponse(rangeDelivered.response, rangeComplete[1]);
+  expect(rangeWire.statusCode).toMatchObject({ value: 206 });
+  expect(rangeWire.body).toMatchObject({ value: "llo " });
+  const rangeWireHeaders = getProperties(rangeWire.headers as TESObject, rangeComplete[1]);
+  expect(Object.keys(rangeWireHeaders).sort()).toEqual(["accept-ranges", "content-length", "content-range", "content-type", "last-modified"]);
+  expect(rangeWireHeaders["content-range"]).toMatchObject({ value: "bytes 2-5/16" });
+  expect(rangeWireHeaders["content-length"]).toMatchObject({ value: "4" });
+  expect(rangeWireHeaders["accept-ranges"]).toMatchObject({ value: "bytes" });
+  expect(rangeWireHeaders["content-type"]).toMatchObject({ value: "text/plain" });
+  expect(rangeWireHeaders["last-modified"]).toMatchObject({ value: "Fri, 03 Oct 2025 14:00:00 GMT" });
 });

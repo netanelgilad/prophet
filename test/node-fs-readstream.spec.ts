@@ -119,8 +119,10 @@ test("option fields beyond an empty object are declared gaps, and repeat deliver
   const { model, exports, context } = setup("module.exports = require('node:fs');");
   const after = run(`exports.createReadStream("/app/hello.txt", {});`, context, { exports });
   expect(model.createdReadStreams.length).toBe(1);
-  expect(() => run(`exports.createReadStream("/app/hello.txt", { start: 0 });`, after, { exports }))
-    .toThrow("fs createReadStream option 'start'");
+  // P030: start/end are now supported range options; the remaining fields
+  // keep their declared-gap rejection.
+  expect(() => run(`exports.createReadStream("/app/hello.txt", { encoding: "utf8" });`, after, { exports }))
+    .toThrow("fs createReadStream option 'encoding'");
   const delivered = model.deliverReadStream(model.createdReadStreams[0], after);
   expect(() => model.deliverReadStream(model.createdReadStreams[0], delivered[1]))
     .toThrow("repeat fs ReadStream delivery");

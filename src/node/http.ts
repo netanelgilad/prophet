@@ -571,19 +571,22 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
     // inputs only on the arrival branch; method/url are independent strings.
     deliverRequest(call.receiver, { method: ESString(), url: ESString() }, context).result);
 
-  function deliverRequest(server: Any, input: { method: TESString; url: TESString }, context: TExecutionContext) {
+  function deliverRequest(server: Any, input: { method: TESString; url: TESString; headers?: Record<string, string> }, context: TExecutionContext) {
       if (!isESString(input.method) || !isESString(input.url)) unsupported("request method and URL must be strings");
       // A freshly delivered IncomingMessage has no cached parse: pinned Node
       // 24.21.0 reads req._parsedUrl as undefined on raw dispatch. Declaring
       // it absent lets @polka/url's parse probe fall through to its own
       // computation; the package's write-back then caches on the request.
-      // A delivered request carries no headers: pinned Node 24.21.0 answers an
-      // ordinary Object.prototype-linked object with no own names for a raw
-      // HTTP/1.0 dispatch carrying none. Ordinary lookup of absent keys
-      // (sirv's accept-encoding and range probes) yields undefined natively,
-      // so the headers object is deliberately NOT boundary-marked.
+      // A delivered request carries only declared headers: pinned Node
+      // 24.21.0 answers an ordinary Object.prototype-linked object whose own
+      // names are the lowercased dispatched headers (none for a raw dispatch
+      // carrying none). Ordinary lookup of absent keys (sirv's
+      // accept-encoding and range probes) yields undefined natively, so the
+      // headers object is deliberately NOT boundary-marked.
+      const headerProperties: Record<string, Any> = {};
+      for (const [name, value] of Object.entries(input.headers || {})) headerProperties[name] = ESString(value);
       const request = Object.assign(ESObject({ method: input.method, url: input.url, _parsedUrl: Undefined,
-        headers: ESObject({}) }), {
+        headers: ESObject(headerProperties) }), {
         unknownProperties: "Node HTTP incoming request API",
         unmodeledOwnPropertyInspection: "Node HTTP incoming request descriptors"
       });

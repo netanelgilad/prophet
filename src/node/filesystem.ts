@@ -14,7 +14,7 @@ import { createEventEmitterModel } from "./events";
 import { getObjectPrototype, hasProperty } from "../Object/prototype";
 import { ESString } from "../string/String";
 import { choiceOf, resolveBoolean } from "../symbolic";
-import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isThrownValue, isUndefined, isFunction, TESBoolean, ThrownValue, Undefined } from "../types";
+import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isThrownValue, isUndefined, isFunction, TESBoolean, ThrownValue, Undefined, isESNumber } from "../types";
 import { isESFunction } from "../Function/Function";
 import { createBufferValue } from "./buffer";
 import { boundedDate, validateDateMilliseconds } from "../date/Date";
@@ -127,6 +127,20 @@ function systemError(code: LookupFailure | "EISDIR" | "EMFILE", syscall: "stat" 
     syscall: ESString(syscall), ...(path === undefined ? {} : { path: ESString(path) }) });
   Object.assign(error, { unmodeledPropertyReads: ["stack", "constructor"],
     unmodeledPropertyWrites: ["stack", "constructor"], unmodeledOwnPropertyInspection: "Node filesystem error descriptors" });
+  return ThrownValue(error);
+}
+
+// Pinned Node 24.21.0: a negative, fractional or greater-than-end start/end
+// option throws a RangeError with code ERR_OUT_OF_RANGE synchronously at
+// createReadStream construction. The diagnostic wording is a separate
+// precision gap, so the type and code are preserved without an invented
+// message.
+function rangeOptionError(): Any {
+  const error = createError("RangeError", ESString());
+  error.properties.code = ESString("ERR_OUT_OF_RANGE");
+  Object.assign(error, { unmodeledPropertyReads: ["stack", "constructor", "toString"],
+    unmodeledPropertyWrites: ["stack", "constructor", "toString"],
+    unmodeledOwnPropertyInspection: "Node filesystem argument error descriptors" });
   return ThrownValue(error);
 }
 
@@ -470,7 +484,8 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
     // modeled, so registration fails honestly instead of delivering a fake fd.
     unsupportedRegistrations: ["open", "ready", "readable", "pause", "resume"]
   };
-  type ReadStreamFacts = { path: string; node?: TESObject; error?: LookupFailure | "EISDIR" | "EMFILE" };
+  type ReadStreamFacts = { path: string; node?: TESObject; error?: LookupFailure | "EISDIR" | "EMFILE";
+    start?: number; end?: number };
   const readStreamFacts = new WeakMap<object, ReadStreamFacts>();
   const createdReadStreams: TESObject[] = [];
   const readStreamOf = (receiver: Any): { facts: ReadStreamFacts; state: TESObject } => {
@@ -527,13 +542,35 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
       // known option names, including inherited fields, before path work.
       if (!isUndefined(option)) {
         if (!isESObject(option)) return unsupported("fs createReadStream non-object options");
-        for (const name of ["start", "end", "flags", "encoding", "fd", "mode", "autoClose", "emitClose", "highWaterMark"]) {
+        for (const name of ["flags", "encoding", "fd", "mode", "autoClose", "emitClose", "highWaterMark"]) {
           if (resolveBoolean(hasProperty(option, name, afterOption), afterOption.value.knowledge) !== false) {
             return unsupported(`fs createReadStream option '${name}'`);
           }
         }
       }
-      return withPath(call.args[0] || Undefined, afterOption, (path, afterPath) => {
+      // Bounded range options: undefined fields are absent; concrete safe
+      // integers >= 0 validate at construction like pinned Node; a
+      // greater-than-end pair throws there too. Non-number fields stay a
+      // typed boundary. Accessor-driven option reads remain unmodeled
+      // through the ordinary member read.
+      const readRangeField = (name: "start" | "end", current: TExecutionContext,
+        proceed: (selected: number | undefined, after: TExecutionContext) => BranchResult): BranchResult =>
+        isUndefined(option) ? proceed(undefined, current) :
+          bindNormal(readMember(option, name, current), (field, afterField) =>
+            withValue(field, afterField, (selected, branch) => {
+              if (isUndefined(selected)) return proceed(undefined, branch);
+              if (!isESNumber(selected) || typeof selected.value !== "number") {
+                return unsupported("fs createReadStream non-number range options are not yet supported");
+              }
+              if (!Number.isSafeInteger(selected.value) || selected.value < 0) return [rangeOptionError(), branch];
+              return proceed(selected.value, branch);
+            }));
+      return readRangeField("start", afterOption, (rangeStart, afterStart) =>
+        readRangeField("end", afterStart, (rangeEnd, afterEnd) => {
+        if (rangeStart !== undefined && rangeEnd !== undefined && rangeStart > rangeEnd) {
+          return [rangeOptionError(), afterEnd];
+        }
+      return withPath(call.args[0] || Undefined, afterEnd, (path, afterPath) => {
         if (path.includes("\0")) return [nullByteError(), afterPath];
         const streamState = ESObject({ delivered: ESBoolean(false) });
         const stream = Object.assign(ESObject({ bytesRead: ESNumber(0), closed: ESBoolean(false),
@@ -557,7 +594,7 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
                 readStreamFacts.set(stream, { path, error: "EISDIR" });
                 return [stream, readable];
               }
-              readStreamFacts.set(stream, { path, node: result.node });
+              readStreamFacts.set(stream, { path, node: result.node, start: rangeStart, end: rangeEnd });
               return [stream, readable];
             }, denied => {
               readStreamFacts.set(stream, { path, error: "EACCES" });
@@ -568,7 +605,8 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
             return [stream, exhausted];
           });
       });
-    }));
+        }));
+      }));
   const deliverReadStream = (stream: Any, context: TExecutionContext): BranchResult => {
     const { facts, state: streamState } = readStreamOf(stream);
     return evaluateBranches(getProperties(streamState, context).delivered as TESBoolean, context,
@@ -593,15 +631,24 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
         }
         if (!isESString(text) || typeof text.value !== "string") return unsupported("invalid file text state");
         const bytes = Array.from(Buffer.from(text.value, "utf8"));
-        // Pinned Node 24.21.0: the default 64 KiB highWaterMark reads files up
-        // to that size as one chunk; larger multi-chunk flows are a recorded
-        // gap, as is the async 'open' event (descriptor identity is unmodeled).
-        if (bytes.length > 65536) return unsupported("multi-chunk fs ReadStream delivery (files over 64 KiB)");
+        // Pinned Node 24.21.0: {start,end} slice the delivered bytes
+        // inclusively; an absent start is 0 and an absent or oversized end
+        // clamps to the last byte; start at or past the size delivers no
+        // data event, only end and close, with bytesRead 0. The default
+        // 64 KiB highWaterMark reads a slice up to that size as one chunk;
+        // larger multi-chunk flows are a recorded gap, as is the async
+        // 'open' event (descriptor identity is unmodeled).
+        const sliceStart = facts.start === undefined ? 0 : facts.start;
+        const sliceEnd = facts.end === undefined ? bytes.length - 1 : Math.min(facts.end, bytes.length - 1);
+        const slice = sliceStart > sliceEnd ? [] : bytes.slice(sliceStart, sliceEnd + 1);
+        if (slice.length > 65536) return unsupported("multi-chunk fs ReadStream delivery (reads over 64 KiB)");
         const delivering = writeProperty(streamState, "delivered", ESBoolean(true), current);
-        return bindNormal(streamEvents.emit(stream, "data", [createBufferValue(bytes)], delivering), (_data, afterData) =>
+        const deliverData = (ready: TExecutionContext): BranchResult => slice.length === 0 ? [Undefined, ready] :
+          streamEvents.emit(stream, "data", [createBufferValue(slice)], ready);
+        return bindNormal(deliverData(delivering), (_data, afterData) =>
           bindNormal(streamEvents.emit(stream, "end", [], afterData), (_end, afterEnd) =>
             bindNormal(streamEvents.emit(stream, "close", [], afterEnd), (_close, afterClose) => {
-              const counted = writeProperty(stream as TESObject, "bytesRead", ESNumber(bytes.length), afterClose);
+              const counted = writeProperty(stream as TESObject, "bytesRead", ESNumber(slice.length), afterClose);
               return [stream, writeProperty(stream as TESObject, "closed", ESBoolean(true), counted)];
             })));
       });

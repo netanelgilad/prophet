@@ -84,8 +84,12 @@ factory with a directory evaluates two regular-expression literals and appends
  body - both matching the pinned reference through the bounded sequence
  (comma) expression resolver (P026). Stream delivery is an explicit
  embedding operation matching the model's scheduling convention; the
- 'open'/fd event, options and multi-chunk flows are declared gaps.
- Range and header-carrying requests, the remaining
+ 'open'/fd event, option fields beyond bounded numeric start/end ranges
+ and multi-chunk flows are declared gaps. Header-carrying range requests
+ now complete: GET /hello.txt with bytes=2-5 answers 206, "llo ",
+ content-range bytes 2-5/16, content-length "4" and accept-ranges
+ bytes, matching the host-pinned reference (P030). Other
+ header-carrying requests, the remaining
  transport-sensitive exclusions, constructor-prototype descriptors
  (for-in inherited keys),
  DeleteExpression (for-in deletion visits), remaining deferred String

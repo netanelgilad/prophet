@@ -1,7 +1,7 @@
 import { ESBuiltinFunction } from "../Function/Function";
 import { markUnsupportedBoundaryObject, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
-import { Any, ESNumber, isESNumber, isESString, isUndefined, TESNumber, TESString, Undefined } from "../types";
+import { Any, ESNumber, isESNumber, isESString, isUndefined, TESNumber, Undefined } from "../types";
 import { ESString } from "../string/String";
 import { withValue } from "../conversion/toString";
 import { BranchResult } from "../execution-context/branches";
@@ -15,7 +15,8 @@ import { BranchResult } from "../execution-context/branches";
 export const parseIntGlobal = markUnsupportedBoundaryObject({
   ...ESBuiltinFunction(function*(_self: Any, args: Any[], context: TExecutionContext): Generator<never, BranchResult, never> {
     return withValue(args.length ? args[0] : Undefined, context, (input, afterInput) => {
-      if (!isESString(input) || typeof input.value !== "string") {
+      const text = isESString(input) ? input.value : Undefined;
+      if (typeof text !== "string") {
         throw new UnsupportedAnalysisError("parseInt non-string inputs are not yet supported");
       }
       return withValue(args.length > 1 ? args[1] : Undefined, afterInput, (radixValue, afterRadix) => {
@@ -23,7 +24,7 @@ export const parseIntGlobal = markUnsupportedBoundaryObject({
           throw new UnsupportedAnalysisError("parseInt non-number radices are not yet supported");
         }
         const radix = isUndefined(radixValue) ? undefined : (radixValue as TESNumber).value;
-        return [ESNumber(parseInt((input as TESString).value, radix)), afterRadix];
+        return [ESNumber(parseInt(text, radix)), afterRadix];
       });
     });
   }),
