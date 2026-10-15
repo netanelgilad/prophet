@@ -88,8 +88,13 @@ factory with a directory evaluates two regular-expression literals and appends
  and multi-chunk flows are declared gaps. Header-carrying range requests
  now complete: GET /hello.txt with bytes=2-5 answers 206, "llo ",
  content-range bytes 2-5/16, content-length "4" and accept-ranges
- bytes, matching the host-pinned reference (P030). Other
- header-carrying requests, the remaining
+ bytes, matching the host-pinned reference (P030). With { etag: true }
+ the unchanged handler emits the weak validator from the declared file
+ stats, and a matching if-none-match request answers 304 with an empty
+ body while a stale validator answers the full 200 - both matching the
+ host-pinned reference (P031). Other
+ header-carrying requests (accept-encoding negotiation, conditional
+ timestamps), the remaining
  transport-sensitive exclusions, constructor-prototype descriptors
  (for-in inherited keys),
  DeleteExpression (for-in deletion visits), remaining deferred String

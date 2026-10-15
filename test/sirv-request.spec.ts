@@ -171,3 +171,97 @@ test("a delivered GET request runs the unchanged sirv handler through @polka/url
   expect(rangeWireHeaders["content-type"]).toMatchObject({ value: "text/plain" });
   expect(rangeWireHeaders["last-modified"]).toMatchObject({ value: "Fri, 03 Oct 2025 14:00:00 GMT" });
 });
+
+test("sirv with etag answers if-none-match conditional requests", () => {
+  const http = createHTTPModel();
+  const consoleModel = createConsoleModel();
+  const environment = createProcessModel({ cwd: "/app" });
+  const path = createPosixPathModel({ process: environment.process });
+  const filesystem = createFileSystemModel({ root: fileSystemDirectory({
+    app: fileSystemDirectory({ site: fileSystemDirectory({ "hello.txt": fileSystemFile("hello from sirv\n", { mtimeMs: 1759500000000 }) }) })
+  }) });
+  const files: Record<string, string> = {};
+  const packs: Array<[string, string]> = [["sirv-3.0.2", "sirv"], ["mrmime-2.0.1", "mrmime"],
+      ["totalist-3.0.1", "totalist"], ["polka-url-1.0.0-next.29", "@polka/url"]];
+  for (const [fixture, name] of packs) {
+    collectFiles(join(__dirname, "fixtures", fixture, "package"), "", files, "/app/node_modules/" + name);
+  }
+  files["/app/entry.cjs"] = 'module.exports = require("sirv");';
+  const context = ExecutionContext({ ...nodeInitialExecutionContext.value,
+    global: ESObject({ ...nodeInitialExecutionContext.value.global.properties, console: consoleModel.module, process: environment.process }, "unmodeled") });
+  const url = createLegacyURLModel();
+  const loader = createCommonJSLoader(files, { builtins: {
+    http: http.module, events: http.eventsModule, fs: filesystem.module, path: path.module,
+    "path/posix": path.module, process: environment.process, url: url.module,
+    https: createOpaqueBuiltinModule("https"), querystring: createOpaqueBuiltinModule("querystring"),
+    stream: createOpaqueBuiltinModule("stream") } });
+  const [factory, loaded] = loader.load("/app/entry.cjs", context);
+  expect(isThrownValue(factory)).toBe(false);
+  // Pinned Node 24.21.0 with sirv { etag: true } (host-pinned against the
+  // unchanged packages, 2026-10-15): setup builds the FILES records through
+  // toHeaders, which answers the bounded Date instance's getTime() with the
+  // declared mtime and assembles the weak validator
+  // W/"16-1759500000000" from the declared size and mtime through the
+  // template literal's number conversions.
+  const [setupCompletion, started] = evaluateCode(
+    'const handler = factory("./site", { etag: true }); const server = http.createServer(handler); server.listen(0);',
+    setVariablesInScope(loaded, { factory, http: http.module }));
+  expect(isThrownValue(setupCompletion)).toBe(false);
+  expect(isForkedCompletion(setupCompletion)).toBe(false);
+  const server = started.value.scope.server;
+  const [, ready] = http.completeListen(server, started);
+
+  // A plain GET answers status 200, body "hello from sirv\n" and the etag
+  // header beside the cached content fields (host-pinned reference above).
+  const plain = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready);
+  expect(isThrownValue(plain.result[0])).toBe(false);
+  expect(isForkedCompletion(plain.result[0])).toBe(false);
+  expect(filesystem.createdReadStreams.length).toBe(1);
+  const plainAfterStream = filesystem.deliverReadStream(filesystem.createdReadStreams[0], plain.result[1]);
+  expect(isThrownValue(plainAfterStream[0])).toBe(false);
+  const plainComplete = http.completeResponse(plain.response, plainAfterStream[1]);
+  expect(isThrownValue(plainComplete[0])).toBe(false);
+  const plainWire = http.inspectResponse(plain.response, plainComplete[1]);
+  expect(plainWire.statusCode).toMatchObject({ value: 200 });
+  expect(plainWire.body).toMatchObject({ value: "hello from sirv\n" });
+  const plainHeaders = getProperties(plainWire.headers as TESObject, plainComplete[1]);
+  expect(Object.keys(plainHeaders).sort()).toEqual(["content-length", "content-type", "etag", "last-modified"]);
+  expect(plainHeaders["etag"]).toMatchObject({ value: 'W/"16-1759500000000"' });
+  expect(plainHeaders["content-type"]).toMatchObject({ value: "text/plain" });
+  expect(plainHeaders["content-length"]).toMatchObject({ value: "16" });
+  expect(plainHeaders["last-modified"]).toMatchObject({ value: "Fri, 03 Oct 2025 14:00:00 GMT" });
+
+  // A GET whose if-none-match equals the current validator answers status
+  // 304 with an empty body and no response headers (host-pinned reference
+  // above); the handler returns before opening a read stream.
+  const match = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt"),
+    headers: { "if-none-match": 'W/"16-1759500000000"' } }, ready);
+  expect(isThrownValue(match.result[0])).toBe(false);
+  expect(isForkedCompletion(match.result[0])).toBe(false);
+  expect(filesystem.createdReadStreams.length).toBe(1);
+  const matchComplete = http.completeResponse(match.response, match.result[1]);
+  expect(isThrownValue(matchComplete[0])).toBe(false);
+  const matchWire = http.inspectResponse(match.response, matchComplete[1]);
+  expect(matchWire.statusCode).toMatchObject({ value: 304 });
+  expect(matchWire.body).toMatchObject({ value: "" });
+  const matchHeaders = getProperties(matchWire.headers as TESObject, matchComplete[1]);
+  expect(Object.keys(matchHeaders)).toEqual([]);
+
+  // A GET whose if-none-match differs answers the full 200 response with
+  // the current validator again (host-pinned reference above).
+  const stale = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt"),
+    headers: { "if-none-match": 'W/"other-999"' } }, ready);
+  expect(isThrownValue(stale.result[0])).toBe(false);
+  expect(isForkedCompletion(stale.result[0])).toBe(false);
+  expect(filesystem.createdReadStreams.length).toBe(2);
+  const staleAfterStream = filesystem.deliverReadStream(filesystem.createdReadStreams[1], stale.result[1]);
+  expect(isThrownValue(staleAfterStream[0])).toBe(false);
+  const staleComplete = http.completeResponse(stale.response, staleAfterStream[1]);
+  expect(isThrownValue(staleComplete[0])).toBe(false);
+  const staleWire = http.inspectResponse(stale.response, staleComplete[1]);
+  expect(staleWire.statusCode).toMatchObject({ value: 200 });
+  expect(staleWire.body).toMatchObject({ value: "hello from sirv\n" });
+  const staleHeaders = getProperties(staleWire.headers as TESObject, staleComplete[1]);
+  expect(Object.keys(staleHeaders).sort()).toEqual(["content-length", "content-type", "etag", "last-modified"]);
+  expect(staleHeaders["etag"]).toMatchObject({ value: 'W/"16-1759500000000"' });
+});
