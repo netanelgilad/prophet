@@ -162,6 +162,67 @@ describe("response getHeader/setHeader surface", () => {
     expect(run_read(created.exports, created.context)).toMatchObject({ value: "ok" });
   });
 
+  test("content-length serializes as an ordinary explicit field through writeHead", () => {
+    pin(`res.writeHead(200, { "Content-Length": 15 });
+      const proof = true;`);
+    const { model, exports, response, context } = run(`
+      res.writeHead(200, { "Content-Length": 15 });
+      observed = "ok";
+    `);
+    expect(run_read(exports, context)).toMatchObject({ value: "ok" });
+    expect(getProperties(model.inspectResponse(response, context).headers as TESObject, context))
+      .toMatchObject({ "content-length": { value: "15" } });
+  });
+
+  test("content-length values pass verbatim with no writeHead-time validation", () => {
+    pin(`let accepted = 0;
+      for (const value of [-1, "abc", 2.5, 0]) {
+        const r = new (res.constructor)({ method: "GET" });
+        try { r.writeHead(200, { "Content-Length": value }); accepted = accepted + 1; } catch (e) {}
+      }
+      const proof = accepted === 4;`);
+    const { exports, context } = run(`
+      let accepted = 0;
+      try { res.writeHead(200, { "Content-Length": -1 }); accepted = accepted + 1; } catch (e) {}
+      if (accepted === 1) observed = "ok";
+    `);
+    expect(run_read(exports, context)).toMatchObject({ value: "ok" });
+  });
+
+  test("content-length flows through the setHeader store and the writeHead merge", () => {
+    pin(`res.setHeader("Content-Length", 5);
+      res.writeHead(200, {});
+      const proof = res.getHeader("content-length") === 5;`);
+    const { model, exports, response, context } = run(`
+      res.setHeader("Content-Length", 5);
+      res.writeHead(200, {});
+      if (res.getHeader("content-length") === 5) observed = "ok";
+    `);
+    expect(run_read(exports, context)).toMatchObject({ value: "ok" });
+    expect(getProperties(model.inspectResponse(response, context).headers as TESObject, context))
+      .toMatchObject({ "content-length": { value: "5" } });
+  });
+
+  test("a bare ServerResponse enforces no body-length coupling at write or end", () => {
+    pin(`const few = new (res.constructor)({ method: "GET" });
+      few.writeHead(200, { "Content-Length": 10 }); few.write("hello");
+      let fewer = "no-throw";
+      try { few.end(); } catch (e) { fewer = e.code; }
+      const more = new (res.constructor)({ method: "GET" });
+      more.writeHead(200, { "Content-Length": 2 });
+      let exceeded = "no-throw";
+      try { more.write("hello"); } catch (e) { exceeded = e.code; }
+      const proof = fewer === "no-throw" && exceeded === "no-throw";`);
+    const { exports, context } = run(`
+      res.writeHead(200, { "Content-Length": 10 });
+      res.write("hello");
+      let fewer = "no-throw";
+      try { res.end(); } catch (e) { fewer = e.code; }
+      if (fewer === "no-throw") observed = "ok";
+    `);
+    expect(run_read(exports, context)).toMatchObject({ value: "ok" });
+  });
+
   test("writeHead merges stored headers with its argument winning per lowercase name", () => {
     pin(`res.setHeader("X-A", "stored"); res.setHeader("X-B", "kept");
       res.writeHead(201, { "X-A": "arg" });

@@ -21,7 +21,13 @@ argument's raw fields also merge into the store — but only once a setHeader
 call created it (a writeHead before any setHeader leaves getHeaders empty,
 pinned).
 
+Content-Length is an ordinary explicit serialized field (P024): pinned
+Node 24.21.0 accepts any value verbatim at writeHead and enforces no
+body-length coupling without a socket — the transport layer this
+projection excludes. The other six transport-sensitive exclusions keep
+their automatic-behavior coupling.
+
 The unchanged consumer advances: sirv's send() getHeader probes answer
-undefined and writeHead runs until the projection's pre-existing
-transport-sensitive exclusion of content-length — the measured stop, kept
-deliberately. Heap gained a host-side removeProperty for removeHeader.
+undefined and writeHead completes; the measured stop is
+fs.createReadStream(file, opts).pipe(res) (build.js:95). Heap gained a
+host-side removeProperty for removeHeader.

@@ -57,7 +57,11 @@ export function serializeResponseHeaders(input: Any, context: TExecutionContext)
               return headerError("ERR_INVALID_HTTP_TOKEN", `Header name must be a valid HTTP token ["${key}"]`, afterRead);
             }
             const name = key.toLowerCase();
-            if (["content-length", "transfer-encoding", "connection", "keep-alive", "trailer", "expect",
+            // Content-Length is an ordinary explicit serialized field: pinned
+            // Node 24.21.0 stores and would send the application's value
+            // verbatim, with no writeHead-time validation; its enforcement
+            // coupling lives in the socket transport the projection excludes.
+            if (["transfer-encoding", "connection", "keep-alive", "trailer", "expect",
               "content-disposition"].includes(name)) return unsupported(`transport-sensitive header '${name}'`);
             if (Object.prototype.hasOwnProperty.call(getProperties(result, afterRead), name)) {
               return unsupported("duplicate case-insensitive header names");
@@ -91,7 +95,7 @@ export function mergeStoredHeaders(stored: Any, serialized: WithProperties, cont
         return evaluateBranches(ownPropertyPresence(serialized, name, current), current,
           present => merge(index + 1, present),
           absent => bindNormal(readMember(source, name, absent), (raw, afterRead) => {
-            if (["content-length", "transfer-encoding", "connection", "keep-alive", "trailer", "expect",
+            if (["transfer-encoding", "connection", "keep-alive", "trailer", "expect",
               "content-disposition"].includes(name)) return unsupported(`transport-sensitive header '${name}'`);
             return withValue(raw, afterRead, (resolved, afterValue) =>
               withHeaderText(resolved, afterValue, (text, afterText) => {

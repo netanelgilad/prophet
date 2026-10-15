@@ -66,12 +66,16 @@ factory with a directory evaluates two regular-expression literals and appends
  object spread of the file headers completes and send's for-in
  enumeration over them visits nothing (the raw dispatch carries no own
  header names), and the getHeader probes answer undefined through the
- modeled setHeader store. res.writeHead(code, headers) then serializes
- the FILES record's Content-Type and Content-Length fields; the measured
- stop is the projection's pre-existing transport-sensitive exclusion of
- content-length (build.js:95), kept deliberately. Deciding the
- content-length projection, fs streams, header-carrying requests,
- constructor-prototype descriptors (for-in inherited keys),
+ modeled setHeader store. res.writeHead(code, headers) serializes the
+ FILES record's Content-Type and Content-Length fields and completes
+ (content-length is an ordinary explicit serialized field: pinned Node
+ 24.21.0 stores and would send the application's value verbatim and
+ enforces no body-length coupling without a socket transport, which the
+ projection excludes). The measured stop is fs.createReadStream(file,
+ opts).pipe(res) (build.js:95), an unmodeled member of the Node
+ filesystem API surfaced as a legacy host error. Modeling fs streams and
+ pipe, the remaining transport-sensitive exclusions, header-carrying
+ requests, constructor-prototype descriptors (for-in inherited keys),
  DeleteExpression (for-in deletion visits), remaining deferred String
  APIs, rest parameters, the implicit arguments object, full Unicode
  casing/normalization, other bitwise operations, other Stats/Date

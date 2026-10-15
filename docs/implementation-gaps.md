@@ -1482,12 +1482,12 @@ gap group closes.
   constructor prototypes, ownPropertyModel "unmodeled") stop with the
   legacy enumeration error; deletion-driven visits await DeleteExpression;
   labeled jumps, destructuring heads and completion values remain open.
-- HTTP-008/REPORT-001: the response getHeader/setHeader surface is
-  modeled (P023) with the lazily-created store, raw values and the
-  writeHead merge pinned against Node 24.21.0. On the delivered GET,
-  send's getHeader probes answer undefined, the range branch skips, and
-  writeHead serializes the FILES record's headers until the projection's
-  pre-existing transport-sensitive exclusion of content-length
-  (build.js:95) — the measured stop, a legacy host error kept
-  deliberately. The content-length projection decision and fs streams
-  remain open. No response or success claim.
+- HTTP-008/REPORT-001: content-length is an ordinary explicit serialized
+  field (P024): pinned Node 24.21.0 accepts any value verbatim at
+  writeHead and enforces no body-length coupling without a socket, the
+  transport layer the projection excludes; the other six
+  transport-sensitive exclusions keep their automatic-behavior coupling.
+  On the delivered GET, writeHead(code, headers) now completes and the
+  measured stop is fs.createReadStream(file, opts).pipe(res)
+  (build.js:95), a legacy host error on the unmodeled filesystem member.
+  fs streams and pipe remain open. No response or success claim.
