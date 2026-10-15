@@ -6,6 +6,7 @@ import { NumberConstructor } from "../number/Number";
 import { ESBooleanConstructor } from "../boolean/ESBoolean";
 import { ObjectConstructor } from "../Object/ObjectConstructor";
 import { ESNumber, Undefined } from "../types";
+import { parseIntGlobal } from "../number/parse-int";
 import { getErrorConstructor } from "../error/Error";
 import { getObjectPrototype } from "../Object/prototype";
 import { getFunctionPrototype } from "../Function/prototype";
@@ -31,6 +32,7 @@ const unavailableSymbol = Object.assign(ESBuiltinFunction(function*() {
 export const ESInitialGlobal = ESObject({
   undefined: Undefined,
   NaN: ESNumber(NaN),
+  parseInt: parseIntGlobal,
   Infinity: ESNumber(Infinity),
   Math,
   Function: FunctionConstructor,
