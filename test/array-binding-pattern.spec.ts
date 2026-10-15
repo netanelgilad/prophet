@@ -1,6 +1,7 @@
 import { execFileSync } from "child_process";
 import { evaluateCode, nodeInitialExecutionContext, hasExecutionBoundary, isForkedCompletion, isThrownValue } from "../src";
 import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
+import { ESObject } from "../src/Object";
 import { Any } from "../src/types";
 import { assertPinnedNode } from "./commonjs/oracle";
 
@@ -92,6 +93,15 @@ describe("array binding patterns in declarations", () => {
   test("a non-array iterable source stays an explicit gap", () => {
     expect(() => run('let [q] = "hi";'))
       .toThrow(/Array binding pattern sources must be ordinary arrays/);
+  });
+
+  // A host-modeled object (a Buffer chunk, a stream) may be iterable in
+  // Node, so the catchable TypeError would be wrong for it: the source
+  // stops as a typed boundary instead. Only provably non-iterable sources
+  // (nullish, primitives, guest-ordinary objects) throw.
+  test("host-object sources that may carry an iterator stop as a typed boundary", () => {
+    expect(() => run("const [chunk] = input;", { input: Object.assign(ESObject({}), { unknownProperties: "Node Buffer API" }) }))
+      .toThrow(/may carry an iterator/);
   });
 
   test("rest elements stay an explicit gap", () => {

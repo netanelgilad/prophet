@@ -37,7 +37,13 @@ target's reference resolves before its element's read or default
 initializer runs. Nested array/object patterns recurse through the same
 entry point. The nullish/non-iterable TypeError preserves its type with an
 empty message, matching the object-pattern convention (native diagnostic
-wording depends on the exact pattern spelling).
+wording depends on the exact pattern spelling). Amended 2026-10-15 (Grok
+P030 review P1, landed on agent/p034-review-p1-fixes): the TypeError now
+applies only to provably non-iterable sources (nullish, primitives and
+guest-ordinary objects, which cannot carry Symbol.iterator while Symbol
+APIs are unmodeled); host-marked objects - a modeled Buffer chunk
+destructures fine natively - stop as a typed boundary instead of throwing
+a wrong catchable TypeError.
 
 Specs first: eleven pinned-control tests in
 test/array-binding-pattern.spec.ts (order/extra-elements, missing and

@@ -562,16 +562,24 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
               if (!isESNumber(selected) || typeof selected.value !== "number") {
                 return unsupported("fs createReadStream non-number range options are not yet supported");
               }
+              // Pinned Node 24.21.0: end: Infinity is an explicit exception
+              // treated as absent (reads to EOF); start: Infinity is not and
+              // fails the safe-integer check below with ERR_OUT_OF_RANGE.
+              if (name === "end" && selected.value === Infinity) return proceed(undefined, branch);
               if (!Number.isSafeInteger(selected.value) || selected.value < 0) return [rangeOptionError(), branch];
               return proceed(selected.value, branch);
             }));
-      return readRangeField("start", afterOption, (rangeStart, afterStart) =>
-        readRangeField("end", afterStart, (rangeEnd, afterEnd) => {
-        if (rangeStart !== undefined && rangeEnd !== undefined && rangeStart > rangeEnd) {
-          return [rangeOptionError(), afterEnd];
-        }
-      return withPath(call.args[0] || Undefined, afterEnd, (path, afterPath) => {
+      // Pinned Node 24.21.0 validates the path before the range fields:
+      // createReadStream("/a\0b", {start: -1}) throws the path TypeError
+      // ERR_INVALID_ARG_VALUE, and a non-string path fails before any range
+      // check, so the bounded {start,end} validation runs after path work.
+      return withPath(call.args[0] || Undefined, afterOption, (path, afterPath) => {
         if (path.includes("\0")) return [nullByteError(), afterPath];
+        return readRangeField("start", afterPath, (rangeStart, afterStart) =>
+          readRangeField("end", afterStart, (rangeEnd, afterEnd) => {
+          if (rangeStart !== undefined && rangeEnd !== undefined && rangeStart > rangeEnd) {
+            return [rangeOptionError(), afterEnd];
+          }
         const streamState = ESObject({ delivered: ESBoolean(false) });
         const stream = Object.assign(ESObject({ bytesRead: ESNumber(0), closed: ESBoolean(false),
           path: ESString(path), pipe }), {
@@ -604,8 +612,8 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
             readStreamFacts.set(stream, { path, error: "EMFILE" });
             return [stream, exhausted];
           });
-      });
         }));
+      });
       }));
   const deliverReadStream = (stream: Any, context: TExecutionContext): BranchResult => {
     const { facts, state: streamState } = readStreamOf(stream);

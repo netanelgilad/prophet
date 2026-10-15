@@ -5,6 +5,7 @@ import { ESString } from "../string/String";
 import { bindNormal, evaluate } from "../evaluate";
 import { staticPropertyName } from "../Object/static-key";
 import { propertyName, readMember } from "../ASTResolvers";
+import { getObjectPrototype, prototypeOf } from "../Object/prototype";
 import { isObjectValue, withValue } from "../conversion/toString";
 import { BranchResult } from "../execution-context/branches";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
@@ -84,6 +85,25 @@ export function initializeBindingPattern(pattern: ESTree.Pattern, value: Any,
       }
       if (isESString(source)) {
         throw new Error("Array binding pattern sources must be ordinary arrays; the iterator protocol is not yet supported");
+      }
+      // The TypeError below is only valid for sources PROVABLY lacking a
+      // Symbol.iterator. Guest-ordinary objects qualify: Symbol APIs are
+      // unmodeled, so no guest source can carry an iterator binding. Host
+      // objects (marked with unknown/unmodeled surfaces or a non-ordinary
+      // prototype) may be iterable in Node - a modeled Buffer chunk
+      // destructures fine natively - so they stop as a typed boundary
+      // instead of throwing a wrong catchable TypeError.
+      if (isObjectValue(source)) {
+        const marked = source as { unknownProperties?: string; unmodeledOwnPropertyInspection?: string;
+          unmodeledPropertyReads?: string[]; propertyAccess?: object; unmodeledPrototype?: boolean;
+          ownPropertyModel?: string };
+        if (marked.unknownProperties || marked.unmodeledOwnPropertyInspection ||
+            (marked.unmodeledPropertyReads && marked.unmodeledPropertyReads.length) ||
+            marked.propertyAccess || marked.unmodeledPrototype ||
+            (marked.ownPropertyModel !== undefined && marked.ownPropertyModel !== "enumerable-data") ||
+            prototypeOf(source) !== getObjectPrototype()) {
+          throw new Error("Array binding pattern host-object sources that may carry an iterator are not yet supported");
+        }
       }
       // Preserve the TypeError type without inventing a concrete message.
       return [ThrownValue(createError("TypeError", ESString())), branch];

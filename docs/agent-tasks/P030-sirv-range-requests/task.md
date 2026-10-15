@@ -18,8 +18,13 @@ an oversized end clamps without error; start at or past the size delivers
 no data event - only end and close, with bytesRead 0; a negative,
 fractional or greater-than-end start/end throws a RangeError with code
 ERR_OUT_OF_RANGE synchronously at construction; undefined fields behave as
-absent. The model validates fields at construction in option order before
-path work, stores the range in the stream facts, and slices at delivery;
+absent. Amended 2026-10-15 (Grok P030 review, P1s landed on
+agent/p034-review-p1-fixes): the model now validates the path BEFORE the
+range fields (pinned order: the path TypeError ERR_INVALID_ARG_VALUE
+precedes the range RangeError), and end: Infinity is an explicit pinned
+exception read as absent while start: Infinity still fails the
+safe-integer check. The model stores the range in the stream facts and
+slices at delivery;
 the 64 KiB single-chunk bound now applies to the slice. Non-number fields
 stay a typed boundary; the RangeError preserves type and code without an
 invented message.

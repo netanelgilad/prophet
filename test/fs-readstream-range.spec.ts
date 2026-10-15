@@ -9,10 +9,14 @@ beforeAll(assertPinnedNode);
 
 // Pinned Node 24.21.0 controls (host, 2026-10-15): {start,end} slice the
 // delivered bytes inclusively; start-only reads to EOF and end-only reads
-// from 0; end past the size clamps without error; start at or past the size
-// delivers no data event, only end and close, with bytesRead 0; a negative,
-// fractional or greater-than-end start/end throws a RangeError with code
-// ERR_OUT_OF_RANGE synchronously at construction.
+// from 0; end past the size clamps without error; end: Infinity is an
+// explicit exception treated as absent (reads to EOF) while start: Infinity
+// fails the safe-integer check; start at or past the size delivers no data
+// event, only end and close, with bytesRead 0; a negative, fractional or
+// greater-than-end start/end throws a RangeError with code ERR_OUT_OF_RANGE
+// synchronously at construction. The path validates before the range
+// fields: createReadStream("/a\0b", {start:-1}) throws the path TypeError
+// with code ERR_INVALID_ARG_VALUE, not the range RangeError.
 
 function setup(source: string, root = fileSystemDirectory({
   app: fileSystemDirectory({ "hello.txt": fileSystemFile("hello from sirv\n") })
@@ -108,14 +112,46 @@ test("negative, fractional and greater-than-end ranges throw a RangeError at con
   const { exports, context } = setup("module.exports = require('node:fs');");
   const after = run(`const seen = [];
     try { exports.createReadStream("/app/hello.txt", { start: -1 }); seen.push("no"); }
-    catch (failure) { seen.push(failure instanceof RangeError ? "range" : "other"); }
+    catch (failure) { seen.push(failure instanceof RangeError && failure.code === "ERR_OUT_OF_RANGE" ? "range" : "other"); }
     try { exports.createReadStream("/app/hello.txt", { start: 1.5 }); seen.push("no"); }
-    catch (failure) { seen.push(failure instanceof RangeError ? "range" : "other"); }
+    catch (failure) { seen.push(failure instanceof RangeError && failure.code === "ERR_OUT_OF_RANGE" ? "range" : "other"); }
     try { exports.createReadStream("/app/hello.txt", { start: 5, end: 2 }); seen.push("no"); }
-    catch (failure) { seen.push(failure instanceof RangeError ? "range" : "other"); }
+    catch (failure) { seen.push(failure instanceof RangeError && failure.code === "ERR_OUT_OF_RANGE" ? "range" : "other"); }
+    try { exports.createReadStream("/app/hello.txt", { start: Infinity }); seen.push("no"); }
+    catch (failure) { seen.push(failure instanceof RangeError && failure.code === "ERR_OUT_OF_RANGE" ? "range" : "other"); }
     const observation = seen.join(",");`,
     context, { exports });
-  expect(after.value.scope.observation).toMatchObject({ value: "range,range,range" });
+  expect(after.value.scope.observation).toMatchObject({ value: "range,range,range,range" });
+});
+
+test("end Infinity is an explicit exception read as absent", () => {
+  const { model, exports, context } = setup("module.exports = require('node:fs');");
+  const after = run(`const a = exports.createReadStream("/app/hello.txt", { end: Infinity });
+    const b = exports.createReadStream("/app/hello.txt", { start: 2, end: Infinity });
+    const seen = [];
+    a.on("data", function(chunk) { seen.push("a:" + chunk.length); });
+    b.on("data", function(chunk) { seen.push("b:" + chunk.length); });
+    a.on("end", function() { seen.push("aend"); });
+    b.on("end", function() { seen.push("bend"); });`,
+    context, { exports });
+  const deliveredA = model.deliverReadStream(model.createdReadStreams[0], after);
+  expect(isThrownValue(deliveredA[0])).toBe(false);
+  const deliveredB = model.deliverReadStream(model.createdReadStreams[1], deliveredA[1]);
+  expect(isThrownValue(deliveredB[0])).toBe(false);
+  const observed = run("const observation = seen.join(\",\");", deliveredB[1]);
+  expect(observed.value.scope.observation).toMatchObject({ value: "a:16,aend,b:14,bend" });
+});
+
+test("the path validates before the range fields", () => {
+  const { exports, context } = setup("module.exports = require('node:fs');");
+  const after = run(`const seen = [];
+    try { exports.createReadStream("/a\u0000b", { start: -1 }); seen.push("no"); }
+    catch (failure) { seen.push(failure instanceof TypeError && failure.code === "ERR_INVALID_ARG_VALUE" ? "path" : "other"); }
+    try { exports.createReadStream("/a\u0000b", { end: 2 }); seen.push("no"); }
+    catch (failure) { seen.push(failure instanceof TypeError && failure.code === "ERR_INVALID_ARG_VALUE" ? "path" : "other"); }
+    const observation = seen.join(",");`,
+    context, { exports });
+  expect(after.value.scope.observation).toMatchObject({ value: "path,path" });
 });
 
 test("undefined range fields behave as absent", () => {
