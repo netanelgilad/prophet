@@ -8,6 +8,7 @@ import { createLegacyURLModel } from "../src/node/url";
 import { createOpaqueBuiltinModule } from "../src/node/opaque";
 import { ESObject } from "../src/Object";
 import { ESString } from "../src/string/String";
+import { isExecutionBoundary } from "../src/execution-context/Completion";
 import { isThrownValue } from "../src/types";
 
 function collectFiles(base: string, parent: string, into: Record<string, string>, prefix: string) {
@@ -62,15 +63,19 @@ test("a delivered GET request runs the unchanged sirv handler through @polka/url
   const [, ready] = http.completeListen(server, started);
   // Pinned Node 24.21.0 serves GET /hello.txt through the same unchanged
   // packages with status 200 and body "hello from sirv\n" (the sirv-target
-  // pinned reference). On a raw dispatch a fresh IncomingMessage reads
-  // req._parsedUrl as undefined, so @polka/url's parse probe falls through to
-  // its own computation: raw.indexOf('#', 1) and raw.indexOf('?', 1) both
-  // answer -1 for "/hello.txt", search stays the empty string so the opaque
-  // querystring parse is skipped, and parse writes the cached object back on
-  // the request. The handler then destructures pathname and reaches for
-  // req.headers['accept-encoding'] (sirv build.js lines 171-172): the
-  // delivered request declares only method, url and the absent _parsedUrl
-  // cache slot, so that read is the measured legacy host stop.
-  expect(() => http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready))
-    .toThrow("Unmodeled host property 'headers': Node HTTP incoming request API");
+  // pinned reference), and answers an ordinary Object.prototype-linked
+  // headers object with no own names for a raw dispatch carrying none. The
+  // delivered request declares method, url, the absent _parsedUrl cache slot
+  // and that empty ordinary headers object, so the handler completes
+  // @polka/url parse (both indexOf probes answer -1; the opaque querystring
+  // builtin is never invoked), reads accept-encoding as undefined through
+  // ordinary lookup, skips the disabled gzip/brotli negotiation, and spreads
+  // the concrete default extensions into extns.push through bounded
+  // ordinary-array call spread. The measured stop moves into sirv's
+  // toAssume: the trailing-slash probe uri.charCodeAt(len) (build.js:17) is
+  // the first still-deferred String API the request path reaches.
+  const delivered = http.deliverRequest(server, { method: ESString("GET"), url: ESString("/hello.txt") }, ready);
+  expect(isExecutionBoundary(delivered.result[0])).toBe(true);
+  expect(delivered.result[0]).toMatchObject({ kind: "unsupported",
+    message: "String.prototype.charCodeAt is not yet supported" });
 });

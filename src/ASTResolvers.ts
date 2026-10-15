@@ -26,6 +26,7 @@ import { ESTree } from "cherow";
 import { withAnalysisFailureContext } from "./execution-context/analysis-failure";
 import { unimplemented } from "@deaven/unimplemented";
 import { Array as ESArray, TArray } from "./array/Array";
+import { ordinarySpreadElements } from "./array/spread";
 import { choiceOf } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
 import { getProperties, getArrayElements, ownPropertyPresence, assertModeledOwnAbsence, writeArrayElements,
@@ -223,7 +224,24 @@ function withArguments(
   let current = context;
   let values = args;
   for (let position = index; position < expressions.length; position++) {
-    const result = evaluate(expressions[position], current);
+    const expression = expressions[position];
+    // Bounded ordinary-array spread: proven intrinsic iteration answers the
+    // current elements in order; everything else stops as a typed boundary
+    // (see src/array/spread.ts).
+    if (expression.type === "SpreadElement") {
+      const spread = evaluate(expression.argument, current);
+      const prior = values;
+      const next = position + 1;
+      // Conditional (joined) operands split per branch, matching concat's
+      // operand handling; each branch spreads its own concrete array.
+      if (needsContinuation(spread[0])) {
+        return bindNormal(spread, (value, after) => withValue(value, after, (resolved, branch) =>
+          withArguments(expressions, branch, continuation, next, prior.concat(ordinarySpreadElements(resolved, branch)))));
+      }
+      return withValue(spread[0], spread[1], (resolved, branch) =>
+        withArguments(expressions, branch, continuation, next, prior.concat(ordinarySpreadElements(resolved, branch))));
+    }
+    const result = evaluate(expression, current);
     if (needsContinuation(result[0])) {
       const prior = values;
       const next = position + 1;

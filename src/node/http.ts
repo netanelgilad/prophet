@@ -443,7 +443,13 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
       // 24.21.0 reads req._parsedUrl as undefined on raw dispatch. Declaring
       // it absent lets @polka/url's parse probe fall through to its own
       // computation; the package's write-back then caches on the request.
-      const request = Object.assign(ESObject({ method: input.method, url: input.url, _parsedUrl: Undefined }), {
+      // A delivered request carries no headers: pinned Node 24.21.0 answers an
+      // ordinary Object.prototype-linked object with no own names for a raw
+      // HTTP/1.0 dispatch carrying none. Ordinary lookup of absent keys
+      // (sirv's accept-encoding and range probes) yields undefined natively,
+      // so the headers object is deliberately NOT boundary-marked.
+      const request = Object.assign(ESObject({ method: input.method, url: input.url, _parsedUrl: Undefined,
+        headers: ESObject({}) }), {
         unknownProperties: "Node HTTP incoming request API",
         unmodeledOwnPropertyInspection: "Node HTTP incoming request descriptors"
       });

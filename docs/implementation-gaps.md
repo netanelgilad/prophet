@@ -1433,3 +1433,27 @@ group closes.
   unmarked host property read. Incoming headers, the rest of the request
   surface, viaCache lookup, the send path and fs streams remain open; no
   response or success claim.
+
+## P020 reconciliation — bounded incoming request headers and ordinary-array call spread (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[call spread specs](../test/call-spread.spec.ts),
+[sirv request specs](../test/sirv-request.spec.ts) and the task record
+[P020](agent-tasks/P020-request-spread/task.md) retain residuals; no gap
+group closes.
+
+- HTTP-008/REPORT-001: the delivered request now declares an ordinary
+  Object.prototype-linked headers object with no own names (pinned Node
+  24.21.0 raw HTTP/1.0 control), so sirv's accept-encoding and range probes
+  answer undefined through ordinary lookup. Header-carrying deliveries,
+  rawHeaders and the rest of the request/response surface remain open; the
+  measured stop moves to String.prototype.charCodeAt in sirv's toAssume
+  (build.js:17). No response or success claim.
+- LANG-001/LIB-001: call/new spread arguments are modeled for proven
+  ordinary arrays (intrinsic @@iterator chain, elements in order, holes as
+  undefined after inherited-index proof, conditional operands split per
+  branch, 1024-element budget). Custom @@iterator hooks, exotic/accessor
+  arrays, unknown layouts, non-array iterables and non-iterables stop as
+  typed boundaries; native non-iterable TypeErrors are not fabricated.
+  Array-literal spread, rest parameters and the implicit arguments object
+  remain gaps.

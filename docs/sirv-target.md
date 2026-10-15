@@ -56,12 +56,17 @@ factory with a directory evaluates two regular-expression literals and appends
  completion: the delivered request declares its absent _parsedUrl cache
  slot, and bounded generic UTF-16 indexOf answers both of parse's probes
  (-1 for "/hello.txt"), so the handler observes parse's computed pathname
- and stops at req.headers['accept-encoding'] (build.js:172), a legacy
- unmarked host property read on the incoming request. Modeling the request
- headers and remaining request/response surface, the viaCache lookup and
- send path, full Unicode casing/normalization, other bitwise operations,
- remaining deferred String APIs, other Stats/Date metadata, bound-function
- name metadata and streams remain work.
+ and reads req.headers['accept-encoding'] as undefined through the
+ declared ordinary empty headers object (pinned Node 24.21.0 raw-dispatch
+ control), skipping the disabled gzip/brotli negotiation; bounded
+ ordinary-array call spread then completes extns.push(...extensions), and
+ the measured stop moves into sirv's toAssume trailing-slash probe
+ uri.charCodeAt(len) (build.js:17). Modeling the remaining deferred String
+ APIs, the viaCache lookup result path, the response getHeader/setHeader/
+ writeHead surface consumed by sirv's send, fs streams, header-carrying
+ requests, rest parameters, the implicit arguments object, full Unicode
+ casing/normalization, other bitwise operations, other Stats/Date metadata,
+ bound-function name metadata and array-literal spread remain work.
  The retained state contains the regex
  identities. Import success is not server startup or
 request coverage. Runtime models preserve querystring identity
