@@ -241,3 +241,15 @@ their initial authorship record is saved, with disclosed design-case overlap.
 Do not alter root assertions to obtain a pass. No production fixes were made by
 the orchestrator. Preserve the worker's active retry; do not send a duplicate
 prompt while it is waiting.
+
+## Independent benchmark provenance scouting — 2026-10-21
+
+While the sole worker retained its daily-free-quota retry, the orchestrator
+rechecked the candidate reports and two exact npm version metadata endpoints.
+Both returned 404; no archive or original source was fetched, extracted or
+executed. Metadata-only observations are recorded in
+`/tmp/prophet-p035/incident-provenance/metadata-observations.json`.
+The security plan now distinguishes the reported Bun-only September candidate
+from a November Node-bootstrap candidate supported by the maintainer report.
+This does not expand P035 implementation scope, acquire a benchmark, establish
+a hash or prove any malicious behavior. SECURITY-001/002 stay open.

@@ -249,6 +249,25 @@ original loader reaching its first prohibited effect; report Bun or other
 unmodeled continuation explicitly. A first-effect finding can be actionable
 without pretending the entire obfuscated worm was analyzed.
 
+A metadata-only provenance check on **2026-10-21** returned HTTP 404 for
+both exact npm version endpoints (`feishu-docx-mcp/0.3.2` and
+`posthog-node/4.18.1`). Neither candidate has a verified archive in this
+repository. A missing registry version is an acquisition blocker, not evidence
+that a different mirror or a reconstructed loader is byte-identical.
+
+For the first Node-loader benchmark, also consider `posthog-node@4.18.1`:
+[the maintainer postmortem](https://posthog.com/blog/nov-24-shai-hulud-attack-post-mortem)
+identifies that affected version, and
+[Socket's original investigation](https://socket.dev/blog/shai-hulud-strikes-again-v2)
+describes a JavaScript bootstrap that locates/installs Bun before launching the
+payload. This is a candidate-selection inference from reports, not inspection
+of original bytes. By contrast, the September candidate's reported launch is
+already a Bun command. A Node bootstrap may expose an earlier process or network
+attempt through reusable Node semantics; treating its Bun continuation as
+unsupported does not establish what that continuation does. Choose only after
+verifying the complete original archive, actual manifest/entry and a clean
+control. Preserve reported versus independently measured hashes separately.
+
 No malicious artifact was downloaded or executed for this planning increment.
 Known-malicious fixtures must be handled as inert data in a controlled corpus.
 Never install or execute them under native Node as an ordinary Jest oracle.
