@@ -165,3 +165,21 @@ or graph assertions are not. Retain logs/revision information. Then implement
 and run focused specs, pinned benign Node controls, complete suite and typecheck.
 Record evidence on the committed implementation snapshot; freeze for source and
 independent adversarial review. No push/main edit or solver/serializer expansion.
+
+## Initial red-stage evidence — 2026-10-21T16:59Z
+
+The worker ran its first argument/validation specs through `2>&1 | tail -60`,
+contrary to the required unmasked-exit/full-log workflow. This output is not
+accepted as complete command evidence. Root immediately reran the same two spec
+files with pinned Node 24.21.0, captured the raw process status and complete log,
+and verified selected production/test file hashes were unchanged across the run.
+`src/cli/environment.ts` was absent before and after. The argument feature test
+fails because --environment is unknown; the validation suite cannot load its
+not-yet-created parser. Counts: two failed suites, one failed/two passed tests;
+validation assertions have **not** run yet. Exit code 1 is the expected red
+status, not a passing validation claim.
+
+Local evidence: `/tmp/prophet-p035/root-initial-red.json` (exact argv and
+before/after hashes), `/tmp/prophet-p035/root-initial-red.log` (complete output).
+The worker must still provide unmasked complete focused/full validation on the
+implemented snapshot. No trust promotion follows this pipeline correction.
