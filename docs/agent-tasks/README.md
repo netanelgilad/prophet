@@ -9,18 +9,20 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 Owner resumed development toward precise real-package symbolic analysis and a
 per-dependency capability gate, eventually a verified Shai-Hulud finding.
-[P035](P035-symbolic-environment/task.md) is in design revision on
+[P035](P035-symbolic-environment/task.md) is entering spec-first implementation on
 `agent/p035-longcat-environment`, based on published `573f8cc`. Muse thread
 `ses_ea0c3614dffe5vDAFnqPFwNLFR` failed before work because the model is deprecated;
 separate free LongCat build/high thread `ses_ea0c20abbffetX6Z32B2DDV7Bl` owns the
-design-only stage. One worker/full semantic review remains; no implementation or
+task. One worker/full semantic review remains; no implementation or
 completion is inferred from a successful dispatch. Root thread
 `01a15f01-bb95-7473-af10-3f01d7370982` remains active through review.
-The [first design review](P035-symbolic-environment/review.md) requires removal
-of a branch-unsafe native arrival counter, actual graph retention of declared
-inputs/provenance, bounded parsing/DAG work, and corrected pico expectations.
-The same worker recovered from an endpoint-unavailable retry and received one
-design-only correction prompt; implementation remains unapproved.
+The [design reviews](P035-symbolic-environment/review.md) removed a branch-unsafe
+native arrival counter and require actual graph retention, bounded parsing and
+expanded DAG work, and corrected pico expectations. Round 2 accepts the revised
+design with explicit resource-check amendments for implementation. The endpoint
+failed after the revised file was saved; root reviewed that actual file and
+verified the worker idle before sending the implementation prompt. No code is
+accepted or published yet.
 
 ## Integration review — 2026-10-21
 
