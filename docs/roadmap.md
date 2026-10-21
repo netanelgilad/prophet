@@ -24,6 +24,30 @@ effects. Generic origin/dependency information or operation observations can
 support many consumers; application-specific meaning stays outside the VM.
 Automatic witness generation is another consumer of execution results.
 
+## Current next increment — 2026-10-21
+
+The reviewed Instinct P012–P034 integration is published at `573f8cc`. The unchanged
+sirv factory and selected GET/HEAD/404/range/validator requests now complete with
+explicit embedding-driven stream delivery; earlier application-frontier notes
+below preserve history and no longer identify the next missing intrinsic.
+Acceptance is bounded, not complete Node/JavaScript or arbitrary-package coverage.
+See the [integration review](agent-tasks/integration-2026-10-21/review.md).
+
+[P035](agent-tasks/P035-symbolic-environment/task.md) begins with a reviewed design
+for `--environment`: explicit shared symbolic values, resource facts and finite
+parsed request choices through the actual CLI. Preserve optional arrivals,
+failed binds/IO and unknown/unsupported siblings; no forced success or caller
+handler glue. Full resumption, process.env authoring and general heap/filesystem
+snapshots may follow as separate increments. The no-input CLI remains a regression.
+
+The owner's durable downstream product is a per-dependency capability gate for a
+package.json plus resolved dependency graph, with prompts for newly possible
+behavior deep in that graph. Follow the [security consumer contract](agent-security-analysis.md#owner-product-clarification--2026-10-21):
+next add generic outbound-attempt coverage/provenance and a separate benign policy
+consumer; then lifecycle/admission semantics and a pinned original Shai-Hulud
+benchmark. Do not put permissions or verdicts into VM state, and do not confuse
+an analysis result with enforcement of a later native execution.
+
 ## Next milestone: pico startup through the CLI, with no environment file
 
 Agreed on **2026-10-02**: run the pinned package's **unchanged Node HTTP startup

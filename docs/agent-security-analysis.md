@@ -27,12 +27,58 @@ using the symbolic state, conditions, observable history and execution limits.
 
 Today the VM exposes scoped internal TypeScript APIs, supplied CommonJS graphs,
 host models, state, completions and effect traces. The [static-server milestone](real-world-target.md)
-has bounded proofs and native witnesses. The public environment/CLI contract,
+has bounded proofs and native witnesses. The full explicit-environment contract,
 security scanner, npm admission wrapper, outbound-network model and original
 Shai-Hulud benchmark are not implemented. Known legacy semantics gaps limit all
 uses of the engine; they must be repaired or exposed as unsupported behavior,
 not silently accepted outside a special security mode. REPORT-001 and
 SECURITY-001/002 in the [gap register](implementation-gaps.md) retain these gaps.
+
+## Owner product clarification — 2026-10-21
+
+The intended product accepts a project's package.json and resolved lockfile,
+then maintains explicit capabilities for every dependency instance, including
+transitive dependencies. Package names alone are insufficient: retain resolved
+version, artifact integrity, dependency path, source file and selected install,
+import or use scenario. The symbolic runtime derives behavior; a separate
+consumer compares it with versioned permissions and prior accepted behavior.
+
+Initial capability families are outbound network attempts (deny all or allow
+specified protocol/host/port constraints), filesystem reads/writes, subprocess
+launches and access to externally classified inputs. A permitted destination
+does not imply permission to send credentials there. DNS names, redirects,
+proxies and child processes must not bypass the policy: unsupported behavior is
+inconclusive, not a successful no-network proof. Canonicalization and wildcard
+rules need explicit semantics before an allowlist is enforceable.
+
+A dependency addition or update should yield a reviewable behavior change:
+package identity and dependency chain; newly possible operation and destination;
+source location and triggering conditions; feasibility/witness status; execution
+coverage and unresolved continuations; the exact permission change requested.
+For example, a nested package newly attempting HTTPS to telemetry.example.invalid
+can require an explicit network grant even if no sampled run triggered it.
+Approval is scoped to exact artifacts, graph, runtime/scenario, policy and engine
+models; changes invalidate it. A user may deny, grant a narrow capability, or
+record an explicit risk exception. Unknown is never silently accepted.
+
+Attribution must preserve both the executing package/source and initiating call
+chain. A shared HTTP utility must not grant its callers blanket permission;
+caller/delegation policy requires explicit consumer rules and adversarial tests.
+The consumer may prompt on possible behavior, but must not call an infeasible
+path a demonstrated violation. Symbolic constraints and generic summaries should
+improve precision; completed concrete tests alone do not establish all-path safety.
+
+The dependency admission/enforcement adapter acts before lifecycle execution and
+must constrain the actual later execution. A symbolic report on its own cannot
+prevent a package executing outside that adapter. This is a delivery target,
+not a claim that the existing VM already enforces capabilities.
+
+Near-term sequence after the reviewed P012–P034 integration: P035 bounded explicit
+CLI inputs, generic outbound-attempt observations with source/package provenance,
+a benign complete transitive-dependency policy test, pinned lifecycle/lockfile
+orchestration, then one inert original Shai-Hulud artifact plus clean control.
+The core retains generic state and observations throughout; security permissions,
+behavior-change prompts and verdicts stay in the consumer.
 
 ## How a security consumer uses the runtime
 

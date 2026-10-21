@@ -5,6 +5,18 @@ independent review and integration. Keep actual thread IDs, model invocation,
 base/tested/published commits and archive status here; do not imply a queued task
 has run. Review depth changes require a recorded decision, not a growing test count.
 
+## Sustained roadmap run — 2026-10-21
+
+Owner resumed development toward precise real-package symbolic analysis and a
+per-dependency capability gate, eventually a verified Shai-Hulud finding.
+[P035](P035-symbolic-environment/task.md) is in design review preparation on
+`agent/p035-longcat-environment`, based on published `573f8cc`. Muse thread
+`ses_ea0c3614dffe5vDAFnqPFwNLFR` failed before work because the model is deprecated;
+separate free LongCat build/high thread `ses_ea0c20abbffetX6Z32B2DDV7Bl` owns the
+design-only stage. One worker/full semantic review remains; no implementation or
+completion is inferred from a successful dispatch. Root thread
+`01a15f01-bb95-7473-af10-3f01d7370982` remains active through review.
+
 ## Integration review — 2026-10-21
 
 The owner authorized integration and publication of all Instinct draft work.
