@@ -17,6 +17,7 @@ export type FileSystemCaptureOptions = {
   maxFileBytes?: number;
   maxTotalBytes?: number;
   fileDescriptorsAvailable?: TESBoolean;
+  emptyPathBeforeOpenDescriptorCheck?: TESBoolean;
 };
 
 /**
@@ -198,5 +199,6 @@ export function captureFileSystem(options: FileSystemCaptureOptions) {
   };
   return createFileSystemModel({ root: root!, cwd, platform: process.platform,
     fileDescriptorsAvailable: options.fileDescriptorsAvailable === undefined ? ESBoolean() : options.fileDescriptorsAvailable,
+    emptyPathBeforeOpenDescriptorCheck: options.emptyPathBeforeOpenDescriptorCheck,
     observeEntry, observeContents, observeDirectoryNames });
 }

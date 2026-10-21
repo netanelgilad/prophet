@@ -259,19 +259,6 @@ for (const path of ["/missing", "/unreadable", "/directory"]) {
   });
 }
 
-for (const platform of [undefined, "linux", "darwin"] as Array<undefined | "linux" | "darwin">) {
-  test(`empty-path failure priority follows the declared platform (${platform || "default Linux"})`, () => {
-    const expected = platform === "darwin" ? "EMFILE" : "ENOENT";
-    const result = analyze(fileSystemDirectory({}), {}, `
-      let caught = false;
-      try { fs.readFileSync("", "utf8"); }
-      catch (error) { caught = error.code === ${JSON.stringify(expected)} && error.syscall === "open" && error.path === ""; }
-      module.exports = { proved: caught };
-    `, { fileDescriptorsAvailable: ESBoolean(false), platform });
-    expectProof(result);
-  });
-}
-
 test("descriptor availability is one stable symbolic fact across reads and remains unknown without a guard", () => {
   const available = ESBoolean();
   const root = fileSystemDirectory({ file: fileSystemFile("yes") });

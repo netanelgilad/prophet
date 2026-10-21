@@ -76,6 +76,19 @@ remain. The existing large-call success assertions are retained unchanged.
 A later attempted Number.prototype mutation test hit an existing explicit guard;
 that was a reviewer false alarm, not a removed working behavior.
 
+## Linux CI compatibility correction
+
+The first exact-candidate CI run
+[39626656763](https://github.com/netanelgilad/prophet/actions/runs/39626656763)
+passed typecheck and 162 suites / 5,101 tests, but failed one pre-existing native
+filesystem reference. Its Ubuntu image uses Linux 7.0; kernel commit
+[151e325](https://github.com/torvalds/linux/commit/151e3257d61941ac07a7daacdb66ddc645f6ca34)
+changed empty-path versus descriptor-allocation error priority. Treating all
+Linux releases like v6.12 was an invalid environment assumption. The correction
+makes ordering an explicit persistent Boolean fact, preserves both paths when
+unknown, and validates concrete profiles and native complete error shapes.
+ReadStream open errors use the same fact. No runner downgrade or skipped test.
+
 ## Acceptance
 
 Correction review and full local validation are accepted at

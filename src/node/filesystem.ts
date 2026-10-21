@@ -164,6 +164,7 @@ function nullByteError(): Any {
  */
 export function createFileSystemModel(options: { root: Any; cwd?: string; fileDescriptorsAvailable?: TESBoolean;
   platform?: "linux" | "darwin";
+  emptyPathBeforeOpenDescriptorCheck?: TESBoolean;
   observeEntry?: (directory: TESObject, name: string) => Any;
   observeContents?: (file: TESObject) => string;
   observeDirectoryNames?: (directory: TESObject) => ReadonlyArray<string>;
@@ -219,7 +220,22 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
   }
 
   const state = ESObject({ root: options.root, cwd: ESString(cwd), platform: ESString(platform),
-    fileDescriptorsAvailable: accessFact(options.fileDescriptorsAvailable) });
+    fileDescriptorsAvailable: accessFact(options.fileDescriptorsAvailable),
+    // Kernel open error precedence is not implied by Linux platform identity.
+    // Unspecified Linux profiles retain both orders; Darwin follows the pinned oracle.
+    emptyPathBeforeOpenDescriptorCheck: options.emptyPathBeforeOpenDescriptorCheck === undefined
+      ? ESBoolean(platform === "darwin" ? false : undefined)
+      : accessFact(options.emptyPathBeforeOpenDescriptorCheck) });
+  const withOpenCheck = (path: string, context: TExecutionContext,
+    available: (after: TExecutionContext) => BranchResult,
+    failed: (code: "ENOENT" | "EMFILE", after: TExecutionContext) => BranchResult): BranchResult => {
+    const capacity = (after: TExecutionContext) =>
+      evaluateBranches(getProperties(state, after).fileDescriptorsAvailable as TESBoolean, after,
+        available, exhausted => failed("EMFILE", exhausted));
+    return path ? capacity(context) :
+      evaluateBranches(getProperties(state, context).emptyPathBeforeOpenDescriptorCheck as TESBoolean, context,
+        early => failed("ENOENT", early), capacity);
+  };
   const validatePathDomain = (path: string, reject: (detail: string) => never = unsupported): void => {
     const absolute = path[0] === "/" ? path : (cwd === "/" ? "/" : cwd + "/") + path;
     // Kernel/filesystem limits vary. Reject outside the common small-path
@@ -449,10 +465,7 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
         // Outside this bounded path domain, kernel name validation can precede
         // descriptor exhaustion. Never turn that analysis gap into EMFILE.
         validatePathDomain(path);
-        // Linux copies/validates the pathname before allocating an fd; Darwin
-        // allocates first. Select the environment explicitly, not from the host.
-        if (!path && platform === "linux") return [systemError("ENOENT", "open", path), afterPath];
-        return evaluateBranches(getProperties(state, afterPath).fileDescriptorsAvailable as TESBoolean, afterPath,
+        return withOpenCheck(path, afterPath,
           available => lookup(path, available, (result, after) => {
             if ("error" in result) return [systemError(result.error, "open", path), after];
             return evaluateBranches(access.get(result.node)!.readable, after, readable => {
@@ -470,7 +483,7 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
               if (!encoded) return [createBufferValue(Array.from(Buffer.from(text.value, "utf8"))), afterContents];
               return [text, afterContents];
             }, denied => [systemError("EACCES", "open", path), denied]);
-          }), exhausted => [systemError("EMFILE", "open", path), exhausted]);
+          }), (code, failed) => [systemError(code, "open", path), failed]);
       });
     }));
   const streamUnsupported = (detail: string): never => {
@@ -594,7 +607,7 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
         readStreamFacts.set(stream, { path, start: rangeStart, end: rangeEnd });
         createdReadStreams.push(stream);
         const attached = streamEvents.attach(stream, afterEnd, streamEventsPolicy);
-        return evaluateBranches(getProperties(state, attached).fileDescriptorsAvailable as TESBoolean, attached,
+        return withOpenCheck(path, attached,
           available => lookup(path, available, (result, after) => {
             if ("error" in result) {
               return [stream, writeProperty(streamState, "error", ESString(result.error), after)];
@@ -607,8 +620,8 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
             }, denied => {
               return [stream, writeProperty(streamState, "error", ESString("EACCES"), denied)];
             });
-          }), exhausted => {
-            return [stream, writeProperty(streamState, "error", ESString("EMFILE"), exhausted)];
+          }), (code, failed) => {
+            return [stream, writeProperty(streamState, "error", ESString(code), failed)];
           });
         }));
       });

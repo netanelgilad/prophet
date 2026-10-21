@@ -178,7 +178,8 @@ filesystem calls share a baseline descriptor-availability fact. Closed-tree
 traversal retains EACCES before hidden-child absence, relative cwd semantics and
 trailing slash versus explicit dot. EACCES/EMFILE are real thrown completions,
 with original paths and ordered effects. Explicit Linux/default versus Darwin
-selection preserves empty-path priority; overlong paths remain guarded even on
+selection preserved the then-observed empty-path priority (superseded by the
+2026-10-21 kernel-ordering reconciliation below); overlong paths remain guarded even on
 exhausted branches. Invalid platform/access setup rejects analysis. Independent
 native chmod and bounded child-only descriptor-exhaustion cases cover the same
 observable boundaries; GET/HEAD witnesses reproduce escaping failures in the
@@ -1556,3 +1557,13 @@ stream delivery retains supported sibling outcomes beside typed unsupported
 branches. Non-global RegExp replacement guards object/exotic lastIndex conversion
 after replacement conversion effects; global replacement overwrites lastIndex
 with zero first. These partial domains preserve the residual IDs above.
+
+Integration Linux CI exposed an existing FS-002/TEST-004 assumption: empty-path
+open errors differ between historical Linux and Linux 7.0 after kernel commit
+151e3257d61941ac07a7daacdb66ddc645f6ca34. Open-error ordering is now a declared
+persistent Boolean fact, unknown by default on Linux and descriptor-first on
+the pinned Darwin profile. Concrete profiles and symbolic repeat-call
+correlation are tested; native controls compare full error shapes against the
+selected model input. CLI acquisition does not exhaust native descriptors or
+guess ordering from a kernel version. The environment profile remains bounded;
+this does not close kernel, libc, resource-pool or general filesystem coverage.

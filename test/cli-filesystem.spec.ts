@@ -53,6 +53,8 @@ test("the graph retains open filesystem state, reached observations and unknown 
   expect(getProperties(state, result.current).cwd).toMatchObject({ value: directory });
   expect(getProperties(state, result.current).platform).toMatchObject({ value: process.platform });
   expect(resolveBoolean(getProperties(state, result.current).fileDescriptorsAvailable as any)).toBeUndefined();
+  expect(resolveBoolean(getProperties(state, result.current).emptyPathBeforeOpenDescriptorCheck as any))
+    .toBe(process.platform === "darwin" ? false : undefined);
   let node = getProperties(state, result.current).root as ReturnType<typeof ESObject>;
   for (const component of directory.split('/').filter(Boolean)) node = getProperties(node, result.current)[component] as typeof node;
   expect(getProperties(node, result.initial)["message.txt"]).toBeUndefined();

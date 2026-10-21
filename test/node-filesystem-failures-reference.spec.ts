@@ -2,6 +2,11 @@ import { spawnSync } from "child_process";
 import { chmodSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmdirSync,
   statSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
+import { createCommonJSLoader, createFileSystemModel, fileSystemDirectory, isForkedCompletion,
+  hasExecutionBoundary, nodeInitialExecutionContext } from "../src";
+import { ESBoolean } from "../src/boolean/ESBoolean";
+import { getProperties } from "../src/execution-context/Heap";
+import { isThrownValue, WithProperties } from "../src/types";
 import { assertPinnedNode } from "./commonjs/oracle";
 
 beforeAll(assertPinnedNode);
@@ -25,6 +30,7 @@ const driver = `
   }
   function observe(operation, path) {
     try {
+      if (operation === "readdir") return { names: fs.readdirSync(path) };
       if (operation === "exists") return { value: fs.existsSync(path) };
       if (operation === "stat") {
         const value = fs.statSync(path);
@@ -50,13 +56,15 @@ const driver = `
     }
     return values;
   }
-  const result = { platform: process.platform, node: process.version, uid: process.getuid() };
+  const result = { platform: process.platform, kernel: require("node:os").release(),
+    node: process.version, uid: process.getuid() };
   if (mode === "cwd") {
     result.relative = observe("utf8", "child.txt");
     result.absolute = observe("utf8", directory + "/ancestor/cwd/child.txt");
     result.directory = directory;
   } else {
     result.before = observations();
+    result.emptyDirectoryBefore = observe("readdir", "");
     if (mode === "capacity") {
       const opened = [];
       try {
@@ -68,10 +76,12 @@ const driver = `
         }
         result.opened = opened.length;
         result.exhausted = observations();
+        result.emptyDirectoryExhausted = observe("readdir", "");
       } finally {
         for (const fd of opened) fs.closeSync(fd);
       }
       result.after = observations();
+      result.emptyDirectoryAfter = observe("readdir", "");
     }
   }
   fs.writeSync(1, JSON.stringify(result));
@@ -124,6 +134,8 @@ function native(mode: "permissions" | "capacity" | "cwd") {
     expect(result.stderr).toBe("");
     expect(result.status).toBe(0);
     const observed = JSON.parse(result.stdout);
+    expect(typeof observed.kernel).toBe("string");
+    expect(observed.kernel.length).toBeGreaterThan(0);
     expect(observed.node).toBe("v24.21.0");
     expect(observed.platform).toBe(process.platform);
     expect(observed.uid).not.toBe(0);
@@ -187,7 +199,8 @@ test("an existing cwd remains a starting directory when an ancestor loses search
 });
 
 test("bounded real descriptor exhaustion precedes read traversal but leaves exists/stat usable", () => {
-  const { before, exhausted, after, exhaustion, opened } = native("capacity");
+  const observed = native("capacity");
+  const { before, exhausted, after, exhaustion, opened } = observed;
   expect(exhaustion).toEqual({ code: "EMFILE", syscall: "open" });
   expect(opened).toBeGreaterThan(0);
   expect(opened).toBeLessThan(64);
@@ -197,12 +210,34 @@ test("bounded real descriptor exhaustion precedes read traversal but leaves exis
     expect(exhausted[path].utf8).toEqual(failure("EMFILE", "open", path));
     expect(exhausted[path].buffer).toEqual(exhausted[path].utf8);
   }
-  // Linux getname rejects an empty path before allocating the descriptor;
-  // macOS reaches descriptor exhaustion first. Do not erase that OS boundary.
-  // https://github.com/torvalds/linux/blob/v6.12/fs/open.c#L1317-L1343
-  // https://github.com/torvalds/linux/blob/v6.12/fs/namei.c#L144-L154
-  expect(exhausted[""].utf8).toEqual(failure(process.platform === "linux" ? "ENOENT" : "EMFILE", "open", ""));
+  // Linux commit 151e3257d61941ac07a7daacdb66ddc645f6ca34 (v7.0)
+  // moves empty-name error handling after descriptor allocation. Backports
+  // make kernel-version inference unsafe: select a declared fact from an exact
+  // validated observation, then require the model to reproduce every field.
+  const code = exhausted[""].utf8.code;
+  if ((code !== "ENOENT" && code !== "EMFILE") || (observed.platform === "darwin" && code !== "EMFILE")) {
+    throw new Error(`Unsupported open ordering on ${observed.platform} ${observed.kernel}: ${JSON.stringify(exhausted[""].utf8)}`);
+  }
+  expect(exhausted[""].utf8).toEqual(failure(code, "open", ""));
   expect(exhausted[""].buffer).toEqual(exhausted[""].utf8);
+  const model = createFileSystemModel({ root: fileSystemDirectory({}), platform: observed.platform,
+    fileDescriptorsAvailable: ESBoolean(false), emptyPathBeforeOpenDescriptorCheck: ESBoolean(code === "ENOENT") });
+  for (const operation of ['readFileSync("", "utf8")', 'readFileSync("")', 'readdirSync("")']) {
+    const [value, context] = createCommonJSLoader({ "/entry.cjs": `const fs = require("fs");
+      try { fs.${operation}; } catch (e) { module.exports = { name: e.name, code: e.code, errno: e.errno,
+        syscall: e.syscall, path: e.path, message: e.message }; }` },
+      { builtins: { fs: model.module } }).load("/entry.cjs", nodeInitialExecutionContext);
+    expect(isThrownValue(value) || isForkedCompletion(value) || hasExecutionBoundary(value)).toBe(false);
+    const properties = getProperties(value as WithProperties, context);
+    const actual: { [name: string]: unknown } = {};
+    for (const key of ["name", "code", "errno", "syscall", "path", "message"]) actual[key] = (properties[key] as any).value;
+    expect(actual).toEqual(operation.startsWith("readdir") ? observed.emptyDirectoryExhausted : exhausted[""].utf8);
+  }
+  // glibc opendir checks the empty name before calling open, independently of
+  // the kernel open ordering. Darwin remains the observed descriptor-first profile.
+  expect(observed.emptyDirectoryExhausted).toEqual(failure(observed.platform === "linux" ? "ENOENT" : "EMFILE", "scandir", ""));
+  expect(observed.emptyDirectoryBefore).toEqual(failure("ENOENT", "scandir", ""));
+  expect(observed.emptyDirectoryAfter).toEqual(observed.emptyDirectoryBefore);
   for (const operation of ["utf8", "buffer"]) {
     expect(exhausted["bad\0path"][operation]).toMatchObject({ name: "TypeError", code: "ERR_INVALID_ARG_VALUE" });
   }

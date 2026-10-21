@@ -36,14 +36,19 @@ required harness or APIs are unsupported.
 
 ## One shared symbolic filesystem state
 
-`createFileSystemModel({ root, cwd?, fileDescriptorsAvailable?, platform? })` exposes `.module` for registration as
+`createFileSystemModel({ root, cwd?, fileDescriptorsAvailable?, platform?, emptyPathBeforeOpenDescriptorCheck? })` exposes `.module` for registration as
 `fs` (including the loader's `node:fs` alias) and `inspectRoot(context)` plus `inspectFileDescriptorsAvailable(context)` for host
 inspection. `fileSystemDirectory(entries)` builds a closed directory:
 unlisted names and `ESNull` mean missing. `fileSystemFile(text, { readable? })` supplies a regular file containing concrete
 UTF-8 text. Directory helpers also accept `{ readable?, searchable? }`. These are
 VM Booleans, including unknown Booleans and ordinary symbolic choices; omitted
 access flags and descriptor availability explicitly select the healthy assumption.
-`state` exposes the persistent root, cwd, platform and descriptor availability.
+`state` exposes the persistent root, cwd, platform, descriptor availability and
+`emptyPathBeforeOpenDescriptorCheck` Boolean. This ordering fact is unknown by
+default on Linux and false on the pinned Darwin profile. True chooses empty-path
+ENOENT before allocation; false permits exhausted capacity to produce EMFILE.
+It applies to readFileSync and ReadStream open errors. Linux libc scandir keeps
+its separate early empty-name rejection.
 Entry host slots retain kind, effective access and directory completeness as
 modeled facts, separate from guest-accessible properties.
 `platform` selects `"linux"` (the default) or `"darwin"`; it is not inferred from
@@ -254,8 +259,9 @@ EACCES and EMFILE errors retain code, negative errno, original UTF-8 path,
 syscall `open` (or `stat` for denied stat traversal), message and fresh identity.
 NUL validation precedes resource access. For a nonempty supported path,
 per-process descriptor exhaustion precedes path traversal. Empty filenames are
-platform dependent: Linux yields ENOENT before allocating a descriptor; Darwin
-can yield EMFILE first. Overlong inputs retain an analysis boundary, even when
+dependent on the declared open-error ordering: historical Linux yields ENOENT
+before allocating a descriptor; newer Linux and the pinned Darwin reference
+yield EMFILE first. Omitted Linux ordering is unknown, preserving both paths. Overlong inputs retain an analysis boundary, even when
 capacity is unavailable, because kernel name validation has its own priority.
 
 The independent [native failure specs](../test/node-filesystem-failures-reference.spec.ts)
@@ -386,13 +392,20 @@ denied ancestor need not prevent relative reads. A directory without read
 permission fails at `open` before a directory read could produce EISDIR.
 Nonempty read paths encounter EMFILE before traversal errors when the process
 has no descriptor capacity; exists/stat do not allocate a descriptor. Empty
-paths differ: Linux's
-[open implementation](https://github.com/torvalds/linux/blob/v6.12/fs/open.c#L1317-L1343)
-calls [getname](https://github.com/torvalds/linux/blob/v6.12/fs/namei.c#L144-L154)
-before descriptor allocation and returns ENOENT, whereas the pinned macOS
-reference produces EMFILE. Both paths still reject a NUL-containing JavaScript
-string before attempting an OS open. Linux/macOS references keep this boundary
-explicit rather than treating every POSIX platform as identical.
+paths differ across kernel profiles: Linux's
+[v6.12 open implementation](https://github.com/torvalds/linux/blob/v6.12/fs/open.c#L1317-L1343)
+returns a getname error before descriptor allocation. The later
+[151e325 kernel change](https://github.com/torvalds/linux/commit/151e3257d61941ac07a7daacdb66ddc645f6ca34)
+defers that error until after allocation, producing EMFILE under exhaustion.
+The failing integration CI ran the
+[Linux 7.0 runner image](https://github.com/actions/runner-images/blob/ubuntu24/20261018.339/images/ubuntu/Ubuntu2404-Readme.md).
+The pinned Darwin reference also produces EMFILE. A persistent environment fact
+selects this ordering; the Linux default leaves it unknown rather than inferring
+kernel semantics from a platform name or release number. Native controls retain
+complete error-shape assertions and compare the selected fact to the model.
+Both paths still reject a NUL-containing JavaScript string before an OS open.
+The separate [glibc opendir empty-name check](https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/opendir.c;hb=glibc-2.39)
+precedes its open call; scandir behavior is not inferred from open ordering.
 
 - [`test-fs-access.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-fs-access.js)
   combines synchronous, callback and promise access checks; real writes/chmod,

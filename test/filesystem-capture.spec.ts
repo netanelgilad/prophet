@@ -215,3 +215,14 @@ test("model acquisition callbacks are captured at construction, not mutated via 
     { builtins: { fs: model.module } }).load("/entry.cjs", nodeInitialExecutionContext);
   expect(value).toMatchObject({ value: true });
 });
+
+for (const order of [true, false]) {
+  test(`filesystem capture retains explicit open ordering ${order}`, () => {
+    const fact = ESBoolean(order);
+    const model = captured({ emptyPathBeforeOpenDescriptorCheck: fact, fileDescriptorsAvailable: ESBoolean(false) });
+    const [value, context] = run(model, `let code; try { fs.readFileSync(""); } catch (e) { code = e.code; }
+      module.exports = code === "${order ? "ENOENT" : "EMFILE"}";`);
+    expect(value).toMatchObject({ value: true });
+    expect(getProperties(model.state, context).emptyPathBeforeOpenDescriptorCheck).toBe(fact);
+  });
+}
