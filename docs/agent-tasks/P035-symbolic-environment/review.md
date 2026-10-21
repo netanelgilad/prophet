@@ -104,3 +104,64 @@ After writing the design the same active turn reported `retrying`, attempt 4,
 1792600369246. This is endpoint availability evidence, not a measured quota reset
 or a correctness score. Keep the assigned active retry; do not duplicate prompts
 or change models. Send the correction contract once the worker is idle.
+
+## Design round 2 — binding implementation contract
+
+Reviewed the complete revised design. The zero-argument factory, explicit host
+state, primitive-only schema, validation-before-target ordering, and corrected
+test matrix resolve the architectural findings. **Accepted for spec-first
+implementation with the precise amendments below.** These amendments supersede
+conflicting wording in the draft; the worker must reconcile design.md before
+adding red specs. No third design-only handoff is needed. Full implementation
+review is still required and this is not a first-review acceptance streak.
+
+1. **Expanded work, not just memoized compile count.** Memoization bounds value
+   construction but `selectValue`/Boolean reasoning may traverse a shared DAG
+   repeatedly. Before constructing any VM value, compute a saturating structural
+   weight for every expression, memoizing the computed numeric weight per named
+   definition: literal/symbolic leaf = 1; ref = 1 + weight(definition); select =
+   1 + weight(condition) + weight(then) + weight(else). A reused reference adds
+   its full weight at each occurrence, even though its VM value is built once.
+   The expanded dependency depth is computed similarly as a memoized longest
+   path (ref adds one; select adds one to the maximum child depth). Reject
+   cycles, any root depth >32, and saturating total expanded work >4096 across
+   all named definitions, explicit filesystem expressions and request-template
+   expressions. Request method+URL together also have a 1024 expanded-work cap.
+   Keep separate syntactic node/edge/count/byte limits. Validate all definitions
+   and both select branches regardless of constant guards. This is a
+   conservative authoring limit, not a claim of complete solver work accounting.
+   Include a small repeated-DAG input whose syntactic node count is tiny but
+   whose expanded weight exceeds the limit, plus a nearby accepted case. Run
+   stress probes under an external timeout and do not reinterpret timeout as
+   a proof result.
+
+2. **Check the opened file before allocation.** Use O_NOFOLLOW as well as
+   O_NONBLOCK on the supported POSIX platforms; confirm fstat is regular, its
+   size is safe/nonnegative and <=262144, and metadata agrees with lstat before
+   allocating at most 262145 bytes. Bound read calls by that capacity; reject
+   short/long reads or detected metadata changes, and always close. A final
+   size check cannot repair a huge allocation made from an unchecked opening
+   fstat. This detects some races; do not claim atomic capture or a complete
+   symlink-safe ancestor walk. A mocked lstat/open/fstat race test is suitable
+   for allocation order; do not make giant files or depend on a timing race.
+
+3. **Correct remaining stale prose.** §13 still calls missing-index ENOENT and
+   waiting alternatives unsupported; classify them separately from actual
+   boundaries. Named VM values are retained through graph links; they are not
+   automatically heap entries. String literals are UTF-16 values decoded from
+   valid UTF-8 JSON; escaped surrogates can already appear in URL/header fields.
+   Two-event exploration materializes at most two arrivals per represented
+   history, potentially more factory calls across alternatives. Omit the new
+   node.environment slot entirely when no environment was supplied, preserving
+   the existing no-environment shape. Freeze/encapsulate validated template and
+   complete shared map before use; no compilation cache changes after initial
+   graph state is linked.
+
+Implementation ownership remains task.md: minimal CLI/environment/provider
+seam, specs and listed boundary/gap/wiki docs. Root owns this review, task,
+dispatch, roadmap and ledger. The red stage must run the intended focused specs
+and inspect the failures; missing parser support is expected, incorrect fixture
+or graph assertions are not. Retain logs/revision information. Then implement
+and run focused specs, pinned benign Node controls, complete suite and typecheck.
+Record evidence on the committed implementation snapshot; freeze for source and
+independent adversarial review. No push/main edit or solver/serializer expansion.
