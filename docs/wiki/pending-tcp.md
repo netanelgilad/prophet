@@ -2,7 +2,8 @@
 
 P038 targets Node24.21.0 options-only IPv4 startup. See [boundary](../node-net.md),
 [task](../agent-tasks/P038-net-submission/task.md) and native findings there.
-Implementation/review underway; publication evidence will be linked on completion.
+Implementation f30bb9b accepted after independent20 probes and full181 suites/
+5319 passes plus typecheck; candidate CI remains the publication gate.
 
 Native wrapper initialization is not descriptor acquisition. POSIX uv_tcp_init
 uses AF_UNSPEC; deferred uv__tcp_connect calls maybe_new_socket. A pre-return

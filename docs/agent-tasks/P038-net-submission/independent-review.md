@@ -57,3 +57,7 @@ Review is bounded independent evidence, not exhaustive conformance, all-path cov
 - `src/node/events.ts`: `51ea076cb2d923e1b2e3c56c4644289768c3974f4f810f85fc1c1bd494ecbc78`
 - `test/node-net-review.spec.ts`: `d33658d4c9374998c3163e76b5fd02e42e58b57f27750e2dbbe78fb36a18c30b`
 - `test/node-net-integration.spec.ts`: `634d3c58f3cceb43b0f4811c721bf4705a69f8924e05eb0264d837257f68db71`
+
+## Post-review fixture migration supplement
+
+Reviewed root's two-line test/cli-imports.spec.ts migration: the generic unregistered-builtin fixture now requires tls and matches /tls/, replacing net which P038 legitimately registers. The test still requires analysis-stop, absent completion, and only entry/dependency output; the guest catch and unreachable/after statements remain checked. This does not weaken the generic boundary assertion. Newly supported net import/alias behavior is separately covered by test/node-net-integration.spec.ts. No production code changed. Accepted current file SHA256: 895c78b2b981d763263a602cb159743929cfc2207d68ba191ad18836867e3039. Root owns the required rerun; this supplement is source review, not a claimed test execution.

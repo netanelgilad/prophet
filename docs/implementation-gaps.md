@@ -1741,5 +1741,6 @@ No stable gap is closed; package policy and outbound modeling remain separate.
 - SECURITY-001: no HTTP transfer, policy adapter, package grant or incident
   detection is established by this network prefix. Future callbacks remain unknown.
 
-Audit and complete skipped-file reconciliation will be recorded in the P038
-review before publication. No stable gap is closed.
+Four documented scans and complete skipped-file reconciliation are retained in
+the P038 review/evidence. Test262 remains484 complete files/959 variants, with
+43 parse-negative files/85 variants and46 unchanged historical skips. No stable gap is closed.

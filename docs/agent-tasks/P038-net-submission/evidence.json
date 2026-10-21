@@ -1,0 +1,122 @@
+{
+  "implementation": "f30bb9bc74a22845e62d0827ee9481a8bfa22264",
+  "runtime": "v24.21.0",
+  "validation": {
+    "results": [
+      {
+        "name": "full-suite",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 126.64,
+        "log": "/tmp/prophet-p038/full-suite-complete.log",
+        "sha256": "b25441ebc6f94671950d421410e7af91acf08c1b81bd926996ea6fb7ba6e6559"
+      },
+      {
+        "name": "typecheck",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 1.91,
+        "log": "/tmp/prophet-p038/typecheck-complete.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "hashesUnchanged": true
+  },
+  "reviewedHashes": {
+    "src/node/net.ts": "876c2011429c8cb9b5708f877e847db07c001ce7af591365c322594fbea087f2",
+    "src/node/events.ts": "51ea076cb2d923e1b2e3c56c4644289768c3974f4f810f85fc1c1bd494ecbc78",
+    "src/cli/runtime.ts": "43bb355aef93a029901ea49bac3435fe6fa86a918b8d181f7a28fd39cdd12957",
+    "src/index.ts": "4e23314fc595743ef4b70dac0743195d1bb910fdda9c69ae50e1a3910d37b05c",
+    "test/node-net.spec.ts": "8b37a2a7638a55b9fe09ae59d88bc4f3ae58e423a7123bd56f4433704ee1ae37",
+    "test/node-net-review.spec.ts": "d33658d4c9374998c3163e76b5fd02e42e58b57f27750e2dbbe78fb36a18c30b",
+    "test/node-net-integration.spec.ts": "634d3c58f3cceb43b0f4811c721bf4705a69f8924e05eb0264d837257f68db71",
+    "test/node-events-policy.spec.ts": "c998958bf2c3c797050f3865343df3b2c9d3972d6dd320e0621812dbc0604463",
+    "test/cli-imports.spec.ts": "895c78b2b981d763263a602cb159743929cfc2207d68ba191ad18836867e3039"
+  },
+  "audit": [
+    {
+      "name": "guards",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p038/audit-guards.log",
+      "sha256": "0dd24b88c9953ca6af1efc3492017317dd9d76b0aabd0dd92ac6d06503966ee7",
+      "lines": 806
+    },
+    {
+      "name": "assertions",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p038/audit-assertions.log",
+      "sha256": "940abf7346b20b8331b18f1b5ddd9a86a1fcfab2d05412e329fcb315f4f71179",
+      "lines": 23
+    },
+    {
+      "name": "skips",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p038/audit-skips.log",
+      "sha256": "b5d36faba6bc12c65e9b87d00873ee5420a3ff04b926d67d3d0cd3dd915a1214",
+      "lines": 1
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p038/audit-boundaries.log",
+      "sha256": "4e21bf832988bd8524176d3a54d2fb9dcbcfbb5a2f3ba0dea15a68b32b2e0c8d",
+      "lines": 2461
+    }
+  ],
+  "test262": {
+    "files": 484,
+    "variants": 959,
+    "parseNegativeFiles": 43,
+    "parseNegativeVariants": 85,
+    "historicalSkippedFiles": 46
+  },
+  "attempts": {
+    "interruptedExit129": 2,
+    "completedStaleNetImportAssertionFailure": 1,
+    "correction": "Generic unregistered import fixture now tls; supported net imports asserted separately.",
+    "final": "181 suites/5319 passes/46 skips; typecheck0"
+  },
+  "publication": "Exact-candidate CI required before origin/master push; not yet published."
+}
