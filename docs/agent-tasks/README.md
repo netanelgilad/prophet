@@ -7,9 +7,10 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 ## Sustained roadmap run — 2026-10-21
 
-**Latest checkpoint:** P035 is published at `007afa2`; full 171 suites /
-5207 passing /46 historical skips and typecheck passed. Exact-candidate
-CI39664639839 passed before publication. [Publication](P035-symbolic-environment/publication.md).
+**Latest checkpoint:** P036 is published at `348fe0c`; full174 suites /
+5233 passing /46 historical skips and typecheck passed. Exact-candidate
+CI39666780369 passed before publication. [Publication](P036-effect-activation/publication.md).
+P035 remains published at `007afa2`.
 Root and independent reviewer accepted the corrected implementation; this does
 not erase the original partial-parser findings or imply a model trust promotion.
 
@@ -21,8 +22,8 @@ is historical and superseded for this run. P035's
 [partial draft](P035-symbolic-environment/partial-draft-evidence.json) preserve
 those observations without implying that a retry remains active.
 
-[P036](P036-effect-activation/task.md) now develops generic interpreted activation
-and host-effect origins. Codex root coordinates disjoint core, integration-spec
+[P037](P037-program-identities/task.md) now publishes captured source identities
+through the CLI graph, connecting P036 call origins to exact acquired bytes. Codex root coordinates disjoint core, integration-spec
 and independent-review work. Full semantic review and publication gates remain.
 Root thread `01a15f01-bb95-7473-af10-3f01d7370982` remains active.
 
@@ -48,7 +49,8 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P036](P036-effect-activation/task.md) | Generic interpreted activation/effect origin | Accepted fea6942;174 suites/5233 passes/46 skips,typecheck pass; candidate CI pending | No policy, outbound API or package-identity claim |
+| [P037](P037-program-identities/task.md) | Captured program identities in CLI graph | Accepted a7ef378;177 suites/5262 passes/46 skips,typecheck pass; candidate CI pending | Identity-only projection, no package attestation |
+| [P036](P036-effect-activation/task.md) | Generic interpreted activation/effect origin | Published348fe0c;174 suites/5233 passes/46 skips,typecheck and CI39666780369 pass | No policy, outbound API or package-identity claim |
 | [P035](P035-symbolic-environment/task.md) | Explicit symbolic CLI starting environment | Published007afa2, CI39664639839 success | [Publication](P035-symbolic-environment/publication.md), 171 suites/5207 passes/46 skips |
 | [Integration 2026-10-21](integration-2026-10-21/review.md) | Review and publish complete Instinct P012–P034 stack | Published `573f8cc`: 164 suites / 5,112 tests; typecheck pass; exact-candidate CI 39628633258 passed before master fast-forward | Independent native failures retained as regressions; no trust promotion |
 | P034 | P030 review fixes: end Infinity, path/range order, host iterable boundary | Included at `e183ed9` in cumulative integration review | [P030 record](P030-sirv-range-requests/task.md), [P027 record](P027-array-binding-patterns/task.md) |

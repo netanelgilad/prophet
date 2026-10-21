@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-21T20:10:09.095588+00:00",
+  "baseCommit": "348fe0c906f3deda30edbc5f7bef305c76785fe9",
+  "pinnedNode": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "snapshot": "shared uncommitted core implementation plus independent realCLI specs",
+  "hashes": {
+    "test/cli-program-integration.spec.ts": "f33ed6f070199b334b9dbaa9bb42fd65d943afed7ebcc8b461262d59fa42b565",
+    "src/cli/program.ts": "345ca1e8944dfd618381f7ffedfa63c8cc980587ef124240258e6d9616111dbe",
+    "src/cli/source-capture.ts": "d8b3033af53ebab710a5bd4d2f693ab0107c7706663f8e8f439290e1ebeacf14",
+    "src/cli/main.ts": "4923d9dd4119d67ea20cb5bc0890ec53bec84838a20b14eeb61fcb23f1493579"
+  },
+  "runs": [
+    {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/cli-program-integration.spec.ts",
+      "exitCode": 1,
+      "tests": 1,
+      "failed": 1,
+      "log": "/tmp/prophet-p037/integration-red.log",
+      "qualification": "Absent roots.program expected featurefailure; child normalgraph/status0. Production gitdiffstat empty immediately after test, HEAD348fe0c906f3deda30edbc5f7bef305c76785fe9."
+    },
+    {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/cli-program-integration.spec.ts",
+      "exitCode": 0,
+      "tests": 11,
+      "passed": 11,
+      "log": "/tmp/prophet-p037/integration-green.log"
+    },
+    {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs tsc --noEmit",
+      "exitCode": 0,
+      "log": "/tmp/prophet-p037/integration-typecheck.log"
+    }
+  ],
+  "scope": "Only new test/cli-program-integration.spec.ts written by scenarioagent. Actual pinned CLI subprocesses,11 scenarios. No sourceedits/commits/push or wholesuiteclaim."
+}

@@ -43,10 +43,12 @@ The owner's durable downstream product is a per-dependency capability gate for a
 package.json plus resolved dependency graph, with prompts for newly possible
 behavior deep in that graph. Follow the
 [security consumer contract](agent-security-analysis.md#owner-product-clarification--2026-10-21).
-[P036](agent-tasks/P036-effect-activation/task.md) now preserves generic dynamic
+[P036](agent-tasks/P036-effect-activation/publication.md), published at `348fe0c`, preserves generic dynamic
 interpreted activations and direct source origins on existing host invocations.
 This prepares file-to-package attribution; it does not establish package identity
-or asynchronous registration causality. Next model an outbound API through its
+or asynchronous registration causality. [P037](agent-tasks/P037-program-identities/task.md)
+now exposes immutable captured source identities in the CLI graph so file origins
+can be checked against exact bytes. Next model an outbound API through its
 actual attempt boundary, then build a benign transitive-dependency policy test,
 pinned lifecycle/admission orchestration and an inert original Shai-Hulud benchmark.
 An invocation can throw before attempting transport; an unsupported member lookup
