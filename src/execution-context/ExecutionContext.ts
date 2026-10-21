@@ -26,6 +26,14 @@ export type Binding = {
 };
 export type EnvironmentStore = Map<Environment, Map<string, Binding>>;
 
+// One actual interpreted invocation. Linked parents share identities in O(1);
+// this is dynamic execution ancestry, not registration or native call history.
+export type InterpretedActivation = {
+  readonly target: Any;
+  readonly sourceFile?: string;
+  readonly parent?: InterpretedActivation;
+};
+
 export type TExecutionContext = {
   value: {
     thisValue: Any;
@@ -44,6 +52,7 @@ export type TExecutionContext = {
     // File of the currently executing interpreted function, captured at its
     // creation. This is not a V8 stack: generated/eval source remains unknown.
     sourceFile?: string;
+    activation?: InterpretedActivation;
     // Temporary proof-session hooks, never installed for ordinary execution.
     interceptCall?: (
       callee: Any, args: Any[], context: TExecutionContext, receiver?: Any

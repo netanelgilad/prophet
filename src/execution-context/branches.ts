@@ -28,6 +28,11 @@ export function mergeContexts(
   consequent: TExecutionContext,
   alternate: TExecutionContext
 ): TExecutionContext {
+  // Completion cleanup can restore both leaves while the original fork base
+  // still belongs to the callee. Only balanced active identities may join.
+  if (consequent.value.activation !== alternate.value.activation) {
+    throw new Error("Cannot merge contexts with different interpreted activations");
+  }
   const knowledge = base.value.knowledge || [];
   const select = (yes: Any, no: Any) => selectValue(condition, yes, no, knowledge);
   const mergeProperties = (
@@ -121,6 +126,7 @@ export function mergeContexts(
     environment: consequent.value.environment,
     environments,
     strict: consequent.value.strict,
+    activation: consequent.value.activation,
     sourceFile: consequent.value.sourceFile === alternate.value.sourceFile
       ? consequent.value.sourceFile : undefined,
     thisValue: select(consequent.value.thisValue, alternate.value.thisValue),

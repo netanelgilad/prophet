@@ -20,7 +20,7 @@ export type EncodedGraph = {
 };
 
 const stateFields = ["global", "thisValue", "environment", "environments", "heap",
-  "knowledge", "effects", "strict", "sourceFile", "uncaught"];
+  "knowledge", "effects", "strict", "sourceFile", "activation", "uncaught"];
 
 // This is an inspection graph, not executable source or a resumable snapshot.
 // Host function closures remain explicitly opaque. Context compatibility views

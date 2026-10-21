@@ -188,6 +188,17 @@ semantics or budgets. The conceptual environment transformation therefore needs
 an explicit partial/suspended result in those cases. Such a result is not a
 claim that execution completed or that every possible continuation was covered.
 
+## Interpreted execution origins
+
+The [activation contract](interpreted-activations.md) records actual dynamic
+interpreted entries and freezes the current file/activation on each modeled
+host invocation. Returns and guest throws restore the caller; analysis stops
+retain active leaf checkpoints. Function creation and callback registration
+are not invocation. Generated/eval source can remain unknown, and proof trial
+executions do not become application activations. The graph preserves target
+and parent aliases. Package identity, source coordinates, asynchronous causal
+lineage and native stack reconstruction remain separate work.
+
 ## Conditional history and callback knowledge
 
 The **Node public built-in API boundary** remains the current runtime target.

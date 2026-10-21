@@ -79,8 +79,10 @@ must constrain the actual later execution. A symbolic report on its own cannot
 prevent a package executing outside that adapter. This is a delivery target,
 not a claim that the existing VM already enforces capabilities.
 
-Near-term sequence after the reviewed P012–P034 integration: P035 bounded explicit
-CLI inputs, generic outbound-attempt observations with source/package provenance,
+P035 bounded explicit CLI inputs are published. P036 adds
+[interpreted activation and direct effect origins](interpreted-activations.md),
+preparing file-to-package attribution without claiming package identity. Next:
+generic outbound-attempt observations with verified source/package provenance,
 a benign complete transitive-dependency policy test, pinned lifecycle/lockfile
 orchestration, then one inert original Shai-Hulud artifact plus clean control.
 The core retains generic state and observations throughout; security permissions,

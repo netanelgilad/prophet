@@ -1638,3 +1638,41 @@ admission or a complete arbitrary-program proof. Evidence is tracked in
 - TEST-001/002/003: no Test262 or upstream Node file was added/modified by P035.
   The complete selected corpus/46-file historical skip inventory and guard,
   assertion, skip and documentation scans are rechecked before publication.
+
+
+## P036 activation/effect origin reconciliation — 2026-10-21
+
+[Interpreted activations](interpreted-activations.md) preserve dynamic function
+identity and lexical filename; host-call origins freeze direct executing source
+and the active chain. This narrows existing provenance gaps without closing them.
+
+- REPORT-001/CJS-001/SECURITY-001: ordinary calls, constructors, CommonJS wrappers,
+  aliases and actual callbacks share one entry seam. Frames/targets/parents and
+  call/return/throw origins retain graph identities. Exact source bytes/hashes,
+  dependency-instance/lockfile mapping, AST coordinates, cross-run IDs and portable
+  resumption remain absent. A filename supplied by an embedding is not attested.
+- HOST-002/HTTP-001/REPORT-001: preserved callbacks acquire no frame until invoked.
+  Deferred dispatch uses the current dynamic caller, not registration ancestry.
+  Async causal lineage, native stacks and broader event coverage remain open.
+  An existing host invocation does not establish an outbound transport attempt.
+- LANG-003/REPORT-001: entered checkpoints precede receiver/parameter guards;
+  ordinary return/throw cleanup and branch joins restore identical caller frames.
+  The new different-activation join guard is an internal invariant failure with
+  existing legacy checkpoint behavior. Partial trees retain leaf activations and
+  a common base; the base is not a final active stack for every branch. Legacy
+  guard failures and directly called generators still rely on their caller for
+  diagnostic/boundary conversion. No general continuation recovery is added.
+- SYM-004/REPORT-001/SECURITY-002: frozen O(1) links add no semantic call-depth cap.
+  General native recursion and graph DFS still lack a complete resource bound.
+  A timeout-bounded 25-frame/deduplicated-target probe is regression evidence,
+  not arbitrary-depth safety. Trusted native embedding mutation is not hardened.
+- SYM-004/REPORT-001: summary proof hooks suppress speculative activation pushes;
+  accepted cached summaries and failed singleton proofs retain caller ancestry.
+  This does not alter summary proof domains or make all legacy proof diagnostics
+  full application histories. Unknown eval/generated filenames stay unknown.
+- TEST-001/002/003: no Test262/native behavior domain or upstream selection is
+  added. Existing complete language and pinned host cases remain regressions;
+  all46 historical skipped files and candidate inventories remain unchanged.
+  Final audit evidence records the four scans and full pinned file inventory.
+
+No stable gap is closed and no package permission/detection claim follows.

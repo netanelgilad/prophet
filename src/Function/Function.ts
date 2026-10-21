@@ -17,7 +17,7 @@ import { hasUseStrict } from "./instantiate";
 import { initializeParameters, instantiateFunctionBody } from "./parameters";
 import { isObjectValue } from "../conversion/toString";
 import { choiceOf } from "../symbolic";
-import { UnsupportedAnalysisError } from "../execution-context/analysis-failure";
+import { UnsupportedAnalysisError, withAnalysisFailureContext } from "../execution-context/analysis-failure";
 import { boxSloppyReceiver } from "./boxing";
 
 export function ESFunction(implementation: FunctionImplementation) {
@@ -88,33 +88,43 @@ export function createFunction(
   // Capture the environment identity, not its values or the caller's names.
   // Each call gets a fresh record; surviving closures keep that record alive in
   // the persistent store carried by the returned execution context.
-  const result = ESFunction(function*(
+  const result: ReturnType<typeof ESFunction> = ESFunction(function*(
     self: Any, args: Array<Any>, execContext: TExecutionContext
   ) {
     const callerEnvironment = execContext.value.environment;
     let activation = enterEnvironment(execContext, "function", environment);
-    activation = ExecutionContext({ ...activation.value, strict, sourceFile });
-    let thisValue = kind.arrow ? lexicalThis : self;
-    if (!kind.arrow && !strict) {
-      if (isUndefined(self) || isESNull(self)) thisValue = creationContext.value.global;
-      else if (!isObjectValue(self)) {
-        if (choiceOf(self)) throw new UnsupportedAnalysisError("Sloppy receiver boxing is not yet supported for symbolic receivers");
-        const boxed = boxSloppyReceiver(self);
-        if (!boxed) throw new UnsupportedAnalysisError(
-          "Sloppy receiver boxing is not yet supported for " + (self as { type: string }).type + " receivers");
-        thisValue = boxed;
+    activation = ExecutionContext({ ...activation.value, strict, sourceFile,
+      // Proof inference invokes implementations on scratch inputs. Its explicit
+      // interception hook must not manufacture publicly executed frames.
+      activation: execContext.value.interceptCall ? execContext.value.activation :
+        Object.freeze({ target: result, sourceFile, parent: execContext.value.activation }) });
+    return withAnalysisFailureContext(activation, () => {
+      let thisValue = kind.arrow ? lexicalThis : self;
+      if (!kind.arrow && !strict) {
+        if (isUndefined(self) || isESNull(self)) thisValue = creationContext.value.global;
+        else if (!isObjectValue(self)) {
+          if (choiceOf(self)) throw new UnsupportedAnalysisError("Sloppy receiver boxing is not yet supported for symbolic receivers");
+          const boxed = boxSloppyReceiver(self);
+          if (!boxed) throw new UnsupportedAnalysisError(
+            "Sloppy receiver boxing is not yet supported for " + (self as { type: string }).type + " receivers");
+          thisValue = boxed;
+        }
       }
-    }
-    activation = setCurrentThisValue(activation, thisValue);
-    const execution = bindNormal(initializeParameters(params, args, activation, !!kind.arrow, statements),
-      (_value, initialized) => evaluateStatements(statements, instantiateFunctionBody(statements, params, initialized)));
-    return mapCompletions(execution, (completion, context) => tuple(
-      isReturnValue(completion) ? completion.value : isThrownValue(completion) ? completion : Undefined,
-      ExecutionContext({
-        ...setEnvironment(context, callerEnvironment).value, strict: execContext.value.strict,
-        sourceFile: execContext.value.sourceFile
-      })
-    ));
+      activation = setCurrentThisValue(activation, thisValue);
+      // Parameter admission can fail before an AST evaluator has retained the
+      // entered context. Preserve the receiver-bound checkpoint in that case.
+      return withAnalysisFailureContext(activation, () => {
+        const execution = bindNormal(initializeParameters(params, args, activation, !!kind.arrow, statements),
+          (_value, initialized) => evaluateStatements(statements, instantiateFunctionBody(statements, params, initialized)));
+        return mapCompletions(execution, (completion, context) => tuple(
+          isReturnValue(completion) ? completion.value : isThrownValue(completion) ? completion : Undefined,
+          ExecutionContext({
+            ...setEnvironment(context, callerEnvironment).value, strict: execContext.value.strict,
+            sourceFile: execContext.value.sourceFile, activation: execContext.value.activation
+          })
+        ));
+      });
+    });
   });
   const firstOptional = params.findIndex(parameter =>
     parameter.type === "AssignmentPattern" || parameter.type === "RestElement");

@@ -22,7 +22,8 @@ export function createHostFunction(operation: string, model?: HostModel) {
   const fn = ESBuiltinFunction(function*(receiver, args, context) {
     if (!model) throw new Error(`Unmodeled host operation '${operation}'`);
     const call: HostCall = Object.freeze({ id: {}, operation, target: fn, receiver,
-      args: Object.freeze(args.slice()) });
+      args: Object.freeze(args.slice()),
+      origin: Object.freeze({ sourceFile: context.value.sourceFile, activation: context.value.activation }) });
     const snapshot = (current: TExecutionContext) => ({ call,
       heap: current.value.heap, knowledge: current.value.knowledge || [] });
     const started = appendEffect({ ...snapshot(context), kind: "call" }, context);

@@ -300,7 +300,7 @@ knowledge, including an unknown `.value` when applicable.
 | `record` | `entries`: ordered `[name, encodedValue]` pairs. |
 | `array` | `length` and `entries`, including occupied indices and named enumerable properties; holes stay holes. |
 | `map` | `entries`: ordered `[encodedKey, encodedValue]` pairs, preserving reference keys. |
-| `execution-context` | Selected state entries: global/this, lexical environment/store, heap, knowledge, effects, strict/source location and uncaught value when present. |
+| `execution-context` | Selected state entries: global/this, lexical environment/store, heap, knowledge, effects, strict/source location, interpreted activation and uncaught value when present. |
 | `opaque-function` | Diagnostic native function name and enumerable data entries; no executable source or captured native closure. |
 
 Where available, node `definition` references the interpreted function's AST
@@ -328,7 +328,9 @@ and callback scope references, not portable host reconstruction or resumption.
 
 The graph preserves the current VM value/fact and effect schemas inside these
 containers; these remain experimental. It keeps event predecessors, choices,
-call identities, event-time heap snapshots and path knowledge. A consumer can
+call identities, event-time heap snapshots and path knowledge. Each modeled call retains a frozen
+[current source/activation origin](interpreted-activations.md), shared by its
+call/return/throw events; unknown source remains unknown. A consumer can
 derive possible console output from successful stdout write events. Separate
 writes do not add a `chunks` field to symbolic strings. Accessors, unsupported
 native containers and symbol-keyed data reject serialization rather than

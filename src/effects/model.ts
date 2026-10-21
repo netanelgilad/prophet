@@ -1,5 +1,6 @@
 import { Any, TESBoolean } from "../types";
 import { Heap } from "../execution-context/Heap";
+import { InterpretedActivation } from "../execution-context/ExecutionContext";
 import { Knowledge } from "../symbolic/model";
 
 export type HostCall = {
@@ -8,6 +9,10 @@ export type HostCall = {
   readonly target: Any;
   readonly receiver: Any;
   readonly args: ReadonlyArray<Any>;
+  readonly origin: {
+    readonly sourceFile?: string;
+    readonly activation?: InterpretedActivation;
+  };
 };
 
 type Snapshot = {
