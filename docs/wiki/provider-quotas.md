@@ -125,3 +125,19 @@ through the conversation API; see [verification and limits](atlas-operations.md#
 Prefer that status surface when waiting. It does not publish a numeric quota or
 guarantee that the next attempt will succeed, and no new cooldown was observed
 during this verification.
+
+## P035 LongCat limit, 2026-10-21
+
+The sole LongCat 2.5 Preview Free build/high worker saved a partial environment
+parser before Atlas reported `Free usage exceeded, subscribe to Go`, reason
+`free_tier_limit`, with an active retry scheduled at
+**2026-10-22 00:00:00.250 UTC / 03:00 Asia/Jerusalem**. Earlier
+endpoint-unavailable retries intermittently recovered and are a distinct error.
+[Recorded supported-API evidence](../agent-tasks/P035-symbolic-environment/quota-evidence.json)
+does not include upstream HTTP headers: Atlas's own response Date must not be
+presented as the upstream Date, and the client deadline is not a guaranteed reset.
+
+Keep this worker's existing retry; do not resubmit, switch models/accounts or
+purchase capacity. The orchestrator remains active and can review the saved
+draft while waiting. No implementation handoff, passing feature validation,
+publication or trust promotion follows the partial file write.

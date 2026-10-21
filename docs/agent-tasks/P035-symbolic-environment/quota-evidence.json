@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-21T17:07:23.784905+00:00",
+  "thread": "ses_ea0c20abbffetX6Z32B2DDV7Bl",
+  "model": "opencode/longcat-2.5-preview-free",
+  "atlasResponseDate": "Wed, 21 Oct 2026 17:07:23 GMT",
+  "status": "retry",
+  "activity": {
+    "kind": "retrying",
+    "attempt": 3,
+    "message": "Free usage exceeded, subscribe to Go",
+    "nextAt": 1792627200250,
+    "reason": "free_tier_limit"
+  },
+  "upstreamHttpStatus": null,
+  "upstreamDate": null,
+  "retryAfter": null,
+  "notes": "Supported Atlas status only; nextAt is client retry time, not a guaranteed upstream reset. Keep the existing active retry; no new dispatch before recovery.",
+  "nextAttemptUTC": "2026-10-22T00:00:00.250000+00:00"
+}
