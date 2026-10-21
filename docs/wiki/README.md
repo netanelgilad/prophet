@@ -40,15 +40,15 @@ contradictions during review. Unknown facts stay labeled unknown. Never persist
 credentials or private provider payloads. Claims from a worker are provisional
 until review is recorded; a model-generated article is not independent evidence.
 
-- [Number-domain unary bitwise NOT](number-bitwise-not.md): late ToNumeric admission, signed32 conversion, callee-before-argument frontier; P011 review pending.
-- [Bounded Node Stats.size](stats-size.md): declared-fact acquisition, P012-R1 precedence, boundary-marked Stats; frontier now stats.mtime; independent review pending.
-- [Bounded Node Stats.mtime](stats-mtime.md): declared-observation bounded Date, clipped getTime and deterministic toUTCString; frontier now String.prototype.normalize; independent review pending.
-- [Bounded ASCII String.prototype.normalize](string-normalize.md): NFC identity on concrete ASCII, typed boundaries elsewhere; frontier now String.prototype.replace; independent review pending.
-- [Bounded no-match RegExp String.prototype.replace](string-replace.md): identity via the Boolean matcher's no-match answer; frontier now Function.prototype.bind; independent review pending.
-- [Bounded Function.prototype.bind](function-bind.md): captured receiver/partials, computed length, forwarding calls; unchanged sirv factory returns its request handler; independent review pending.
-- [Bounded sloppy receiver boxing](sloppy-boxing.md): fresh ToObject wrappers on original intrinsic prototypes; bound viaCache handler callable; independent review pending.
-- [Bounded generic UTF-16 String.prototype.indexOf](string-indexof.md): forward scan, NaN-as-+0 positions, shared budgets; delivered sirv GET completes @polka/url parse; independent review pending.
-- [Bounded ordinary-array call spread](call-spread.md): proven intrinsic iteration, holes as undefined, conditional operand splits; sirv extns.push spread completes; independent review pending.
-- [Bounded String.prototype.charCodeAt](string-charcodeat.md): ToIntegerOrInfinity positions, single-unit reads, no scan budget; viaCache lookup completes on the delivered sirv GET; independent review pending.
-- [Bounded for-in enumeration](for-in.md): snapshot keys, native mutation semantics, per-iteration cells; send header loop completes on the delivered sirv GET; independent review pending.
-- [Response getHeader/setHeader surface](response-headers.md): lazily-created raw store, writeHead merge, pinned error codes; sirv send reaches the content-length projection decision; independent review pending.
+- [Number-domain unary bitwise NOT](number-bitwise-not.md): late ToNumeric admission, signed32 conversion, callee-before-argument frontier; integrated before this cumulative review.
+- [Bounded Node Stats.size](stats-size.md): declared-fact acquisition, P012-R1 precedence, boundary-marked Stats; frontier now stats.mtime; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded Node Stats.mtime](stats-mtime.md): declared-observation bounded Date, clipped getTime and deterministic toUTCString; frontier now String.prototype.normalize; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded ASCII String.prototype.normalize](string-normalize.md): NFC identity on concrete ASCII, typed boundaries elsewhere; frontier now String.prototype.replace; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded no-match RegExp String.prototype.replace](string-replace.md): replacement coercion and lastIndex bookkeeping before the Boolean matcher's no-match answer; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded Function.prototype.bind](function-bind.md): captured receiver/partials, computed length, forwarding calls; unchanged sirv factory returns its request handler; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded sloppy receiver boxing](sloppy-boxing.md): fresh ToObject wrappers with bounded String primitive slots; bound viaCache handler callable; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded generic UTF-16 String.prototype.indexOf](string-indexof.md): forward scan, NaN-as-+0 positions, shared budgets; delivered sirv GET completes @polka/url parse; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded ordinary-array call spread](call-spread.md): proven intrinsic iteration, holes as undefined, conditional operand splits; sirv extns.push spread completes; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded String.prototype.charCodeAt](string-charcodeat.md): ToIntegerOrInfinity positions, single-unit reads, no scan budget; viaCache lookup completes on the delivered sirv GET; reviewed in the 2026-10-21 cumulative integration.
+- [Bounded for-in enumeration](for-in.md): snapshot keys, native mutation semantics, per-iteration cells; send header loop completes on the delivered sirv GET; reviewed in the 2026-10-21 cumulative integration.
+- [Response getHeader/setHeader surface](response-headers.md): lazily-created raw store, writeHead merge, pinned error codes; sirv send reaches the content-length projection decision; reviewed in the 2026-10-21 cumulative integration.

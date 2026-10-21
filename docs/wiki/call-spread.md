@@ -22,7 +22,7 @@ Everything else stops as a typed boundary with an exact message: custom
 arrays, unknown or symbolic layouts, non-array iterables (strings, Maps,
 generators) and non-iterables. Native TypeErrors for non-iterables are
 pinned as controls but not fabricated. One operand may contribute at most
-1024 elements. Integration additionally caps the whole argument list at 1024
+1024 elements. Integration additionally caps the whole argument list at 4096
 operands/expanded values and 64 spread operands, including empty spreads;
 these bounds limit host argument-list work, not guest semantics.
 

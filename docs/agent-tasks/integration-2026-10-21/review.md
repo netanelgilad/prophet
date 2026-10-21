@@ -67,12 +67,18 @@ case is newly claimed; TEST-004 remains open.
 The original eleven independently authored counterexamples all failed against
 the draft and pass after correction. Additional guards, native stream lifecycle
 controls, and complete Test262 RegExp rejection variants supplement them.
+The first full regression run failed four cases (159 suites / 5,096 tests
+passed, 46 skipped) and caught the new 1,024 total-argument cap rejecting
+existing 1,500/3,000-argument supported calls. The total cap was raised to 4,096
+and a 4,097 boundary regression added; individual spread and spread-count caps
+remain. The existing large-call success assertions are retained unchanged.
+
 A later attempted Number.prototype mutation test hit an existing explicit guard;
 that was a reviewer false alarm, not a removed working behavior.
 
 ## Acceptance
 
-Correction review and focused validation are accepted: 23 independent regression
+Correction review and focused validation are accepted: 25 independent regression
 cases, native stream controls and sirv native range/validator controls pass.
 Fresh full regression validation, typecheck, final audit and exact-commit CI
 publication checks remain pending. See evidence.json when

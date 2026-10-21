@@ -163,3 +163,20 @@ test('regexp replace guards object lastIndex conversion after replacement effect
  expect(completion).toMatchObject({type:'ExecutionBoundary',kind:'unsupported'});
  expect(after.value.scope.seen).toMatchObject({value:1});
 });
+
+test('generic argument budget preserves 4096 flat arguments and stops at 4097', () => {
+ const argumentsAtLimit = Array.from({length:4096}, (_, index) => `effect = ${index}`).join(',');
+ const [completed, after] = evaluateCode(`let effect = -1; function first(value) {return value;}
+ const answer = first(${argumentsAtLimit});`, nodeInitialExecutionContext);
+ expect(hasExecutionBoundary(completed)).toBe(false);
+ expect(isThrownValue(completed)).toBe(false);
+ expect(after.value.scope.answer).toMatchObject({value:0});
+ expect(after.value.scope.effect).toMatchObject({value:4095});
+ const [stopped] = evaluateCode(`function first(value){return value;} first(${argumentsAtLimit}, 4096);`, nodeInitialExecutionContext);
+ expect(stopped).toMatchObject({type:'ExecutionBoundary',kind:'budget'});
+});
+test('expanded argument budget also checks scalar arguments after the last spread', () => {
+ const ordinary = Array.from({length:4095}, () => '0').join(',');
+ const [stopped] = evaluateCode(`function first(value){return value;} first(...[1,2], ${ordinary});`, nodeInitialExecutionContext);
+ expect(stopped).toMatchObject({type:'ExecutionBoundary',kind:'budget'});
+});

@@ -222,10 +222,10 @@ function withArguments(
   continuation: (args: Any[], context: TExecutionContext) => BranchResult,
   index = 0, args: Any[] = []
 ): BranchResult {
-  if (index === 0 && (expressions.length > 1024 || expressions.filter(expression => expression.type === "SpreadElement").length > 64)) {
-    throw new ExecutionBudgetError("Argument list exceeds 1024 operands or 64 spreads");
+  if (index === 0 && (expressions.length > 4096 || expressions.filter(expression => expression.type === "SpreadElement").length > 64)) {
+    throw new ExecutionBudgetError("Argument list exceeds 4096 operands or 64 spreads");
   }
-  if (args.length > 1024) throw new ExecutionBudgetError("Expanded argument list exceeds 1024 values");
+  if (args.length > 4096) throw new ExecutionBudgetError("Expanded argument list exceeds 4096 values");
   let current = context;
   let values = args;
   for (let position = index; position < expressions.length; position++) {
@@ -256,7 +256,10 @@ function withArguments(
     values = values.concat([result[0]]);
     current = result[1];
   }
-  return withAnalysisFailureContext(current, () => continuation(values, current));
+  return withAnalysisFailureContext(current, () => {
+    if (values.length > 4096) throw new ExecutionBudgetError("Expanded argument list exceeds 4096 values");
+    return continuation(values, current);
+  });
 }
 
 function needsContinuation(value: Any): boolean {

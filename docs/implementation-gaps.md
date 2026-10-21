@@ -1512,7 +1512,8 @@ is closed by this integration.
   selected symbolic heads. Snapshot/depth/body/work limits remain explicit: at most 1,024 keys and
   64 prototype links, alongside the existing body/step budgets.
   Array patterns have at most 64 elements and nesting depth 32. Expanded calls
-  cap operands/results at 1,024 and spread operands at 64; comma sequences cap
+  cap operands/results at 4,096 (preserving existing 3,000-argument calls),
+  individual spreads at 1,024 elements, and spread operands at 64; comma sequences cap
   at 64 operands. These are analysis budgets, not JavaScript restrictions.
   Array binding uses current iterator length, permanent exhaustion, and guarded
   ordinary-iterator admission; custom iterables, rest, descriptors and general
