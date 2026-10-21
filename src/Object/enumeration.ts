@@ -12,7 +12,7 @@ import { readMember } from "../ASTResolvers";
 
 type KeyContinuation = (source: WithProperties, keys: ReadonlyArray<string>, context: TExecutionContext) => BranchResult;
 
-function withKeyOrder(order: PropertyKeys, context: TExecutionContext,
+export function withKeyOrder(order: PropertyKeys, context: TExecutionContext,
   continuation: (keys: ReadonlyArray<string>, context: TExecutionContext) => BranchResult): BranchResult {
   return order.kind === "choice" ? evaluateBranches(order.condition, context,
     branch => withKeyOrder(order.consequent, branch, continuation),

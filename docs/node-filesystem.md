@@ -106,6 +106,11 @@ Supported operations are:
   exposing shared `isDirectory` and `isFile` methods. Methods may be borrowed
   between modeled Stats receivers; arbitrary receivers, mode/_checkModeProperty
   changes, other fields, constructors and descriptor reflection remain guarded.
+  A regular file's `size` is the declared byte size: derived from concrete
+  declared contents, or supplied as a validated observed size at acquisition
+  (the CLI capture passes the memoized `lstat` size). Directory sizes and
+  files without an observed size keep the typed boundary; see
+  [Stats size](#bounded-statssize-and-the-p012-r1-boundary).
 - `readdirSync(path)` with omitted/undefined/null options: returns a fresh array
   of complete UTF-8 names in pinned Linux/Darwin byte order. Closed declarations
   and acquired complete names retain symbolic conditions; see
@@ -280,7 +285,14 @@ the temporary descriptor; an EACCES/EMFILE open failure creates no descriptor.
 An EISDIR result still assumes successful allocation/cleanup on that read path.
 Stats guards keep unmodeled metadata observations outside the proof domain.
 
-Other APIs, asynchronous/promises/stream operations, writes, Buffer/typed-array
+fs.createReadStream returns a modeled EventEmitter with explicit
+embedding-driven delivery (deliverReadStream emits data/end/close
+synchronously inside the operation; files up to the pinned 64 KiB
+highWaterMark arrive as one Buffer chunk, and pipe wires data/end to the
+destination's write/end and returns it). The 'open' event and descriptor
+identity, stream options, multi-chunk flows, pause/resume/destroy and
+repeat delivery reject analysis. Other APIs, asynchronous/promises and
+remaining stream operations, writes, Buffer/typed-array
 or URL path arguments, file descriptors, richer encodings and options remain
 gaps. Non-string path diagnostics, including existsSync's DEP0187 warning,
 reject analysis. Partial Stats is not full mode/Date/BigInt/metadata behavior.
@@ -446,3 +458,60 @@ actually checks Windows realpath behavior for fileserver/drive paths, including
 asynchronous realpath and os.hostname. It is not evidence for a missing-file
 readFileSync case. None of these complete files is currently activated or
 counted passing, and none is trimmed to an easier fragment.
+
+## Bounded Stats.size and Stats.mtime, and the P012-R1 boundary
+
+A regular file's `size` is modeled only from declared facts: concrete declared
+contents fix their UTF-8 byte length, and an observed file may carry a
+validated nonnegative safe-integer size recorded at acquisition (the CLI
+capture passes the memoized `lstat` size; no new host call and no
+change-revalidation at read time). A regular file's `mtime` is modeled only
+from an explicit declared observation (the capture passes the memoized
+`lstat` `mtimeMs`; contents never imply one), clipped to an integral
+millisecond within the ECMAScript Date range the way `new Date(milliseconds)`
+clips, including negative-zero normalization. The read returns a bounded Date
+instance whose `getTime` and `toUTCString` are deterministic UTC arithmetic
+over that declared value (proleptic Gregorian conversion, the pinned host's
+year formatting); every other Date method, the Date constructor, `Date.now`
+and timezone/locale behavior stay guarded. The first read of either field
+persists the reached fact onto the Stats value after the current own property
+check, so the P012-R1 correction is preserved: an explicitly supplied current
+own data property (including undefined/zero, conditional presence, finite
+values and alias replacement) still wins, and inherited Object.prototype
+members establish no metadata. Directory metadata and files without a
+declared value stop at the corresponding typed boundary. Other Stats fields
+(mode/BigInt/atime/ctime), fresh unknown-size writes, descriptor reflection
+and constructors remain guarded. Stats instances and bounded Date instances
+are boundary-marked, so reached unmodeled fields stop as retained typed
+boundaries beside their siblings rather than host failures that drop the CLI
+graph. See [size specs](../test/node-stats-size.spec.ts),
+[mtime specs](../test/node-stats-mtime.spec.ts),
+[presence specs](../test/node-filesystem-size-presence.spec.ts),
+[P013](agent-tasks/P013-stats-size/task.md) and
+[P014](agent-tasks/P014-stats-mtime/task.md).
+
+
+## Bounded read streams — P025/P030/P034 and integration correction
+
+`createReadStream` accepts declared UTF-8 files and bounded numeric inclusive
+start/end ranges; end Infinity means EOF. Path validation precedes ranges.
+The embedding explicitly calls `deliverReadStream`; this is not automatic
+future execution or an OS read during symbolic exploration. Selected file,
+permission and descriptor-failure alternatives live in persistent stream state,
+so one symbolic branch cannot overwrite another through host bookkeeping.
+
+Successful single-chunk delivery updates bytesRead before data callbacks,
+then emits end, updates closed and emits close. Handled failures emit error and
+close with current state; unhandled error remains a guest throw. Delivery cannot
+be repeated. Independent pinned Node checks cover callback state and event order
+for success and ENOENT in [native stream specs](../test/integration-native-stream.spec.ts).
+
+The supported pipe destination is a modeled HTTP response. Arbitrary custom
+destinations require observable registration, pipe/unpipe and backpressure
+semantics; they stop explicitly. Missing callable destination `on` retains its
+native TypeError. Open/fd events, other options, multiple chunks, arbitrary
+encodings, general streams, backpressure, cancellation and scheduling remain
+FS-001/FS-002/HTTP-008 gaps. Selected slices are capped at 64 KiB and source
+materialization is independently bounded. The concrete sirv success, HEAD,
+404, range and conditional-request cases do not prove every filesystem or
+request path. No complete upstream Node stream test is claimed.

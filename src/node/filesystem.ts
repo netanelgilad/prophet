@@ -5,16 +5,23 @@ import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { ExecutionContext, TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
-import { UnsupportedAnalysisError } from "../execution-context/analysis-failure";
+import { ExecutionBudgetError, markUnsupportedBoundaryObject, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { getArrayElements, getProperties, ownPropertyPresence, writeProperty } from "../execution-context/Heap";
-import { ESObject, TESObject } from "../Object";
+import { ESObject, isESObject, TESObject } from "../Object";
+import { invoke, readMember } from "../ASTResolvers";
+import { bindNormal } from "../evaluate";
+import { createEventEmitterModel } from "./events";
 import { getObjectPrototype, hasProperty } from "../Object/prototype";
 import { ESString } from "../string/String";
 import { choiceOf, resolveBoolean } from "../symbolic";
-import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isUndefined, TESBoolean, ThrownValue, Undefined } from "../types";
+import { Any, ESNull, ESNumber, isESBoolean, isESNull, isESString, isThrownValue, isUndefined, isFunction, TESBoolean, ThrownValue, Undefined, isESNumber } from "../types";
+import { isESFunction } from "../Function/Function";
 import { createBufferValue } from "./buffer";
+import { boundedDate, validateDateMilliseconds } from "../date/Date";
 
 const entries = new WeakMap<object, "directory" | "file">();
+const fileSizes = new WeakMap<object, number>();
+const fileMtimes = new WeakMap<object, number>();
 const openDirectories = new WeakSet<object>();
 const access = new WeakMap<object, { readable: TESBoolean; searchable: TESBoolean }>();
 type LookupFailure = "ENOENT" | "ENOTDIR" | "EACCES";
@@ -59,14 +66,28 @@ function entry(kind: "directory" | "file", properties: { [key: string]: Any },
 }
 
 /** Embedding input: regular UTF-8 file with concrete or symbolic effective read access. */
-export function fileSystemFile(contents: string, options: { readable?: TESBoolean } = {}): TESObject {
+export function fileSystemFile(contents: string, options: { readable?: TESBoolean; mtimeMs?: number } = {}): TESObject {
   if (typeof contents !== "string") return unsupported("open file contents or non-text setup");
-  return entry("file", { text: ESString(utf8(contents)) }, options);
+  const text = utf8(contents);
+  const node = entry("file", { text: ESString(text) }, options);
+  // Node's Stats.size counts bytes on disk. Declared concrete contents fix
+  // exactly those bytes, so the byte length is a fact, not a host inference.
+  fileSizes.set(node, Buffer.byteLength(text, "utf8"));
+  // An mtime, unlike a size, is never implied by contents; only an explicit
+  // observation declares it.
+  if (options.mtimeMs !== undefined) fileMtimes.set(node, validateDateMilliseconds(options.mtimeMs));
+  return node;
 }
 
 /** An observed regular file whose contents have not yet been acquired. */
-export function fileSystemUnobservedFile(options: { readable?: TESBoolean } = {}): TESObject {
-  return entry("file", { text: ESString() }, options);
+export function fileSystemUnobservedFile(options: { readable?: TESBoolean; size?: number; mtimeMs?: number } = {}): TESObject {
+  if (options.size !== undefined && (!Number.isSafeInteger(options.size) || options.size < 0)) {
+    throw new Error("Filesystem file size observations require nonnegative safe integers");
+  }
+  const node = entry("file", { text: ESString() }, options);
+  if (options.size !== undefined) fileSizes.set(node, options.size);
+  if (options.mtimeMs !== undefined) fileMtimes.set(node, validateDateMilliseconds(options.mtimeMs));
+  return node;
 }
 
 /** Closed by default; complete:false leaves unlisted names unobserved. */
@@ -106,6 +127,20 @@ function systemError(code: LookupFailure | "EISDIR" | "EMFILE", syscall: "stat" 
     syscall: ESString(syscall), ...(path === undefined ? {} : { path: ESString(path) }) });
   Object.assign(error, { unmodeledPropertyReads: ["stack", "constructor"],
     unmodeledPropertyWrites: ["stack", "constructor"], unmodeledOwnPropertyInspection: "Node filesystem error descriptors" });
+  return ThrownValue(error);
+}
+
+// Pinned Node 24.21.0: a negative, fractional or greater-than-end start/end
+// option throws a RangeError with code ERR_OUT_OF_RANGE synchronously at
+// createReadStream construction. The diagnostic wording is a separate
+// precision gap, so the type and code are preserved without an invented
+// message.
+function rangeOptionError(): Any {
+  const error = createError("RangeError", ESString());
+  error.properties.code = ESString("ERR_OUT_OF_RANGE");
+  Object.assign(error, { unmodeledPropertyReads: ["stack", "constructor", "toString"],
+    unmodeledPropertyWrites: ["stack", "constructor", "toString"],
+    unmodeledOwnPropertyInspection: "Node filesystem argument error descriptors" });
   return ThrownValue(error);
 }
 
@@ -275,11 +310,38 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
       return [ESBoolean(kind === (name === "isDirectory" ? "directory" : "file")), branch];
     }), "");
   const stats = (node: TESObject) => {
-    const result = Object.assign(ESObject(), { prototype: statsPrototype,
+    // Marked so reached unmodeled Stats fields stop as retained typed
+    // boundaries beside their siblings, never as host failures losing state.
+    const result = markUnsupportedBoundaryObject(Object.assign(ESObject(), { prototype: statsPrototype,
       unknownProperties: "Node Stats fields", modeledInheritedProperties: ["isDirectory", "isFile"],
       unmodeledOwnPropertyInspection: "Node Stats descriptors",
-      unmodeledPropertyReads: ["mode", "_checkModeProperty"], unmodeledPropertyWrites: ["mode", "_checkModeProperty", "__proto__"]
-    });
+      unmodeledPropertyReads: ["mode", "_checkModeProperty"], unmodeledPropertyWrites: ["mode", "_checkModeProperty", "__proto__"],
+      // Only classify absent current own size. Supplied data properties use
+      // their persistent presence/value, without inferring native Stats fields
+      // or substituting inherited metadata. Split conditional presence once.
+      propertyAccess: { read(name: string, context: TExecutionContext): BranchResult | undefined {
+        if (name !== "size" && name !== "mtime") return undefined;
+        return evaluateBranches(ownPropertyPresence(result, name, context), context, branch => {
+          const value = getProperties(result, branch)[name];
+          // Match ordinary reads of legacy native method values: identity is
+          // the implementation object, not a fresh wrapper on every lookup.
+          return [isFunction(value) ? { type: "function", id: value, properties: {}, function: value } : value, branch];
+        }, absent => {
+          // Bounded Stats.size/mtime: declared facts of a regular file,
+          // persisted as reached facts on first read. Directory metadata and
+          // files without an observed value stay a typed boundary.
+          if (name === "size") {
+            const size = fileSizes.get(node);
+            if (size === undefined) throw new UnsupportedAnalysisError("Unmodeled host property 'size': Node Stats fields");
+            return [ESNumber(size), writeProperty(result, name, ESNumber(size), absent)];
+          }
+          const milliseconds = fileMtimes.get(node);
+          if (milliseconds === undefined) throw new UnsupportedAnalysisError("Unmodeled host property 'mtime': Node Stats fields");
+          const date = boundedDate(milliseconds);
+          return [date, writeProperty(result, name, date, absent)];
+        });
+      }, write(): undefined { return undefined; } }
+    }));
     statsKinds.set(result, entries.get(node)!);
     return result;
   };
@@ -411,6 +473,198 @@ export function createFileSystemModel(options: { root: Any; cwd?: string; fileDe
           }), exhausted => [systemError("EMFILE", "open", path), exhausted]);
       });
     }));
-  return { module, state, inspectRoot: (context: TExecutionContext) => getProperties(state, context).root,
+  const streamUnsupported = (detail: string): never => {
+    throw new UnsupportedAnalysisError(`Filesystem analysis is not yet supported: ${detail}`);
+  };
+  // fs.ReadStream delivery is an explicit embedding operation, matching the
+  // http.completeResponse convention: Node delivers stream events
+  // asynchronously while guest code continues, so the embedding picks the
+  // delivery point instead of the model pretending pipe() reads synchronously.
+  const streamEvents = createEventEmitterModel();
+  const streamEventsPolicy = {
+    restrictedEvents: ["data", "end", "close"],
+    // 'open' carries a file descriptor number; descriptor identity is not
+    // modeled, so registration fails honestly instead of delivering a fake fd.
+    unsupportedRegistrations: ["open", "ready", "readable", "pause", "resume"]
+  };
+  type ReadStreamFacts = { path: string; start?: number; end?: number };
+  const readStreamFacts = new WeakMap<object, ReadStreamFacts>();
+  const createdReadStreams: TESObject[] = [];
+  const readStreamOf = (receiver: Any): { facts: ReadStreamFacts; state: TESObject } => {
+    if (!isESObject(receiver) || !readStreamFacts.has(receiver)) {
+      return unsupported("fs ReadStream operations on foreign receivers");
+    }
+    return { facts: readStreamFacts.get(receiver)!, state: receiver.hostSlots!["node.fs.stream"] as TESObject };
+  };
+  const pipe = Object.assign(createHostFunction("fs.createReadStream.pipe", (call, context) => {
+    readStreamOf(call.receiver);
+    return evaluateBranches(getProperties(readStreamOf(call.receiver).state, context).delivered as TESBoolean, context,
+      () => streamUnsupported("fs pipe after stream delivery"),
+      pending => withValue(call.args[0] || Undefined, pending, (dest, branch) => {
+        if (!isESObject(dest)) return streamUnsupported("fs pipe to non-object destinations");
+        if (!isUndefined(call.args[1] || Undefined)) return streamUnsupported("fs pipe options");
+        return bindNormal(readMember(dest, "on", branch), (onMember, afterOn) => {
+          // Pinned Node 24.21.0: pipe requires the destination's 'on' method
+          // and throws synchronously when it is absent.
+          if (!isESFunction(onMember)) {
+            const error = createError("TypeError", ESString("dest.on is not a function"));
+            Object.assign(error, { unmodeledPropertyReads: ["stack", "constructor"],
+              unmodeledPropertyWrites: ["stack", "constructor"],
+              unmodeledOwnPropertyInspection: "Node error descriptors" });
+            return [ThrownValue(error), afterOn];
+          }
+          if (!dest.hostSlots || !dest.hostSlots["node.http.response"]) return streamUnsupported("fs pipe to custom destinations with observable setup");
+          // Node also registers dest.on("unpipe") and emits 'pipe' on the
+          // destination; response destinations gate both surfaces honestly
+          // (unsupportedRegistrations), so pipe models only data/end wiring.
+          const onData = createHostFunction("fs.pipe.data", (dataCall, dataContext) =>
+            bindNormal(readMember(dest, "write", dataContext), (writeMember, afterWrite) =>
+              invoke(writeMember, [dataCall.args[0] || Undefined], afterWrite, dest)));
+          const onEnd = createHostFunction("fs.pipe.end", (_endCall, endContext) =>
+            bindNormal(readMember(dest, "end", endContext), (endMember, afterEnd) =>
+              invoke(endMember, [], afterEnd, dest)));
+          return bindNormal(streamEvents.register(call.receiver, "data", onData, false, afterOn), (_data, withData) =>
+            bindNormal(streamEvents.register(call.receiver, "end", onEnd, false, withData), (_end, registered) =>
+              [dest, registered]));
+        });
+      }));
+  }), {
+    nonConstructible: false,
+    unmodeledConstruct: "fs pipe construction is not yet supported",
+    unknownProperties: "Node fs pipe function API",
+    modeledInheritedProperties: ["call"],
+    unmodeledOwnPropertyInspection: "Node fs pipe function descriptors",
+    unmodeledPropertyReads: ["caller", "arguments"],
+    unmodeledPropertyWrites: ["name", "length", "caller", "arguments"]
+  });
+  Object.assign(pipe.properties, { name: ESString("pipe"), length: ESNumber(1) });
+  module.properties.createReadStream = operation("createReadStream", 2, (call, context) =>
+    withValue(call.args[1] || Undefined, context, (option, afterOption) => {
+      // Node accepts undefined or an options object. Range slicing, encodings,
+      // flags, fds and the remaining fields are separate gaps; consult the
+      // known option names, including inherited fields, before path work.
+      if (!isUndefined(option)) {
+        if (!isESObject(option)) return streamUnsupported("fs createReadStream non-object options");
+        for (const name of ["flags", "encoding", "fd", "mode", "autoClose", "emitClose", "highWaterMark"]) {
+          if (resolveBoolean(hasProperty(option, name, afterOption), afterOption.value.knowledge) !== false) {
+            return streamUnsupported(`fs createReadStream option '${name}'`);
+          }
+        }
+      }
+      // Bounded range options: undefined fields are absent; concrete safe
+      // integers >= 0 validate at construction like pinned Node; a
+      // greater-than-end pair throws there too. Non-number fields stay a
+      // typed boundary. Accessor-driven option reads remain unmodeled
+      // through the ordinary member read.
+      const readRangeField = (name: "start" | "end", current: TExecutionContext,
+        proceed: (selected: number | undefined, after: TExecutionContext) => BranchResult): BranchResult =>
+        isUndefined(option) ? proceed(undefined, current) :
+          bindNormal(readMember(option, name, current), (field, afterField) =>
+            withValue(field, afterField, (selected, branch) => {
+              if (isUndefined(selected)) return proceed(undefined, branch);
+              if (!isESNumber(selected) || typeof selected.value !== "number") {
+                return streamUnsupported("fs createReadStream non-number range options are not yet supported");
+              }
+              // Pinned Node 24.21.0: end: Infinity is an explicit exception
+              // treated as absent (reads to EOF); start: Infinity is not and
+              // fails the safe-integer check below with ERR_OUT_OF_RANGE.
+              if (name === "end" && selected.value === Infinity) return proceed(undefined, branch);
+              if (!Number.isSafeInteger(selected.value) || selected.value < 0) return [rangeOptionError(), branch];
+              return proceed(selected.value, branch);
+            }));
+      // Pinned Node 24.21.0 validates the path before the range fields:
+      // createReadStream("/a\0b", {start: -1}) throws the path TypeError
+      // ERR_INVALID_ARG_VALUE, and a non-string path fails before any range
+      // check, so the bounded {start,end} validation runs after path work.
+      return withPath(call.args[0] || Undefined, afterOption, (path, afterPath) => {
+        if (path.includes("\0")) return [nullByteError(), afterPath];
+        return readRangeField("start", afterPath, (rangeStart, afterStart) =>
+          readRangeField("end", afterStart, (rangeEnd, afterEnd) => {
+          if (rangeStart !== undefined && rangeEnd !== undefined && rangeStart > rangeEnd) {
+            return [rangeOptionError(), afterEnd];
+          }
+        const streamState = ESObject({ delivered: ESBoolean(false), node: Undefined, error: Undefined });
+        const stream = markUnsupportedBoundaryObject(Object.assign(ESObject({ bytesRead: ESNumber(0), closed: ESBoolean(false),
+          path: ESString(path), pipe }), {
+          unknownProperties: "Node fs ReadStream API",
+          unmodeledOwnPropertyInspection: "Node fs ReadStream descriptors",
+          unmodeledPropertyWrites: ["bytesRead", "closed", "path"],
+          hostSlots: Object.freeze({ "node.fs.stream": streamState })
+        }));
+        readStreamFacts.set(stream, { path, start: rangeStart, end: rangeEnd });
+        createdReadStreams.push(stream);
+        const attached = streamEvents.attach(stream, afterEnd, streamEventsPolicy);
+        return evaluateBranches(getProperties(state, attached).fileDescriptorsAvailable as TESBoolean, attached,
+          available => lookup(path, available, (result, after) => {
+            if ("error" in result) {
+              return [stream, writeProperty(streamState, "error", ESString(result.error), after)];
+            }
+            return evaluateBranches(access.get(result.node)!.readable, after, readable => {
+              if (entries.get(result.node) === "directory") {
+                return [stream, writeProperty(streamState, "error", ESString("EISDIR"), readable)];
+              }
+              return [stream, writeProperty(streamState, "node", result.node, readable)];
+            }, denied => {
+              return [stream, writeProperty(streamState, "error", ESString("EACCES"), denied)];
+            });
+          }), exhausted => {
+            return [stream, writeProperty(streamState, "error", ESString("EMFILE"), exhausted)];
+          });
+        }));
+      });
+      }));
+  const deliverConcreteReadStream = (stream: Any, context: TExecutionContext): BranchResult => {
+    const { facts, state: streamState } = readStreamOf(stream);
+    return evaluateBranches(getProperties(streamState, context).delivered as TESBoolean, context,
+      () => unsupported("repeat fs ReadStream delivery"), pending =>
+      withValue(getProperties(streamState, pending).error, pending, (failure, selectedContext) => {
+        const checkpoint = writeProperty(streamState, "delivered", ESBoolean(true), selectedContext);
+        if (isESString(failure)) {
+          // systemError wraps the error in a ThrownValue completion for fs
+          // call sites; the 'error' event payload is the bare error object.
+          const completion = systemError(failure.value as LookupFailure | "EISDIR" | "EMFILE", failure.value === "EISDIR" ? "read" : "open", facts.path);
+          const payload = isThrownValue(completion) ? completion.value : completion;
+          return bindNormal(streamEvents.emit(stream, "error", [payload], writeProperty(stream as TESObject, "closed", ESBoolean(true), checkpoint)),
+            (_value, after) => bindNormal(streamEvents.emit(stream, "close", [], after), (_closed, final) => [stream, final]));
+        }
+        // Contents are read at delivery, like the native asynchronous read.
+        return withValue(getProperties(streamState, checkpoint).node, checkpoint, (node, nodeContext) => {
+        let text = getProperties(node as TESObject, nodeContext).text;
+        let current = nodeContext;
+        if (isESString(text) && typeof text.value !== "string") {
+          if (!observeContents) return streamUnsupported("unobserved file contents");
+          const contents = observeContents(node as TESObject);
+          if (typeof contents !== "string" || utf8(contents) !== contents) return streamUnsupported("invalid captured UTF-8 contents");
+          text = ESString(contents);
+          current = writeProperty(node as TESObject, "text", text, current);
+        }
+        if (!isESString(text) || typeof text.value !== "string") return streamUnsupported("invalid file text state");
+        if (text.value.length > 1048576) throw new ExecutionBudgetError("fs ReadStream source exceeds 1048576 UTF-16 units");
+        const bytes = Array.from(Buffer.from(text.value, "utf8"));
+        // Pinned Node 24.21.0: {start,end} slice the delivered bytes
+        // inclusively; an absent start is 0 and an absent or oversized end
+        // clamps to the last byte; start at or past the size delivers no
+        // data event, only end and close, with bytesRead 0. The default
+        // 64 KiB highWaterMark reads a slice up to that size as one chunk;
+        // larger multi-chunk flows are a recorded gap, as is the async
+        // 'open' event (descriptor identity is unmodeled).
+        const sliceStart = facts.start === undefined ? 0 : facts.start;
+        const sliceEnd = facts.end === undefined ? bytes.length - 1 : Math.min(facts.end, bytes.length - 1);
+        const slice = sliceStart > sliceEnd ? [] : bytes.slice(sliceStart, sliceEnd + 1);
+        if (slice.length > 65536) return streamUnsupported("multi-chunk fs ReadStream delivery (reads over 64 KiB)");
+        const delivering = writeProperty(stream as TESObject, "bytesRead", ESNumber(slice.length), current);
+        const deliverData = (ready: TExecutionContext): BranchResult => slice.length === 0 ? [Undefined, ready] :
+          streamEvents.emit(stream, "data", [createBufferValue(slice)], ready);
+        return bindNormal(deliverData(delivering), (_data, afterData) =>
+          bindNormal(streamEvents.emit(stream, "end", [], afterData), (_end, afterEnd) =>
+            bindNormal(streamEvents.emit(stream, "close", [], writeProperty(stream as TESObject, "closed", ESBoolean(true), afterEnd)),
+              (_close, afterClose) => [stream, afterClose])));
+        });
+      }));
+  };
+  const deliverReadStream = (stream: Any, context: TExecutionContext): BranchResult =>
+    withValue(stream, context, (selected, branch) => deliverConcreteReadStream(selected, branch));
+  return { module, state, deliverReadStream, createdReadStreams,
+    inspectRoot: (context: TExecutionContext) => getProperties(state, context).root,
     inspectFileDescriptorsAvailable: (context: TExecutionContext) => getProperties(state, context).fileDescriptorsAvailable as TESBoolean };
 }

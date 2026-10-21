@@ -320,8 +320,11 @@ test("a conditional invalid header retains its exception, recovery and output on
   expect(resolveBoolean(after.value.scope.uncertain as ReturnType<typeof ESBoolean>, after.value.knowledge)).toBeUndefined();
 });
 
+// Content-Length left this gap list in P024: it is an ordinary explicit
+// serialized field (no writeHead-time validation and no body-length
+// coupling without the socket transport the projection excludes).
 for (const args of [
-  '200, { "Content-Length": 0 }', '200, { "Transfer-Encoding": "chunked" }',
+  '200, { "Transfer-Encoding": "chunked" }',
   '200, { Connection: "close" }', '200, { Trailer: "X-Trailer" }',
   '200, { "X-Duplicate": "first", "x-duplicate": "second" }',
   '200, ["X-Array", "value"]', '200, { "X-Array": ["one", "two"] }',

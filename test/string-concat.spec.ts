@@ -193,9 +193,9 @@ describe("String.prototype.concat", () => {
     expect((scope.uncertain as TESBoolean).value).toBeUndefined();
   });
 
-  test("sloppy primitive receiver boxing remains an explicit gap", () => {
-    expect(() => run('function receiver() { return this; } var value = receiver.call(3);'))
-      .toThrow(/boxing|wrapper/);
+  test("sloppy primitive receiver boxes into a Number wrapper", () => {
+    const scope = run('function receiver() { return typeof this; } var value = receiver.call(3);');
+    expect(scope.value).toMatchObject({ value: "object" });
   });
 
   test("borrowed call rejects noncallable receivers and concat cannot be constructed", () => {

@@ -88,3 +88,32 @@ history remain unchanged. No first-review streak, trust/concurrency promotion,
 model/account change or rotation is inferred.
 
 P011 correction1 independent verdict 245176e accepts exact source5c70d29: original41 probes plus18 new probes (1350 key/trivia/coordinate cases), affected56 suites/2531 passes/46 retained skips, typecheck/audit0. Corrected writer full136 suites/4181 passes/46 skips. Reviewer-native quoting and test-helper typing mistakes retain harness attribution and failed artifacts. Root integrates review-only deliverables and checks exact-head CI; [publication review](agent-tasks/P011-number-bitwise-not/publication-review.md) records the gates. No first-review streak or trust/concurrency/model/account promotion follows.
+
+
+P012 separately authorizes the same sole `gpt-6.1-sol`/high writer on account mine
+for bounded generic substring. Independent Astra/high accepts corrected b582e2c after retaining the original rejection; no
+trust/concurrency promotion or new feature follows. Owner-reported account-wide
+41% at00:34UTC, then40% at00:51UTC, is capacity context, not a per-feature estimate
+or live measurement by the writer. No provider error, account/model/reset change,
+paid fallback, agents or access expansion occurred. Local ENOSPC interrupted
+source capture before affected tests started; root recovered storage while
+preserving archive/cache bytes. Failed selector/harness/typecheck/audit attempts
+remain attributed in P012 evidence. Full semantic review and exact-head root
+publication/CI gates remain required.
+
+
+P012 original3ef28e1 is rejected by frozen Astra/high review5273aa2 for one P2
+Stats admission regression (known current own size17/23). Same sole owner-authorized
+Sol6.1/high writer/account performs correction1 with renewed same-reviewer
+acceptance required. No first-review streak or trust/concurrency promotion.
+Owner-reported primary35%remaining at01:26UTC is account-wide context, not a
+per-feature forecast/live writer measurement. No provider error or account/model/
+plan/reset/paid/API/access change occurred. Original evidence/review and all
+physical artifacts remain preserved; root owns renewed review/draft/exact-head CI.
+
+Owner resumed correction1 at03:12UTC with primary34%remaining and no provider
+errors, still account-wide context. Root verified approved archive storage
+recovery preserved content, paths, modes and mtimes; later measured headroom
+exceeded6GiB. The writer performs no further cleanup or dependency changes.
+
+Root publication checkpoint: same Astra/high correction review66ee9b0 accepts exact b582e2c, with no new production findings. Original29 probes and writer31 presence regressions pass;16 new holdouts pass. The disjoint independent batches total55 suites/2393 passes/46 historical skips and typecheck0. Writer corrected full140 suites/4442 passes/46 skips, typecheck/audit0. Root combined227 tests/typecheck0 and source/artifact alignment verified. Original3ef/527 rejection and all failed artifacts remain historical; no trust/concurrency promotion. See [publication review](agent-tasks/P012-string-substring/publication-review.md) for root integration and exact-head CI gates.

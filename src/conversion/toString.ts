@@ -38,18 +38,22 @@ export function toString(value: Any, context: TExecutionContext): BranchResult {
         after => [ESString("true"), after], after => [ESString("false"), after]) :
         [ESString(String(concrete)), branch];
     }
-    if (isObjectValue(input)) return ordinaryToPrimitive(input, branch, 0);
+    if (isObjectValue(input)) return ordinaryStringHint(input, branch, toString);
     throw new Error("ToString is not yet modeled for this value kind");
   });
 }
 
-function ordinaryToPrimitive(object: Any, context: TExecutionContext, index: number): BranchResult {
+// Reuse string-hint lookup/call order with operation-local primitive admission.
+export function ordinaryStringHint(
+  object: Any, context: TExecutionContext,
+  finish: (primitive: Any, context: TExecutionContext) => BranchResult, index = 0
+): BranchResult {
   if (index === 2) return [ThrownValue(createError("TypeError", ESString("Cannot convert object to primitive value"))), context];
   return bindNormal(readMember(object, ["toString", "valueOf"][index], context), (method, afterRead) =>
     withValue(method, afterRead, (callee, branch) => {
-      if (!(callee as { function?: object }).function) return ordinaryToPrimitive(object, branch, index + 1);
+      if (!(callee as { function?: object }).function) return ordinaryStringHint(object, branch, finish, index + 1);
       return bindNormal(invoke(callee, [], branch, object), (result, afterCall) =>
         withValue(result, afterCall, (primitive, after) => isObjectValue(primitive)
-          ? ordinaryToPrimitive(object, after, index + 1) : toString(primitive, after)));
+          ? ordinaryStringHint(object, after, finish, index + 1) : finish(primitive, after)));
     }));
 }

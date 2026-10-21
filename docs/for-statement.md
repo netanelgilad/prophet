@@ -18,7 +18,7 @@ and stray-jump parser boundaries (`A7_T1/A8_T1`, `decl-let`, `decl-const`,
 `break/A1_T1`, `continue/A1_T1`). Labeled jumps inside supported syntax stop
 explicitly as unsupported; while, do-while, for-in/of and switch
 remain honest resolver gaps under LANG-001. Loop heads accept identifier and
-supported object binding patterns; array/rest patterns stop explicitly before
+supported object and array binding patterns; rest patterns stop explicitly before
 any binding or effect, reusing the shared pattern helpers without adding new
 destructuring algorithms.
 

@@ -1,3 +1,4 @@
+import { boxedPrimitive, sloppyBoxPrototypes } from "../Function/boxing";
 import { split } from "./split";
 import { substr } from "./substr";
 import {
@@ -22,6 +23,12 @@ import { stringSlice } from "./slice";
 import { stringTrim } from "./trim";
 import { stringToLowerCase } from "./toLowerCase";
 import { stringLastIndexOf } from "./lastIndexOf";
+import { stringCharCodeAt } from "./charCodeAt";
+import { stringIncludes } from "./includes";
+import { stringIndexOf } from "./indexOf";
+import { stringSubstring } from "./substring";
+import { stringNormalize } from "./normalize";
+import { stringReplace } from "./replace";
 import { markPartialIntrinsic } from "../execution-context/Heap";
 import { markUnsupportedBoundaryObject } from "../execution-context/analysis-failure";
 
@@ -41,11 +48,11 @@ var stringPrototype: TESObject | undefined;
 // legacy own implementations; borrowing those methods from the prototype is not
 // modeled. Other absent string-keyed names still use ordinary prototype lookup.
 const deferredPrototypeNames = ["anchor", "at", "big", "blink", "bold", "charAt",
-  "charCodeAt", "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed",
-  "includes", "indexOf", "isWellFormed", "italics", "link",
-  "localeCompare", "match", "matchAll", "normalize", "padEnd", "padStart",
-  "repeat", "replace", "replaceAll", "search", "small", "split", "strike",
-  "sub", "substr", "substring", "sup", "startsWith", "toWellFormed",
+  "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed",
+  "isWellFormed", "italics", "link",
+  "localeCompare", "match", "matchAll", "padEnd", "padStart",
+  "repeat", "replaceAll", "search", "small", "split", "strike",
+  "sub", "substr", "sup", "startsWith", "toWellFormed",
   "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase",
   "toLocaleUpperCase", "toUpperCase"];
 export function getStringPrototype(): TESObject {
@@ -71,10 +78,58 @@ export function getStringPrototype(): TESObject {
       unmodeledPropertyReads: ["caller", "arguments"],
       unmodeledPropertyWrites: ["length", "name"]
     });
+    prototype.properties.charCodeAt = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringCharCodeAt),
+      properties: { length: ESNumber(1), name: ESString("charCodeAt") },
+      unknownProperties: "String.charCodeAt metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.indexOf = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringIndexOf),
+      properties: { length: ESNumber(1), name: ESString("indexOf") },
+      unknownProperties: "String.indexOf metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.includes = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringIncludes),
+      properties: { length: ESNumber(1), name: ESString("includes") },
+      unknownProperties: "String.includes metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
     prototype.properties.lastIndexOf = markUnsupportedBoundaryObject({
       ...ESBuiltinFunction(stringLastIndexOf),
       properties: { length: ESNumber(1), name: ESString("lastIndexOf") },
       unknownProperties: "String.lastIndexOf metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.normalize = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringNormalize),
+      properties: { length: ESNumber(0), name: ESString("normalize") },
+      unknownProperties: "String.normalize metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.replace = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringReplace),
+      properties: { length: ESNumber(2), name: ESString("replace") },
+      unknownProperties: "String.replace metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.substring = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringSubstring),
+      properties: { length: ESNumber(2), name: ESString("substring") },
+      unknownProperties: "String.substring metadata",
       modeledInheritedProperties: ["call", "prototype"],
       unmodeledPropertyReads: ["caller", "arguments"],
       unmodeledPropertyWrites: ["length", "name"]
@@ -91,6 +146,8 @@ export function getStringPrototype(): TESObject {
     };
     const stringValue = (name: string) => ({ ...ESBuiltinFunction(function*(self, _args, context) {
       if (isESString(self)) return tuple(self, context);
+      const boxed = boxedPrimitive(self);
+      if (boxed && isESString(boxed)) return tuple(boxed, context);
       if (self === prototype) return tuple(ESString(""), context);
       return tuple(ThrownValue(createError("TypeError", ESString("String method requires a string receiver"))), context);
     }),
@@ -127,6 +184,9 @@ export const StringConstructor = Object.assign(ESFunction(function*(
   unmodeledPropertyWrites: ["prototype"] });
 StringConstructor.properties.prototype = getStringPrototype();
 Object.assign(getStringPrototype().properties, { constructor: StringConstructor });
+
+// The original intrinsic prototype boxes sloppy primitive receivers (ToObject).
+sloppyBoxPrototypes.string = getStringPrototype();
 
 function calculateLength(value?: string | Array<TESString>): TESNumber {
   if (typeof value === "string") return ESNumber(value.length);

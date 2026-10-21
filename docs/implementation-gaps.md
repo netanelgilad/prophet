@@ -825,12 +825,12 @@ boundaries below; no gap group closes from this loop family.
 
 | ID / status / kind | Current boundary and evidence | Closure criterion |
 | --- | --- | --- |
-| LANG-001 — open — unsupported | The [AST resolver table](../src/ASTResolvers.ts) is a subset: while/do-while/for-in/of loops, switch, labels, classes/super, modules, await/yield, sequence expressions, call/array spread, and other unregistered nodes have no evaluator. Ordinary `for(init; test; update)` with absent clauses and unlabeled break/continue is supported with per-iteration lexical environments; see [loop boundaries](for-statement.md). P006 adds a narrowly guarded unknown-length numeric loop proof using this existing syntax; other symbolic loops retain ordinary bounded execution. Compound/destructured assignment, member updates and nonnumeric updates are also rejected. The [operator tables](../src/operators.ts) support bounded Number-domain unary `~` (P011), but omit other bitwise/shift/exponentiation, `in` and `delete`; parser acceptance alone is not execution support. | Add reusable evaluation/completion rules per syntax/operator, preserving evaluation order, errors, state and symbolic forks; activate complete relevant Test262 cases. Split this inventory as individual capabilities land. |
+| LANG-001 — open — unsupported | The [AST resolver table](../src/ASTResolvers.ts) is a subset: while/do-while/for-in/of loops, switch, labels, classes/super, modules, await/yield, call/array spread, and other unregistered nodes have no evaluator. Bounded sequence (comma) expressions evaluate every operand left to right and complete with the last value (P026). Ordinary `for(init; test; update)` with absent clauses and unlabeled break/continue is supported with per-iteration lexical environments; see [loop boundaries](for-statement.md). P006 adds a narrowly guarded unknown-length numeric loop proof using this existing syntax; other symbolic loops retain ordinary bounded execution. Compound/destructured assignment, member updates and nonnumeric updates are also rejected. The [operator tables](../src/operators.ts) support bounded Number-domain unary `~` (P011), but omit other bitwise/shift/exponentiation, `in` and `delete`; parser acceptance alone is not execution support. | Add reusable evaluation/completion rules per syntax/operator, preserving evaluation order, errors, state and symbolic forks; activate complete relevant Test262 cases. Split this inventory as individual capabilities land. |
 | LANG-002 — open — unsupported/testing | [Declaration instantiation](../src/Function/instantiate.ts) and the [parser supplement](../src/parseECMACompliant.ts) cover selected early errors, not all global declarations or Annex B sloppy block/statement functions. Cherow 1.5.4 syntax/early-error coverage is incomplete. Raw astral quoted values and escaped physical U+2028/U+2029 continuations are now corrected with source spelling/locations and adjacent escapes preserved. Valid physical backslash-CRLF continuations and ordinary physical U+2028/U+2029 text in quoted strings still reject before AST creation; [string specs](../test/string-literals.spec.ts) preserve both gaps. Failed parsing with backslash-CRLF stops analysis conservatively. For ordinary LS/PS, only the pinned unterminated-string diagnostic at that exact code unit becomes an analysis gap; invalid Unicode-escape errors retain SyntaxError. Neither guard certifies the whole source valid. Complete line-continuation-single.js/double.js and the JSON-superset line-separator.js/paragraph-separator.js remain inactive, not trimmed; see the [Test262 record](../test/test262/README.md). Historical parse negatives below remain unassessed activation debt, not evidence that executing async functions/classes is required. | Validate early errors before effects, strict/sloppy and block/global differences, valid source acceptance and Annex B behavior with complete cases. Fix CRLF continuation and ordinary LS/PS lexing, then activate the complete upstream files. Keep unsupported newer grammar and runtime support distinct. |
 | LANG-003 — open — legacy/unsupported | JavaScript errors are not uniformly interpreted completions. [Member reads and calls](../src/ASTResolvers.ts), [heap writes](../src/execution-context/Heap.ts), and [construction](../src/Function/construct.ts) still use host assertions for some nullish access/noncallable/nonconstructor paths; invalid array-length assignment is likewise an analysis assertion. General statement completion values are discarded by [evaluateStatements](../src/evaluate.ts), affecting eval results. Unlabeled break/continue are now interpreted abrupt completions with audited merging, sequencing, generator-bridge, catch/finally and function/program-boundary composition; see [loop boundaries](for-statement.md). | Replace each applicable host assertion with the correct catchable language completion; test left-to-right effects and mixed normal/throw paths. Implement normal/empty statement completion values and eval propagation, without making internal analysis failures catchable. |
-| LANG-004 — open — unsupported | [Parameter initialization](../src/Function/parameters.ts) supports identifier/default parameters. Object declaration patterns now support shared name collection, renaming, defaults, nesting and ordered shared reads; see [binding coverage](object-bindings.md). Array/rest patterns, destructuring parameter invocation, catch and assignment patterns remain gaps. Primitive boxing and general/unknown computed keys reject; inferred initializer function names remain guarded by unmodeled name reads. Implicit mapped/unmapped `arguments` objects are represented by an unsupported binding, including lexical arrow capture and aliases. Explicit parameters named `arguments` are supported. See [arguments boundaries](../test/arguments-boundaries.spec.ts) and [default parameters](../test/default-parameters.spec.ts). | Model each binding pattern, mapped/unmapped argument object, aliasing and descriptors; preserve TDZ, defaults, eval, body separation, and symbolic effects in complete tests. |
+| LANG-004 — open — unsupported | [Parameter initialization](../src/Function/parameters.ts) supports identifier/default parameters. Object declaration patterns now support shared name collection, renaming, defaults, nesting and ordered shared reads; see [binding coverage](object-bindings.md). Bounded array declaration patterns over ordinary array literals now support ordered element reads, source/pattern holes, defaults, nested patterns and nullish TypeErrors (P027); custom iterables and the iterator protocol, rest elements, destructuring parameter invocation, catch and assignment patterns remain gaps. Primitive boxing and general/unknown computed keys reject; inferred initializer function names remain guarded by unmodeled name reads. Implicit mapped/unmapped `arguments` objects are represented by an unsupported binding, including lexical arrow capture and aliases. Explicit parameters named `arguments` are supported. See [arguments boundaries](../test/arguments-boundaries.spec.ts) and [default parameters](../test/default-parameters.spec.ts). | Model each binding pattern, mapped/unmapped argument object, aliasing and descriptors; preserve TDZ, defaults, eval, body separation, and symbolic effects in complete tests. |
 | LANG-005 — open — unsupported | [Function creation](../src/Function/Function.ts) rejects async functions, generators, and async generators, even if their bodies never await/yield. Promises, microtasks, iterator/generator state, and async completion scheduling are not supplied by ordinary synchronous callbacks. | Implement their distinct creation/invocation/completion and scheduling semantics with complete tests; do not remove the guards by treating them as synchronous functions. |
-| LANG-006 — open — unsupported/legacy | Interpreted function `length` and arrow nonconstruction/lexical `this` are supported. Opaque host functions retain callable identity and inherited `.call` but guard own metadata/construction. Shared `Function.prototype.call` retains known length/inherited call and now guards missing metadata and metadata writes; reflection still has legacy rejection paths. Inferred `name`, restricted `caller`/`arguments`, metadata writes/descriptors, `apply`, `bind`, source `toString`, full method/home-object/new-target behavior remain gaps. Sloppy primitive receiver boxing is rejected. The [dynamic Function constructor](../src/Function/Function.ts) now parses concrete string parameter lists and the final body separately and together, then uses shared function creation/invocation. Complete S15.3.2.1_A2_T1.js invokes the result with three arguments. Zero arguments, nonstring coercion and unknown source remain explicit gaps; parser errors are not yet catchable interpreted SyntaxError completions. Generated function name/source/new-target and complete grammar/early-error behavior remain incomplete. Earlier primitive-left instanceof cases alone did not establish these semantics. | Model function kinds, dynamic construction/ToString/parse errors and metadata with correct descriptors; exercise capture, receivers, construction and symbolic throws independently of one arrow example. |
+| LANG-006 — open — unsupported/legacy | Interpreted function `length` and arrow nonconstruction/lexical `this` are supported. Opaque host functions retain callable identity and inherited `.call` but guard own metadata/construction. Shared `Function.prototype.call` retains known length/inherited call and now guards missing metadata and metadata writes; reflection still has legacy rejection paths. Inferred `name`, restricted `caller`/`arguments`, metadata writes/descriptors, `apply`, source `toString`, full method/home-object/new-target behavior remain gaps. Bounded `Function.prototype.bind` (concrete callable receivers, captured receiver/partial arguments, computed bound length, forwarding calls) is now modeled; bound construction, bound name metadata and symbolic receivers stay bounded (see the P016/P017 reconciliation). Sloppy primitive receiver boxing is rejected. The [dynamic Function constructor](../src/Function/Function.ts) now parses concrete string parameter lists and the final body separately and together, then uses shared function creation/invocation. Complete S15.3.2.1_A2_T1.js invokes the result with three arguments. Zero arguments, nonstring coercion and unknown source remain explicit gaps; parser errors are not yet catchable interpreted SyntaxError completions. Generated function name/source/new-target and complete grammar/early-error behavior remain incomplete. Earlier primitive-left instanceof cases alone did not establish these semantics. | Model function kinds, dynamic construction/ToString/parse errors and metadata with correct descriptors; exercise capture, receivers, construction and symbolic throws independently of one arrow example. |
 | LANG-007 — open — unsupported/precision | [Eval](../src/eval/eval.ts) needs concrete source. Conditional new binding presence in an existing environment is rejected by [branch merging](../src/execution-context/branches.ts). CommonJS global var/function creation is rejected until global bindings share object storage. Eval declarations crossing implicit-arguments parameter markers are rejected. Environment records are retained indefinitely. | Model binding presence and object-backed globals, preserve eval collisions/TDZ/capture on each branch, establish accurate completion values (LANG-003), and add safe reclamation only when snapshots/closures retain their meaning. |
 | OBJ-001 — open — unsupported | [Property operations](../src/ASTResolvers.ts) support ordinary data writes/lookup with persistent state, not general descriptors, getters/setters, proxies, symbol keys, exotic objects, object-literal `__proto__` setters or full prototype mutation. Ordinary inherited __proto__ reads/writes now reject explicitly while existing own computed data properties remain writable; Object/Function/Number/Boolean intrinsic prototype writes are guarded alongside existing Error/String guards. `Object.defineProperty`, `getPrototypeOf`/related reflective APIs and symbol-based coercion are missing. Borrowed `Object.prototype.toString` rejects partial host objects and objects inheriting from them because their `Symbol.toStringTag` is unknown; for example, Node console has the tag `console`, not `Object`. | Add shared internal property/descriptor/prototype operations used by literals, reads/writes, reflection and builtins; test getter order/throws, inherited setters, attributes, symbols and symbolic state. |
 | OBJ-002 — open — unsupported | [Enumeration](../src/Object/enumeration.ts) only trusts complete enumerable string-keyed data objects and concrete string indices. Arrays/functions, Error/intrinsic/global layouts, partial host objects, unknown strings/key domains and unmodeled reads are rejected. Conditional known keys/order are supported. See [spread specs](../test/object-spread.spec.ts). | Establish real own keys, order, enumerability, presence, values and descriptors for each added kind; share rules across `Object.keys` and spread, including getters and branch-specific mutation. Never infer ownership by filtering familiar names. |
@@ -851,7 +851,7 @@ presence does not mean every recent proof uses them.
 | --- | --- | --- |
 | LEGACY-001 — open — legacy/unsupported | [Number](../src/number/Number.ts) now guards nonnumeric/no-argument conversion, wrapper construction and missing static APIs; only numeric first-argument passthrough remains supported. Partial Number/Boolean prototype reads and Number has-instance/reflection paths can conservatively stop until internal wrapper slots and inherited symbol semantics are modeled. Boolean wrapper construction also guards through shared construction metadata; primitive calls retain shared truthiness. Dynamic Function now supports concrete string parameters plus the final body; zero/nonstring/unknown arguments stay guarded rather than silently compiling the wrong body. Alias/effect regressions are in [intrinsic boundary specs](../test/legacy-intrinsic-boundaries.spec.ts); these guards defer correct behavior, not close it. [Math.round](../src/math/round.ts) still uses old untagged result/NaN shapes and treats string arguments as NaN; the CLI does not expose it. Legacy native function metadata/construction and generated Function parsing/coercion remain incomplete. | Add concrete mismatch specs first, then correct primitive conversion, wrapper data, return shapes and function metadata, replacing each guard with semantics and complete upstream cases. Validate coercion effects/throws and symbolic arguments. |
 | ARRAY-001 — open — unsupported/precision | [Shared arrays, push, concat and forEach](array-push.md) provide actual Array.prototype identity, zero-argument Array construction, ordinary-array push with current known element layout/length, persistent mutation, holes, aliases and symbolic values/receiver choices, and bounded ordinary-array concat with fresh shallow results, hole preservation, current-state reads, conditional-operand joins and surviving siblings, and bounded ordinary-array forEach with captured length, per-visit current-state re-reads, visited inherited index values, thisArg rules, guest-throw stops, conditional receiver/callback/presence correlations, surviving siblings and a 1024-visit per-path analysis limit with flat host stack depth for normal visits (forks still recurse). Unknown/segmented/symbolic-snapshot layouts and unequal-length joins stop; generic receivers/ToLength, custom hooks/prototypes/write guards, constructor shadows, internal symbol slots, inherited indexed elements (stopped on by concat when a hole would resolve to one, visited through shared lookup by forEach, still rejected by sparse legacy methods), function operands, array construction overloads, descriptors/accessors, overflow/partial maximum-length writes and totals above the documented 1024-element and 32-operand analysis limits remain unsupported. forEach additionally retains sloppy primitive thisArg boxing, boolean-key/deletion/freezing gaps and unbounded per-visit fork growth as a residual path-volume limitation. Nullish receiver TypeError messages stay unknown. All Array.prototype mutations stop while PATH-001 depends on unchanged intrinsic push. Method metadata/reflection and unimplemented standard Array API names are guarded; legacy reverse/join/slice retain limited algorithms and generic receiver stops. Sparse legacy calls also reject possibly inherited indexed elements from current prototype state, including conditional writes and nested joins; sparse custom lookup/prototypes and conservative whole-array slice checks remain boundaries under LEGACY-002. Six complete Test262 files (twelve variants: three push/intrinsic plus three concat), independent pinned Node comparisons and local symbolic/failure tests support this bounded slice. Shared bounded forEach adds seven complete files (fourteen variants) with the same evidence discipline; the remaining forEach directory files stay inactive, not trimmed. | Extend shared length/Set/descriptor/prototype operations before generic/exotic push/concat/forEach and length limits; preserve ordered effects and partial failures. Model path.join's observable intrinsic dependency before allowing Array.prototype mutations. Expand the remaining 15 whole push candidates and the unselected concat and forEach files without synthetic Number constants or partial harness substitutes. |
-| LEGACY-002 — open — legacy | [String.split](../src/string/split.ts) and [substr](../src/string/substr.ts) assume the old segmented-string representation and omit general argument/receiver semantics. [String storage](../src/string/String.ts) still places legacy methods in property tables as if own properties; arrays now inherit their shared push/reverse/join/slice methods. Enumeration remains guarded; this does not establish full descriptor/prototype correctness. Sparse reverse/join/concrete slice now stop with typed unsupported boundaries when holes may resolve to current inherited indexed properties, including conditional Object.prototype writes and nested joins; custom sparse prototype/lookup surfaces also stop. The guard covers the whole array even for restricted slice ranges. Own undefined, absent holes, out-of-range prototype indices and dense symbolic-snapshot slice retain their behavior; array-push specs include independent pinned Node regression observations. Generic array methods, inherited HasProperty/Get effects, coercions and metadata remain open. | Replace old representation assumptions with shared string/array/property operations, add regression cases for ordinary concrete receivers first, then missing/extra/coercing arguments, holes/prototypes and symbolic choices. Guard any residual layout queries. |
+| LEGACY-002 — open — legacy | [String.split](../src/string/split.ts) now serves concrete string receivers with literal/omitted separators through ordinary host semantics (P030); its symbolic segmented-receiver path and [substr](../src/string/substr.ts) still assume the old representation, and RegExp separators, limit arguments and general argument/receiver semantics remain gaps. [String storage](../src/string/String.ts) still places legacy methods in property tables as if own properties; arrays now inherit their shared push/reverse/join/slice methods. Enumeration remains guarded; this does not establish full descriptor/prototype correctness. Sparse reverse/join/concrete slice now stop with typed unsupported boundaries when holes may resolve to current inherited indexed properties, including conditional Object.prototype writes and nested joins; custom sparse prototype/lookup surfaces also stop. The guard covers the whole array even for restricted slice ranges. Own undefined, absent holes, out-of-range prototype indices and dense symbolic-snapshot slice retain their behavior; array-push specs include independent pinned Node regression observations. Generic array methods, inherited HasProperty/Get effects, coercions and metadata remain open. | Replace old representation assumptions with shared string/array/property operations, add regression cases for ordinary concrete receivers first, then missing/extra/coercing arguments, holes/prototypes and symbolic choices. Guard any residual layout queries. |
 | LEGACY-003 — open — legacy/assumption | The [old require adapter](../src/require/require.ts) simply reads a builtin map, separate from the modern source-graph loader; [vm.createContext/runInContext](../src/node-builtin-modules/vm.ts) is a partial context adapter, not Node VM compatibility. [prompt](../src/window/prompt.ts) supplies an unknown string without modeling cancellation/UI effects. [nodeInitialExecutionContext](../src/execution-context/nodeInitialExecutionContext.ts) retains legacy entry points. | Audit callers and public exports, replace/quarantine incompatible paths and document deprecation if chosen. New real-world proofs must use the modeled loader/host boundary, not silently substitute these adapters. |
 
 ## Symbolic reasoning and host-effect infrastructure
@@ -884,7 +884,7 @@ presence does not mean every recent proof uses them.
 | WARN-001 — open — assumption/unsupported/precision | The [warning model](node-url.md) supports string emitWarning messages with optional concrete/finite-choice type/code, persistent warning state and either explicit default deliverNext presentation or one presentation job per warning in an optional shared next-tick FIFO. Queue-owned delivery rejects manual calls. Warning queue/helper-line state and URL once state are linked through hostSlots; these do not establish resumability. It assumes default handlers/console.error, Node release/argv0, no flags/listeners/redirects/subscribers and healthy stderr; unknown pid/text preserves unknown output. Error/options/constructor overloads, non-string messages, open type/code, object presentation conversion, broader Error metadata and process APIs remain gaps. Flag writes and inherited enabled flags reject. DEP0169 uses captured CommonJS/interpreted source filenames; eval/Function-generated or absent provenance cannot decide fresh eligibility. This is not full V8 bounded-stack/native-frame reconstruction. Node_modules suppression preserves the URL once flag; an eligible call consumes it before mutable emitWarning and input validation. CJS-006/EVENTS-002 diagnostics remain unimplemented. | Extend warning overloads, source/stack eligibility, flags, listener/default-handler interactions and independent scheduling with pinned comparisons and complete upstream cases. Preserve effects/throws/queue state, formatter failures, once flags and output order. Add stdio replacement/redirect/failure/backpressure/flush/exit outcomes rather than assuming them successful; HOST-002 remains the general scheduler boundary. |
 | PROCESS-001 — open — assumption/unsupported | The [process environment](node-process.md) composes one warning process with a declared concrete canonical absolute UTF-8 POSIX cwd. Shared calls read persistent state and retain effects; the cwd method is mutable, ignores receiver/extra arguments, and exposes pinned name/length. Native construction succeeds but remains an explicit analysis guard; prototype/descriptor/metadata behavior is incomplete. Stable successful cwd retrieval is declared, not derived from host getcwd or a filesystem proof. Missing/unlinked/inaccessible cwd, getcwd failure/cache invalidation, chdir, races, non-UTF8 names, symbolic initial cwd and Win32 state remain gaps. Composition is one-time before execution; retrofitting existing snapshots is unsupported. argv/env/execPath, process lifecycle/signals/exit and broader process/EventEmitter APIs remain absent and guarded. | Couple process/filesystem state and changing/failing cwd with independent pinned Node evidence. Add each actual process API and constructor/metadata behavior without inventing host values or treating real chdir/getcwd as symbolic execution. Preserve same process identity across globals/imports and existing warning/queue state; keep capture, resumption and scheduling gaps explicit. |
 | FS-001 — open — assumption/unsupported | The [filesystem model](node-filesystem.md) keeps one private persistent root with immutable helper-created entries and existing symbolic choices at roots/entries. Omitted names/ESNull are missing in a closed case-sensitive UTF-8 byte-name namespace, with no Unicode normalization. The declared cwd exists as a directory on every setup path. Open directories explicitly retain unobserved children; unknown file contents are distinct from empty text. The [capture adapter](../src/cli/filesystem-capture.ts) supplies memoized observations through generic hooks and persistent branch heaps, records cwd/platform/access, bounds entry/name observations and content bytes, and leaves descriptor capacity symbolic. Complete directory names are a separate persistent fact from the partially acquired child table; enumeration does not acquire child metadata/contents. Captured unlisted spellings still require native probes to exclude case/normalization aliases; aliases or contradictory later observations cannot become false absence. Only an exact namespace without a hook derives unlisted absence directly. It is non-atomic, read-only, and rejects reached symlink/alias/nonregular/invalid-UTF8 boundaries and unexpected host errors (enumeration may return symlink/nonregular names without resolving their entries) and different real/effective credentials; stat/access observations do not guarantee future operations. Native acquisition caches are not resumable state. Component traversal preserves prefix failures; paths/components outside the <1024/<=255-byte domain reject analysis. The stable Linux(default)/Darwin environment now accepts symbolic effective read/search access and filesystem-call descriptor availability. These are supplied process-access facts, not derived mode/UID/ACL/capability policy. Omitted flags still assume allowed/available. Relative lookup begins at a structurally held cwd, not its possibly inaccessible ancestors. Symlinks, races, changing credentials/access/capacity, per-process descriptor identity/count/ownership, ENFILE, post-open fstat/read/close failures and memory allocation failures remain unmodeled. Availability is a baseline at filesystem calls, not a pool coupled to HTTP listen/accept; native server exhaustion is established after acceptance. Successful synchronous reads assume later work/close succeeds and restores this baseline. Open names/contents, arbitrary bytes, other platforms/filesystems, descriptor state, writes and unbounded trees remain gaps. Reads can change real access timestamps: stable contents are not a claim that all metadata is unchanged. | Expand correlated tree/content/metadata and environment transitions with positive, negative and mandatory-unknown specs. Model remaining permission policy/resource/open/read/close failures, cross-host descriptor ownership, partial I/O, atime, links and races explicitly. Do not replace one shared state with independently sampled API returns or equate successful modeled reads with OS availability. Keep CLI source-acquisition observations separate from the target filesystem model until their shared state and failures are explicitly represented under CJS-001. |
-| FS-002 — open — unsupported/assumption/precision | [Compatibility specs](../test/node-filesystem.spec.ts) cover string existsSync/statSync/readFileSync paths and [default readdirSync enumeration](node-filesystem-enumeration.md), partial Stats isDirectory/isFile, UTF8-string reads and ENOENT/ENOTDIR/EISDIR plus EACCES/EMFILE failures. [Failure specs](../test/filesystem-failures.spec.ts) and independent [native failures](../test/node-filesystem-failures-reference.spec.ts) preserve priority, repeated-read correlations, unknowns and platform differences; no complete upstream file is activated. Successful default reads now return fresh [Buffer values](node-buffer.md), with persistent byte operations and UTF-8 decoding; remaining Buffer gaps are BUFFER-001/BUFFER-002. Async/promises/streams, writes, fd/Buffer/URL path inputs, non-string argument diagnostics/DEP0187, options/encodings/signals and broader APIs are unmodeled. Directory enumeration accepts only omitted/undefined/null options, byte-sorts complete names, and preserves scandir errors; encoding strings, options objects, recursive and withFileTypes/Dirent remain guarded. NUL stat/read/readdir paths have a known TypeError/code with unknown message; system-error stacks/constructors/descriptors remain guarded. Stats mode/_checkModeProperty/prototype mutation, arbitrary borrowed receivers, other metadata/Date/BigInt fields and public constructors are guarded. Mutable read helpers and inherited option fields reject rather than dropping their effects. Slow/default reads assume unchanged Node Buffer allocators/internal primitives while constructors/allocator APIs remain inaccessible (BUFFER-002); allocation can precede even EISDIR, and allocator mutation effects/throws must be preserved when those APIs land. | Implement each API/value/option/metadata boundary with pinned Node comparisons and complete upstream cases, preserving validation order, mutation, exact failures, shared state and effect order. Scoped response consumption now completes file serving under HTTP-008; preserve remaining Buffer boundaries when expanding it. Preserve all FS-001 environment exclusions until modeled. |
+| FS-002 — open — unsupported/assumption/precision | [Compatibility specs](../test/node-filesystem.spec.ts) cover string existsSync/statSync/readFileSync paths and [default readdirSync enumeration](node-filesystem-enumeration.md), partial Stats isDirectory/isFile, UTF8-string reads and ENOENT/ENOTDIR/EISDIR plus EACCES/EMFILE failures. [Failure specs](../test/filesystem-failures.spec.ts) and independent [native failures](../test/node-filesystem-failures-reference.spec.ts) preserve priority, repeated-read correlations, unknowns and platform differences; no complete upstream file is activated. Successful default reads now return fresh [Buffer values](node-buffer.md), with persistent byte operations and UTF-8 decoding; remaining Buffer gaps are BUFFER-001/BUFFER-002. Async/promises/streams, writes, fd/Buffer/URL path inputs, non-string argument diagnostics/DEP0187, options/encodings/signals and broader APIs are unmodeled. Directory enumeration accepts only omitted/undefined/null options, byte-sorts complete names, and preserves scandir errors; encoding strings, options objects, recursive and withFileTypes/Dirent remain guarded. NUL stat/read/readdir paths have a known TypeError/code with unknown message; system-error stacks/constructors/descriptors remain guarded. A regular file's Stats.size is modeled from declared contents or validated observed acquisition sizes, and Stats.mtime from an explicitly declared observation as a bounded Date with modeled getTime/toUTCString (directories and undeclared files stay bounded); Stats mode/_checkModeProperty/prototype mutation, arbitrary borrowed receivers, other metadata/BigInt fields, the Date constructor and other Date methods, and public constructors are guarded. Mutable read helpers and inherited option fields reject rather than dropping their effects. Slow/default reads assume unchanged Node Buffer allocators/internal primitives while constructors/allocator APIs remain inaccessible (BUFFER-002); allocation can precede even EISDIR, and allocator mutation effects/throws must be preserved when those APIs land. | Implement each API/value/option/metadata boundary with pinned Node comparisons and complete upstream cases, preserving validation order, mutation, exact failures, shared state and effect order. Scoped response consumption now completes file serving under HTTP-008; preserve remaining Buffer boundaries when expanding it. Preserve all FS-001 environment exclusions until modeled. |
 | BUFFER-001 — open — unsupported/precision | The [Buffer model](node-buffer.md) exposes copied concrete unsigned bytes, length/byteLength, canonical numeric index reads/writes and shared UTF-8 toString. Bytes live in the persistent heap; finite choices and mutations preserve correlation, aliases and earlier contexts. Open symbolic bytes/numeric writes/indices, unbounded lengths, nonnumeric write coercions, other encodings/diagnostics, start/end bounds, borrowed non-Buffer receivers, Buffer/module/global constructors, typed-array/ArrayBuffer APIs, backing stores/views/slicing, additional Buffer methods and ordinary named properties remain gaps. Length writes, descriptors/reflection/enumeration/prototype access and function construction/metadata changes reject analysis. Internal Buffer/Uint8Array/TypedArray/Object prototype links now support ordinary instanceof while public reflection and those APIs remain guarded. Empty buffers with omitted bounds return empty text before encoding conversion, matching Node. | Extend each API/exotic property rule with native boundary/error/effect comparisons and complete upstream cases. Model coercion even for ignored out-of-range writes; preserve shared backing-store mutations before exposing views or typed-array constructors. Extend symbolic byte domains without choosing convenient contents. |
 | BUFFER-002 — open — assumption/testing | Creation assumes successful allocation and UTF-8 encoding/decoding resources; no allocator/pool/slab/offset/retention or shared/detached/resizable store state is modeled. Successful default filesystem reads copy declared UTF-8 text into fresh Buffer identities. Node dynamically calls Buffer.allocUnsafe (including for empty files/directories), and empty reads also Buffer.concat; the model assumes these unavailable APIs and internal primitives unchanged. The helper accepts arbitrary raw bytes but the filesystem setup still accepts only text. [Local compatibility specs](../test/node-buffer.spec.ts) compare pinned Node; no full upstream Buffer case is activated, and this does not claim general typed-array conformance. | Model allocator replacement effects/throws, resource failures, raw-byte filesystem contents, backing-store identity/lifetimes and memory limits as their APIs become accessible. Activate complete unmodified Buffer/typed-array cases with required harness support, keeping host and language coverage distinct. |
 | HTTP-001 — open — assumption/unsupported/precision | [listen](../src/node/http.ts) now accepts a bind transition returning null success or Error failure, including choices. Invalid non-function configuration or non-null/non-Error normal results reject. Omission retains the successful-bind domain of existing embeddings; the CLI uses [fresh symbolic outcomes](../src/node/bind.ts). Hostless binding happens inline with correlated listening state; explicit loopback binding is deferred. Success/error notification uses current listeners and lexical state; unhandled Error delivery throws, and a consumed failure permits retry while preserving once-listening callbacks. [Native occupied-port checks](../test/node-http-bind-reference.spec.ts) and [symbolic cases](../test/node-http-binding.spec.ts) cover these transitions. Error code/message/errno/hostless address remain independent unknowns, not precise EADDRINUSE/EACCES/address-family/resource models; port zero omits the own error port field. There is no shared socket/address/descriptor pool or correlation between attempts. DNS/general hosts, IPv6 fallback, cluster allocation and precise platform/resource outcomes remain open. FS-001 capacity is still not shared with bind/listen/accept; existing native filesystem-exhaustion witnesses exhaust after acceptance. The CLI now delivers supported startup notifications through HOST-002, without proving real port availability or shared resource correlations. | Extend correlated operating-system/resource outcomes and field relationships, with pinned boundary/failure/symbolic tests. Preserve asynchronous error timing, callback non-delivery, retry and state; distinguish automatic scheduling from explicit delivery and successful default embeddings. Occupied-port examples alone do not close broader startup safety. |
@@ -1256,3 +1256,302 @@ preserved. Correction runs isolate P011 candidate/P009 CLI/P010 review outputs
 through optional artifact-directory environment inputs; only artifact writing
 paths change in P009, with all behavior assertions retained. New evidence and
 handoff are separate files/commit after one corrected source freeze.
+
+## P012 reconciliation — bounded generic substring
+
+Worker implementation; independent Astra/high acceptance is pending.
+[Boundary](string-substring.md), [candidates](agent-tasks/P012-string-substring/upstream-candidates.md)
+and source-bound evidence retain residuals rather than closing groups.
+
+- LIB-001/LIB-002: substring alone leaves the deferred registry. Name/length2,
+  identity, call and nonconstruction are modeled; descriptor/reflection/writes,
+  other String APIs and wrapper construction stay open. The pinned 52-name
+  inventory is ten modeled/42 deferred.
+- **STRING-002 — open — unsupported/precision:** substring's open symbolic
+  receiver/index values and legacy chunks finish all completing conversions,
+  then stop honestly. Finite correlated choices are supported; no unrestricted
+  string/index summary or silent narrowing is claimed. Extend reusable value
+  reasoning with positive proofs and mandatory-unknown/effect regressions.
+- **STRING-003 — open — budget:** converted substring receiver exceeds 65,536
+  UTF-16 units, including empty outputs. The guard follows required conversions
+  and precedes copying/preparation. Below/at/above, throwing-end, and mixed
+  normal/guest-throw/budget histories are tested. This analysis cap is not a JS
+  restriction or native allocation guarantee.
+- OBJ-001/003, LANG-002/003/004, LEGACY-002: custom nonnull symbol hooks,
+  arrays/functions/wrappers, BigInt/public Symbol/late exotic primitives,
+  descriptors/accessors and shared partial-host/cyclic prototype errors remain.
+  String.prototype's empty-string identity is supported; no wider wrapper or
+  BigInt representation is added. P011 static-key guards remain byte-identical.
+- SYM-001/004, STRING-001, SECURITY-002, REPORT-001: numeric-string parsing has
+  no new cap. Shared Number parsing/formatting, interpreted coercion, parser/input
+  allocations, prototype depth, branch growth and successful allocation remain
+  inherited limits/assumptions. Only bounded copy/output is established.
+- FS-001/FS-002, LANG-003, TARGET-002: actual next Stats.size read in unchanged
+  sirv is typed, preserving current ctype/name, completed mrmime activation,
+  frames and every success/EMFILE call/outcome identity. Size/mtime/Date/header
+  semantics and factory return stay deferred; other legacy Stats guards remain.
+  No header/Node startup/network feature or future callback analysis is inferred.
+- TEST-001/REPORT-001: 14 complete substring files/28 variants are added, no
+  active file removed, all 43/86 native candidates checked, 29 whole inactive
+  blockers retained. Complete corpus:384/759 with 46 unchanged historical skips.
+  Audits scan guards/assertions/skips/key routes/checkpoints/provenance; counts
+  are not complete language or host coverage. Historical reports/manifests and
+  all prior log bytes are retained. P012 ENOSPC capture and failed checks remain
+  classified; versioned compact capture references unchanged committed bytes.
+
+## P012 correction1 — current own Stats size admission (P012-R1)
+
+Independent frozen review5273aa2 rejects source3ef28e1 for one P2 introduced
+regression. Correction1 is provisional until renewed Astra/high acceptance.
+
+- FS-001/FS-002: supplied current own size values are data facts, not inferred
+  native file sizes. Admission splits persistent own presence, reads its current
+  value and preserves alias replacement, finite choices, undefined/zero, two
+  instances and old snapshots. Unknown/unprovided size stays typed; inherited
+  size cannot replace unknown native own metadata. Fresh unknown-size writes,
+  broader Stats fields/brands/inspection/descriptors/Date remain existing gaps.
+- LANG-003/REPORT-001: no read/effect replay or guest catch/finally on an analysis
+  stop. Supported, stopped, earlier-unsupported and guest filesystem-error
+  siblings retain caller/prefix/console/prototype/heap state and exact FS
+  call/outcome identity. The actual sirv frontier stays Stats.size, not factory
+  return or completed header/startup/request behavior.
+- STRING-001/002/003, LIB-002, SYM-001/004 and TEST-001/002/003: substring,
+  ordinaryStringHint, registration, every prior spec/corpus and P011 guards stay
+  byte-identical. Same384 active files/759 variants/46 historical skipped files;
+  no extra method, conformance claim, new skip or gap-group closure.
+- Correction source/evidence are separately frozen. Original evidence/handoff,
+  rejected review files, hardlinked archives, helpers and all old logs retain
+  their bytes. VM red and failed correction harness/typecheck artifacts are
+  classified by exact snapshots; compact capture does not duplicate dependencies.
+
+## P013/P014/P015 reconciliation — bounded Stats.size, bounded Stats.mtime Date, bounded ASCII normalize (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[Filesystem boundary](node-filesystem.md#bounded-statssize-and-statsmtime-and-the-p012-r1-boundary),
+[size specs](../test/node-stats-size.spec.ts),
+[mtime specs](../test/node-stats-mtime.spec.ts),
+[normalize specs](../test/string-normalize.spec.ts) and task records
+[P013](agent-tasks/P013-stats-size/task.md),
+[P014](agent-tasks/P014-stats-mtime/task.md),
+[P015](agent-tasks/P015-string-normalize/task.md) retain residuals; no gap
+group closes.
+
+- FS-001/FS-002: regular-file Stats.size from declared facts and Stats.mtime
+  from an explicit declared observation (CLI capture passes memoized lstat
+  size/mtimeMs) complete; directory metadata, undeclared files, other Stats
+  fields (mode/BigInt/atime/ctime), writes, descriptors and constructors stay
+  bounded. Stats and bounded Date instances are boundary-marked, so reached
+  gaps stop as retained typed boundaries beside siblings.
+- LIB-001/LIB-002: normalize alone leaves the deferred registry. Only the
+  omitted/undefined form (NFC) on concrete ASCII receivers is modeled (ASCII
+  is NFC-closed, so identity); explicit forms, non-ASCII text, symbolic
+  receivers and exotic conversion stay typed boundaries. The pinned 52-name
+  inventory is eleven modeled/41 deferred; descriptor/reflection/writes and
+  wrapper construction stay open.
+- STRING-002/003: normalize keeps the 65,536-unit analysis cap discipline and
+  ordered receiver conversion (nullish guest TypeError, Symbol.toPrimitive
+  absence before ordinary conversion); no allocation-failure semantics.
+- LANG-003/REPORT-001: unchanged sirv now completes header preparation
+  (Content-Length, Content-Type, Last-Modified) and ASCII name.normalize,
+  stopping at String.prototype.replace in the FILES key expression with the
+  completed toHeaders activation retained outside the current callback chain.
+  No factory return, server, request or success claim; every filesystem
+  call/outcome identity beside EMFILE is preserved.
+- Date residual: only bounded instances from Stats.mtime with getTime and
+  toUTCString (deterministic UTC arithmetic, the pinned host's actual year
+  formatting, TimeClip including -0) are modeled. Date construction, Date.now,
+  other methods and timezone/locale behavior remain guarded.
+
+## P016/P017 reconciliation — bounded no-match RegExp replace, bounded Function.prototype.bind (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[replace specs](../test/string-replace.spec.ts),
+[bind specs](../test/function-bind.spec.ts) and task records
+[P016](agent-tasks/P016-string-replace/task.md),
+[P017](agent-tasks/P017-function-bind/task.md) retain residuals; no gap group
+closes.
+
+- LIB-001/LIB-002: replace alone leaves the deferred registry. Only
+  intrinsic-layout flagless/g RegExp search values with no match are modeled
+  (identity; the replacement is never observed). Concrete string search and
+  replacement values replace the first literal occurrence through the bounded
+  GetSubstitution forms ($$, $&, $`, $'), with $n/$< literal (P028). Ordered
+  match positions, RegExp replacement observation, custom exec/Symbol.replace
+  dispatch, other flags, function replacements, non-string conversions and
+  exotic receiver conversion stay typed boundaries. The pinned 52-name inventory is twelve
+  modeled/40 deferred.
+- LANG-006: Function.prototype.bind leaves the gap list in bounded form:
+  concrete callable receivers capture thisArg/partial arguments into a fresh
+  boundary-marked bound identity with computed length, and calls forward
+  through ordinary invocation. Bound construction, bound name metadata,
+  descriptors and symbolic receivers stay bounded; sloppy primitive receiver
+  boxing remains rejected and is now the measured stop when calling the
+  returned sirv handler.
+- LANG-003/REPORT-001: unchanged sirv's factory now returns its request
+  handler closure; the EMFILE sibling still throws and every filesystem
+  call/outcome identity beside it is preserved. No server startup, request
+  or success claim; request-path analysis (parse(req), http modeling)
+  remains open.
+
+## P018 reconciliation — bounded sloppy primitive receiver boxing (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[boxing specs](../test/sloppy-receiver-boxing.spec.ts) and the task record
+[P018](agent-tasks/P018-sloppy-boxing/task.md) retain residuals; no gap group
+closes.
+
+- LANG-003: the "Sloppy receiver boxing is not yet supported" host assertion
+  is replaced by bounded ToObject boxing for concrete number/string/boolean
+  receivers: fresh per-call wrappers on the original intrinsic prototypes,
+  own-write visibility within the activation, guarded slot/prototype reads.
+  instanceof/Symbol.hasInstance and constructor/prototype mutation remain
+  guarded legacy host assertions; wrapper slot semantics (valueOf/toString
+  tags) remain unmodeled. Direct symbolic choice receivers and unregistered
+  receiver types stop as typed boundaries.
+- LANG-006/REPORT-001: sirv's bound viaCache handler (thisArg 0) is now
+  callable; request-path analysis still requires parse(req) and http
+  modeling. No server or request claim.
+
+## P019 reconciliation — bounded generic UTF-16 String.prototype.indexOf (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[indexOf specs](../test/string-indexof.spec.ts),
+[sirv request specs](../test/sirv-request.spec.ts) and the task record
+[P019](agent-tasks/P019-string-indexof/task.md) retain residuals; no gap
+group closes.
+
+- LIB-001/LIB-002: indexOf leaves the deferred registry in bounded form.
+  Concrete UTF-16 operands with ordinary conversions and forward literal
+  scanning are modeled within the shared 65,536-unit admission and
+  1,048,576-comparison budgets; RegExp search values (native coerces via
+  RegExp toString, unmodeled), exotic conversions and symbolic operands
+  stay typed boundaries. The pinned 52-name inventory is thirteen
+  modeled/39 deferred.
+- HTTP-008/REPORT-001: the delivered request declares method, url and an
+  absent _parsedUrl slot, so a delivered GET /hello.txt runs unchanged
+  @polka/url parse to completion (both indexOf probes answer -1; the
+  opaque querystring builtin is never invoked). The measured stop moves to
+  req.headers['accept-encoding'] (sirv build.js:172), still a legacy
+  unmarked host property read. Incoming headers, the rest of the request
+  surface, viaCache lookup, the send path and fs streams remain open; no
+  response or success claim.
+
+## P020 reconciliation — bounded incoming request headers and ordinary-array call spread (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[call spread specs](../test/call-spread.spec.ts),
+[sirv request specs](../test/sirv-request.spec.ts) and the task record
+[P020](agent-tasks/P020-request-spread/task.md) retain residuals; no gap
+group closes.
+
+- HTTP-008/REPORT-001: the delivered request now declares an ordinary
+  Object.prototype-linked headers object with no own names (pinned Node
+  24.21.0 raw HTTP/1.0 control), so sirv's accept-encoding and range probes
+  answer undefined through ordinary lookup. Header-carrying deliveries,
+  rawHeaders and the rest of the request/response surface remain open; the
+  measured stop moves to String.prototype.charCodeAt in sirv's toAssume
+  (build.js:17). No response or success claim.
+- LANG-001/LIB-001: call/new spread arguments are modeled for proven
+  ordinary arrays (intrinsic @@iterator chain, elements in order, holes as
+  undefined after inherited-index proof, conditional operands split per
+  branch, 1024-element budget). Custom @@iterator hooks, exotic/accessor
+  arrays, unknown layouts, non-array iterables and non-iterables stop as
+  typed boundaries; native non-iterable TypeErrors are not fabricated.
+  Array-literal spread, rest parameters and the implicit arguments object
+  remain gaps.
+
+## P021 reconciliation — bounded String.prototype.charCodeAt (Instinct, 2026-10-15)
+
+Worker implementation in-sandbox by Instinct; independent review pending.
+[charCodeAt specs](../test/string-charcodeat.spec.ts),
+[sirv request specs](../test/sirv-request.spec.ts) and the task record
+[P021](agent-tasks/P021-string-charcodeat/task.md) retain residuals; no
+gap group closes.
+
+- LIB-001/LIB-002: charCodeAt leaves the deferred registry in bounded
+  form: concrete receivers with ToIntegerOrInfinity positions (NaN as +0,
+  truncating fractions, infinities out of range) read one code unit with
+  no scan budget; symbolic operands, array/function/symbol conversions and
+  custom Symbol.toPrimitive hooks stay typed boundaries. The pinned
+  52-name inventory is fourteen modeled/38 deferred. Correction: P019's
+  indexOf nullish TypeError message read "lastIndexOf"; it now matches the
+  pinned native "String.prototype.indexOf called on null or undefined" and
+  the spec asserts the message text.
+- LANG-001: ordinary for-in enumeration is modeled (P022): snapshot keys
+  own-before-inherited with native mutation semantics (additions unseen,
+  deletions skipped, reveals and re-additions visited) and per-iteration
+  let/const cells. Chains through unmodeled prototype objects (VM
+  constructor prototypes, ownPropertyModel "unmodeled") stop with the
+  legacy enumeration error; deletion-driven visits await DeleteExpression;
+  labeled jumps, destructuring heads and completion values remain open.
+- HTTP-008/REPORT-001: content-length is an ordinary explicit serialized
+  field (P024): pinned Node 24.21.0 accepts any value verbatim at
+  writeHead and enforces no body-length coupling without a socket, the
+  transport layer the projection excludes; the other six
+  transport-sensitive exclusions keep their automatic-behavior coupling.
+  fs.ReadStream and pipe are modeled with explicit embedding-driven
+  delivery (P025): single-chunk files, pinned error-event and TypeError
+  behavior, declared gaps for 'open'/fd identity, options and multi-chunk
+  flows. On the delivered GET /hello.txt the unchanged sirv handler now
+  completes end to end and the wire projection matches the pinned Node
+  24.21.0 reference (status 200, body "hello from sirv\n", content-type
+  text/plain, content-length "16", last-modified from the pinned mtime).
+  Header-carrying requests, range requests, 404/HEAD dispatch and the
+  remaining exclusions remain open.
+
+
+## Instinct integration reconciliation — 2026-10-21
+
+The [cumulative review](agent-tasks/integration-2026-10-21/review.md) covers
+P012–P034 plus corrections; earlier increment sections preserve historical
+frontiers and provisional worker claims, not current acceptance. No gap group
+is closed by this integration.
+
+- LANG-001/LANG-003/OBJ-003: lexical for-in RHS evaluation now observes TDZ;
+  enumeration includes current enumerable Object.prototype additions and
+  selected symbolic heads. Snapshot/depth/body/work limits remain explicit: at most 1,024 keys and
+  64 prototype links, alongside the existing body/step budgets.
+  Array patterns have at most 64 elements and nesting depth 32. Expanded calls
+  cap operands/results at 1,024 and spread operands at 64; comma sequences cap
+  at 64 operands. These are analysis budgets, not JavaScript restrictions.
+  Array binding uses current iterator length, permanent exhaustion, and guarded
+  ordinary-iterator admission; custom iterables, rest, descriptors and general
+  iteration remain gaps. Boxed String receivers retain data/indices/length;
+  broader wrapper APIs, symbolic indices and descriptor writes remain bounded.
+- STRING-002/STRING-003/LIB-001/LIB-002/LEGACY-002: no-match replacement preserves
+  replacement conversion and global lastIndex effects; custom hooks and matched
+  RegExp substitutions remain guarded. includes must check RegExp identity before
+  search conversion. Concrete split and parseInt retain explicit operand/work
+  limits and unsupported conversion domains. Unicode normalize/casing, broader
+  String methods and the legacy segmented split model remain open.
+- FS-001/FS-002/HTTP-008: stream outcomes are persistent branch state; callback
+  observations and handled error/close order match fresh pinned controls.
+  Arbitrary pipe destinations, open/fd events, multichunk delivery, transport and
+  general scheduling remain gaps. Resource availability remains a modeled input,
+  never an inferred fact. Header validation preserves ordinary conversion effects
+  and partial raw-store writes before failure. Parsed incoming headers require lowercase token names and concrete string
+  values, in an already-parsed event domain (raw parsing, duplicate combination
+  and transport-derived headers are not inferred); open symbolic names/values and unsupported hook or
+  array forms remain boundaries.
+- TARGET-001/TARGET-002/REPORT-001: unchanged sirv's factory and selected GET,
+  HEAD, 404, range 206 and conditional 304/200 histories complete within the
+  declared environment and explicit delivery schedule. EMFILE and permission
+  alternatives remain visible. No complete application/all-path proof, request
+  exploration beyond the stated horizon, or new vulnerability is claimed.
+- TEST-001/TEST-002/TEST-003/TEST-004: inventory is 484 whole unmodified active
+  files / 959 variants, with 43 parse-negative files / 85 variants. All 114
+  additions (113 drafts plus one review addition) and all 370 predecessor files remain active. The complete 46-file
+  historical skip inventory matches the selection exactly. New whole Node cases
+  are not claimed; the existing upstream compatibility candidate lists remain
+  pending their full harness/API dependencies. Guard/assertion/skip/doc scans
+  and exact-source test evidence accompany the integration, not a conformance
+  claim. Historical worker counts and typecheck claims are not fresh evidence.
+
+Integration resource boundaries also cap boxed strings at 65,536 UTF-16 units,
+replace/split/parseInt operands and replacement output at 65,536 units,
+header validation strings at 65,536 units, and ReadStream sources at 1,048,576
+units before byte preparation with selected chunks at 65,536 bytes. Conditional
+stream delivery retains supported sibling outcomes beside typed unsupported
+branches. Non-global RegExp replacement guards object/exotic lastIndex conversion
+after replacement conversion effects; global replacement overwrites lastIndex
+with zero first. These partial domains preserve the residual IDs above.

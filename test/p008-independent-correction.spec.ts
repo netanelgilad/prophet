@@ -29,7 +29,7 @@ function leaves(value:any,context?:any):any[] {
 
 test("native-discovered prototype own names guard every unmodeled read and own presence",()=>{
   const names:string[]=native('process.stdout.write(JSON.stringify(Object.getOwnPropertyNames(String.prototype).sort()));');
-  const supported=["length","constructor","concat","slice","toString","trim","toLowerCase","lastIndexOf","valueOf"];
+  const supported=["length","constructor","concat","slice","toString","trim","toLowerCase","charCodeAt","includes","indexOf","lastIndexOf","normalize","replace","substring","valueOf"];
   expect(names).toHaveLength(52);
   // P009 supersedes only lowercase's old deferred checkpoint. Keep the native
   // name discovery and every residual guard; assert its actual supported result.
@@ -40,6 +40,18 @@ test("native-discovered prototype own names guard every unmodeled read and own p
   expect(lowered.value.scope.answer).toMatchObject({value:true});
   const search='const answer=typeof String.prototype.lastIndexOf === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"lastIndexOf") && "ababa".lastIndexOf("aba") === 2;';
   expect(nativeAnswer(search)).toBe(true);const [searched,searchState]=run(search);expect(searched).toBe(Undefined);expect(searchState.value.scope.answer).toMatchObject({value:true});
+  const normalized='const answer=typeof String.prototype.normalize === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"normalize") && "hello.txt".normalize() === "hello.txt";';
+  expect(nativeAnswer(normalized)).toBe(true);const [normalizedDone,normalizedState]=run(normalized);expect(normalizedDone).toBe(Undefined);expect(normalizedState.value.scope.answer).toMatchObject({value:true});
+  const replaced='const answer=typeof String.prototype.replace === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"replace") && "hello.txt".replace(/\\+/g,"/") === "hello.txt";';
+  expect(nativeAnswer(replaced)).toBe(true);const [replacedDone,replacedState]=run(replaced);expect(replacedDone).toBe(Undefined);expect(replacedState.value.scope.answer).toMatchObject({value:true});
+  const indexed='const answer=typeof String.prototype.indexOf === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"indexOf") && "/hello.txt".indexOf("#",1) === -1 && "abcabc".indexOf("bc",3) === 4;';
+  expect(nativeAnswer(indexed)).toBe(true);const [indexedDone,indexedState]=run(indexed);expect(indexedDone).toBe(Undefined);expect(indexedState.value.scope.answer).toMatchObject({value:true});
+  const coded='const missing="".charCodeAt(0);const answer=typeof String.prototype.charCodeAt === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"charCodeAt") && "/hello.txt".charCodeAt(9) === 116 && missing!==missing;';
+  expect(nativeAnswer(coded)).toBe(true);const [codedDone,codedState]=run(coded);expect(codedDone).toBe(Undefined);expect(codedState.value.scope.answer).toMatchObject({value:true});
+  const slice='const answer=typeof String.prototype.substring === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"substring") && "abcdef".substring(4,2) === "cd";';
+  expect(nativeAnswer(slice)).toBe(true);const [sliced,sliceState]=run(slice);expect(sliced).toBe(Undefined);expect(sliceState.value.scope.answer).toMatchObject({value:true});
+  const included='const answer=typeof String.prototype.includes === "function" && Object.prototype.hasOwnProperty.call(String.prototype,"includes") && "hello.txt".includes("llo") === true && "hello.txt".includes("he",1) === false;';
+  expect(nativeAnswer(included)).toBe(true);const [incl,inclState]=run(included);expect(incl).toBe(Undefined);expect(inclState.value.scope.answer).toMatchObject({value:true});
   for(const name of names.filter(n=>!supported.includes(n))) {
     for(const expression of ['String.prototype['+JSON.stringify(name)+']','Object.prototype.hasOwnProperty.call(String.prototype,'+JSON.stringify(name)+')']) {
       const [completion,after]=run('let trace="prefix";const answer='+expression+';trace="wrong";');
@@ -132,10 +144,15 @@ test("unknown extra trim metadata now stops conservatively after RHS effects",()
   expect(paths.find(p=>p[0]===Undefined)[1].value.scope.trace).toMatchObject({value:'sibling'});
 });
 
-test("reviewer sequence-expression false alarm stops before RHS effects",()=>{
+test("sequence-expression RHS effects now run before the trim metadata boundary",()=>{
+  // P026 models bounded sequence expressions, so the comma sequence evaluates
+  // its RHS assignment; the conservative stop moved to the unmodeled
+  // String.trim extra-property write, after the RHS effects.
   const [completion,after]=run('let trace="";String.prototype.trim.extra=(trace="rhs",17);');
-  expect(completion).toMatchObject({type:'ExecutionBoundary',kind:'unsupported',message:"Can't resolve type of ast type SequenceExpression"});
-  expect(after.value.scope.trace).toMatchObject({value:''});
+  const paths=leaves(completion,after);
+  const stopped=paths.find(p=>p[0].type==='ExecutionBoundary');expect(stopped).toBeDefined();
+  expect(stopped[0]).toMatchObject({kind:'unsupported',message:"Unmodeled host property 'extra': String.trim metadata"});
+  expect(stopped[1].value.scope.trace).toMatchObject({value:'rhs'});
 });
 
 test("conditional receiver and converted key preserve closed-object absence",()=>{

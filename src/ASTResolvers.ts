@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import { unsupportedPropertyError, UnsupportedAnalysisError } from "./execution-context/analysis-failure";
+import { ExecutionBudgetError, unsupportedPropertyError, UnsupportedAnalysisError } from "./execution-context/analysis-failure";
 
 import { ESString, TESString } from "./string/String";
 import {
@@ -26,6 +26,7 @@ import { ESTree } from "cherow";
 import { withAnalysisFailureContext } from "./execution-context/analysis-failure";
 import { unimplemented } from "@deaven/unimplemented";
 import { Array as ESArray, TArray } from "./array/Array";
+import { ordinarySpreadElements } from "./array/spread";
 import { choiceOf } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
 import { getProperties, getArrayElements, ownPropertyPresence, assertModeledOwnAbsence, writeArrayElements,
@@ -38,6 +39,7 @@ import { initializeBindingPattern } from "./Function/binding-patterns";
 import { instantiateDeclarations, globalDeclarationError, hasUseStrict, identifierName } from "./Function/instantiate";
 import { evalFn, evaluateEval } from "./eval/eval";
 import { evaluateForStatement } from "./loops/for";
+import { evaluateForInStatement } from "./loops/for-in";
 import { isExecutionBoundary, isForkedCompletion } from "./execution-context/Completion";
 import { prototypeOf, withoutPrototypeSetter } from "./Object/prototype";
 import { copyDataProperties } from "./Object/enumeration";
@@ -139,7 +141,7 @@ export function propertyName(key: Any): string {
 
 // A reference is VM bookkeeping, not a JavaScript value. Consume it within
 // each normal continuation rather than joining references with selectValue.
-function withMemberReference(
+export function withMemberReference(
   ast: ESTree.MemberExpression, context: TExecutionContext,
   continuation: (object: Any, name: string, context: TExecutionContext) => BranchResult,
   symbolicRead?: (object: Any, index: TESNumber, context: TExecutionContext) => BranchResult
@@ -220,10 +222,31 @@ function withArguments(
   continuation: (args: Any[], context: TExecutionContext) => BranchResult,
   index = 0, args: Any[] = []
 ): BranchResult {
+  if (index === 0 && (expressions.length > 1024 || expressions.filter(expression => expression.type === "SpreadElement").length > 64)) {
+    throw new ExecutionBudgetError("Argument list exceeds 1024 operands or 64 spreads");
+  }
+  if (args.length > 1024) throw new ExecutionBudgetError("Expanded argument list exceeds 1024 values");
   let current = context;
   let values = args;
   for (let position = index; position < expressions.length; position++) {
-    const result = evaluate(expressions[position], current);
+    const expression = expressions[position];
+    // Bounded ordinary-array spread: proven intrinsic iteration answers the
+    // current elements in order; everything else stops as a typed boundary
+    // (see src/array/spread.ts).
+    if (expression.type === "SpreadElement") {
+      const spread = evaluate(expression.argument, current);
+      const prior = values;
+      const next = position + 1;
+      // Conditional (joined) operands split per branch, matching concat's
+      // operand handling; each branch spreads its own concrete array.
+      if (needsContinuation(spread[0])) {
+        return bindNormal(spread, (value, after) => withValue(value, after, (resolved, branch) =>
+          withArguments(expressions, branch, continuation, next, prior.concat(ordinarySpreadElements(resolved, branch)))));
+      }
+      return withValue(spread[0], spread[1], (resolved, branch) =>
+        withArguments(expressions, branch, continuation, next, prior.concat(ordinarySpreadElements(resolved, branch))));
+    }
+    const result = evaluate(expression, current);
     if (needsContinuation(result[0])) {
       const prior = values;
       const next = position + 1;
@@ -324,7 +347,7 @@ export const AssignmentExpressionResolver: ASTResolver<ESTree.AssignmentExpressi
   return bindNormal(evaluate(ast.right, context), (value, after) => assignBinding(after, name, value, reference));
 };
 
-function assignMember(object: Any, name: string, assigned: Any, context: TExecutionContext): BranchResult {
+export function assignMember(object: Any, name: string, assigned: Any, context: TExecutionContext): BranchResult {
   const choice = choiceOf(object);
   if (choice) return evaluateBranches(choice.condition, context,
     branch => assignMember(choice.consequent, name, assigned, branch),
@@ -460,6 +483,16 @@ export const ArrowFunctionExpressionResolver: ASTResolver<ESTree.ArrowFunctionEx
 export const ExpressionStatementResolver: ASTResolver<ESTree.ExpressionStatement> = (ast, context) =>
   bindNormal(evaluate(ast.expression, context), (_value, after) => tuple(Undefined, after));
 
+// The comma operator evaluates every operand left to right, discards each
+// value except the last, and completes with the last operand's value.
+export const SequenceExpressionResolver: ASTResolver<ESTree.SequenceExpression> = (ast, context) => {
+  if (ast.expressions.length > 64) throw new ExecutionBudgetError("Sequence expression exceeds 64 operands");
+  const visit = (index: number, current: TExecutionContext): BranchResult =>
+    bindNormal(evaluate(ast.expressions[index], current), (value, after) =>
+      index === ast.expressions.length - 1 ? tuple(value, after) : visit(index + 1, after));
+  return visit(0, context);
+};
+
 export const VariableDeclarationResolver: ASTResolver<ESTree.VariableDeclaration> = (ast, context) => {
   const declare = (index: number, current: TExecutionContext): BranchResult => {
     let after = current;
@@ -559,6 +592,9 @@ export const ContinueStatementResolver: ASTResolver<ESTree.ContinueStatement> = 
 export const ForStatementResolver: ASTResolver<ESTree.ForStatement> = (ast, context) =>
   evaluateForStatement(ast, context);
 
+export const ForInStatementResolver: ASTResolver<ESTree.ForInStatement> = (ast, context) =>
+  evaluateForInStatement(ast, context);
+
 export const UpdateExpressionResolver: ASTResolver<ESTree.UpdateExpression> = (ast, context) => {
   if (ast.argument.type !== "Identifier") return unimplemented();
   const name = ast.argument.name;
@@ -602,7 +638,8 @@ export const ASTResolvers = new Map<string, ASTResolver<any>>([
   ["BlockStatement", BlockStatementResolver], ["NewExpression", NewExpressionResolver],
   ["LogicalExpression", LogicalExpressionResolver], ["TryStatement", TryStatementResolver],
   ["ThrowStatement", ThrowStatementResolver], ["DoWhileStatement", DoWhileStatementResolver],
-  ["ForStatement", ForStatementResolver], ["BreakStatement", BreakStatementResolver],
+  ["ForStatement", ForStatementResolver], ["ForInStatement", ForInStatementResolver], ["BreakStatement", BreakStatementResolver],
   ["ContinueStatement", ContinueStatementResolver],
-  ["UpdateExpression", UpdateExpressionResolver], ["UnaryExpression", UnaryExpressionResolver]
+  ["UpdateExpression", UpdateExpressionResolver], ["UnaryExpression", UnaryExpressionResolver],
+  ["SequenceExpression", SequenceExpressionResolver]
 ]);

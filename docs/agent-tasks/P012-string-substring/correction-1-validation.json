@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "python3",
+    "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/logs/p012/correction1/verify-evidence-correction1-v1.py"
+  ],
+  "cwd": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring",
+  "phase": "evidence-only direct recomputation",
+  "sourceCommit": "b582e2c746863d4c02697bdd28db461098aee226",
+  "head": "b582e2c746863d4c02697bdd28db461098aee226",
+  "status": "?? docs/agent-tasks/P012-string-substring/correction-1-evidence.json\n?? docs/agent-tasks/P012-string-substring/correction-1-handoff.md",
+  "start": "2026-10-14T03:27:25.158728+00:00",
+  "end": "2026-10-14T03:27:38.312127+00:00",
+  "elapsedSeconds": 13.1528785,
+  "exit": 0,
+  "artifacts": 994,
+  "originalArtifacts": 1472,
+  "sourceFiles": 1241,
+  "runs": 13,
+  "evidencePath": "/Users/netanelgilad/development/prophet-worktrees/sol-p012-string-substring/docs/agent-tasks/P012-string-substring/correction-1-evidence.json",
+  "evidenceSha256": "9f5fe6a7af8e27a89a1bfdc42143d882f6029ecbb30f6e45af00e17f686f58f9",
+  "checks": [
+    "source SHA256 and Git blob identity",
+    "every recorded artifact and run metadata hash",
+    "prefreeze archive member SHA256 and excluded Git blobs",
+    "clean frozen full/typecheck/audit source manifests",
+    "original log preservation baseline",
+    "original evidence and frozen reviewer hashes",
+    "raw and parsed-body candidate identity"
+  ],
+  "completedBuilderRecords": {
+    "logs/p012/correction1/evidence-build-v1.run.json": {
+      "sha256": "84dee382748f798919d7849e6654ae5cd8747d826a46f47cbb6a38aeaf6e2948",
+      "bytes": 768
+    },
+    "logs/p012/correction1/evidence-build-v1.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "logs/p012/correction1/evidence-build-v1.stdout": {
+      "sha256": "c0d25c43de739ec4a1f01140613def0d775d9ad39a2d4a55a126f349816482d1",
+      "bytes": 345
+    }
+  }
+}

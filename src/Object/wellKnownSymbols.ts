@@ -8,6 +8,8 @@ import { withInternalPrototype } from "./prototype";
 // Identity keys cannot collide with ordinary strings such as "@@hasInstance".
 // These internal slots do not claim an implemented public Symbol constructor.
 export const toPrimitiveSymbol = Object.freeze({ name: "Symbol.toPrimitive" });
+export const replaceSymbol = Object.freeze({ name: "Symbol.replace" });
+export const matchSymbol = Object.freeze({ name: "Symbol.match" });
 export const hasInstanceSymbol = Object.freeze({ name: "Symbol.hasInstance" });
 
 export function readWellKnownSymbol(

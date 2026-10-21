@@ -160,9 +160,9 @@ test("slice is shared, replaceable and not constructible", () => {
 });
 
 
-test("sloppy primitive replacement boxing remains an explicit gap", () => {
-  expect(() => run('String.prototype.slice = function () { return "replacement"; }; "abc".slice();'))
-    .toThrow("Sloppy receiver boxing is not yet supported");
+test("sloppy primitive replacement receiver boxes into a String wrapper", () => {
+  const { scope } = run('String.prototype.slice = function () { return typeof this; }; const proof = "abc".slice();');
+  expect(scope.proof).toMatchObject({ value: "object" });
 });
 
 test("unknown host and explicit exotic primitive coercions are not ignored", () => {

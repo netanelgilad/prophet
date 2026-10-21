@@ -20,7 +20,7 @@ let versionChecked = false;
 
 export function assertPinnedNode() {
   if (versionChecked) return;
-  const actual = execFileSync(nodeBinary, ["--version"], { encoding: "utf8" }).trim();
+  const actual = execFileSync(nodeBinary, ["--version"], { cwd: join(__dirname, "../.."), encoding: "utf8" }).trim();
   if (actual !== nodeVersion) {
     throw new Error(
       `CommonJS compatibility requires Node ${nodeVersion}; ${nodeBinary} is ${actual}. ` +
@@ -145,7 +145,7 @@ export function nodeModuleObservation(filename: string, observe = ""): object {
   // oracle itself so an incorrect release never evaluates a fixture.
   assertPinnedNode();
   return JSON.parse(execFileSync(nodeBinary, ["--no-global-search-paths", "-e", oracle, filename, observe], {
-    encoding: "utf8", env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" }, stdio: ["ignore", "pipe", "pipe"]
+    cwd: join(__dirname, "../.."), encoding: "utf8", env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" }, stdio: ["ignore", "pipe", "pipe"]
   }));
 }
 

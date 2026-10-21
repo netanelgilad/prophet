@@ -112,11 +112,20 @@ test('object declarations in function bodies coexist with arguments shadowing an
 });
 
 test.each([
-  'let { ...rest } = {};', 'const { x: [first] } = { x: [] };',
+  'let { ...rest } = {};',
   'function f({ x }) { return x; } f({ x: 1 });', 'let x; ({ x } = { x: 1 });',
   'let { x } = "text";', 'let { [unknown]: x } = {};'
 ])('remaining binding domains stop explicitly: %s', source => {
   expect(() => evaluateCode(source, setVariablesInScope(nodeInitialExecutionContext, { unknown: ESString() }))).toThrow();
+});
+
+test('nested array patterns inside object patterns bind through the shared operations', () => {
+  const [completion, context] = evaluateCode('const { x: [first] } = { x: [] }; const { y: [a, b] } = { y: [1, 2] };',
+    nodeInitialExecutionContext);
+  expect(isThrownValue(completion)).toBe(false);
+  expect(context.value.scope.first).toMatchObject({ type: "undefined" });
+  expect(context.value.scope.a).toMatchObject({ value: 1 });
+  expect(context.value.scope.b).toMatchObject({ value: 2 });
 });
 
 test('repeated binding keys perform fresh shared reads in source order', () => {

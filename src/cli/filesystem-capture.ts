@@ -85,7 +85,7 @@ export function captureFileSystem(options: FileSystemCaptureOptions) {
     const readable = allowed(path, constants.R_OK);
     const node = stat.isDirectory()
       ? fileSystemDirectory(children, { readable, searchable: allowed(path, constants.X_OK), complete: false })
-      : fileSystemUnobservedFile({ readable });
+      : fileSystemUnobservedFile({ readable, size: stat.size, mtimeMs: stat.mtimeMs });
     paths.set(node, path);
     nodes.set(path, node);
     return node;

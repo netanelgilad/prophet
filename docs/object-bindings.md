@@ -30,9 +30,21 @@ Its message remains unknown because native diagnostic wording depends on syntax.
 Empty patterns accept other primitive values without property access. Nonempty
 primitive patterns explicitly stop at the missing boxing/GetV model rather than
 inventing absent string indices or wrapper properties. Unknown keys, Symbols and
-general key coercion remain the shared computed-property boundary. Array/rest
+general key coercion remain the shared computed-property boundary. Rest
 patterns reject during declaration instantiation; other malformed binding forms
 are not silently treated as identifiers.
+
+Array declaration patterns over ordinary array values bind elements in source
+order through ordinary index Get: missing elements and source holes read
+undefined, pattern holes skip their index, and reads stop after the last
+pattern element. Defaults run only for undefined and can read earlier
+bindings; var targets resolve before their element's read or default. Nested
+array/object patterns recurse through the same operations. Null, undefined,
+plain objects and non-string primitives throw a language TypeError (empty
+patterns included), preserving the type without inventing a concrete message.
+Declared assumptions and gaps: ordinary sources carry no Symbol.iterator
+override and no index accessors; strings and custom iterables take the real
+iterator protocol and stop explicitly, as do rest elements.
 
 Ordinary JavaScript accessor construction/descriptors remain unsupported. Local
 specs verify getter ordering and throwing through existing host access hooks and
@@ -52,7 +64,7 @@ providing the real interpreted Test262Error identity before assertion adapters.
 
 Complete `obj-ptrn-empty` and `*-get-value-err` cases remain inactive because they
 construct accessors through Object.defineProperty. Function-name cases need
-metadata/naming/descriptor support; array/rest families need their own binding
+metadata/naming/descriptor support; rest families and custom-iterable array cases need their own binding
 and iterator operations. Primitive boxing, general ToPropertyKey and further
 early-error/global declaration behavior remain gaps. The exact 46 historical
 skipped-file inventory is unchanged; this selected corpus is not full conformance.

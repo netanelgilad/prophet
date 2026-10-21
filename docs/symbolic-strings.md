@@ -86,7 +86,7 @@ even when a human could prove more about it.
   slots and partial-host symbol lookups rather than silently taking an ordinary
   conversion path. The internal symbol key does not implement public Symbol APIs.
   Slice's `name`/`length` values are modeled; descriptor mutation is guarded.
-- `startsWith`, `endsWith`, `includes`, replacement/regex operations and general
+- `startsWith`, `endsWith`, replacement/regex operations and general
   character indexing remain future work. Arbitrary string equations, repeated
   opaque-slice identities, constraints inferred from equality, arbitrary slice
   composition and general length algebra remain precision gaps. Mixed string /
@@ -300,3 +300,13 @@ both filesystem histories survive through a narrowly typed resolver boundary.
 The bitwise operation itself, increment, substring and subsequent application
 work remain unsupported under LANG-001, LIB-001/002, OBJ-001/003, LANG-006,
 STRING-001, SYM-001/004, LEGACY-002, FS-001, TARGET-002, REPORT-001 and TEST-001/002/003.
+
+## Bounded generic substring (P012)
+
+[Substring](string-substring.md) now supports ordered ordinary receiver/start/end
+coercion, finite correlations and a bounded UTF-16 copy. It advances the unchanged
+mrmime lookup to its MIME-table result and the actual sirv Stats.size frontier.
+Older P008–P011 checkpoint paragraphs above retain their historical progression;
+substring lookup is no longer the current stop. Copy/open/exotic/metadata and
+shared parser/prototype/allocation limits remain explicit. Independent review is
+pending; factory/server/request completion is not reached.

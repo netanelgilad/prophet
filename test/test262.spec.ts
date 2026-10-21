@@ -13,6 +13,22 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // P012: whole unmodified bounded generic substring candidates.
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T10.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T11.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T13.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T14.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T4.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T7.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A1_T8.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A3_T10.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A3_T5.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A3_T6.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A3_T7.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A6.js",
+  "built-ins/String/prototype/substring/S15.5.4.15_A7.js",
+  "built-ins/String/prototype/substring/this-value-not-obj-coercible.js",
+
   // P011: whole Number-domain complement/GetValue/ordinary conversion cases.
   "language/expressions/bitwise-not/S11.4.8_A1.js",
   "language/expressions/bitwise-not/S11.4.8_A2.1_T1.js",
@@ -222,6 +238,91 @@ const activeCorpus = [
   "language/statements/const/dstr/obj-ptrn-id-init-unresolvable.js",
   "language/statements/const/dstr/obj-ptrn-id-trailing-comma.js",
 
+  // P027: whole unmodified array destructuring declaration cases whose
+  // bodies use ordinary array literals: ordered element binding, source and
+  // pattern holes, defaults and skipped defaults, nested array/object
+  // patterns, nullish TypeErrors, and parse-negative rest-initializer and
+  // rest-not-final forms. Custom iterables, generators, rest elements and
+  // function-name metadata stay inactive.
+  "language/statements/variable/dstr/ary-name-iter-val.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-ary-elem-init.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-ary-elem-iter.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-ary-empty-iter.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-ary-val-null.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-init-exhausted.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-init-hole.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-init-skipped.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-init-throws.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-init-undef.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-init-unresolvable.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-iter-complete.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-iter-done.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-id-iter-val.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-obj-id-init.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-obj-id.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-obj-prop-id-init.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-obj-prop-id.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-obj-val-null.js",
+  "language/statements/variable/dstr/ary-ptrn-elem-obj-val-undef.js",
+  "language/statements/variable/dstr/ary-ptrn-rest-init-ary.js",
+  "language/statements/variable/dstr/ary-ptrn-rest-init-id.js",
+  "language/statements/variable/dstr/ary-ptrn-rest-init-obj.js",
+  "language/statements/variable/dstr/ary-ptrn-rest-not-final-ary.js",
+  "language/statements/variable/dstr/ary-ptrn-rest-not-final-id.js",
+  "language/statements/variable/dstr/ary-ptrn-rest-not-final-obj.js",
+  "language/statements/let/dstr/ary-name-iter-val.js",
+  "language/statements/let/dstr/ary-ptrn-elem-ary-elem-init.js",
+  "language/statements/let/dstr/ary-ptrn-elem-ary-elem-iter.js",
+  "language/statements/let/dstr/ary-ptrn-elem-ary-empty-iter.js",
+  "language/statements/let/dstr/ary-ptrn-elem-ary-val-null.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-init-exhausted.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-init-hole.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-init-skipped.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-init-throws.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-init-undef.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-init-unresolvable.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-iter-complete.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-iter-done.js",
+  "language/statements/let/dstr/ary-ptrn-elem-id-iter-val.js",
+  "language/statements/let/dstr/ary-ptrn-elem-obj-id-init.js",
+  "language/statements/let/dstr/ary-ptrn-elem-obj-id.js",
+  "language/statements/let/dstr/ary-ptrn-elem-obj-prop-id-init.js",
+  "language/statements/let/dstr/ary-ptrn-elem-obj-prop-id.js",
+  "language/statements/let/dstr/ary-ptrn-elem-obj-val-null.js",
+  "language/statements/let/dstr/ary-ptrn-elem-obj-val-undef.js",
+  "language/statements/let/dstr/ary-ptrn-rest-init-ary.js",
+  "language/statements/let/dstr/ary-ptrn-rest-init-id.js",
+  "language/statements/let/dstr/ary-ptrn-rest-init-obj.js",
+  "language/statements/let/dstr/ary-ptrn-rest-not-final-ary.js",
+  "language/statements/let/dstr/ary-ptrn-rest-not-final-id.js",
+  "language/statements/let/dstr/ary-ptrn-rest-not-final-obj.js",
+  "language/statements/const/dstr/ary-name-iter-val.js",
+  "language/statements/const/dstr/ary-ptrn-elem-ary-elem-init.js",
+  "language/statements/const/dstr/ary-ptrn-elem-ary-elem-iter.js",
+  "language/statements/const/dstr/ary-ptrn-elem-ary-empty-iter.js",
+  "language/statements/const/dstr/ary-ptrn-elem-ary-val-null.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-init-exhausted.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-init-hole.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-init-skipped.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-init-throws.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-init-undef.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-init-unresolvable.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-iter-complete.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-iter-done.js",
+  "language/statements/const/dstr/ary-ptrn-elem-id-iter-val.js",
+  "language/statements/const/dstr/ary-ptrn-elem-obj-id-init.js",
+  "language/statements/const/dstr/ary-ptrn-elem-obj-id.js",
+  "language/statements/const/dstr/ary-ptrn-elem-obj-prop-id-init.js",
+  "language/statements/const/dstr/ary-ptrn-elem-obj-prop-id.js",
+  "language/statements/const/dstr/ary-ptrn-elem-obj-val-null.js",
+  "language/statements/const/dstr/ary-ptrn-elem-obj-val-undef.js",
+  "language/statements/const/dstr/ary-ptrn-rest-init-ary.js",
+  "language/statements/const/dstr/ary-ptrn-rest-init-id.js",
+  "language/statements/const/dstr/ary-ptrn-rest-init-obj.js",
+  "language/statements/const/dstr/ary-ptrn-rest-not-final-ary.js",
+  "language/statements/const/dstr/ary-ptrn-rest-not-final-id.js",
+  "language/statements/const/dstr/ary-ptrn-rest-not-final-obj.js",
+
   // Complete quoted-string files protect Unicode escape syntax and strict
   // early errors alongside local raw-astral literal regressions.
   "language/types/string/S8.4_A1.js",
@@ -263,6 +364,7 @@ const activeCorpus = [
   "built-ins/String/prototype/slice/S15.5.4.13_A3_T1.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A3_T2.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A3_T3.js",
+  "built-ins/String/prototype/slice/S15.5.4.13_A3_T4.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A6.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A11.js",
   "built-ins/String/prototype/slice/S15.5.4.13_A7.js",
@@ -298,8 +400,8 @@ const activeCorpus = [
 
   // Whole ordinary instanceof cases: operand evaluation/throws, constructor
   // identity and prototype chains, primitive left operands and invalid RHS.
-  // A2.4_T3's RHS comma expression is unreachable after its reference error;
-  // this does not claim general SequenceExpression support.
+  // A2.4_T3's RHS comma expression is unreachable after its reference error.
+  // Bounded sequence expressions are covered separately (P026).
   "language/expressions/instanceof/S11.8.6_A1.js",
   "language/expressions/instanceof/S11.8.6_A2.1_T1.js",
   "language/expressions/instanceof/S11.8.6_A2.1_T2.js",
@@ -461,7 +563,40 @@ const activeCorpus = [
   "language/statements/try/S12.14_A7_T2.js",
   "language/statements/try/S12.14_A13_T1.js",
   "language/statements/try/S12.14_A13_T2.js",
-  "language/statements/try/S12.14_A13_T3.js"
+  "language/statements/try/S12.14_A13_T3.js",
+
+  // P032: whole unmodified concrete String.prototype.split cases: an empty
+  // receiver with an omitted separator yields the whole string, and an
+  // empty receiver splitting on an absent separator keeps its single
+  // empty element.
+  "built-ins/String/prototype/split/S15.5.4.14_A1_T4.js",
+  "built-ins/String/prototype/split/S15.5.4.14_A2_T19.js",
+
+  // P033: whole unmodified concrete String.prototype.includes cases: found
+  // and missing searches with and without positions, out-of-bounds and
+  // coerced positions, empty search strings, abrupt conversions of this,
+  // search string and position, nullish receiver TypeErrors and the
+  // length-1 metadata property. RegExp identity checks, Symbol-keyed
+  // matching and harness property-helper files stay inactive.
+  "built-ins/String/prototype/includes/String.prototype.includes_FailBadLocation.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_FailLocation.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_FailMissingLetter.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_Success.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_SuccessNoLocation.js",
+  "built-ins/String/prototype/includes/String.prototype.includes_lengthProp.js",
+  "built-ins/String/prototype/includes/coerced-values-of-position.js",
+  "built-ins/String/prototype/includes/return-abrupt-from-position.js",
+  "built-ins/String/prototype/includes/return-abrupt-from-searchstring.js",
+  "built-ins/String/prototype/includes/return-abrupt-from-this.js",
+  "built-ins/String/prototype/includes/return-false-with-out-of-bounds-position.js",
+  "built-ins/String/prototype/includes/return-true-if-searchstring-is-empty.js",
+  "built-ins/String/prototype/includes/searchstring-is-regexp-throws.js",
+  "built-ins/String/prototype/includes/searchstring-found-with-position.js",
+  "built-ins/String/prototype/includes/searchstring-found-without-position.js",
+  "built-ins/String/prototype/includes/searchstring-not-found-with-position.js",
+  "built-ins/String/prototype/includes/searchstring-not-found-without-position.js",
+  "built-ins/String/prototype/includes/this-is-null-throws.js",
+  "built-ins/String/prototype/includes/this-is-undefined-throws.js"
 ];
 
 describe("Test262 active corpus", () => {

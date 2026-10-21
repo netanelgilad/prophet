@@ -1,5 +1,6 @@
 import { ESBuiltinFunction } from "./Function";
 import { functionCall } from "./call";
+import { functionBind } from "./bind";
 import { Undefined, ESNumber } from "../types";
 import { getObjectPrototype } from "../Object/prototype";
 import { tuple } from "@deaven/tuple";
@@ -29,6 +30,7 @@ export function getFunctionPrototype() {
     // Symbol access/descriptor support must preserve those attributes later.
     Object.assign(functionPrototype, { wellKnownSymbols: new Map([[hasInstanceSymbol, hasInstance]]) });
     Object.assign(functionPrototype.properties, {
+      bind: functionBind,
       call: functionCall,
       toString: ESBuiltinFunction(function*() {
         throw new Error("Function source string conversion is not yet supported");

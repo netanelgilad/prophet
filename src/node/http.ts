@@ -1,10 +1,15 @@
 import { invoke, readMember } from "../ASTResolvers";
 import { isESFunction } from "../Function/Function";
 import { getFunctionPrototype } from "../Function/prototype";
+import { Array as ESArray } from "../array/Array";
 import { ESObject, TESObject } from "../Object";
+import { withEnumerableOwnProperties, withKeyOrder } from "../Object/enumeration";
 import { getObjectPrototype } from "../Object/prototype";
 import { coerceToBoolean, ESBoolean } from "../boolean/ESBoolean";
-import { withValue } from "../conversion/toString";
+import { ordinarySpreadElements } from "../array/spread";
+import { readWellKnownSymbol, toPrimitiveSymbol } from "../Object/wellKnownSymbols";
+import { ExecutionBudgetError, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
+import { isObjectValue, toString, withValue } from "../conversion/toString";
 import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
@@ -12,15 +17,15 @@ import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { JobQueue } from "../jobs";
 import { ExternalEvents } from "../external-events";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
-import { getProperties, writeProperty } from "../execution-context/Heap";
+import { getProperties, getPropertyKeys, ownPropertyPresence, removeProperty, writeProperty } from "../execution-context/Heap";
 import { ESString, TESString } from "../string/String";
 import { resolveBoolean, strictEquality } from "../symbolic";
-import { Any, ESNumber, ESNull, TESBoolean, isESNumber, isESNull, isESString, isUndefined,
+import { Any, ESNumber, ESNull, TESBoolean, isArray, isESNumber, isESNull, isESString, isUndefined,
   ThrownValue, Undefined } from "../types";
 import { createEventEmitterModel } from "./events";
 import { withHTTPChunk, appendHTTPChunk, consumeHTTPBody } from "./http-body";
 import { createHTTPStatusCodes } from "./http-status-codes";
-import { headerError, invalidHeaderText, serializeResponseHeaders, withHeaderText } from "./http-headers";
+import { headerError, invalidHeaderText, mergeStoredHeaders, overlayRawHeaders, serializeResponseHeaders, withHeaderText } from "./http-headers";
 
 export type HTTPModelOptions = {
   // A bind attempt returns null on success or the Error later emitted by Node.
@@ -214,6 +219,140 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
       });
   });
 
+  // The setHeader store keeps raw values under lowercased names, exactly as
+  // pinned against Node 24.21.0: strings and array string elements are
+  // character-validated eagerly while numbers, booleans, null, arrays and
+  // plain objects store unvalidated. Serialization happens at writeHead.
+  const storedHeaders = (response: Any, context: TExecutionContext): TESObject =>
+    getProperties(responseState(response), context).stored as TESObject;
+
+  const headersSentError = (context: TExecutionContext, verb: string): BranchResult => {
+    const error = createError("Error", ESString(`Cannot ${verb} headers after they are sent to the client`));
+    error.properties.code = ESString("ERR_HTTP_HEADERS_SENT");
+    return [ThrownValue(error), context];
+  };
+
+  const withUnsentHeaders = (response: Any, context: TExecutionContext, verb: string,
+    continuation: (context: TExecutionContext) => BranchResult): BranchResult =>
+    evaluateBranches(getProperties(responseState(response), context).headerStored as TESBoolean, context,
+      sent => headersSentError(sent, verb),
+      open => continuation(open));
+
+  // setHeader name handling: concrete strings and numbers validate as tokens
+  // (numbers stringify into the message, as pinned); anything else defers.
+  const withSetHeaderName = (value: Any, context: TExecutionContext,
+    continuation: (name: string, context: TExecutionContext, original: string) => BranchResult): BranchResult =>
+    withValue(value, context, (resolved, branch) => {
+      let text: string;
+      if (isESString(resolved) && typeof resolved.value === "string") text = resolved.value;
+      else if (isESNumber(resolved) && typeof resolved.value === "number") text = String(resolved.value);
+      else return unsupported("symbolic or object header name conversion");
+      if (!isESString(resolved) || !/^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(text)) {
+        return headerError("ERR_INVALID_HTTP_TOKEN", `Header name must be a valid HTTP token ["${text}"]`, branch);
+      }
+      return continuation(text.toLowerCase(), branch, text);
+    });
+
+  // Read-side name handling: a non-string name is a TypeError, but an invalid
+  // token string simply answers absent, both pinned against Node 24.21.0.
+  const withReadHeaderName = (value: Any, context: TExecutionContext,
+    continuation: (name: string, context: TExecutionContext) => BranchResult): BranchResult =>
+    withValue(value, context, (resolved, branch) => {
+      if (isESString(resolved) && typeof resolved.value !== "string") throw new UnsupportedAnalysisError("Open symbolic HTTP header names are not yet supported");
+      if (!isESString(resolved)) {
+        const error = createError("TypeError", ESString('The "name" argument must be of type string'));
+        error.properties.code = ESString("ERR_INVALID_ARG_TYPE");
+        return [ThrownValue(error), branch];
+      }
+      return continuation((resolved.value as string).toLowerCase(), branch);
+    });
+
+  const validateSetHeaderValue = (name: string, value: Any, context: TExecutionContext,
+    continuation: (value: Any, context: TExecutionContext) => BranchResult): BranchResult =>
+    withValue(value, context, (resolved, branch) => {
+      if (isUndefined(resolved)) {
+        return headerError("ERR_HTTP_INVALID_HEADER_VALUE", `Invalid value "undefined" for header "${name}"`, branch);
+      }
+      const validateText = (input: Any, current: TExecutionContext, done: (after: TExecutionContext) => BranchResult): BranchResult => {
+        const convert = (ready: TExecutionContext): BranchResult => bindNormal(toString(input, ready), (text, after) =>
+          withValue(text, after, (selected, branch) => {
+            if (!isESString(selected) || typeof selected.value !== "string") throw new UnsupportedAnalysisError("Open symbolic HTTP header values are not yet supported");
+            if (selected.value.length > 65536) throw new ExecutionBudgetError("HTTP header value exceeds 65536 UTF-16 units");
+            if (invalidHeaderText(selected.value)) return headerError("ERR_INVALID_CHAR", `Invalid character in header content ["${name}"]`, branch);
+            return done(branch);
+          }));
+        if (!isObjectValue(input)) return convert(current);
+        return bindNormal(readWellKnownSymbol(input, toPrimitiveSymbol, current), (hook, afterHook) =>
+          withValue(hook, afterHook, (selected, ready) => {
+            if (!isUndefined(selected) && !isESNull(selected)) throw new UnsupportedAnalysisError("Custom HTTP header Symbol.toPrimitive conversion is not yet supported");
+            return convert(ready);
+          }));
+      };
+      if (isArray(resolved)) {
+        const own = getProperties(resolved as TESObject, branch);
+        if (Object.prototype.hasOwnProperty.call(own, "toString") || Object.prototype.hasOwnProperty.call(own, "join")) throw new UnsupportedAnalysisError("Custom HTTP header array conversion is not yet supported");
+        const elements = ordinarySpreadElements(resolved, branch);
+        const visit = (index: number, current: TExecutionContext): BranchResult => {
+          if (index === elements.length) return continuation(resolved, current);
+          return withValue(elements[index], current, (item, selected) => {
+            if (isObjectValue(item)) throw new UnsupportedAnalysisError("Effectful or nested HTTP header array values are not yet supported");
+            return validateText(item, selected, after => visit(index + 1, after));
+          });
+        };
+        return visit(0, branch);
+      }
+      return validateText(resolved, branch, after => continuation(resolved, after));
+    });
+
+  const setHeader = operation("http.response.setHeader", (call, context) =>
+    withUnsentHeaders(call.receiver, context, "set", branch =>
+      withSetHeaderName(call.args[0] || Undefined, branch, (name, named, original) =>
+        validateSetHeaderValue(original, call.args[1] || Undefined, named, (value, validated) => {
+          // Pinned: setHeader returns the response itself for chaining, and
+          // the first setHeader lazily creates the store writeHead merges into.
+          const stored = writeProperty(storedHeaders(call.receiver, validated), name, value, validated);
+          return [call.receiver, change(responseState(call.receiver) as TESObject, { storeCreated: ESBoolean(true) }, stored)];
+        }))));
+
+  const getHeader = operation("http.response.getHeader", (call, context) =>
+    withReadHeaderName(call.args[0] || Undefined, context, (name, named) => {
+      const stored = storedHeaders(call.receiver, named);
+      return evaluateBranches(ownPropertyPresence(stored, name, named), named,
+        present => readMember(stored, name, present),
+        absent => [Undefined, absent]);
+    }));
+
+  const hasHeader = operation("http.response.hasHeader", (call, context) =>
+    withReadHeaderName(call.args[0] || Undefined, context, (name, named) => {
+      const stored = storedHeaders(call.receiver, named);
+      return evaluateBranches(ownPropertyPresence(stored, name, named), named,
+        present => [ESBoolean(true), present],
+        absent => [ESBoolean(false), absent]);
+    }));
+
+  const removeHeader = operation("http.response.removeHeader", (call, context) =>
+    withUnsentHeaders(call.receiver, context, "remove", branch =>
+      withReadHeaderName(call.args[0] || Undefined, branch, (name, named) =>
+        [Undefined, removeProperty(storedHeaders(call.receiver, named), name, named)])));
+
+  const getHeaderNames = operation("http.response.getHeaderNames", (call, context) =>
+    withKeyOrder(getPropertyKeys(storedHeaders(call.receiver, context), context), context,
+      (keys, after) => [ESArray(keys.map(name => ESString(name))), after]));
+
+  const getHeaders = operation("http.response.getHeaders", (call, context) =>
+    withEnumerableOwnProperties(storedHeaders(call.receiver, context), context, (source, keys, branch) => {
+      // Pinned: getHeaders answers a null-prototype copy with the raw values.
+      const result = Object.assign(ESObject(Object.create(null)), { prototype: ESNull });
+      const copy = (index: number, current: TExecutionContext): BranchResult => {
+        if (index === keys.length) return [result, current];
+        return evaluateBranches(ownPropertyPresence(source, keys[index], current), current,
+          present => bindNormal(readMember(source, keys[index], present), (value, afterRead) =>
+            copy(index + 1, writeProperty(result, keys[index], value, afterRead))),
+          absent => copy(index + 1, absent));
+      };
+      return copy(0, branch);
+    }));
+
   const writeHead = operation("http.response.writeHead", (call, context) => {
     const state = responseState(call.receiver);
     return evaluateBranches(getProperties(state, context).headerStored as TESBoolean, context,
@@ -234,6 +373,11 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
             return [ThrownValue(error), afterStatus];
           }
           if (code < 200) return unsupported("informational response completion");
+          const commitMerged = (headers: Any, text: string, current: TExecutionContext): BranchResult => {
+            const committed = change(state, { headerStored: ESBoolean(true), statusCode: ESNumber(code),
+              statusMessage: ESString(text), headers }, current);
+            return [call.receiver, change(call.receiver as TESObject, { headersSent: ESBoolean(true) }, committed)];
+          };
           const commit = (message: Any, headers: Any, current: TExecutionContext): BranchResult => {
             // These public assignments precede reason/header validation and
             // must survive a catchable error even though no header is stored.
@@ -246,11 +390,17 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
               // suppresses a later retry's body. Invalid reason fails earlier.
               const beforeHeaders = code === 204 || code === 304
                 ? change(state, { bodySuppressed: ESBoolean(true) }, afterMessage) : afterMessage;
-              return bindNormal(serializeResponseHeaders(headers, beforeHeaders), (serialized, afterHeaders) => {
-                const committed = change(state, { headerStored: ESBoolean(true), statusCode: ESNumber(code),
-                  statusMessage: ESString(text), headers: serialized }, afterHeaders);
-                return [call.receiver, change(call.receiver as TESObject, { headersSent: ESBoolean(true) }, committed)];
-              });
+              const serialize = (prepared: TExecutionContext): BranchResult =>
+                bindNormal(serializeResponseHeaders(headers, prepared), (serialized, afterHeaders) =>
+                  bindNormal(mergeStoredHeaders(getProperties(state, afterHeaders).stored, serialized as TESObject, afterHeaders),
+                    (merged, afterMerge) => commitMerged(merged, text, afterMerge)));
+              return evaluateBranches(getProperties(state, beforeHeaders).storeCreated as TESBoolean, beforeHeaders,
+                created => bindNormal(overlayRawHeaders(storedHeaders(call.receiver, created), headers, created,
+                  (key, raw, current) => withSetHeaderName(ESString(key), current, (name, named, original) =>
+                    validateSetHeaderValue(original, raw, named, (value, validated) =>
+                      [Undefined, writeProperty(storedHeaders(call.receiver, validated), name, value, validated)]))),
+                  (_stored, overlaid) => serialize(overlaid)),
+                neverCreated => serialize(neverCreated));
             });
           };
           return withValue(call.args[1] || Undefined, afterStatus, (reason, afterReason) => {
@@ -437,14 +587,34 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
     // inputs only on the arrival branch; method/url are independent strings.
     deliverRequest(call.receiver, { method: ESString(), url: ESString() }, context).result);
 
-  function deliverRequest(server: Any, input: { method: TESString; url: TESString }, context: TExecutionContext) {
+  function deliverRequest(server: Any, input: { method: TESString; url: TESString; headers?: Record<string, string> }, context: TExecutionContext) {
       if (!isESString(input.method) || !isESString(input.url)) unsupported("request method and URL must be strings");
-      const request = Object.assign(ESObject({ method: input.method, url: input.url }), {
-        unknownProperties: "Node HTTP incoming request API"
+      // A freshly delivered IncomingMessage has no cached parse: pinned Node
+      // 24.21.0 reads req._parsedUrl as undefined on raw dispatch. Declaring
+      // it absent lets @polka/url's parse probe fall through to its own
+      // computation; the package's write-back then caches on the request.
+      // A delivered request carries only declared headers: pinned Node
+      // 24.21.0 answers an ordinary Object.prototype-linked object whose own
+      // names are the lowercased dispatched headers (none for a raw dispatch
+      // carrying none). Ordinary lookup of absent keys (sirv's
+      // accept-encoding and range probes) yields undefined natively, so the
+      // headers object is deliberately NOT boundary-marked.
+      const headerProperties: Record<string, Any> = Object.create(null);
+      for (const [name, value] of Object.entries(input.headers || {})) {
+        if (name !== name.toLowerCase() || !/^[!#$%&'*+\-.^_`|~0-9a-z]+$/.test(name) || typeof value !== "string") {
+          throw new UnsupportedAnalysisError("Parsed HTTP request headers require lowercase token names and concrete string values");
+        }
+        headerProperties[name] = ESString(value);
+      }
+      const request = Object.assign(ESObject({ method: input.method, url: input.url, _parsedUrl: Undefined,
+        headers: ESObject(headerProperties) }), {
+        unknownProperties: "Node HTTP incoming request API",
+        unmodeledOwnPropertyInspection: "Node HTTP incoming request descriptors"
       });
       const response = Object.assign(ESObject({ statusCode: ESNumber(200), statusMessage: Undefined,
         writableEnded: ESBoolean(false), writableFinished: ESBoolean(false),
-        headersSent: ESBoolean(false), writeHead, write, end
+        headersSent: ESBoolean(false), writeHead, write, end,
+        getHeader, setHeader, getHeaderNames, getHeaders, hasHeader, removeHeader
       }), {
         unknownProperties: "Node HTTP response API",
         unmodeledOwnPropertyInspection: "Node HTTP response descriptors",
@@ -452,7 +622,8 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
       });
       const state = ESObject({ head: strictEquality(input.method, ESString("HEAD"), context.value.knowledge),
         body: Undefined, bodyBytes: Undefined, chunks: ESNull, statusCode: Undefined, statusMessage: Undefined, headers: Undefined,
-        headerStored: ESBoolean(false), bodySuppressed: ESBoolean(false) });
+        headerStored: ESBoolean(false), bodySuppressed: ESBoolean(false), storeCreated: ESBoolean(false),
+        stored: Object.assign(ESObject(Object.create(null)), { prototype: ESNull }) });
       responses.set(response, state);
       response.hostSlots = Object.freeze({ "node.http.response": state });
       const initialized = events.attach(response, context, responseEvents);

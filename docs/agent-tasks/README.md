@@ -5,6 +5,18 @@ independent review and integration. Keep actual thread IDs, model invocation,
 base/tested/published commits and archive status here; do not imply a queued task
 has run. Review depth changes require a recorded decision, not a growing test count.
 
+## Integration review — 2026-10-21
+
+The owner authorized integration and publication of all Instinct draft work.
+The cumulative candidate is `e183ed98edcf82c1f95937143e2dec58577b36dd`
+(P012–P034), including the entire P030 branch. P007–P011 already landed in
+`master` at `0881d9e`; its tree equals the stack's P011 ancestor `22c109d`.
+The dated worker rows below preserve historical handoff claims. Current review,
+corrections and validation are recorded in the
+[integration review](integration-2026-10-21/review.md); they supersede stale
+"pending" and application-frontier statements below. No model trust or
+concurrency increase follows this integration.
+
 Current calibration: **one active worker total; full implementation/spec review**.
 See the [separate model/task-family trust register](../agent-models.md).
 Numeric provider quotas are unknown. P001 recovered on 2026-10-08 after repeated
@@ -14,6 +26,30 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
+| [Integration 2026-10-21](integration-2026-10-21/review.md) | Review and publish complete Instinct P012–P034 stack | Corrections and exact-source validation in progress; protected master publication pending | Independent native failures retained as regressions; no trust promotion |
+| P034 | P030 review fixes: end Infinity, path/range order, host iterable boundary | Included at `e183ed9` in cumulative integration review | [P030 record](P030-sirv-range-requests/task.md), [P027 record](P027-array-binding-patterns/task.md) |
+| [P013](P013-stats-size/task.md) | Bounded Node Stats.size; advance unchanged sirv past Content-Length | Implemented by Instinct in-sandbox at 3fe7ed1; full suite 142/4487/46skip and typecheck green; independent review and wiki/evidence curation pending | [Boundary](../node-filesystem.md#bounded-statssize-and-the-p012-r1-boundary); frontier now stats.mtime |
+| [P014](P014-stats-mtime/task.md) | Bounded Node Stats.mtime as a bounded Date (getTime/toUTCString); advance unchanged sirv past header preparation | Implemented by Instinct in-sandbox; full suite 143/4538/46skip and typecheck green; independent review and wiki article pending | [Boundary](../node-filesystem.md#bounded-statssize-and-statsmtime-and-the-p012-r1-boundary); frontier now String.prototype.normalize |
+| [P015](P015-string-normalize/task.md) | Bounded ASCII String.prototype.normalize (omitted NFC form) | Implemented by Instinct in-sandbox; full suite 144/4496/46skip and typecheck green; independent review pending | [Task](P015-string-normalize/task.md); frontier now String.prototype.replace |
+| [P016](P016-string-replace/task.md) | Bounded no-match RegExp String.prototype.replace | Implemented by Instinct in-sandbox; full suite 146/4505/46skip and typecheck green; independent review pending | [Task](P016-string-replace/task.md); frontier now Function.prototype.bind |
+| [P017](P017-function-bind/task.md) | Bounded Function.prototype.bind; unchanged sirv factory returns its request handler | Implemented by Instinct in-sandbox; full suite 146/4505/46skip and typecheck green; independent review pending | [Task](P017-function-bind/task.md); next: calling the returned handler (sloppy receiver boxing gap) |
+| [P018](P018-sloppy-boxing/task.md) | Bounded sloppy primitive receiver boxing (ToObject) | Implemented by Instinct in-sandbox; full suite 147/4512/46skip and typecheck green; independent review pending | [Task](P018-sloppy-boxing/task.md); next: request-path analysis (parse(req), http modeling) |
+| [P019](P019-string-indexof/task.md) | Bounded generic UTF-16 String.prototype.indexOf; delivered sirv GET completes @polka/url parse | Implemented by Instinct in-sandbox; full suite 149/4638/46skip and typecheck green; independent review pending | [Task](P019-string-indexof/task.md); next: incoming request headers and the viaCache lookup path |
+| [P020](P020-request-spread/task.md) | Bounded incoming request headers and ordinary-array call spread; delivered sirv GET completes header negotiation | Implemented by Instinct in-sandbox; full suite 150/4653/46skip and typecheck green; independent review pending | [Task](P020-request-spread/task.md); next: String.prototype.charCodeAt (toAssume trailing-slash probe) |
+| [P021](P021-string-charcodeat/task.md) | Bounded String.prototype.charCodeAt; viaCache lookup completes on the delivered sirv GET | Implemented by Instinct in-sandbox; full suite 151/4722/46skip and typecheck green; independent review pending | [Task](P021-string-charcodeat/task.md); next: ForInStatement enumeration (send header loop) |
+| [P022](P022-for-in/task.md) | Bounded for-in enumeration; send header loop completes on the delivered sirv GET | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P022-for-in/task.md); next: response getHeader/setHeader/writeHead surface |
+| [P023](P023-response-headers/task.md) | Response getHeader/setHeader surface with the lazily-created store and writeHead merge | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P023-response-headers/task.md); next: content-length transport-sensitive decision at writeHead |
+| [P024](P024-content-length/task.md) | Content-Length admitted as an ordinary explicit serialized field (no transport coupling without a socket) | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P024-content-length/task.md); next: fs createReadStream/pipe |
+| [P025](P025-fs-readstream/task.md) | fs.createReadStream/pipe with explicit embedding-driven delivery; sirv GET completes end to end | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P025-fs-readstream/task.md); next: review + push |
+| [P026](P026-sirv-dispatch/task.md) | bounded sequence (comma) expressions; sirv HEAD and 404 dispatch complete | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P026-sirv-dispatch/task.md); next: review + push |
+| [P027](P027-array-binding-patterns/task.md) | bounded array binding patterns in declarations; 78 Test262 ary-dstr files activated | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P027-array-binding-patterns/task.md); next: review + push |
+| [P028](P028-string-replace-pattern/task.md) | String.prototype.replace with concrete string search values (bounded GetSubstitution) | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P028-string-replace-pattern/task.md); next: review + push |
+| [P029](P029-parse-int/task.md) | the parseInt global over concrete inputs (host-delegated digit semantics) | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P029-parse-int/task.md); next: review + push |
+| [P030](P030-sirv-range-requests/task.md) | header-carrying dispatch, {start,end} read streams, concrete String.split; sirv 206 completes | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P030-sirv-range-requests/task.md); next: review + push |
+| [P031](P031-sirv-conditional-requests/task.md) | sirv conditional requests complete; ETag/304 wire cases land (latent capability, pinned specs only) | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P031-sirv-conditional-requests/task.md); next: review + push |
+| [P032](P032-test262-split-corpus/task.md) | Test262 split corpus activation: 2 files / 4 variants (363 files / 717 variants active) | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P032-test262-split-corpus/task.md); next: review + push |
+| [P033](P033-string-includes/task.md) | String.prototype.includes over concrete receivers; 18 Test262 includes files activated (381 files / 753 variants) | Implemented by Instinct in-sandbox; full suite and typecheck green; independent review pending | [Task](P033-string-includes/task.md); next: review + push |
+| [P012](P012-string-substring/task.md) | Bounded generic substring; unchanged mrmime MIME lookup to actual sirv Stats.size | Original3ef28e1 rejected forP012-R1; same Astra/high accepts correctedb582e2c; root integration/exact-headCI gates retained | [Boundary](../string-substring.md), [review](P012-string-substring/correction-1-independent-review.md), [publication](P012-string-substring/publication-review.md); no factory completion/trust promotion |
 | [P011](P011-number-bitwise-not/task.md) | Number-domain unary ~; advance unchanged mrmime | First source b920a64 rejected for P011-R1; corrected source 5c70d29 accepted by same Astra/high reviewer; integration/CI gates retained | [Boundary](../number-bitwise-not.md), [review](P011-number-bitwise-not/correction-1-independent-review.md), [publication review](P011-number-bitwise-not/publication-review.md); no trust promotion |
 | [P001](P001-array-concat/task.md) | Shared Array.concat; advance unchanged sirv | Accepted/pushed `b9c3864`; CI green; Atlas thread archived | [Two correction rounds](P001-array-concat/review.md): work limits, inherited state and invalid spec premises; full review retained |
 | [P002](P002-array-foreach/task.md) | Shared Array.forEach; next reached sirv operation | Accepted/pushed `7defa45`; CI green; Atlas thread archived | [One correction round](P002-array-foreach/review.md); 12 independent probes, full suite/typecheck pass; evidence artifacts cleaned up |
@@ -42,3 +78,11 @@ waiting/sleep through future limits; no model rotation is queued. Atlas completi
 does not automatically wake the orchestrator; no unattended review is configured.
 See [P005 review](P005-selection-membership/review.md) for source equivalence,
 publication and CI evidence; no concurrency gate has been relaxed.
+
+
+P012 correction1: original source3ef28e1/evidence82cb5c1 remain frozen and rejected
+by Astra/high report5273aa2 for one P2 findingP012-R1. The same sole Sol6.1/high
+writer corrects current known own Stats.size admission under the
+[correction contract](P012-string-substring/correction-1.md). Original artifacts
+remain byte-identical; corrected source/evidence require renewed same-reviewer
+acceptance. No broader Stats semantics, factory completion or trust promotion.

@@ -9,7 +9,8 @@ import {
   isESString,
   Undefined
 } from "../types";
-import { isESObject } from "../Object";
+import { isESObject, TESObject } from "../Object";
+import { sloppyBoxPrototypes } from "../Function/boxing";
 import { ESFunction, isESFunction } from "../Function/Function";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { unimplemented } from "@deaven/unimplemented";
@@ -87,3 +88,6 @@ export const ESBooleanConstructor = Object.assign(ESFunction(function*(
 // Preserve the constructor alias without pretending this ordinary placeholder
 // has the Boolean prototype's internal [[BooleanData]] slot and methods.
 Object.assign(ESBooleanConstructor.properties.prototype, { unknownProperties: "Boolean prototype API" });
+
+// The original intrinsic prototype boxes sloppy primitive receivers (ToObject).
+sloppyBoxPrototypes.boolean = ESBooleanConstructor.properties.prototype as TESObject;

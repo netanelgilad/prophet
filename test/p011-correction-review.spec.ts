@@ -79,10 +79,10 @@ for(const route of ['object','binding','method'])test('correction independent cu
  const operation=route==='object'?'const x={earlier:prior(),9007199254740993n /* suffix */:later()};':
   route==='method'?'const x={earlier:prior(),9007199254740993n /* suffix */(){return later();}};':
   'const {first:x=prior(),9007199254740993n /* suffix */:y=later()}=rhs();';
- const setup='let trace="",caught=false,cleaned=false;const box={n:0};const alias=box;function C(){}C.prototype.valueOf=function(){return 1;};const instance=new C();function rhs(){trace="r";console.log("r");alias.n=4;return {};}function prior(){trace=trace+"p";console.log("p");alias.n=7;C.prototype.valueOf=function(){return 8;};if(b)throw "G";if(c)return "x".substring;return 8;}function later(){trace=trace+"bad";console.log("bad");return 9;}';
+ const setup='let trace="",caught=false,cleaned=false;const box={n:0};const alias=box;function C(){}C.prototype.valueOf=function(){return 1;};const instance=new C();function rhs(){trace="r";console.log("r");alias.n=4;return {};}function prior(){trace=trace+"p";console.log("p");alias.n=7;C.prototype.valueOf=function(){return 8;};if(b)throw "G";if(c)return "x".charAt;return 8;}function later(){trace=trace+"bad";console.log("bad");return 9;}';
  const source=setup+`if(a){try{${operation}}catch(e){caught=e;}finally{cleaned=true;console.log("f");}}else{trace="s";console.log("s");}`;
  const all=leaves(run(source,{a:ESBoolean(),b:ESBoolean(),c:ESBoolean(),console:console.module}));
- const boundaries=all.filter(([v])=>v.type==='ExecutionBoundary');expect(boundaries.map(([v])=>v.message).sort()).toEqual([message,'String.prototype.substring is not yet supported'].sort());expect(all.some(([v])=>v===Undefined)).toBe(true);
+ const boundaries=all.filter(([v])=>v.type==='ExecutionBoundary');expect(boundaries.map(([v])=>v.message).sort()).toEqual([message,'String.prototype.charAt is not yet supported'].sort());expect(all.some(([v])=>v===Undefined)).toBe(true);
  for(const[v,s]of all){const stopped=v.type==='ExecutionBoundary';if(stopped){expect(s.value.scope.trace).toMatchObject({value:route==='binding'?'rp':'p'});expect(s.value.scope.caught).toMatchObject({value:false});expect(s.value.scope.cleaned).toMatchObject({value:false});}
   const[d,t]=evaluateCode('const check=a?box.n===7&&alias===box&&~instance===-9:box.n===0&&~instance===-2;const normal=a?caught==="G"&&cleaned:trace==="s"&&!caught&&!cleaned;',s);expect(d).toBe(Undefined);expect(t.value.scope.check).toMatchObject({value:true});if(!stopped)expect(t.value.scope.normal).toMatchObject({value:true});
   for(const path of console.inspectOutput(s)){const chunks=path.chunks.map(x=>x.value);expect(chunks).toEqual(stopped?(route==='binding'?['r\n','p\n']:['p\n']):chunks[0]==='s\n'?['s\n']:(route==='binding'?['r\n','p\n','f\n']:['p\n','f\n']));}
@@ -112,8 +112,8 @@ for(const kind of ['var','let','const'])test('correction independent nested bind
 
 for(const route of ['object','binding'])for(const early of ['throw','unsupported'])test(`correction independent early ${early} before ${route} key`,()=>{
  const op=route==='object'?'const x={first:before(),0n /* key */:after()};':'const {0n /* key */:bad=after()}=before();';
- const source=`let mark=0,caught=false,cleaned=false;function before(){mark=1;${early==='throw'?'throw "G";':'return "x".substring;'}}function after(){mark=9;}try{${op}}catch(e){caught=e;}finally{cleaned=true;}`;
- const[d,s]=run(source);expect(s.value.scope.mark).toMatchObject({value:1});if(early==='throw'){expect(d).toBe(Undefined);expect(s.value.scope.caught).toMatchObject({value:'G'});expect(s.value.scope.cleaned).toMatchObject({value:true});both(source+'const answer=mark===1&&caught==="G"&&cleaned;');}else{expect(d).toMatchObject({message:'String.prototype.substring is not yet supported'});expect(s.value.scope.caught).toMatchObject({value:false});expect(s.value.scope.cleaned).toMatchObject({value:false});}
+ const source=`let mark=0,caught=false,cleaned=false;function before(){mark=1;${early==='throw'?'throw "G";':'return "x".charAt;'}}function after(){mark=9;}try{${op}}catch(e){caught=e;}finally{cleaned=true;}`;
+ const[d,s]=run(source);expect(s.value.scope.mark).toMatchObject({value:1});if(early==='throw'){expect(d).toBe(Undefined);expect(s.value.scope.caught).toMatchObject({value:'G'});expect(s.value.scope.cleaned).toMatchObject({value:true});both(source+'const answer=mark===1&&caught==="G"&&cleaned;');}else{expect(d).toMatchObject({message:'String.prototype.charAt is not yet supported'});expect(s.value.scope.caught).toMatchObject({value:false});expect(s.value.scope.cleaned).toMatchObject({value:false});}
 });
 
 test('correction independent null binding and computed-key precedence',()=>{

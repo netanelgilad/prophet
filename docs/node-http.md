@@ -520,3 +520,21 @@ Local specs cover the supported behavior while these dependencies are missing;
 they do not replace the complete upstream cases. Express is a later consumer of
 the shared VM and modeled Node interfaces, evaluated as ordinary library source,
 without an Express-specific replacement.
+
+
+## Instinct integration: stored headers and parsed header inputs
+
+P023/P024 add a raw `setHeader` store and bounded `getHeader`, `hasHeader`,
+`getHeaderNames`, `getHeaders` and `removeHeader`. Validation preserves ordinary
+conversion effects; incremental `writeHead` store updates survive later failure.
+The explicit wire projection includes Content-Length but does not model socket
+framing or body-length enforcement. Other documented transport-sensitive
+exclusions remain. See the [reviewed header notes](wiki/response-headers.md).
+
+Embedding-delivered incoming headers are already parsed facts: lowercase HTTP
+token names with concrete string values. Mixed-case names and nonstring values
+are rejected instead of disappearing from lookup. Raw parsing, duplicate-header
+combination, default transport headers and open symbolic header text remain
+HTTP-008 work. Symbolic method/URL facts do not establish any unstated headers.
+The shared runtime's event horizon and explicit stream delivery remain visible;
+these additions do not turn preserved listeners into analyzed future execution.

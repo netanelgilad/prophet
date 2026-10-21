@@ -7,8 +7,8 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **361 complete files / 713 strictness variants**,
-including 25 parse-negative files / 49 variants. The 46 historical skipped files
+The active corpus contains **484 complete files / 959 strictness variants**,
+including 43 parse-negative files / 85 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
 14,850 built-ins, 1,062 annexB, 640 intl402 and 80 harness tests. These are file
@@ -58,18 +58,18 @@ and `String`. Local NaN and reference-identity specs cover supported values;
 they do not count as passing these complete upstream cases. Their sources are
 not reduced to the currently supported assertions.
 
-Fourteen complete `built-ins/String/prototype/slice` files add 28 variants:
-`S15.5.4.13_A1_T4/T7/T8/T10/T11/T13/T14`, `A3_T1/T2/T3`, `A6`, `A7`,
+Fifteen complete `built-ins/String/prototype/slice` files add 30 variants:
+`S15.5.4.13_A1_T4/T7/T8/T10/T11/T13/T14`, `A3_T1/T2/T3/T4`, `A6`, `A7`,
 `A11`, and `this-value-not-obj-coercible`. The numeric-hint conversions, their
 ordered effects/throws, generic receivers and constructor/nullish failures run
 through shared VM semantics. The [symbolic string specs](../symbolic-strings.spec.ts)
 add unrestricted-string length/boundary proofs and mandatory unknowns.
 
-All 35 files in the pinned slice directory were inspected. The other 21 remain
+All 35 files in the pinned slice directory were inspected. The other 20 remain
 inactive: `A1_T1/T2/T6/T9/T12` and `A2_T1` through `A2_T9` need Boolean/String/Object
 primitive wrappers; `A1_T5` additionally needs omitted-argument Function
 construction and function source conversion; `A1_T15` needs modeled Number
-prototype lookup for primitive receivers; `A3_T4` needs sequence expressions;
+prototype lookup for primitive receivers;
 `A8` needs propertyIsEnumerable and for-in; `A9` needs delete/descriptors;
 `A10` and `name.js` need propertyHelper and descriptor semantics. No complete
 file was reduced to only its currently supported assertions. Slice metadata
@@ -294,11 +294,18 @@ never a fallback for Prophet execution or for the Test262 corpus.
 Forty-five complete object declaration binding files (90 variants) now cover
 `var`, `let` and `const` renaming, undefined defaults/skipped defaults, nested
 objects, trailing commas and computed-key/default/nullish abrupt completions.
-The runner evaluates the full pinned `harness/sta.js` in a fresh interpreted
+Seventy-eight complete array declaration binding files (156 variants) join
+them: ordered element binding over ordinary array literals, source and
+pattern holes, defaults and skipped defaults, nested array/object patterns,
+nullish TypeErrors, and parse-negative rest-initializer and rest-not-final
+forms. Custom iterables, generators, rest elements and function-name metadata
+stay inactive rather than trimmed. The runner evaluates the full pinned
+`harness/sta.js` in a fresh interpreted
 context, preserving Test262Error constructor identity before installing the
 existing assertion adapters. It never executes that harness or tests natively.
-See [binding boundaries](../../docs/object-bindings.md) for remaining array/rest,
-parameter, getter-construction, function-name and primitive-boxing candidates.
+See [binding boundaries](../../docs/object-bindings.md) for remaining
+iterator/rest, parameter, getter-construction, function-name and
+primitive-boxing candidates.
 
 The RegExp literal increment adds one complete identity case and six complete
 parse-negative cases (14 variants). [RegExp boundaries](../../docs/regexp-literals.md)
@@ -341,7 +348,7 @@ environments (`scope-body-lex-boundary`). Six complete parse-negative files
 (twelve variants: `A7_T1/A8_T1`, `decl-let/decl-const`, `break/A1_T1`,
 `continue/A1_T1`) pin the malformed-head and stray-jump parser boundaries the
 loop driver relies on. Each runs in both language variants. Files needing
-labels, while/do-while/for-in/of, switch, sequence expressions, compound
+labels, while/do-while/for-in/of, switch, compound
 assignment, wrapper construction, completion values or harness includes stay
 inactive rather than trimmed. See [loop boundaries](../../docs/for-statement.md)
 for iteration budgets, jump composition and the remaining loop candidates.
