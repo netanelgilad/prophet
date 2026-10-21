@@ -71,7 +71,8 @@ filesystem tree, full graph import/resumption or capability policy is added.
 File capture is non-atomic and does not walk every ancestor without symlinks.
 This does not prove all package behavior or automatic malware detection.
 
-Written 2026-10-21 against the uncommitted P035 implementation; publication and
-full-review evidence belong in the task ledger. Supersedes claims that all
+Reviewed implementation `30f547f` on 2026-10-21 passes the full171-suite,
+5207-test run and typecheck; exact-candidate CI/publication are tracked in the
+task ledger. Supersedes claims that all
 explicit environment input is merely proposed, while preserving the broader
 state-contract work as open.

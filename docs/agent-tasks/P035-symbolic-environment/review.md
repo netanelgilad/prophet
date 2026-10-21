@@ -264,3 +264,34 @@ quota rotation. Root owns the parser and original parser specs;
 `environment_scenarios` owns new execution/CLI specs. Shared tree, disjoint
 paths, root-only commits/push. Independent review follows implementation.
 Earlier red and partial-draft evidence is retained with its original authorship.
+
+## Codex implementation acceptance — 30f547f
+
+Root repaired inherited reference typing, aggregate header literals, immutable
+request domains/ordinary Map mutators, initialization order and incorrect test
+oracles. Codex subagents added CLI/HTTP wiring and real execution specs; the
+independent semantic reviewer inspected every parser line plus changed wiring,
+scheduler placement and graph preservation. No remaining production finding
+within the declared input domain. Trusted native owners can bypass ordinary
+object guards; this is not an adversarial native API membrane.
+
+Independent 15-case review covers exact work/depth/byte boundaries, dead branches,
+UTF-8/BOM, duplicate keys, graph/cache identity and guest request mutation across
+two arrivals. Root parser probes41 and runtime probes19 also pass in the full
+suite. Reviewer-requested provider tests now check setup/drain/leaf completions.
+Scenario probes include unchanged pico real CLI responses, finite choices,
+missing-index ENOENT, EMFILE, waiting/bind failures and fresh/shared correlations.
+Initial fixture failures from unsupported multiargument console and a raw-template
+projection assumption were reviewer harness corrections, not engine defects.
+Concurrent scenario authoring did not produce an absent-feature red for every
+case; the original red parser/argument stage and authored-before-fix probes are
+retained without overstating their scope.
+
+Exact committed source 30f547f: full171 suites /5207 passed /46 historical skips;
+typecheck exit0. Complete guard/assertion/skip/boundary scans reconciled against
+REPORT-001, SYM-004, SECURITY-002, CJS-001, FS-002, HOST-002, HTTP-001, TARGET/TEST
+residuals. Test262 inventory remains484 files /959 variants,43 parse-negative
+files /85 variants, the same46 skipped files. No new Test262/Node upstream claim.
+See evidence.json for generated hashes, exact commands and complete local logs.
+Accepted for integration subject to exact-candidate CI; no quota recovery or
+malware-detection claim is made. Root will preserve unrelated primary files.

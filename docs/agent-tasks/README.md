@@ -7,11 +7,12 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 ## Sustained roadmap run — 2026-10-21
 
-**Latest owner direction:** implement directly with root Codex and Codex subagents.
-Atlas LongCat's active retry was interrupted and verified idle at 19:37 UTC.
-Root takes parser implementation; disjoint Codex subagents take CLI/HTTP wiring
-and scenario specs, followed by independent semantic review. The historical
-quota-wait checkpoint below is superseded; no additional code is accepted yet.
+**Latest checkpoint:** owner-directed Codex implementation accepted at `30f547f`,
+full171 suites /5207 passing /46 historical skips and typecheck0. Root and
+independent reviewer completed source/probe review; exact-candidate CI and push
+are next. [Evidence](P035-symbolic-environment/evidence.json). Atlas LongCat's
+retry was stopped and verified idle before the ownership transfer. Historical
+quota and partial-draft observations below retain their original scope.
 
 Owner resumed development toward precise real-package symbolic analysis and a
 per-dependency capability gate, eventually a verified Shai-Hulud finding.

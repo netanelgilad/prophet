@@ -1,5 +1,14 @@
 # Worker model trust register
 
+**Current workflow, 2026-10-21:** the owner explicitly directed root Codex and
+Codex subagents to implement. Atlas-only/free-model/one-worker quota waiting
+restrictions below are historical; retain all review and evidence requirements.
+The P035 LongCat retry was interrupted and verified idle before takeover.
+Its inherited partial draft is not an accepted implementation. Codex root/team
+repaired and completed P035 with independent semantic review, full171 suites,
+5207 passes/46 skips and typecheck0 at30f547f. This mixed-origin increment does
+not imply a clean first-review streak or inherited model trust.
+
 Effective 2026-10-08: the user permits evaluating other **free** models to maintain
 progress when Muse is capped, with independent trust and separate threads.
 This supersedes the earlier Muse-only waiting preference for qualified free

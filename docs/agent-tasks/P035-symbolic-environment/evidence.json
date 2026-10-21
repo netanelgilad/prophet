@@ -1,0 +1,184 @@
+{
+  "date": "2026-10-21T19:47:03.182623+00:00",
+  "base": "573f8cca86225a7c4fa1491d76f936bff413d22d",
+  "testedRevision": "30f547fc10373a4020a9047367d46dbeeebfaba0",
+  "attribution": "Inherited partial LongCat parser/spec draft; root Codex repaired parser, Codex environment_wiring implemented CLI/HTTP, environment_scenarios added runtime/real CLI cases; semantic_review independently reviewed/probed. No accepted LongCat implementation handoff.",
+  "validation": [
+    {
+      "name": "full-suite",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand"
+      ],
+      "revision": "30f547fc10373a4020a9047367d46dbeeebfaba0",
+      "startedAt": "2026-10-21T19:44:30.276964+00:00",
+      "exitCode": 0,
+      "log": "/tmp/prophet-p035/codex-final-full-suite.log",
+      "sha256": "713339f1d0d77900f8130f04a099382e78a09e44adccc17047c7d8d8942d696c"
+    },
+    {
+      "name": "typecheck",
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "revision": "30f547fc10373a4020a9047367d46dbeeebfaba0",
+      "startedAt": "2026-10-21T19:46:25.082626+00:00",
+      "exitCode": 0,
+      "log": "/tmp/prophet-p035/codex-final-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "counts": {
+    "suites": 171,
+    "passed": 5207,
+    "skipped": 46
+  },
+  "sourceAndTestSha256": {
+    "src/cli/arguments.ts": "f366b0958f9ced8e4747d41b98171112275adafa5994f16f5a4c1116c87b4fa4",
+    "src/cli/environment.ts": "6aa1d99a456707f99b50bcedf4e12ac12936066d550b67d7e34c983db5de26bb",
+    "src/cli/main.ts": "7d27c114e41320c102e0d92d127a50743a81230661adcae8904ee10c4959014f",
+    "src/cli/runtime.ts": "f725dea4e852c6749b4ebf927865c2a3832ed5b7589d634554a3bc8fdc86a076",
+    "src/node/http.ts": "f51180810d87d4bba106e5ad32b481baba9b50fb275e068e29083b9c75c18d10",
+    "test/cli-arguments.spec.ts": "691b26cda484c3318a94e109b963748ff1f4e4b7b989a3cf1d72a29d6ca892eb",
+    "test/cli-environment-arguments.spec.ts": "e7fc10adb12ac62c478326f004ef46c89c1ebdab79171fb3913e903a8e86d0f9",
+    "test/cli-environment-parser-review.spec.ts": "e67066ada613c5451bd36cb96e181c136cd933934ef487d5c5ce3e5af51a4d9b",
+    "test/cli-environment-review.spec.ts": "5def15d3fd31d74d7e229fbcc15a8fab7aa8dd3a11a0c2fcf2e415e57210f7a5",
+    "test/cli-environment-semantic-review.spec.ts": "5f91c334c3c3373d3d9068b2134c5b0d24413fe08b3bc8906506cd3eaaf2bd68",
+    "test/cli-environment-validation.spec.ts": "4f3e4a4024a965aa744d603a418458257a54352364e1d7f95dbd3bcde46d87ce",
+    "test/cli-environment.spec.ts": "cc0126b7a3a4b2478b71a4a90e6d6d15b975f21974219a658dce12fb2cec13c6",
+    "test/node-http-request-input.spec.ts": "25ee001aae4005945e4df221e81e7bb45e5bad6092bdd1f39dd1fc04ad73dffe"
+  },
+  "audit": [
+    {
+      "name": "guards",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p035/codex-audit-guards.log",
+      "sha256": "fcbcd42f3f253264250f0eb5470bce0f4960a2d3d53543b01539c77294b83b99",
+      "lines": 772
+    },
+    {
+      "name": "assertions",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p035/codex-audit-assertions.log",
+      "sha256": "940abf7346b20b8331b18f1b5ddd9a86a1fcfab2d05412e329fcb315f4f71179",
+      "lines": 23
+    },
+    {
+      "name": "skips",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p035/codex-audit-skips.log",
+      "sha256": "b5d36faba6bc12c65e9b87d00873ee5420a3ff04b926d67d3d0cd3dd915a1214",
+      "lines": 1
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p035/codex-audit-boundaries.log",
+      "sha256": "defe89114b3403329eb76509bd215a1e02b3c59523341d37958f0e8b874486a6",
+      "lines": 2297
+    },
+    {
+      "name": "complete-test262-inventory",
+      "exitCode": 0,
+      "log": "/tmp/prophet-p035/inventory.json"
+    }
+  ],
+  "corpus": {
+    "files": 484,
+    "variants": 959,
+    "parseNegativeFiles": 43,
+    "parseNegativeVariants": 85,
+    "historicalSkippedFiles": [
+      "built-ins/Boolean/S15.6.1.1_A1_T1.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T2.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T3.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T4.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T5.js",
+      "built-ins/Boolean/S15.6.1.1_A2.js",
+      "built-ins/Boolean/S15.6.2.1_A1.js",
+      "language/statements/if/if-async-fun-else-async-fun.js",
+      "language/statements/if/if-async-fun-else-stmt.js",
+      "language/statements/if/if-async-fun-no-else.js",
+      "language/statements/if/if-async-gen-else-async-gen.js",
+      "language/statements/if/if-async-gen-else-stmt.js",
+      "language/statements/if/if-async-gen-no-else.js",
+      "language/statements/if/if-cls-else-cls.js",
+      "language/statements/if/if-cls-else-stmt.js",
+      "language/statements/if/if-cls-no-else.js",
+      "language/statements/if/if-const-else-const.js",
+      "language/statements/if/if-decl-else-decl-strict.js",
+      "language/statements/if/if-decl-else-stmt-strict.js",
+      "language/statements/if/if-decl-no-else-strict.js",
+      "language/statements/if/if-fun-else-fun-strict.js",
+      "language/statements/if/if-fun-else-stmt-strict.js",
+      "language/statements/if/if-fun-no-else-strict.js",
+      "language/statements/if/if-gen-else-gen.js",
+      "language/statements/if/if-gen-else-stmt.js",
+      "language/statements/if/if-gen-no-else.js",
+      "language/statements/if/if-let-else-let.js",
+      "language/statements/if/if-let-else-stmt.js",
+      "language/statements/if/if-let-no-else.js",
+      "language/statements/if/if-stmt-else-async-fun.js",
+      "language/statements/if/if-stmt-else-async-gen.js",
+      "language/statements/if/if-stmt-else-cls.js",
+      "language/statements/if/if-stmt-else-const.js",
+      "language/statements/if/if-stmt-else-decl-strict.js",
+      "language/statements/if/if-stmt-else-fun-strict.js",
+      "language/statements/if/if-stmt-else-gen.js",
+      "language/statements/if/if-stmt-else-let.js",
+      "language/statements/if/labelled-fn-stmt-first.js",
+      "language/statements/if/labelled-fn-stmt-lone.js",
+      "language/statements/if/labelled-fn-stmt-second.js",
+      "language/statements/if/let-array-with-newline.js",
+      "language/statements/if/let-block-with-newline.js",
+      "language/statements/if/let-identifier-with-newline.js",
+      "language/types/boolean/S8.3_A1_T1.js",
+      "language/types/boolean/S8.3_A1_T2.js",
+      "language/types/boolean/S8.3_A3.js"
+    ]
+  },
+  "independentReview": "/tmp/prophet-p035/semantic-review-evidence.json",
+  "reviewHarnessCorrections": [
+    "Pre-draft fs spy used Babel wrapper; corrected actual module spy.",
+    "Root runtime projection assumed raw authoring template; corrected to normalized contract.",
+    "Scenario/review source used unsupported multiargument console; corrected one-argument fixture."
+  ],
+  "publication": "pending exact-candidate CI; evidence-only documentation may follow without source/test changes"
+}
