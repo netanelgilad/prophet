@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-21T17:12:43.956387+00:00",
+  "stage": "incomplete draft while assigned worker waits for free-tier retry",
+  "snapshots": [
+    {
+      "source": "src/cli/environment.ts",
+      "snapshot": "/tmp/prophet-p035/partial-draft-2026-10-21/environment.ts",
+      "sha256": "4afdc48cbb45ee2e6265b6a01bca68480287d9ffd81ff3452112f76e519ad1b5"
+    },
+    {
+      "source": "test/cli-environment-arguments.spec.ts",
+      "snapshot": "/tmp/prophet-p035/partial-draft-2026-10-21/cli-environment-arguments.spec.ts",
+      "sha256": "b7daf63fcab4b1514c4c43c85e4fa2a8927d07993d0fb266fb95cf1dd451dfa2"
+    },
+    {
+      "source": "test/cli-environment-validation.spec.ts",
+      "snapshot": "/tmp/prophet-p035/partial-draft-2026-10-21/cli-environment-validation.spec.ts",
+      "sha256": "e5b465bb6b7f8b680fe6b3c3986b2fbe8148cb31d139ff65932b75676bf43e11"
+    },
+    {
+      "source": "test/cli-environment-parser-review.spec.ts",
+      "snapshot": "/tmp/prophet-p035/partial-draft-2026-10-21/cli-environment-parser-review.spec.ts",
+      "sha256": "78a2ff4c3e3f19ee1254789b37fad52462c47bef52600b6ac3582e08184bb7d2"
+    }
+  ],
+  "verificationRecords": [
+    "/tmp/prophet-p035/root-parser-draft-evidence.json",
+    "/tmp/prophet-p035/root-parser-probes-r2.json"
+  ]
+}

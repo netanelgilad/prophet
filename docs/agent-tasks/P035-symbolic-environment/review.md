@@ -183,3 +183,61 @@ Local evidence: `/tmp/prophet-p035/root-initial-red.json` (exact argv and
 before/after hashes), `/tmp/prophet-p035/root-initial-red.log` (complete output).
 The worker must still provide unmasked complete focused/full validation on the
 implemented snapshot. No trust promotion follows this pipeline correction.
+
+## Partial parser checkpoint during quota wait — 2026-10-21T17:09Z
+
+This is **not a worker implementation handoff**. The worker saved a first parser
+draft and two specs before an active free-tier retry scheduled for Oct22 00:00
+UTC. CLI arguments/runtime/provider wiring, application specs, boundary docs and
+full validation remain unfinished. Root reviewed the saved draft while waiting;
+the following may overlap subsequent worker self-correction and must not be
+counted as defects escaping a completed handoff.
+
+Source and test snapshots are indexed in `partial-draft-evidence.json`. Root
+ran the two worker specs and typecheck with pinned Node 24.21.0: both commands
+exit 1. The argument feature remains unimplemented. The validation suite cannot
+load because direct parser import enters the VM's circular initialization in
+the wrong order (`sloppyBoxPrototypes.string` is undefined). Typecheck additionally
+finds premature `.type` access on ref expressions, nullable/undefined handling,
+and unused imports/old filesystem typings. Complete logs and stable file hashes
+are in `/tmp/prophet-p035/root-parser-draft-evidence.json`.
+
+Root's `test/cli-environment-parser-review.spec.ts` initializes the public VM
+first to isolate parser behavior. Corrected probe run: **5 fail, 2 pass**;
+exit 1, source hash unchanged. Detailed evidence is
+`/tmp/prophet-p035/root-parser-probes-r2.json`.
+
+- Direct/forward references are rejected in Boolean/string consumer positions
+  and selects because parsing checks `.type` before reference type resolution.
+  Resolve all definitions and validate inferred types before materialization;
+  preserve wrong-type/mixed-kind/cycle/missing-ref rejection.
+- Aggregate literal bytes omit concrete header values. Ten 7000-byte headers
+  fit individual header and file limits but exceed the agreed 65536 aggregate.
+- Expanded-work probes currently fail on reference typing instead of reaching
+  the bound. The worker's seven-level two-child repeated-DAG rejection fixture
+  is also mathematically wrong: w0=1, wn=4+2*w(n-1), sum(w0..w7)=1243. It must
+  remain accepted under the 4096 cap. Twelve levels supply a rejected case.
+  Do not lower the cap or retain a broad rejection assertion that passes for
+  the wrong reason.
+- The worker's minimal provenance test expects `environment.json` although its
+  helper writes `env-<random>.json`; fix the oracle, not path semantics.
+- The immutable-domain claim needs reconciliation: only the outer state and
+  provenance are frozen; request expression/header records are exposed through
+  state and shared with the factory. Final docs must define the normalized
+  request-domain shape (the draft stores Expr records, not raw authoring JSON).
+  Root's separate runtime probe draft assumed raw authoring syntax; adapt it
+  to the final documented shape rather than count that assumption as a defect.
+
+Positive independent evidence: the opened-fstat oversize check rejects before
+Buffer allocation and closes the descriptor; a 16000-character decoded string
+written as 96000 bytes of Unicode escapes is accepted and preserved. The initial
+filesystem spy targeted Babel's namespace wrapper and therefore did not reach
+the parser's fs module. Root corrected the harness to mock the actual shared
+module; that initial failure is a **reviewer false alarm**, not a source defect.
+
+The root parser probes are now visible regression specs. The broader CLI probes
+remain prepared outside the worker tree at `/tmp/prophet-p035/review-cases.spec.ts`;
+their initial authorship record is saved, with disclosed design-case overlap.
+Do not alter root assertions to obtain a pass. No production fixes were made by
+the orchestrator. Preserve the worker's active retry; do not send a duplicate
+prompt while it is waiting.
