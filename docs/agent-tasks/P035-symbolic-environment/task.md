@@ -3,9 +3,11 @@
 Owner resumed sustained roadmap work on 2026-10-21: useful symbolic evaluation
 of real unmodified packages, eventually a defensible automatic Shai-Hulud finding.
 Base: 573f8cca86225a7c4fa1491d76f936bff413d22d (reviewed P012–P034 integration).
-Worker: Atlas OpenCode Muse Spark 1.3 Free, build/high; one worker total.
-Worktree: /Users/netanelgilad/.codex/worktrees/p035-symbolic-environment/prophet
-Branch: agent/p035-symbolic-environment. Primary checkout is read-only.
+Worker: Atlas OpenCode LongCat 2.5 Preview Free, build/high; one worker total.
+Muse initial launch was permanently rejected as deprecated before any tokens/tools.
+This is a separate free design pilot, not quota rotation; full review remains.
+Worktree: /Users/netanelgilad/.codex/worktrees/p035-longcat-environment/prophet
+Branch: agent/p035-longcat-environment. Primary checkout is read-only.
 
 ## Design gate first
 

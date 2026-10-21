@@ -117,3 +117,13 @@ recovery preserved content, paths, modes and mtimes; later measured headroom
 exceeded6GiB. The writer performs no further cleanup or dependency changes.
 
 Root publication checkpoint: same Astra/high correction review66ee9b0 accepts exact b582e2c, with no new production findings. Original29 probes and writer31 presence regressions pass;16 new holdouts pass. The disjoint independent batches total55 suites/2393 passes/46 historical skips and typecheck0. Writer corrected full140 suites/4442 passes/46 skips, typecheck/audit0. Root combined227 tests/typecheck0 and source/artifact alignment verified. Original3ef/527 rejection and all failed artifacts remain historical; no trust/concurrency promotion. See [publication review](agent-tasks/P012-string-substring/publication-review.md) for root integration and exact-head CI gates.
+
+
+2026-10-21 P035: the live catalog listed Muse Spark1.3 Free, but its new Atlas
+thread ses_ea0c3614dffe5vDAFnqPFwNLFR failed with the non-retryable provider message
+"Model muse-spark-1.3-contributor-free has been deprecated." No tokens/tools or
+source work occurred. The one-worker gate is preserved with a separate
+LongCat2.5 Preview Free build/high design pilot in a new thread/worktree. Existing
+P004 spec-design evidence does not confer implementation trust. No paid fallback,
+account/reset change or concurrency promotion. Catalog availability is not provider
+acceptance; permanent retirement is distinct from a quota retry.
