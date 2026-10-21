@@ -33,27 +33,26 @@ below preserve history and no longer identify the next missing intrinsic.
 Acceptance is bounded, not complete Node/JavaScript or arbitrary-package coverage.
 See the [integration review](agent-tasks/integration-2026-10-21/review.md).
 
-[P035](agent-tasks/P035-symbolic-environment/task.md) begins with a reviewed design
-for `--environment`: explicit shared symbolic values, resource facts and finite
-parsed request choices through the actual CLI. Preserve optional arrivals,
-failed binds/IO and unknown/unsupported siblings; no forced success or caller
-handler glue. Full resumption, process.env authoring and general heap/filesystem
-snapshots may follow as separate increments. The no-input CLI remains a regression.
+[P035](agent-tasks/P035-symbolic-environment/publication.md) is published at
+`007afa2`: bounded `--environment` authoring supplies shared symbolic values,
+resource facts and parsed request choices through the actual CLI. Optional
+arrivals, failed binds/IO and unfinished siblings remain. Full resumption,
+process.env authoring and general heap/filesystem snapshots remain separate work.
 
 The owner's durable downstream product is a per-dependency capability gate for a
 package.json plus resolved dependency graph, with prompts for newly possible
-behavior deep in that graph. Follow the [security consumer contract](agent-security-analysis.md#owner-product-clarification--2026-10-21):
-next add generic outbound-attempt coverage/provenance and a separate benign policy
-consumer; then lifecycle/admission semantics and a pinned original Shai-Hulud
-benchmark. Split the runtime prerequisite into reviewable increments: first
-preserve source/caller attribution on existing host invocations, then model an
-outbound API through its actual attempt boundary. An invocation can throw before
-attempting transport; an unsupported member lookup establishes neither. Begin
-attribution with explicitly bounded synchronous calls and retain asynchronous
-causality/generated-source gaps until modeled. A shared utility's direct source
-must not erase the initiating caller. No follow-on implementation is dispatched
-until P035 is accepted. Do not put permissions or verdicts into VM state, and do
-not confuse an analysis result with enforcement of a later native execution.
+behavior deep in that graph. Follow the
+[security consumer contract](agent-security-analysis.md#owner-product-clarification--2026-10-21).
+[P036](agent-tasks/P036-effect-activation/task.md) now preserves generic dynamic
+interpreted activations and direct source origins on existing host invocations.
+This prepares file-to-package attribution; it does not establish package identity
+or asynchronous registration causality. Next model an outbound API through its
+actual attempt boundary, then build a benign transitive-dependency policy test,
+pinned lifecycle/admission orchestration and an inert original Shai-Hulud benchmark.
+An invocation can throw before attempting transport; an unsupported member lookup
+establishes neither. A shared utility's direct source must not erase its active
+caller. Permissions/verdicts remain outside the VM; analysis alone cannot enforce
+capabilities on later native execution.
 
 ## Next milestone: pico startup through the CLI, with no environment file
 

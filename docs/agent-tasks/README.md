@@ -7,35 +7,24 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 ## Sustained roadmap run — 2026-10-21
 
-**Latest checkpoint:** owner-directed Codex implementation accepted at `30f547f`,
-full171 suites /5207 passing /46 historical skips and typecheck0. Root and
-independent reviewer completed source/probe review; exact-candidate CI and push
-are next. [Evidence](P035-symbolic-environment/evidence.json). Atlas LongCat's
-retry was stopped and verified idle before the ownership transfer. Historical
-quota and partial-draft observations below retain their original scope.
+**Latest checkpoint:** P035 is published at `007afa2`; full 171 suites /
+5207 passing /46 historical skips and typecheck passed. Exact-candidate
+CI39664639839 passed before publication. [Publication](P035-symbolic-environment/publication.md).
+Root and independent reviewer accepted the corrected implementation; this does
+not erase the original partial-parser findings or imply a model trust promotion.
 
-Owner resumed development toward precise real-package symbolic analysis and a
-per-dependency capability gate, eventually a verified Shai-Hulud finding.
-[P035](P035-symbolic-environment/task.md) has a partial implementation on
-`agent/p035-longcat-environment`, based on published `573f8cc`. Muse thread
-`ses_ea0c3614dffe5vDAFnqPFwNLFR` failed before work because the model is deprecated;
-separate free LongCat build/high thread `ses_ea0c20abbffetX6Z32B2DDV7Bl` owns the
-task. One worker/full semantic review remains; no implementation or
-completion is inferred from a successful dispatch. Root thread
-`01a15f01-bb95-7473-af10-3f01d7370982` remains active through review.
-The [design reviews](P035-symbolic-environment/review.md) removed a branch-unsafe
-native arrival counter and require actual graph retention, bounded parsing and
-expanded DAG work, and corrected pico expectations. Round 2 accepts the revised
-design with explicit resource-check amendments for implementation. The endpoint
-failed after the revised file was saved; root reviewed that actual file and
-verified the worker idle before sending the implementation prompt. No code is
-accepted or published yet.
-The worker then reached a free-tier limit with an active retry at
-2026-10-22 00:00:00.250 UTC. Root saved the partial parser and independent review:
-valid-reference typing and aggregate header-byte limits need repair; CLI wiring
-is unfinished. Parser probes are 5 failing/2 passing, and draft typecheck fails.
-This is not a completed handoff. The assigned retry is retained, with no new
-worker/model or paid fallback; root remains active through the cooldown.
+The owner explicitly directed Codex to implement with its own subagents.
+Atlas LongCat's quota retry was stopped, verified idle and archived; the retired
+Muse thread is archived too. The earlier Atlas-only/concurrency/cooldown workflow
+is historical and superseded for this run. P035's
+[quota](P035-symbolic-environment/quota-evidence.json) and
+[partial draft](P035-symbolic-environment/partial-draft-evidence.json) preserve
+those observations without implying that a retry remains active.
+
+[P036](P036-effect-activation/task.md) now develops generic interpreted activation
+and host-effect origins. Codex root coordinates disjoint core, integration-spec
+and independent-review work. Full semantic review and publication gates remain.
+Root thread `01a15f01-bb95-7473-af10-3f01d7370982` remains active.
 
 ## Integration review — 2026-10-21
 
@@ -49,7 +38,8 @@ corrections and validation are recorded in the
 "pending" and application-frontier statements below. No model trust or
 concurrency increase follows this integration.
 
-Current calibration: **one active worker total; full implementation/spec review**.
+Historical Atlas calibration: **one active worker total; full implementation/spec review**.
+The current owner-directed Codex run uses its own subagents with full review.
 See the [separate model/task-family trust register](../agent-models.md).
 Numeric provider quotas are unknown. P001 recovered on 2026-10-08 after repeated
 limits; dated cooldowns and actual recovery are recorded in its review. The pilot
@@ -58,6 +48,8 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
+| [P036](P036-effect-activation/task.md) | Generic interpreted activation/effect origin | Accepted fea6942;174 suites/5233 passes/46 skips,typecheck pass; candidate CI pending | No policy, outbound API or package-identity claim |
+| [P035](P035-symbolic-environment/task.md) | Explicit symbolic CLI starting environment | Published007afa2, CI39664639839 success | [Publication](P035-symbolic-environment/publication.md), 171 suites/5207 passes/46 skips |
 | [Integration 2026-10-21](integration-2026-10-21/review.md) | Review and publish complete Instinct P012–P034 stack | Published `573f8cc`: 164 suites / 5,112 tests; typecheck pass; exact-candidate CI 39628633258 passed before master fast-forward | Independent native failures retained as regressions; no trust promotion |
 | P034 | P030 review fixes: end Infinity, path/range order, host iterable boundary | Included at `e183ed9` in cumulative integration review | [P030 record](P030-sirv-range-requests/task.md), [P027 record](P027-array-binding-patterns/task.md) |
 | [P013](P013-stats-size/task.md) | Bounded Node Stats.size; advance unchanged sirv past Content-Length | Implemented by Instinct in-sandbox at 3fe7ed1; full suite 142/4487/46skip and typecheck green; independent review and wiki/evidence curation pending | [Boundary](../node-filesystem.md#bounded-statssize-and-the-p012-r1-boundary); frontier now stats.mtime |

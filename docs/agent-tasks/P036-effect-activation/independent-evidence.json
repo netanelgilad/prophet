@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    ".yarn/releases/yarn-3.1.1.cjs",
+    "test",
+    "--runInBand",
+    "test/interpreted-activation-review.spec.ts"
+  ],
+  "timeout": 30,
+  "status": 0,
+  "seconds": 0.9361779689788818,
+  "before": {
+    "src/Function/Function.ts": "478775f8fceafdb3df9e198cbe8b6bbac86e19bf3d18273864e9cc49b4d59344",
+    "src/Function/summaries.ts": "da36c932a357673159915a56c3f60bae4991b1f58ca5108235c3c395a4a130b8",
+    "src/execution-context/ExecutionContext.ts": "002d6aab838cedf5a70c13f42e2bc0716ed2c3e890c0b7454d79c9491caa02f7",
+    "src/execution-context/branches.ts": "59e973ca02eaa5b9a6943c3c6003348bdc11bbcd1161c946c59e579ae1ecb723",
+    "src/effects/index.ts": "24157c4791d830a28b0e41fbd7befe9254257bba456c3ce68110572c05ca1ff1",
+    "src/effects/model.ts": "44452179853260f5dc35b05e32e2fe684f9c8220ffbb1fbf33747c90bf0f0cc8",
+    "src/cli/graph.ts": "b59e9c66b70c482c5139d68029ee0286899b3ae78beb506396a136f9b0cbf2d8",
+    "test/interpreted-activation-review.spec.ts": "344baa7cf435ebda334792d154fce45778b9593e995cb1e0416e13543f2a8830"
+  },
+  "after": {
+    "src/Function/Function.ts": "478775f8fceafdb3df9e198cbe8b6bbac86e19bf3d18273864e9cc49b4d59344",
+    "src/Function/summaries.ts": "da36c932a357673159915a56c3f60bae4991b1f58ca5108235c3c395a4a130b8",
+    "src/execution-context/ExecutionContext.ts": "002d6aab838cedf5a70c13f42e2bc0716ed2c3e890c0b7454d79c9491caa02f7",
+    "src/execution-context/branches.ts": "59e973ca02eaa5b9a6943c3c6003348bdc11bbcd1161c946c59e579ae1ecb723",
+    "src/effects/index.ts": "24157c4791d830a28b0e41fbd7befe9254257bba456c3ce68110572c05ca1ff1",
+    "src/effects/model.ts": "44452179853260f5dc35b05e32e2fe684f9c8220ffbb1fbf33747c90bf0f0cc8",
+    "src/cli/graph.ts": "b59e9c66b70c482c5139d68029ee0286899b3ae78beb506396a136f9b0cbf2d8",
+    "test/interpreted-activation-review.spec.ts": "344baa7cf435ebda334792d154fce45778b9593e995cb1e0416e13543f2a8830"
+  },
+  "stable": true
+}
