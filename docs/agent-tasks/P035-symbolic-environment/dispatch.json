@@ -2,7 +2,7 @@
   "date": "2026-10-21",
   "base": "573f8cca86225a7c4fa1491d76f936bff413d22d",
   "orchestrator": "01a15f01-bb95-7473-af10-3f01d7370982",
-  "stage": "design-only; no implementation accepted",
+  "stage": "design revision 1; no implementation accepted",
   "muse": {
     "thread": "ses_ea0c3614dffe5vDAFnqPFwNLFR",
     "model": "opencode/muse-spark-1.3-contributor-free",
@@ -48,6 +48,10 @@
     "longcat-runtime.json": {
       "localPath": "/tmp/prophet-p035/longcat-runtime.json",
       "sha256": "cc189b66c718e2932e89df5acaed0ad49a3a342022ad4176c5385e194bc3c286"
+    },
+    "design-revision-prompt.json": {
+      "localPath": "/tmp/prophet-p035/design-revision-prompt.json",
+      "sha256": "c8416f821eff81a2c053aab3c16f035595e27c9511f7e9766dba5cc9c0e77054"
     }
   }
 }

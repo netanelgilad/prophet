@@ -9,13 +9,18 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 Owner resumed development toward precise real-package symbolic analysis and a
 per-dependency capability gate, eventually a verified Shai-Hulud finding.
-[P035](P035-symbolic-environment/task.md) is in design review preparation on
+[P035](P035-symbolic-environment/task.md) is in design revision on
 `agent/p035-longcat-environment`, based on published `573f8cc`. Muse thread
 `ses_ea0c3614dffe5vDAFnqPFwNLFR` failed before work because the model is deprecated;
 separate free LongCat build/high thread `ses_ea0c20abbffetX6Z32B2DDV7Bl` owns the
 design-only stage. One worker/full semantic review remains; no implementation or
 completion is inferred from a successful dispatch. Root thread
 `01a15f01-bb95-7473-af10-3f01d7370982` remains active through review.
+The [first design review](P035-symbolic-environment/review.md) requires removal
+of a branch-unsafe native arrival counter, actual graph retention of declared
+inputs/provenance, bounded parsing/DAG work, and corrected pico expectations.
+The same worker recovered from an endpoint-unavailable retry and received one
+design-only correction prompt; implementation remains unapproved.
 
 ## Integration review — 2026-10-21
 
@@ -38,7 +43,7 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [Integration 2026-10-21](integration-2026-10-21/review.md) | Review and publish complete Instinct P012–P034 stack | Accepted: 164 suites / 5,112 tests; typecheck pass; exact-candidate CI required before authorized master fast-forward | Independent native failures retained as regressions; no trust promotion |
+| [Integration 2026-10-21](integration-2026-10-21/review.md) | Review and publish complete Instinct P012–P034 stack | Published `573f8cc`: 164 suites / 5,112 tests; typecheck pass; exact-candidate CI 39628633258 passed before master fast-forward | Independent native failures retained as regressions; no trust promotion |
 | P034 | P030 review fixes: end Infinity, path/range order, host iterable boundary | Included at `e183ed9` in cumulative integration review | [P030 record](P030-sirv-range-requests/task.md), [P027 record](P027-array-binding-patterns/task.md) |
 | [P013](P013-stats-size/task.md) | Bounded Node Stats.size; advance unchanged sirv past Content-Length | Implemented by Instinct in-sandbox at 3fe7ed1; full suite 142/4487/46skip and typecheck green; independent review and wiki/evidence curation pending | [Boundary](../node-filesystem.md#bounded-statssize-and-the-p012-r1-boundary); frontier now stats.mtime |
 | [P014](P014-stats-mtime/task.md) | Bounded Node Stats.mtime as a bounded Date (getTime/toUTCString); advance unchanged sirv past header preparation | Implemented by Instinct in-sandbox; full suite 143/4538/46skip and typecheck green; independent review and wiki article pending | [Boundary](../node-filesystem.md#bounded-statssize-and-statsmtime-and-the-p012-r1-boundary); frontier now String.prototype.normalize |
