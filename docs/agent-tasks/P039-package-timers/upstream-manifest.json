@@ -1,0 +1,26 @@
+[
+  {
+    "name": "test-net-settimeout.js",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-settimeout.js",
+    "sha256": "0e3e798d018f887ee6aed5ec01649bd339cfdaaa929dc80ee38193531d9a8c9d",
+    "bytes": 1857
+  },
+  {
+    "name": "test-net-can-reset-timeout.js",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-can-reset-timeout.js",
+    "sha256": "380c4c5b4c071fbc40fa90e69d35d902f23bc450d39bb65a66331e5a40ef37c8",
+    "bytes": 1902
+  },
+  {
+    "name": "test-net-socket-timeout-unref.js",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-socket-timeout-unref.js",
+    "sha256": "0a0f8f0e3dbff233f59504eca1e42faebf71e473def7e2bd030260e341395815",
+    "bytes": 1975
+  },
+  {
+    "name": "test-net-timeout-no-handle.js",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-timeout-no-handle.js",
+    "sha256": "78dac7f34577062134f0b0f42ccad87886574ee6dd5a05b0efb5fc4c6c667a19",
+    "bytes": 452
+  }
+]

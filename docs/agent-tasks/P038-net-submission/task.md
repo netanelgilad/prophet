@@ -3,7 +3,8 @@
 Base `8052b02f9290a334e3355544dbf11eac7794dd92` (published P037).
 Branch `agent/p038-net-submission`. Owner: Codex root and its own subagents,
 as explicitly requested by the user. Status: implementation f30bb9b independently accepted;181 suites/5319 passes,
-46 historical skips and typecheck passed. Exact-candidate CI/publication pending.
+46 historical skips and typecheck passed. Published8efe72b after exact-candidate CI39672451837 passed;
+[publication](publication.md).
 [Review](review.md), [evidence](evidence.json).
 
 Supply a shared Node boundary for `net.connect`/`net.createConnection`, preserving

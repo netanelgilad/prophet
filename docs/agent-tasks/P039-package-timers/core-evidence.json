@@ -1,0 +1,48 @@
+{
+  "baseline": "8efe72b",
+  "node": "v24.21.0",
+  "status": "owned source frozen pending independent review",
+  "ownedFiles": {
+    "src/node/net.ts": "6acf168e4dcdf62f80452ebee27b9c6e6578466d0239c4d8d8d66c3c241bf076",
+    "test/node-net-timeout.spec.ts": "1c133a0707d62e73680540d4b05f0cdf731415d074657ad83908c37666466549"
+  },
+  "logs": {
+    "core-red.log": "1f23d6b77b4beed0d00a09d933d0685ff6e8cc5836c5c904335c5b52f1052495",
+    "core-red.sha256": "379bd63a4c9044d75fa94bd859b9104e59c234de319ff9f7d2a8772c45f1bf27",
+    "core-expanded-red.log": "afe674abf757d47f0e420784692f1479715cff802eb5c9f100eb9fff4acae4bc",
+    "core-expanded-red.sha256": "7f5cda698798d8d09bfaca8aa3d2a7b55fba7de9604782130dff64796f5e54c6",
+    "core-first-green.log": "0160e2deee796d8d2b8aede164817242e905e39d1317d0492a92538ae2df6263",
+    "core-affected.log": "a8fbf1a178442fc1c7fe7587a6bad34659c9be4e45e7ec49cc000a51e1fed617",
+    "core-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "core-numeric-native.json": "f5c40b3869b0d62af690f7267be16dd8e881597cfd006f4cf630d4f5eb531718"
+  },
+  "red": {
+    "initial": "20/20 failed before implementation",
+    "expanded": "22/22 failed before implementation"
+  },
+  "green": {
+    "core": 22,
+    "coreAndPriorNet": 41,
+    "typecheckExitCode": 0
+  },
+  "state": {
+    "slot": "node.net.timeout",
+    "timer": "arm is Undefined initially, otherwise current abstract scheduling occurrence",
+    "armFields": [
+      "active",
+      "delay",
+      "refed"
+    ],
+    "reset": "prior arm inactive; current fresh arm, not native Timeout object identity",
+    "cancel": "retain current arm identity inactive; preserve public timeout"
+  },
+  "native": "additional unconnected Socket probes cover negative fraction/large integer error formatting; no connect called",
+  "limitations": [
+    "queued-only exact-one-argument setter",
+    "positive fractions/overflow/nonnumeric/unknown durations and callbacks unsupported before mutation",
+    "timeout event registration and later phases unsupported",
+    "pristine intrinsic defaults conservatively checked again at setter entry",
+    "no timer provider, native clock/deadline, completion or process-exit claim"
+  ],
+  "commits": []
+}

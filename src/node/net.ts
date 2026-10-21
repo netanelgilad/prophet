@@ -41,6 +41,24 @@ function canonicalIPv4(host: string) {
     host.split(".").every(part => Number(part) <= 255);
 }
 
+function requirePristineDefaults(context: TExecutionContext) {
+  // Conditional intrinsic changes are conservatively outside this host domain.
+  if (context.value.heap && context.value.heap.has(getObjectPrototype())) {
+    unsupported("altered or conditional Object.prototype defaults");
+  }
+}
+function durationErrorText(value: number) {
+  const text = String(value);
+  if (!Number.isInteger(value) || Math.abs(value) <= 2 ** 32) return text;
+  // Node24's ERR_OUT_OF_RANGE groups the number's entire string in threes,
+  // including exponent notation. This is error compatibility, not formatting
+  // of a mathematical decimal expansion; number strings have bounded length.
+  let end = text.length, suffix = "";
+  const start = text[0] === "-" ? 1 : 0;
+  for (; end >= start + 4; end -= 3) suffix = "_" + text.slice(end - 3, end) + suffix;
+  return text.slice(0, end) + suffix;
+}
+
 /** A pending POSIX IPv4 socket prefix; no native transport or completion provider. */
 export function createNetModel(events: ReturnType<typeof createEventEmitterModel>, options: NetModelOptions): { module: TESObject } {
   if (!options || !options.nextTick || typeof options.nextTick.enqueue !== "function") {
@@ -49,6 +67,7 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
   if (options.submit !== undefined && typeof options.submit !== "function") throw new Error("Net submission environment must be a model function");
   const nextTick = options.nextTick, submitModel = options.submit || symbolicTCPSubmission;
   const sockets = new WeakMap<object, TESObject>();
+  const timers = new WeakMap<object, TESObject>();
   const lifecycle = ["connectionAttempt", "connect", "ready", "error", "close", "connectionAttemptFailed"];
   const socketState = (socket: Any) => sockets.get(socket) || unsupported("receiver is not a socket from this environment");
   const submit = operation("net.socket.submit", (call, context) =>
@@ -76,23 +95,67 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
         }));
     });
   });
+  const cancelArm = (timer: TESObject, context: TExecutionContext): BranchResult =>
+    withValue(getProperties(timer, context).arm, context, (arm, branch) => {
+      if (isUndefined(arm)) return [Undefined, branch];
+      if (!isESObject(arm)) throw new Error("Invalid internal net timeout arm");
+      return [Undefined, writeProperty(arm, "active", ESBoolean(false), branch)];
+    });
+  const setTimeout = operation("net.socket.setTimeout", (call, context) => {
+    if (call.args.length !== 1) return unsupported("setTimeout requires exactly one duration argument");
+    const state = socketState(call.receiver), socket = call.receiver as TESObject;
+    requirePristineDefaults(context);
+    if (prototypeOf(socket) !== getObjectPrototype() || socket.propertyAccess || socket.unmodeledPrototype || socket.wellKnownSymbols) {
+      return unsupported("setTimeout requires the original socket property domain");
+    }
+    return withValue(getProperties(state, context).phase, context, (phase, branch) => {
+      if (!isESString(phase) || phase.value !== "queued") return unsupported("setTimeout requires a queued socket before initiation");
+      return withValue(call.args[0], branch, (duration, selected) => {
+        if (!isESNumber(duration) || typeof duration.value !== "number") return unsupported("setTimeout requires a concrete numeric duration");
+        const number = duration.value;
+        const invalid = number < 0 || !Number.isFinite(number);
+        if (!invalid && (!Number.isInteger(number) || number > 2147483647)) {
+          return unsupported("fractional and overflow timeout scheduling");
+        }
+        // Native setStreamTimeout assigns the public property before numeric
+        // validation. A caught invalid duration must leave the old arm active.
+        const assigned = writeProperty(socket, "timeout", duration, selected);
+        if (invalid) {
+          const error = createError("RangeError", ESString(`The value of "msecs" is out of range. It must be a non-negative finite number. Received ${durationErrorText(number)}`));
+          error.properties.code = ESString("ERR_OUT_OF_RANGE");
+          return [ThrownValue(error), assigned];
+        }
+        const timer = timers.get(socket)!;
+        return bindNormal(cancelArm(timer, assigned), (_ignored, cleared) => {
+          if (number === 0) return [socket, cleared];
+          // Each arm is an abstract scheduling occurrence. Native Timeout
+          // objects may be reused; no timestamp or elapsed time is inferred.
+          const arm = ESObject({ active: ESBoolean(true), delay: duration, refed: ESBoolean(false) });
+          return [socket, writeProperty(timer, "arm", arm, cleared)];
+        });
+      });
+    });
+  });
   const destroy = operation("net.socket.destroy", (call, context) => {
     if (call.args.length !== 0) return unsupported("destroy requires no arguments");
     const state = socketState(call.receiver);
     return withValue(getProperties(state, context).phase, context, (phase, branch) => {
       if (!isESString(phase) || phase.value !== "queued") return unsupported("destroy requires a queued socket before initiation");
-      const closing = change(state, { phase: ESString("closing"), completionPending: ESBoolean(false), closePending: ESBoolean(true) }, branch);
-      return [call.receiver, change(call.receiver as TESObject, { connecting: ESBoolean(false), destroyed: ESBoolean(true) }, closing)];
+      return bindNormal(cancelArm(timers.get(call.receiver)!, branch), (_ignored, cleared) => {
+        const closing = change(state, { phase: ESString("closing"), completionPending: ESBoolean(false), closePending: ESBoolean(true) }, cleared);
+        return [call.receiver, change(call.receiver as TESObject, { connecting: ESBoolean(false), destroyed: ESBoolean(true) }, closing)];
+      });
     });
   });
   const create = (address: Any, port: Any, callback: Any, context: TExecutionContext): BranchResult => {
-    const socket = markUnsupportedBoundaryObject(Object.assign(ESObject({ connecting: ESBoolean(true), destroyed: ESBoolean(false), destroy }), {
+    const socket = markUnsupportedBoundaryObject(Object.assign(ESObject({ connecting: ESBoolean(true), destroyed: ESBoolean(false), destroy, setTimeout, timeout: Undefined }), {
       unknownProperties: "Node net Socket API", unmodeledOwnPropertyInspection: "Node net Socket descriptors",
-      unmodeledPropertyWrites: ["connecting", "destroyed", "destroy"]
+      unmodeledPropertyWrites: ["connecting", "destroyed", "destroy", "setTimeout", "timeout"]
     }));
-    const state = ESObject();
+    const state = ESObject(), timer = ESObject({ arm: Undefined });
     sockets.set(socket, state);
-    socket.hostSlots = Object.freeze({ "node.net.socket": state });
+    timers.set(socket, timer);
+    socket.hostSlots = Object.freeze({ "node.net.socket": state, "node.net.timeout": timer });
     const attached = events.attach(socket, context, { allowedRegistrations: lifecycle, restrictedEvents: lifecycle });
     const initialized = change(state, { phase: ESString("queued"), address, port, submissionAccepted: Undefined,
       completionPending: ESBoolean(false), closePending: ESBoolean(false) }, attached);
@@ -117,34 +180,38 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
         return create(address, ESNumber(number.value === 0 ? 0 : number.value), callback, selected);
       }));
     }));
+  const admitOptions = (value: Any, callback: Any, branch: TExecutionContext): BranchResult => {
+    if (!isESObject(value) || value.ownPropertyModel !== "enumerable-data" || value.unknownProperties ||
+        value.unmodeledOwnPropertyInspection || value.unmodeledPrototype || value.propertyAccess ||
+        (value.unmodeledPropertyReads && value.unmodeledPropertyReads.length) || value.wellKnownSymbols ||
+        Object.getOwnPropertySymbols(value.properties).length) return unsupported("options require closed enumerable data properties");
+    requirePristineDefaults(branch);
+    return withValue(prototypeOf(value), branch, (prototype, afterPrototype) => {
+      if (!isESNull(prototype) && prototype !== getObjectPrototype()) return unsupported("options prototype requires ordinary or null prototype");
+      return withKeyOrder(getPropertyKeys(value, afterPrototype), afterPrototype, (keys, afterKeys) => {
+        const inspect = (index: number, current: TExecutionContext): BranchResult => {
+          if (index === keys.length) return evaluateBranches(ownPropertyPresence(value, "host", current), current,
+            hostPresent => evaluateBranches(ownPropertyPresence(value, "port", hostPresent), hostPresent,
+              ready => endpoint(value, callback, ready), () => unsupported("missing own port")), () => unsupported("missing own host"));
+          const key = keys[index];
+          if (key === "host" || key === "port") return inspect(index + 1, current);
+          return evaluateBranches(ownPropertyPresence(value, key, current), current,
+            () => unsupported("additional connect options"), absent => inspect(index + 1, absent));
+        };
+        return inspect(0, afterKeys);
+      });
+    });
+  };
   const connect = operation("net.connect", (call, context) => {
-    if (call.args.length < 1 || call.args.length > 2) return unsupported("connect requires options and an optional callback");
-    return withValue(call.args[1] || Undefined, context, (callback, afterCallback) => {
-      if (!isUndefined(callback) && !isESFunction(callback)) return unsupported("connect callback requires a function");
-      return withValue(call.args[0], afterCallback, (value, branch) => {
-        if (!isESObject(value) || value.ownPropertyModel !== "enumerable-data" || value.unknownProperties ||
-            value.unmodeledOwnPropertyInspection || value.unmodeledPrototype || value.propertyAccess ||
-            (value.unmodeledPropertyReads && value.unmodeledPropertyReads.length) || value.wellKnownSymbols ||
-            Object.getOwnPropertySymbols(value.properties).length) return unsupported("options require closed enumerable data properties");
-        const intrinsic = getObjectPrototype();
-        // Conservatively reject the entire conditional prototype domain too:
-        // a joined heap record is not evidence that inherited defaults are absent.
-        if (branch.value.heap && branch.value.heap.has(intrinsic)) return unsupported("altered or conditional Object.prototype defaults");
-        return withValue(prototypeOf(value), branch, (prototype, afterPrototype) => {
-          if (!isESNull(prototype) && prototype !== intrinsic) return unsupported("options prototype requires ordinary or null prototype");
-          return withKeyOrder(getPropertyKeys(value, afterPrototype), afterPrototype, (keys, afterKeys) => {
-            const inspect = (index: number, current: TExecutionContext): BranchResult => {
-              if (index === keys.length) return evaluateBranches(ownPropertyPresence(value, "host", current), current,
-                hostPresent => evaluateBranches(ownPropertyPresence(value, "port", hostPresent), hostPresent,
-                  ready => endpoint(value, callback, ready), () => unsupported("missing own port")), () => unsupported("missing own host"));
-              const key = keys[index];
-              if (key === "host" || key === "port") return inspect(index + 1, current);
-              return evaluateBranches(ownPropertyPresence(value, key, current), current,
-                () => unsupported("additional connect options"), absent => inspect(index + 1, absent));
-            };
-            return inspect(0, afterKeys);
-          });
-        });
+    if (call.args.length < 1 || call.args.length > 3) return unsupported("connect requires options or an explicit port and host");
+    return withValue(call.args[0], context, (first, branch) => {
+      const positional = isESNumber(first);
+      if (positional ? call.args.length < 2 : call.args.length > 2) return unsupported("connect requires options or an explicit port and host");
+      return withValue(call.args[positional ? 2 : 1] || Undefined, branch, (callback, ready) => {
+        if (!isUndefined(callback) && !isESFunction(callback)) return unsupported("connect callback requires a function");
+        // Normalize only inside this model; the public call retains its original
+        // arguments/origin and creates no synthetic second net.connect effect.
+        return admitOptions(positional ? ESObject({ port: first, host: call.args[1] }) : first, callback, ready);
       });
     });
   });

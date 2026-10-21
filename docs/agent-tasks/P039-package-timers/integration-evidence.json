@@ -1,0 +1,54 @@
+{
+  "ownedFile": "test/node-notifier-startup.spec.ts",
+  "sha256": "2901f8de4b59e45be68b175793bc12cabaccb6a1567788c746e5ac9d160593be",
+  "byteLength": 17685,
+  "lineCount": 283,
+  "baseCommit": "8efe72bd18a46f29641d331f5c32ae895cf27c2d",
+  "runtime": "v24.21.0",
+  "red": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-notifier-startup.spec.ts",
+    "exitStatus": 1,
+    "testsFailed": 1,
+    "log": "/tmp/prophet-p039/integration-red.log",
+    "observedBoundary": "Node net analysis is not yet supported: connect callback requires a function",
+    "sourceState": "Only new test/node-notifier-startup.spec.ts at capture; src unchanged. Complete package copied unchanged. Source/manifest/cache assertions already pass. No public socket return, helper continuation, timer or submission."
+  },
+  "green": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-notifier-startup.spec.ts",
+    "exitStatus": 0,
+    "testsPassed": 5,
+    "actualCLITests": 4,
+    "nativeAPIScenarios": 11,
+    "log": "/tmp/prophet-p039/integration-expanded.log",
+    "timing": "Source landed before expanded suite run; expanded run is green, not claimed expanded preimplementation red."
+  },
+  "typecheck": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH node .yarn/releases/yarn-3.1.1.cjs tsc --noEmit",
+    "exitStatus": 0,
+    "log": "/tmp/prophet-p039/integration-typecheck.log"
+  },
+  "package": {
+    "name": "node-notifier",
+    "version": "5.4.0",
+    "subpath": "lib/checkGrowl.js",
+    "scope": "Complete unchanged subpath source through CommonJS with full package copied; not package-main execution or completed availability check.",
+    "sourceSha256": "6d8fdba983f2589ac744b68437918c63e679a962c4e06007b4f81cb089fdb103",
+    "manifestSha256": "6e14169f6c3301bcb7746ed4816760dccbdf8362616f06b68c3e0f740dd9c5c9",
+    "cacheSha512": "72e66e03fd0544c23302ba3d53c1a502809aee15b8c9406c79d5294e9bcfe04b43dc39c7b208c1f72912e6ddf93d6f9e0e830b135f424604b3d9e5822090d831",
+    "cacheChecksumAssertedInYarnLock": true,
+    "cacheByteEqualityResearch": "/tmp/prophet-p039/target-scout-evidence.json"
+  },
+  "verified": [
+    "Helper returns before deferred submission; public original positional args",
+    "Source/activation/socket/setter/submit graph identities; one timer arm shared across outcomes",
+    "100ms active unrefed arm; connect/error listeners preserved unfired; no callback/end execution",
+    "Default localhost explicit DNS boundary",
+    "Two helper calls retain separate sockets/timers before independent FIFO submission outcomes",
+    "Finite host choices preserve admitted/stopped/unsupported outcomes",
+    "Native API setup/reset/zero/-0/rearm/max/negative fraction/NaN/infinities/write-before-error/old-timer-retention/cancel"
+  ],
+  "nativeBoundary": "Only inline native builtin fixtures execute; no package native execution. TCP/TCP6/IPC/DNS hooks throw if reached. All configured sockets destroyed synchronously before queued submission. No attempt/connect/timeout events delivered. Native Timeout identity not asserted equal to model arm identity.",
+  "repoProductionEdits": [],
+  "commits": [],
+  "upstreamCoverageClaim": false
+}

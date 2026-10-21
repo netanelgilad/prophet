@@ -1,0 +1,268 @@
+{
+  "node": "v24.21.0",
+  "nativeSubmissions": 0,
+  "results": [
+    {
+      "values": [
+        "100"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "same": true,
+          "timeout": "100",
+          "timer": {
+            "idle": 100,
+            "destroyed": false,
+            "hasRef": false
+          }
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "0"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "same": true,
+          "timeout": "0",
+          "timer": null
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "100",
+        "200"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "same": true,
+          "timeout": "100",
+          "timer": {
+            "idle": 100,
+            "destroyed": false,
+            "hasRef": false
+          }
+        },
+        {
+          "same": true,
+          "timeout": "200",
+          "timer": {
+            "idle": 200,
+            "destroyed": false,
+            "hasRef": false
+          }
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "100",
+        "0"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "same": true,
+          "timeout": "100",
+          "timer": {
+            "idle": 100,
+            "destroyed": false,
+            "hasRef": false
+          }
+        },
+        {
+          "same": true,
+          "timeout": "0",
+          "timer": {
+            "idle": -1,
+            "destroyed": true,
+            "hasRef": false
+          }
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "100",
+        "0",
+        "50"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "same": true,
+          "timeout": "100",
+          "timer": {
+            "idle": 100,
+            "destroyed": false,
+            "hasRef": false
+          }
+        },
+        {
+          "same": true,
+          "timeout": "0",
+          "timer": {
+            "idle": -1,
+            "destroyed": true,
+            "hasRef": false
+          }
+        },
+        {
+          "same": true,
+          "timeout": "50",
+          "timer": {
+            "idle": 50,
+            "destroyed": false,
+            "hasRef": false
+          }
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "-1"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "timeout": "-1",
+          "error": {
+            "name": "RangeError",
+            "code": "ERR_OUT_OF_RANGE",
+            "message": "The value of \"msecs\" is out of range. It must be a non-negative finite number. Received -1"
+          },
+          "timer": null
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "NaN"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "timeout": "NaN",
+          "error": {
+            "name": "RangeError",
+            "code": "ERR_OUT_OF_RANGE",
+            "message": "The value of \"msecs\" is out of range. It must be a non-negative finite number. Received NaN"
+          },
+          "timer": null
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "Infinity"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "timeout": "Infinity",
+          "error": {
+            "name": "RangeError",
+            "code": "ERR_OUT_OF_RANGE",
+            "message": "The value of \"msecs\" is out of range. It must be a non-negative finite number. Received Infinity"
+          },
+          "timer": null
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "2147483647"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "same": true,
+          "timeout": "2147483647",
+          "timer": {
+            "idle": 2147483647,
+            "destroyed": false,
+            "hasRef": false
+          }
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "100",
+        "-1"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "same": true,
+          "timeout": "100",
+          "timer": {
+            "idle": 100,
+            "destroyed": false,
+            "hasRef": false
+          }
+        },
+        {
+          "timeout": "-1",
+          "error": {
+            "name": "RangeError",
+            "code": "ERR_OUT_OF_RANGE",
+            "message": "The value of \"msecs\" is out of range. It must be a non-negative finite number. Received -1"
+          },
+          "timer": {
+            "idle": 100,
+            "destroyed": false,
+            "hasRef": false
+          }
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "values": [
+        "100",
+        "bad"
+      ],
+      "events": [],
+      "steps": [
+        {
+          "same": true,
+          "timeout": "100",
+          "timer": {
+            "idle": 100,
+            "destroyed": false,
+            "hasRef": false
+          }
+        },
+        {
+          "timeout": "bad",
+          "error": {
+            "name": "TypeError",
+            "code": "ERR_INVALID_ARG_TYPE",
+            "message": "The \"msecs\" argument must be of type number. Received type string ('bad')"
+          },
+          "timer": {
+            "idle": 100,
+            "destroyed": false,
+            "hasRef": false
+          }
+        }
+      ],
+      "destroyed": true
+    }
+  ]
+}

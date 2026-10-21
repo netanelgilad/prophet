@@ -1,0 +1,12 @@
+{
+  "node": "v24.21.0",
+  "repositoryEdits": false,
+  "nativeSubmissions": 0,
+  "source": "Pinned executable process.binding(natives) read-only extraction and native setter probes; see next-design.md",
+  "sha256": {
+    "/tmp/prophet-p039/wiring-internal_validators.js": "dd61b9cb7af5c18b46f2029c2f06b0fc2638d1cd870fe65934966e840e88e1c2",
+    "/tmp/prophet-p039/wiring-timeout-native.json": "78a875e6ff004a47a418a293d72e39c9833766eb209e8127659bde2fe5e7e0d9",
+    "/tmp/prophet-p039/wiring-internal_stream_base_commons.js": "bfdad04241cc86e8eccb1cfdd0c3aea0f355a348535be50d92c0e8fb74be9d3a",
+    "/tmp/prophet-p039/wiring-internal_timers.js": "8ef50a8988efbec26a40514518e89789acc2f7085418c2cc526f89f72cf8251e"
+  }
+}

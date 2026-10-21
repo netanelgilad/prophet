@@ -1,0 +1,225 @@
+{
+  "mode": "static source inspection only; no package/lifecycle execution or installation",
+  "existing": [
+    {
+      "name": "node-notifier",
+      "version": "5.4.0",
+      "cachePath": ".yarn/cache/node-notifier-npm-5.4.0-11e1acc831-72e66e03fd.zip",
+      "cacheSha256": "e6d51eaf9c7b04e45f9d2cfb29e6525914cfdab5d92ba9eeed28b3f5475eca07",
+      "cacheSha512": "72e66e03fd0544c23302ba3d53c1a502809aee15b8c9406c79d5294e9bcfe04b43dc39c7b208c1f72912e6ddf93d6f9e0e830b135f424604b3d9e5822090d831",
+      "sha512AppearsInLock": true,
+      "sources": [
+        {
+          "path": "node_modules/node-notifier/package.json",
+          "bytes": 1954,
+          "sha256": "6e14169f6c3301bcb7746ed4816760dccbdf8362616f06b68c3e0f740dd9c5c9",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/node-notifier/lib/checkGrowl.js",
+          "bytes": 536,
+          "sha256": "6d8fdba983f2589ac744b68437918c63e679a962c4e06007b4f81cb089fdb103",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/node-notifier/notifiers/growl.js",
+          "bytes": 1820,
+          "sha256": "33e91460fca7d54f27d7d8d569ecffa6444e03624881e74cb490174093069bbb",
+          "sameBytesAsCache": true
+        }
+      ]
+    },
+    {
+      "name": "growly",
+      "version": "1.3.0",
+      "cachePath": ".yarn/cache/growly-npm-1.3.0-b3a02d4d2a-53cdecd4c1.zip",
+      "cacheSha256": "47d546e0f69b2736968fac7798ce4a3e94523fa66767b7b5537c5352493ae6cb",
+      "cacheSha512": "53cdecd4c16d7d9154a9061a9ccb87d602e957502ca69b529d7d1b2436c2c0b700ec544fc6b3e4cd115d59b81e62e44ce86bd0521403b579d3a2a97d7ce72a44",
+      "sha512AppearsInLock": true,
+      "sources": [
+        {
+          "path": "node_modules/growly/package.json",
+          "bytes": 544,
+          "sha256": "3cd89bff1fd1da692351f369c2e3524b304d9fbf176a6e977e90048344db006e",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/growly/lib/growly.js",
+          "bytes": 6331,
+          "sha256": "86065ee95703286ff0923be3b72d8dc51d1bfac7813d250147fc47dcee6ab9df",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/growly/lib/gntp.js",
+          "bytes": 5160,
+          "sha256": "190b69962a89cc91f26abe85d7099bfaa569b59fc945ba0be86a0c331cff7607",
+          "sameBytesAsCache": true
+        }
+      ]
+    },
+    {
+      "name": "request",
+      "version": "2.88.0",
+      "cachePath": ".yarn/cache/request-npm-2.88.0-9de8117818-aecf4f8cdb.zip",
+      "cacheSha256": "6f1759d841627a12aad2826373ecc1801733081cccc531a187b1e22106896fc1",
+      "cacheSha512": "aecf4f8cdb0ebd5feac5e29b748d6ab376ac5717ddcbc5a6bb24cc3808bde755ff0fa3a8379a2d25f6c4b969ced1ac065d22a615c71747cd305731efa643e30d",
+      "sha512AppearsInLock": true,
+      "sources": [
+        {
+          "path": "node_modules/request/package.json",
+          "bytes": 2084,
+          "sha256": "46cd705d5a0cb67d98090998ee345ee864af6fd031640eb0597cb59209dccbc9",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/request/index.js",
+          "bytes": 3974,
+          "sha256": "48b9b0924a9d8ee541cc46b4e1fbdae0d67c50ccc921f728f7a04911a78db82a",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/request/request.js",
+          "bytes": 44512,
+          "sha256": "ce84720bea906404d869b51a2035948edf700b304e019dda3d18cf7959677d0e",
+          "sameBytesAsCache": true
+        }
+      ]
+    },
+    {
+      "name": "forever-agent",
+      "version": "0.6.1",
+      "cachePath": ".yarn/cache/forever-agent-npm-0.6.1-01dae53bf9-766ae6e220.zip",
+      "cacheSha256": "19fccf9f67dd6b83674b628767dccb6530519415bf4dcc09d788dae7d522e020",
+      "cacheSha512": "766ae6e220f5fe23676bb4c6a99387cec5b7b62ceb99e10923376e27bfea72f3c3aeec2ba5f45f3f7ba65d6616965aa7c20b15002b6860833bb6e394dea546a8",
+      "sha512AppearsInLock": true,
+      "sources": [
+        {
+          "path": "node_modules/forever-agent/package.json",
+          "bytes": 528,
+          "sha256": "3deffa269a086a06932047e0802967904ca9eb4ab889c3fe40b154e5f30d5922",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/forever-agent/index.js",
+          "bytes": 4176,
+          "sha256": "dcf8adeb662f9c160f117c50572d1000ae7173754e152bb4e118d04b92a3eb05",
+          "sameBytesAsCache": true
+        }
+      ]
+    },
+    {
+      "name": "tunnel-agent",
+      "version": "0.6.0",
+      "cachePath": ".yarn/cache/tunnel-agent-npm-0.6.0-64345ab7eb-05f6510358.zip",
+      "cacheSha256": "52b148f51ef2aec24093c5e9f043479257b7c624c527f8135df1229911baa557",
+      "cacheSha512": "05f6510358f8afc62a057b8b692f05d70c1782b70db86d6a1e0d5e28a32389e52fa6e7707b6c5ecccacc031462e4bc35af85ecfe4bbc341767917b7cf6965711",
+      "sha512AppearsInLock": true,
+      "sources": [
+        {
+          "path": "node_modules/tunnel-agent/package.json",
+          "bytes": 542,
+          "sha256": "08a8560b650b49370af44148a8645c11675ba97d21ee7f347d8d434b13c51074",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/tunnel-agent/index.js",
+          "bytes": 6884,
+          "sha256": "76ffc88cb84b3f20c2d7999e4d7c4646e6a450132fde37564c8189bf2c960018",
+          "sameBytesAsCache": true
+        }
+      ]
+    },
+    {
+      "name": "xmlhttprequest-ssl",
+      "version": "1.5.3",
+      "cachePath": ".yarn/cache/xmlhttprequest-ssl-npm-1.5.3-87bd937ec8-e1e57806ca.zip",
+      "cacheSha256": "0d6c80f1ee280c1fb2c2f5af07842f17b9d8ae4b651788c7c56baeb38aa59c79",
+      "cacheSha512": "e1e57806ca5c3d23b15f120d9e6872fa7c775f8e664ddd6e4a391e0c6888379924994f3fa160ea9338bdfa9619367393043bca7af4036814d31b6f9ecac9a52e",
+      "sha512AppearsInLock": true,
+      "sources": [
+        {
+          "path": "node_modules/xmlhttprequest-ssl/package.json",
+          "bytes": 940,
+          "sha256": "50451778f67b648432276e1a2cfc62cc64033ae284e322de87ca620a3f12de4c",
+          "sameBytesAsCache": true
+        },
+        {
+          "path": "node_modules/xmlhttprequest-ssl/lib/XMLHttpRequest.js",
+          "bytes": 18223,
+          "sha256": "0fe96caa9a8156e8a536745df4736d75bc43ce3f0cfac25900ac7d387696173e",
+          "sameBytesAsCache": true
+        }
+      ]
+    }
+  ],
+  "downloadedToTmp": [
+    {
+      "name": "phin",
+      "version": "2.9.3",
+      "metadataURL": "https://registry.npmjs.org/phin/2.9.3",
+      "tarballURL": "https://registry.npmjs.org/phin/-/phin-2.9.3.tgz",
+      "integrity": "sha512-CzFr90qM24ju5f88quFC/6qohjC144rehe5n6DH900lgXmUe86+xCKc10ev56gRKC4/BkHUoG4uSiQgBiIXwDA==",
+      "shasum": "f9b6ac10a035636fb65dfc576aaaa17b8743125c",
+      "integrityAndShasumVerified": true,
+      "compressedBytes": 3805,
+      "sha256": "28e892332b3f3b3259b10b9e9150e05038a287a62a96fafe660198ac2e7ed9c8",
+      "files": [
+        {
+          "path": "package/LICENSE",
+          "bytes": 1067,
+          "sha256": "27b3d1e86583b71dcd450ab51ee29db0dc41403dd11e2851be87c124a3aa7a9b"
+        },
+        {
+          "path": "package/README.md",
+          "bytes": 2668,
+          "sha256": "9643f3c56f8ff552a38fb98d56708c7a76ca200893875dcbd20857e14b7e8c89"
+        },
+        {
+          "path": "package/lib/phin.compiled.js",
+          "bytes": 3279,
+          "sha256": "66fae4d74cd874dae90bc83709eef549c4281cede534b4c6960f1ce8946d4243"
+        },
+        {
+          "path": "package/package.json",
+          "bytes": 1067,
+          "sha256": "3500e829b1f9b634e9becb9d4ab9ba4c9fe7fe52c547d7bec5c729b3982cb3b6"
+        }
+      ]
+    },
+    {
+      "name": "tcp-ping",
+      "version": "0.1.1",
+      "metadataURL": "https://registry.npmjs.org/tcp-ping/0.1.1",
+      "tarballURL": "https://registry.npmjs.org/tcp-ping/-/tcp-ping-0.1.1.tgz",
+      "integrity": "sha512-7Ed10Ds0hYnF+O1lfiZ2iSZ1bCAj+96Madctebmq7Y1ALPWlBY4YI8C6pCL+UTlshFY5YogixKLpgDP/4BlHrw==",
+      "shasum": "02dd7f42b5bf7d7cb78d5b7aacefa155fd8f7c0c",
+      "integrityAndShasumVerified": true,
+      "compressedBytes": 2608,
+      "sha256": "2dcd037c4a602b4e02cf503851106d6f13f54a994907de20090ab01ea26899e4",
+      "files": [
+        {
+          "path": "package/LICENSE",
+          "bytes": 1077,
+          "sha256": "55d0b973c0b5491a4cc4183807207b756b198184a3f183d35bf2c15fd9ea879c"
+        },
+        {
+          "path": "package/README.md",
+          "bytes": 1732,
+          "sha256": "d8fe1e8a2fe429daba105acc6c5f6b194fafd76dbe762c66ef80a8db04fb2ef9"
+        },
+        {
+          "path": "package/package.json",
+          "bytes": 520,
+          "sha256": "0fc1f6a21356941d7f65215bf32fd7797dba59a4c6907762c23e8d2a56c07d47"
+        },
+        {
+          "path": "package/ping.js",
+          "bytes": 3582,
+          "sha256": "f0901f869ee4baea683ad25f92fe02818ade21db2eb83477d5e2f43130d0b322"
+        }
+      ]
+    }
+  ],
+  "unavailableCandidate": "phin@1.9.0 registry metadata 404, no source acquired",
+  "repositoryEdits": []
+}

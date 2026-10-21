@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    ".yarn/releases/yarn-3.1.1.cjs",
+    "test",
+    "--runInBand",
+    "test/node-net-timeout-review.spec.ts"
+  ],
+  "before": {
+    "src/node/net.ts": "6acf168e4dcdf62f80452ebee27b9c6e6578466d0239c4d8d8d66c3c241bf076",
+    "test/node-net-timeout-review.spec.ts": "a3940f7b2b1e83ef1853be2cf37d360560b384d7b8df173125991ab5f6aae613",
+    "test/node-net-timeout.spec.ts": "1c133a0707d62e73680540d4b05f0cdf731415d074657ad83908c37666466549",
+    "test/node-notifier-startup.spec.ts": "2901f8de4b59e45be68b175793bc12cabaccb6a1567788c746e5ac9d160593be"
+  },
+  "status": 0,
+  "seconds": 1.1883940696716309,
+  "after": {
+    "src/node/net.ts": "6acf168e4dcdf62f80452ebee27b9c6e6578466d0239c4d8d8d66c3c241bf076",
+    "test/node-net-timeout-review.spec.ts": "a3940f7b2b1e83ef1853be2cf37d360560b384d7b8df173125991ab5f6aae613",
+    "test/node-net-timeout.spec.ts": "1c133a0707d62e73680540d4b05f0cdf731415d074657ad83908c37666466549",
+    "test/node-notifier-startup.spec.ts": "2901f8de4b59e45be68b175793bc12cabaccb6a1567788c746e5ac9d160593be"
+  }
+}

@@ -7,7 +7,7 @@ FIFO. Target networking never runs natively during symbolic exploration.
 
 ## Supported call and ordering
 
-The initial overload is `net.connect({host, port}, callback?)` with exactly the
+The options overload is `net.connect({host, port}, callback?)` with exactly the
 two own enumerable data properties, ordinary or null prototype, unchanged
 intrinsic defaults and an omitted/undefined/function callback. Finite supported
 value choices use ordinary VM branching. Canonical IPv4 strings and numeric
@@ -15,7 +15,7 @@ integer ports0..65535 are supported; -0 becomes +0. The model preserves Node's
 RangeError/code/message for invalid numeric ports after a known nonempty,
 non-NUL host string, before the IPv4 routing boundary. Thus a hostname with an
 invalid numeric port still throws the port error. Nonstring/falsy/NUL host forms,
-missing properties, numeric-string ports, positional overloads, getters,
+missing properties, numeric-string ports, remaining positional overloads, getters,
 additional options, altered prototypes and open domains stop explicitly; these
 are implementation restrictions, not a claim that Node rejects those inputs.
 
@@ -84,3 +84,39 @@ Host NUL validation scans the materialized concrete string before numeric-port
 validation; only the later canonical IPv4 parser rejects length>15 before parsing.
 See NET-001, EVENTS-001/002, HOST-001/002, REPORT-001 and SECURITY-001 in the
 [gap backlog](implementation-gaps.md). No stable gap is closed by this prefix.
+
+
+## P039 positional calls and configured idle timers
+
+The explicit positional form `connect(port, host, callback?)` reuses the same
+endpoint rules while retaining original public arguments and one call origin.
+Omitted/default host, string ports, IPC and ignored extra trailing forms remain
+unsupported. Both public aliases use the same operation.
+
+A queued socket accepts exactly one numeric argument to setTimeout. Supported
+positive integer delays through2147483647 configure an unrefed pending idle timer;
+zero/-0 disables it. Reset marks the prior logical arm inactive and creates one
+new active arm. The `node.net.timeout` slot points to persistent current arm state,
+whose delay/active/refed facts are distinct from public socket.timeout. An arm
+identifies a scheduling occurrence, not a native Timeout object (Node may reuse
+that object). No wall-clock read, remaining time or absolute deadline is invented.
+
+Negative numbers including negative fractions and nonfinite numbers are supported
+guest RangeError/ERR_OUT_OF_RANGE cases: first write the public timeout value,
+then throw while leaving the prior arm unchanged. Thus catching an invalid update
+can leave a100ms timer active with a negative public timeout. Public -0 is preserved.
+Unsupported positive fractions, overflow, nonnumbers/open values, callback/extra
+arguments, altered intrinsic defaults and nonqueued phases stop before model-side
+setter changes. Public property/method and private timer manipulation is guarded.
+
+Queued destroy deactivates the arm, preserves the public timeout value and retains
+closePending. Deferred IPv4 submission does not refresh the configured timer.
+Future connection/read/write activity may refresh native idle timing and remains
+unmodeled. An unrefed timer can still fire; it alone does not keep Node alive.
+Timeout notification does not automatically destroy a socket or impose a connection
+deadline. No timer provider/listener registration or delivery is added here.
+
+The [unchanged dependency scenario](node-notifier-target.md) uses this shared
+behavior to reach pending TCP submission. Startup FIFO priority explains why the
+modeled prefix precedes timer callbacks. It does not prove that time never advances
+or cover timer/HTTP-arrival interleavings under the existing HTTP-only horizon.

@@ -50,7 +50,10 @@ or asynchronous registration causality. [P037](agent-tasks/P037-program-identiti
 now exposes immutable captured source identities in the CLI graph so file origins
 can be checked against exact bytes. [P038](agent-tasks/P038-net-submission/task.md)
 adds pending IPv4 submission with cancellation and explicit unresolved failure,
-without delivering connection completion. Next extend outbound APIs through their
+without delivering connection completion. [P039](agent-tasks/P039-package-timers/task.md)
+adds positional startup and persistent timeout configuration for the
+[unchanged node-notifier subpath](node-notifier-target.md). It retains pending
+callbacks rather than claiming completed package behavior. Next extend outbound APIs through their
 actual attempt boundary, then build a benign transitive-dependency policy test,
 pinned lifecycle/admission orchestration and an inert original Shai-Hulud benchmark.
 An invocation can throw before attempting transport; an unsupported member lookup
