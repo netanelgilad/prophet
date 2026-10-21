@@ -267,8 +267,9 @@ effects never establish that later effects are impossible. Unexpected engine
 failures also remain failures rather than guest exceptions or normal completion.
 
 This is still an experimental, nonresumable projection. The former envelope's
-schema version, captured source bytes/hashes, launch metadata and budget are not
-published. Source locations already in VM state remain in the graph. Classified
+schema version, full captured source bytes and analysis budget are not published.
+Captured byte identities and launch metadata now appear in roots.program; source
+locations already in VM state remain in the graph. Classified
 boundary reasons survive JSON, but legacy failure diagnostics and complete run
 provenance do not. The supplied environment file has the structured identity
 described above; this does not supply complete source/run provenance. A portable
@@ -278,9 +279,19 @@ versioning contract remains future work; explanatory prose is not a substitute.
 | --- | --- |
 | `0` | A result containing the modeled entry/startup completion, even if that completion throws. Also used for `--help`. |
 | `2` | A result containing a partial analysis stop, including reached dependency-acquisition failures. |
-| `1` | Invocation, initial entry acquisition or serialization failed; stderr explains it, no graph is emitted. |
+| `1` | Invocation, initial entry acquisition, program-identity publication or serialization failed; stderr explains it, no graph is emitted. |
 
 These statuses are not modeled program exit codes or consumer policy verdicts.
+
+## Captured program identity
+
+`roots.program` records the selected runtime, entry filename, target arguments,
+launch cwd and final acquired source/probe maps. Each source identity contains
+SHA-256 and original byte length; the entry `source` aliases its map record.
+[The program identity contract](program-identities.md) defines exact metadata
+limits, immutable snapshots and partial-result behavior. It publishes identities
+without copying full source text into this root. Source membership is acquisition
+evidence, not proof of execution on every branch or a complete dependency graph.
 
 ## Graph containers
 

@@ -266,7 +266,7 @@ test("the actual CLI returns the bare result graph after acquiring a local impor
   expect(child.stderr).toBe("");
   const graph = JSON.parse(child.stdout);
   expect(Object.keys(graph).sort()).toEqual(["nodes", "roots"]);
-  expect(Object.keys(graph.roots).sort()).toEqual(["completion", "current", "initial"]);
+  expect(Object.keys(graph.roots).sort()).toEqual(["completion", "current", "initial", "program"]);
   const completion = graph.nodes.find((node: { id: string }) => node.id === graph.roots.completion.ref);
   expect(completion.kind).toBe("record");
   expect(completion.entries).toEqual(expect.arrayContaining([["type", "number"], ["value", 42]]));

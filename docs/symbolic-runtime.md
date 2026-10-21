@@ -167,8 +167,8 @@ remaining statement sequences, not resumable native continuations. A completion
 tree with `state: "partial"` pairs with its common base checkpoint; consumers must
 inspect leaf states rather than treat that aggregate as final. Untagged legacy
 failures still retain one checkpoint and omit the completion root. Both kinds of
-analysis stop report diagnostics on stderr with exit status 2. Internal
-capture metadata is not yet modeled as graph state. See [the current schema](cli.md).
+analysis stop report diagnostics on stderr with exit status 2. Captured source identities, resolver observations and launch parameters now
+appear in the separate program root; complete run provenance remains future work. See [the current schema](cli.md).
 
 After normal entry completion the CLI drains its supported startup jobs, invoking
 listening/error callbacks with current state. A throwing branch retains later
@@ -187,6 +187,15 @@ General programs may not terminate, and some executions exceed supported
 semantics or budgets. The conceptual environment transformation therefore needs
 an explicit partial/suspended result in those cases. Such a result is not a
 claim that execution completed or that every possible continuation was covered.
+
+## Captured program identity
+
+The [program root](program-identities.md) retains launch parameters and captured
+source hashes/byte lengths with resolver observations. It is an immutable final
+acquisition union, separate from initial/current machine states and conditional
+execution history. Consumers verify bytes against these identities; the graph
+does not attest npm package integrity or supply a full source archive. Publication
+has explicit metadata limits and fails without truncated output when exceeded.
 
 ## Interpreted execution origins
 

@@ -1,6 +1,7 @@
 import { parseArguments } from "./arguments";
 import { encodeGraph } from "./graph";
 import { runFile } from "./runtime";
+import { snapshotProgram } from "./program";
 
 const usage = `Usage: prophet [--runtime node@24.21.0] [--max-steps N] [--max-events 0|1|2] [--environment FILE] -- SCRIPT [args...]
 
@@ -24,7 +25,8 @@ export function main(args: string[]): number {
       return 0;
     }
     const execution = runFile(options, process.cwd());
-    const roots: { [name: string]: unknown } = { initial: execution.initial, current: execution.current };
+    const roots: { [name: string]: unknown } = { initial: execution.initial, current: execution.current,
+      program: snapshotProgram(execution.input) };
     if (execution.completion !== undefined) roots.completion = execution.completion;
     // Serialize fully before writing so an encoding failure cannot emit a
     // truncated result that resembles a successfully completed run.

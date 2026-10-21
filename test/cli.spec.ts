@@ -58,7 +58,7 @@ function run(source: string, flags: string[] = [], args: string[] = []) {
   expect(Object.keys(result).sort()).toEqual(["nodes", "roots"]);
   expect([0, 2]).toContain(child.status);
   expect(Object.keys(result.roots).sort()).toEqual(result.roots.completion !== undefined
-    ? ["completion", "current", "initial"] : ["current", "initial"]);
+    ? ["completion", "current", "initial", "program"] : ["current", "initial", "program"]);
   if (child.status === 0) expect(child.stderr).toBe("");
   else expect(child.stderr).toMatch(/^prophet: /);
   return { child, result, roots: decodeGraph(result) };

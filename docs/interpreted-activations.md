@@ -66,6 +66,8 @@ ordinary graph references, retaining shared targets and parents. The payload
 remains `{ roots, nodes }`; it contains no hand-written limitation or policy prose.
 This adds no resumption support, stable cross-run function IDs, file hashes,
 package/lockfile mapping, source coordinates or portable graph versioning.
+The separate [program identity root](program-identities.md) now permits matching
+known file labels to acquired byte hashes; unknown generated files remain unknown.
 
 Each frame adds O(1) work and one shared parent link; entry does not copy/walk
 ancestors. There is no new activation-specific depth cap. General VM host-stack

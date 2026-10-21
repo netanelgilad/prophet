@@ -3,7 +3,7 @@ import { lstatSync, readFileSync, realpathSync } from "fs";
 import { dirname, isAbsolute, normalize, sep } from "path";
 import { ModuleSource } from "../require/resolution";
 
-export type CapturedSource = { text: string; sha256: string };
+export type CapturedSource = { text: string; sha256: string; byteLength: number };
 type PathKind = "file" | "directory" | "missing";
 
 /**
@@ -57,7 +57,7 @@ export function captureModuleSources() {
       if (!Buffer.from(text, "utf8").equals(bytes)) {
         throw new Error("CLI source acquisition currently requires valid UTF-8 bytes");
       }
-      files.set(filename, { text, sha256: createHash("sha256").update(bytes).digest("hex") });
+      files.set(filename, { text, sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.length });
     }
     return files.get(filename)!.text;
   };

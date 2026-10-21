@@ -81,7 +81,9 @@ not a claim that the existing VM already enforces capabilities.
 
 P035 bounded explicit CLI inputs are published. P036 adds
 [interpreted activation and direct effect origins](interpreted-activations.md),
-preparing file-to-package attribution without claiming package identity. Next:
+preparing file-to-package attribution without claiming package identity. P037
+adds [captured source identities](program-identities.md), so consumers can verify
+bytes corresponding to known file origins. Next:
 generic outbound-attempt observations with verified source/package provenance,
 a benign complete transitive-dependency policy test, pinned lifecycle/lockfile
 orchestration, then one inert original Shai-Hulud artifact plus clean control.
