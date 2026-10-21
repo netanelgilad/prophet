@@ -282,43 +282,92 @@ test("pinned native socket timers retain public timeout writes, unrefed arms and
   }
 });
 
-test("one TCP completion enters unchanged checkGrowl's actual connect callback and stops at socket.end",()=>{
+test("one TCP completion runs unchanged checkGrowl end and its real availability callback before the read frontier",()=>{
   const {roots,target}=cli(`var check=require('node-notifier/lib/checkGrowl');
-    check({host:'127.0.0.1',port:23053},function(){console.log('availability callback');});
-    console.log('helper returned');`,2,1);
+    check({host:'127.0.0.1',port:23053},function(error,available){
+      if(error!==null||available!==true)throw 'callback arguments';console.log('availability callback');
+    });console.log('helper returned');`,2,1);
   const all=paths(roots);expect(all).toHaveLength(6);
   const waiting=all.filter(path=>!isExecutionBoundary(path.completion));expect(waiting).toHaveLength(1);
   const socket=socketOf(waiting[0].events);
   const previousArm=getProperties(socket.hostSlots['node.net.timeout'],waiting[0].context).arm;
-  const full=all.filter(({events,context})=>{
-    if(!calls(events,'net.socket.completion').length)return false;
-    const outcome=getProperties(phase(socketOf(events),context).completion,context) as any;
-    return [outcome.success,outcome.readable,outcome.writable].every(value=>resolveBoolean(value,context.value.knowledge)===true);
-  });
+  const full=all.filter(path=>calls(path.events,'net.socket.end').length===1);
   expect(full).toHaveLength(1);
   const {events,context,completion}=full[0];
-  expect(isExecutionBoundary(completion)).toBe(true);expect(completion.message).toMatch(/end/);
+  expect(isExecutionBoundary(completion)).toBe(true);expect(completion.message).toMatch(/read/);
   expect(socketOf(events)).toBe(socket);
-  expect(messages(events)).toEqual(['helper returned']);
-  expect(getProperties(socket,context).connecting).toMatchObject({value:false});
+  expect(messages(events)).toEqual(['helper returned','availability callback']);
+  expect(getProperties(socket,context)).toMatchObject({connecting:{value:false},
+    writable:{value:false},writableEnded:{value:true},writableFinished:{value:false}});
   expect(phase(socket,context)).toMatchObject({phase:{value:'connected'},completionPending:{value:false}});
+  const outcome=getProperties(phase(socket,context).completion,context) as any;
+  for(const value of [outcome.success,outcome.readable,outcome.writable])expect(resolveBoolean(value,context.value.knowledge)).toBe(true);
   const filename=join(target,'lib/checkGrowl.js');
   expect(roots.program.sources.get(filename)).toEqual({sha256:sourceHash,byteLength:536});
-  expect(context.value.sourceFile).toBe(filename);
-  expect(context.value.activation.sourceFile).toBe(filename);
-  expect(context.value.activation.parent).toBeUndefined();
+  expect(roots.program.sources.get(join(target,'package.json'))).toEqual({sha256:manifestHash,byteLength:1954});
+  const end=calls(events,'net.socket.end')[0].call;
+  expect(end.receiver).toBe(socket);expect(end.args).toEqual([]);
+  expect(end.origin.sourceFile).toBe(filename);expect(end.origin.activation.sourceFile).toBe(filename);
+  expect(end.origin.activation.parent).toBeUndefined();
   const entries=getArrayElements(getProperties(socket.hostSlots['node.events'],context)['event:connect'] as any,context)!;
   expect(entries).toHaveLength(1);
-  expect(context.value.activation.target).toBe(getProperties(entries[0] as any,context).listener);
+  expect(end.origin.activation.target).toBe(getProperties(entries[0] as any,context).listener);
+  const shutdown=calls(events,'net.socket.shutdown');expect(shutdown).toHaveLength(1);
+  expect(shutdown[0].call.receiver).toBe(socket);expect(shutdown[0].call.origin.activation).toBe(end.origin.activation);
+  const endReturn=events.filter(event=>event.kind==='return'&&event.call===end);
+  expect(endReturn).toHaveLength(1);expect(endReturn[0].value).toBe(socket);
+  const availability=calls(events,'console.log')[1];
+  expect(availability.call.origin.sourceFile).toBe(join(directory,'entry.cjs'));
+  expect(availability.call.origin.activation.parent).toBe(end.origin.activation);
+  expect(events.indexOf(endReturn[0])).toBeLessThan(events.indexOf(availability));
   const completionCall=calls(events,'net.socket.completion')[0].call;
   expect(completionCall.receiver).toBe(socket);expect(completionCall.origin.activation).toBeUndefined();
   const active=getProperties(context.value.global.hostSlots.externalEvents,context).active;
   expect(getProperties(active as any,context).receiver).toBe(socket);
   const refreshed=getProperties(socket.hostSlots['node.net.timeout'],context).arm;
+  const beforeEnd={value:{...context.value,heap:calls(events,'net.socket.end')[0].heap}};
+  expect(getProperties(socket.hostSlots['node.net.timeout'],beforeEnd).arm).toBe(refreshed);
   expect(refreshed).not.toBe(previousArm);
   expect(getProperties(previousArm as any,context).active).toMatchObject({value:false});
   expect(getProperties(refreshed as any,context)).toMatchObject({active:{value:true},delay:{value:100},refed:{value:false}});
-  expect(calls(events,'net.socket.end')).toHaveLength(0); // Lookup stopped before any modeled end invocation.
+  expect(getProperties(socket.hostSlots['node.net.shutdown'],context)).toMatchObject({pending:{value:true}});
+  expect(getProperties(socket.hostSlots['node.stream.writable'],context)).toMatchObject({
+    ending:{value:true},ended:{value:true},finalCalled:{value:true},finalPending:{value:true},
+    prefinished:{value:false},finished:{value:false}});
+  expect(context.value.activation).toBeUndefined(); // Both interpreted callbacks returned before native read frontier.
   expect(calls(events,'net.socket.readStart')).toHaveLength(0);
-  for(const path of all)expect(messages(path.events)).not.toContain('availability callback');
+  for(const path of all.filter(path=>path!==full[0])){
+    expect(messages(path.events)).toEqual(['helper returned']);
+    expect(calls(path.events,'net.socket.shutdown')).toHaveLength(0);
+    expect(getProperties(socketOf(path.events).hostSlots['node.net.shutdown'],path.context)).toMatchObject({pending:{value:false}});
+  }
+});
+
+for(const cutoff of ['throw','boundary'])test(`unchanged helper caller ${cutoff} occurs after end and preserves its actual activation semantics`,()=>{
+  const {roots,target}=cli(`var check=require('node-notifier/lib/checkGrowl');
+    check({host:'127.0.0.1',port:23053},function(error,available){
+      if(error!==null||available!==true)throw 'wrong args';console.log('caller entered');
+      ${cutoff==='throw'?"throw 'caller failure';":"require('net').createServer();"}
+      console.log('caller continued');
+    });`,2,1);
+  const selected=paths(roots).filter(path=>messages(path.events).includes('caller entered'));
+  expect(selected).toHaveLength(1);
+  const {events,context,completion}=selected[0],socket=socketOf(events);
+  expect(messages(events)).toEqual(['caller entered']);
+  const end=calls(events,'net.socket.end')[0].call,logged=calls(events,'console.log')[0].call;
+  expect(logged.origin.activation.parent).toBe(end.origin.activation);
+  expect(end.origin.sourceFile).toBe(join(target,'lib/checkGrowl.js'));
+  expect(getProperties(socket.hostSlots['node.net.shutdown'],context)).toMatchObject({pending:{value:true}});
+  expect(events.filter(event=>event.kind==='return'&&event.call===end)).toHaveLength(1);
+  const active=getProperties(context.value.global.hostSlots.externalEvents,context).active;
+  if(cutoff==='throw'){
+    expect(completion).toMatchObject({type:'ThrownValue',value:{value:'caller failure'}});
+    expect(active).toMatchObject({type:'undefined'});expect(context.value.activation).toBeUndefined();
+  }else{
+    expect(isExecutionBoundary(completion)).toBe(true);expect(completion.message).toMatch(/createServer/);
+    expect(context.value.activation).toBe(logged.origin.activation);
+    expect(context.value.activation.parent).toBe(end.origin.activation);
+    expect(getProperties(active as any,context).receiver).toBe(socket);
+  }
+  expect(calls(events,'net.socket.readStart')).toHaveLength(0);
 });

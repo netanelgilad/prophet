@@ -39,3 +39,15 @@ partial flags remain earlier typed frontiers; waiting retains the pending timer
 and callbacks. Source and package bytes are unchanged. This is measured progress
 into one dependency callback, not a completed availability result or package-wide
 capability claim. Timer expiration and close remain outside the provider set.
+
+
+P041 supports the first empty end in that fresh full-duplex socket state. The
+unchanged helper now executes its user's callback with null,true after end has
+locally queued shutdown and returned. Source bytes remain unchanged. Caller
+callback effects and its dynamic parent (the real dependency connect activation)
+are inspectable. If the caller returns, ready executes and the existing read(0)
+frontier remains; if it throws or stops, that earlier result is retained. Pending
+shutdown does not prove syscall success, remote service response or clean close.
+Waiting, submission/completion failure and partial-flag paths do not run the
+availability callback. The default localhost/DNS and broader package boundaries
+remain open; this is still one explicit-input package subpath.

@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    ".yarn/releases/yarn-3.1.1.cjs",
+    "test",
+    "--runInBand",
+    "test/node-net-end-review.spec.ts",
+    "test/node-net-completion-review.spec.ts"
+  ],
+  "before": {
+    "src/node/net.ts": "a04d82bc94fa80b29537a1ec45103c85fffe39bb6890683f7b86c31041cf3ce1",
+    "src/node/writable-end.ts": "6cc7fe2b3acae2401058d38cf158da6752c99f2058d1c7e8d70c6acb048b785e",
+    "test/node-net-end-review.spec.ts": "f51a39afb2ae0ee27749b8e0a15ab58671c66991ebb6d9179b5ea28795833170",
+    "test/node-net-end.spec.ts": "4f0647013915025e558810db7526232fe15a79525bc1cecb07050b0b19740df1",
+    "test/node-net-end-integration.spec.ts": "defbbd1c4fef3058ffb8936d9ebf3d6d3d49cf68c3fb30e0b41126ec22f1e0ad",
+    "test/node-notifier-startup.spec.ts": "e13f6a196bcc307beba6203c2134657687103139494e074b552e8df4dca82a13",
+    "test/node-net-completion-review.spec.ts": "e9a041c1f2af55423cc780273739039223c3b87e8a4ce2f971b1ddcd2b4ef848"
+  },
+  "status": 0,
+  "seconds": 0.9826931953430176,
+  "after": {
+    "src/node/net.ts": "a04d82bc94fa80b29537a1ec45103c85fffe39bb6890683f7b86c31041cf3ce1",
+    "src/node/writable-end.ts": "6cc7fe2b3acae2401058d38cf158da6752c99f2058d1c7e8d70c6acb048b785e",
+    "test/node-net-end-review.spec.ts": "f51a39afb2ae0ee27749b8e0a15ab58671c66991ebb6d9179b5ea28795833170",
+    "test/node-net-end.spec.ts": "4f0647013915025e558810db7526232fe15a79525bc1cecb07050b0b19740df1",
+    "test/node-net-end-integration.spec.ts": "defbbd1c4fef3058ffb8936d9ebf3d6d3d49cf68c3fb30e0b41126ec22f1e0ad",
+    "test/node-notifier-startup.spec.ts": "e13f6a196bcc307beba6203c2134657687103139494e074b552e8df4dca82a13",
+    "test/node-net-completion-review.spec.ts": "e9a041c1f2af55423cc780273739039223c3b87e8a4ce2f971b1ddcd2b4ef848"
+  }
+}

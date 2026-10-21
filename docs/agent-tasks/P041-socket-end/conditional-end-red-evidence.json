@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    ".yarn/releases/yarn-3.1.1.cjs",
+    "test",
+    "--runInBand",
+    "test/node-net-end-review.spec.ts"
+  ],
+  "before": {
+    "src/node/net.ts": "c29637b3854851e5a6a5da0d9a3b4679eda46d2dbbe941a4c544246e22a4c4c2",
+    "src/node/writable-end.ts": "6cc7fe2b3acae2401058d38cf158da6752c99f2058d1c7e8d70c6acb048b785e",
+    "test/node-net-end-review.spec.ts": "f51a39afb2ae0ee27749b8e0a15ab58671c66991ebb6d9179b5ea28795833170"
+  },
+  "status": 1,
+  "seconds": 0.9362156391143799,
+  "after": {
+    "src/node/net.ts": "c29637b3854851e5a6a5da0d9a3b4679eda46d2dbbe941a4c544246e22a4c4c2",
+    "src/node/writable-end.ts": "6cc7fe2b3acae2401058d38cf158da6752c99f2058d1c7e8d70c6acb048b785e",
+    "test/node-net-end-review.spec.ts": "f51a39afb2ae0ee27749b8e0a15ab58671c66991ebb6d9179b5ea28795833170"
+  }
+}

@@ -59,3 +59,5 @@ until review is recorded; a model-generated article is not independent evidence.
 - [Response getHeader/setHeader surface](response-headers.md): lazily-created raw store, writeHead merge, pinned error codes; sirv send reaches the content-length projection decision; reviewed in the 2026-10-21 cumulative integration.
 
 - [TCP completion prefixes](tcp-completion-prefixes.md): event selection, stable outcomes, timer refresh and active stop checkpoints.
+
+- [Pending shutdown](pending-shutdown.md): derive local admission from runtime state and keep future OS results distinct.

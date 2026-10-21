@@ -1,5 +1,12 @@
 # P040 root review
 
+**Subsequent finding — 2026-10-22:** P041 independent review demonstrated that
+a trusted completion model returning a finite choice of full/partial records
+crashes when the completion continuation reads the joined value without selecting
+a record first. This admitted-domain finding reopens acceptance. P040 publication
+was held; the correction, regression and combined validation are recorded in
+[P041](../P041-socket-end/task.md). The review below preserves the earlier evidence.
+
 Implementation `d6dfabaffc7a7896de737c3d9152d126dc69f89a` is accepted within the
 [declared completion prefix](../../node-net.md#p040-selected-completion-prefix).
 Root read the complete production diff, core/independent/integration specs,

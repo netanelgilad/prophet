@@ -1,0 +1,153 @@
+{
+  "nodeBinary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "command": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node /tmp/prophet-p041/end-probe.cjs",
+  "exitCode": 0,
+  "cases": 8,
+  "verification": "All result assertions passed",
+  "controlledInjectionOnly": true,
+  "originalTransportCalls": 0,
+  "nativePackageExecution": false,
+  "upstreamWholeCasesExecuted": 0,
+  "sourceProvenance": {
+    "builtinSources": "process.binding('natives') in pinned installed Node24.21.0",
+    "cppAndLibuv": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/",
+    "sourceTreeSha": "955266bfdd854cd280dffd47548673914484e4c0"
+  },
+  "files": [
+    {
+      "file": "/tmp/prophet-p041/deps_uv_src_unix_stream.c",
+      "byteLength": 41572,
+      "sha256": "736cd948a28acdb1544dd683becd78fb744e79de55562229da54923b20f41c7c"
+    },
+    {
+      "file": "/tmp/prophet-p041/design-review.md",
+      "byteLength": 6928,
+      "sha256": "b37a7b7614c72a19a4aca10f0504dc5b27172c40dee6844cbfd4380a15e46d3d"
+    },
+    {
+      "file": "/tmp/prophet-p041/design.md",
+      "byteLength": 8636,
+      "sha256": "1981e9da62713367c748babb9165e05977af9c859e8e464929a54aaaf2ae40f3"
+    },
+    {
+      "file": "/tmp/prophet-p041/end-probe.cjs",
+      "byteLength": 5870,
+      "sha256": "c657ccb3fde94a3f89797856f9af6640efebec8aad8c8ea2a1719da4832b22a7"
+    },
+    {
+      "file": "/tmp/prophet-p041/end-results.json",
+      "byteLength": 92745,
+      "sha256": "9df63fe89b920761475bd5d59310e4562e284a5ad6b9225d19f9bd8416ec89f5"
+    },
+    {
+      "file": "/tmp/prophet-p041/internal_stream_base_commons.js",
+      "byteLength": 7322,
+      "sha256": "bfdad04241cc86e8eccb1cfdd0c3aea0f355a348535be50d92c0e8fb74be9d3a"
+    },
+    {
+      "file": "/tmp/prophet-p041/internal_streams_destroy.js",
+      "byteLength": 7355,
+      "sha256": "74aaae64ff7e4553fbf981baffb1f1dab7748c1e3fedfbef59eb8ab9ed4ec22d"
+    },
+    {
+      "file": "/tmp/prophet-p041/internal_streams_writable.js",
+      "byteLength": 33756,
+      "sha256": "2aa0dd9f76ceca631601c06b65085741b51e1853fd9d8177af5f18d7ef5ee8d8"
+    },
+    {
+      "file": "/tmp/prophet-p041/native-end-findings.md",
+      "byteLength": 12976,
+      "sha256": "c8e68b64edfab6c56c7daa8fa419ab3afeaf3c6c23981791f9cec2cf9c43d382"
+    },
+    {
+      "file": "/tmp/prophet-p041/net.js",
+      "byteLength": 86162,
+      "sha256": "b4bc6d76e255c67673a3bdf4676e0816e1f13906e4a46a6bdcc07dd614329ffa"
+    },
+    {
+      "file": "/tmp/prophet-p041/src_connection_wrap.h",
+      "byteLength": 686,
+      "sha256": "6295b3a25befe37283c93ad6f9b989f6d4baef53d7ab1609758cf1214826a668"
+    },
+    {
+      "file": "/tmp/prophet-p041/src_req_wrap-inl.h",
+      "byteLength": 5640,
+      "sha256": "27c770d8756b626c80210f96f9db1cf31bfbf09aab1da53dc35b382314883e67"
+    },
+    {
+      "file": "/tmp/prophet-p041/src_req_wrap.h",
+      "byteLength": 2315,
+      "sha256": "571212e6b7000aad7256fc3ad81398d3e75cb69c036bf87f4a6965b226bac5de"
+    },
+    {
+      "file": "/tmp/prophet-p041/src_stream_base.cc",
+      "byteLength": 28312,
+      "sha256": "0e5390e15073f4782df139ef0513c69e7dc293fca51b916de4db81d8279b8bd4"
+    },
+    {
+      "file": "/tmp/prophet-p041/src_stream_base.h",
+      "byteLength": 18859,
+      "sha256": "99c649b6d788b18aa2253786457fb50b6049b0bb5dfd20630a9b7a38205a874a"
+    },
+    {
+      "file": "/tmp/prophet-p041/src_stream_wrap.cc",
+      "byteLength": 13107,
+      "sha256": "dfdd17750234228b3b4a79feda9717eed3b1fb739de9a3caa5ebae02a30d04b7"
+    },
+    {
+      "file": "/tmp/prophet-p041/src_stream_wrap.h",
+      "byteLength": 4496,
+      "sha256": "ef31d6f3ff4a2df3cad961e6f2f3490a624eb4317336cef1a99c3756c0629202"
+    },
+    {
+      "file": "/tmp/prophet-p041/src_tcp_wrap.h",
+      "byteLength": 5328,
+      "sha256": "f7d138f1811cd06b6d26f399947fb518925f8d68207298ee695cff105881e05b"
+    },
+    {
+      "file": "/tmp/prophet-p041/upstream/manifest.json",
+      "byteLength": 1384,
+      "sha256": "58f453f5e204abbd3f5c976af4b962b2e20f78efc1b72bbfb64fde8377d0ffbb"
+    },
+    {
+      "file": "/tmp/prophet-p041/upstream/test-net-end-close.js",
+      "byteLength": 800,
+      "sha256": "cdd20c684f9e6bedb6f52eefa27a29ae3d0d435cf7b87e95c07ae25f655d9c00"
+    },
+    {
+      "file": "/tmp/prophet-p041/upstream/test-net-end-destroyed.js",
+      "byteLength": 610,
+      "sha256": "be9cc117ac065d80c75b80020ac85df71f83aca634f4db1a3e731b7c7985f5ec"
+    },
+    {
+      "file": "/tmp/prophet-p041/upstream/test-net-end-without-connect.js",
+      "byteLength": 1361,
+      "sha256": "b53f7eeca9244f1fbe37e950fc6a1bb2c51193ca587cf4b9e5ee02bc5d9a03fa"
+    },
+    {
+      "file": "/tmp/prophet-p041/upstream/test-stream-writable-ended-state.js",
+      "byteLength": 1147,
+      "sha256": "350bd7d4332f67cc072c25fbb0e699522051a24050e0d6a5294cc1a3419fbe38"
+    },
+    {
+      "file": "/tmp/prophet-p041/upstream/test-stream-writableState-ending.js",
+      "byteLength": 916,
+      "sha256": "e65e0a51dc7dac2a9c21f18eee1fb02256ee9e89e1316f73df304d69668959fe"
+    },
+    {
+      "file": "/tmp/prophet-p041/wiring-internal_streams_destroy.js",
+      "byteLength": 7355,
+      "sha256": "74aaae64ff7e4553fbf981baffb1f1dab7748c1e3fedfbef59eb8ab9ed4ec22d"
+    },
+    {
+      "file": "/tmp/prophet-p041/wiring-internal_streams_duplex.js",
+      "byteLength": 6547,
+      "sha256": "e2b5d781357dff0e742517a3fb451750477a394d2306186ca119b671f71261d5"
+    },
+    {
+      "file": "/tmp/prophet-p041/wiring-internal_streams_writable.js",
+      "byteLength": 33756,
+      "sha256": "2aa0dd9f76ceca631601c06b65085741b51e1853fd9d8177af5f18d7ef5ee8d8"
+    }
+  ]
+}

@@ -153,8 +153,9 @@ read(0); it does not assume readStart admission or create bytes. This unfinished
 external delivery retains its active checkpoint and any queued work. A guest
 throw follows the registry's existing abrupt-completion rules instead.
 
-The real unchanged checkGrowl connect listener first calls socket.end; P040 stops
-there before its availability callback. Actual invocation now supplies evidence
+The real unchanged checkGrowl connect listener first calls socket.end; P040
+first stopped there before its availability callback (P041 below advances it).
+Actual invocation supplies evidence
 beyond mere retention, but its whole operation remains unfinished. Socket receiver
 identity joins startup, submission and completion effects; deferred execution does
 not restore the registration activation. Selected completion is consumed once.
@@ -164,3 +165,47 @@ shorter histories remain. No timer, close, arbitrary phase chronology, eventual
 arrival or all-schedule claim follows. See [contract/review](agent-tasks/P040-tcp-completion/task.md)
 and the pinned native intercepted-completion findings: they preserve Socket._read
 and intercept readStart before native reading, verifying ordering without traffic.
+
+
+## P041 first empty end and pending shutdown
+
+Exactly the first zero-argument socket.end is supported on a fresh connected,
+full-duplex, undestroyed model socket, with no earlier write/cork/end/EOF/custom
+stream hook. Retained success/readable/writable facts must establish this domain;
+phase connected alone also appears at partial-flag frontiers and is insufficient.
+The original property/prototype domain must remain intact. Node's Socket.end
+wrapper dynamically uses Function.prototype.call, so altered or conditional
+Function.prototype state is conservatively rejected before end-side changes.
+Arguments (even explicit undefined), repeated end and other phases remain typed
+boundaries. No unsupported input is silently treated as an empty stream.
+
+Public writable becomes false and writableEnded true when ending is set, before
+finalization. writableFinished stays false. A reusable empty-writable transition
+marks finalCalled/finalPending, then invokes the traced net.socket.shutdown with
+the same receiver. It retains locally pending shutdown and returns0. Internal
+ended becomes true only afterward; public end returns the same socket. The
+node.stream.writable and node.net.shutdown host slots retain these modeled facts,
+not native request objects or resumable continuations. Public flags and end are
+protected against writes/inspection of unmodeled descriptors.
+
+This deterministic local submission follows pinned POSIX source: the admitted
+fresh writable/nonclosing/nonshutting handle satisfies uv_shutdown admission,
+which queues work and returns0 before shutdown(2). Explicit ShutdownWrap avoids
+the missing-request allocation fallback; default TCP Error() supplies no separate
+error-string path. It is not assumed successful OS shutdown. Fatal allocation
+remains the existing resource gap, and future syscall success/failure/cancellation
+remains unresolved. Injected return1/ENOTCONN/immediate-error controls demonstrate
+broader JS behavior, not default outcomes of this fresh domain.
+
+End itself preserves the current timer arm and emits no prefinish/finish/error/
+close, queues no finish job and introduces no event provider. Pinned afterShutdown
+ignores its eventual status argument; a future provider must not invent a guest
+shutdown Error from every negative asynchronous status. Generic stream handling,
+read/EOF, shutdown completion and close remain work.
+
+The unchanged checkGrowl helper now invokes its actual supplied callback with
+null,true after end returns on the full-duplex branch. This is its application
+report, not verified service response, shutdown success or all-path availability.
+A callback throw/typed stop halts later stages; a normal callback continues through
+ready to the existing read(0) frontier with shutdown and any callback jobs pending.
+See [source/native proof and review](agent-tasks/P041-socket-end/task.md).

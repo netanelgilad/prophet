@@ -187,8 +187,10 @@ requests without a hand-authored concrete request, retaining waiting and failed
 bind paths. Multiple/conditional servers share the generic persistent registry.
 P040 extends the same horizon to pending TCP completions, invoking actual
 connect/ready callbacks until a reached unsupported stream transition. The
-[unchanged checkGrowl target](node-notifier-target.md) reaches its socket.end
-frontier inside the real connect listener; availability is still unfinished.
+[unchanged checkGrowl target](node-notifier-target.md) first reached socket.end
+inside its real connect listener. P041 now queues fresh empty shutdown and lets
+its actual caller callback report null,true, then preserves the read(0) frontier.
+That report does not prove a service response or completed OS shutdown.
 Timers and close are not providers, so this is not arbitrary schedule coverage.
 Bounds above two explicitly reject; default zero preserves startup. Parsed
 method/URL strings overapproximate wire-valid inputs; parser dispatch and

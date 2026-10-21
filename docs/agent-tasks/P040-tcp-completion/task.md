@@ -5,7 +5,8 @@ Base P039 candidate `5afe23a62f055c4a2462b39f05458d3f93f03538`, with184 suites/
 P039 candidate CI39674392064 passed and is published. This separate branch
 `agent/p040-tcp-completion` develops from that immutable checkpoint. Status:
 implementation and independent review accepted;187 suites/5403 passes/46
-historical skips and typecheck pass. Exact-candidate CI/publication pending.
+historical skips and typecheck pass. Publication is held: P041 independent review found an admitted finite-record
+choice crash. The correction and combined revalidation are recorded in P041.
 
 [Contract](contract.md), [independent design review](design-review.md), and
 [pinned controlled native findings](native-findings.md) define the exact prefix.

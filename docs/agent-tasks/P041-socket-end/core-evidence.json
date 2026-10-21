@@ -1,0 +1,65 @@
+{
+  "status": "frozen for independent review and root full validation",
+  "base": "6cec38a",
+  "files": {
+    "src/node/net.ts": "a04d82bc94fa80b29537a1ec45103c85fffe39bb6890683f7b86c31041cf3ce1",
+    "src/node/writable-end.ts": "6cc7fe2b3acae2401058d38cf158da6752c99f2058d1c7e8d70c6acb048b785e",
+    "test/node-net-end.spec.ts": "4f0647013915025e558810db7526232fe15a79525bc1cecb07050b0b19740df1"
+  },
+  "firstRed": {
+    "log": "/tmp/prophet-p041/core-red.log",
+    "failed": 19,
+    "passed": 0,
+    "sourceSHA256": "f86f4ab45a7ed7db555737332a3f9b5c1506b502d0a31f998b85e1a2cedbe0ea",
+    "testSHA256": "062d9a984e7e9bdf2e9e7af2ee060ebf7c819eaf3baf9c955de8e4643dcf15cc",
+    "note": "Genuine behavioral run after correcting unsupported optional-chaining syntax in test harness. Initial syntax-only attempt had zero tests and is not counted."
+  },
+  "green": {
+    "log": "/tmp/prophet-p041/core-final-green.log",
+    "suites": 5,
+    "tests": 96,
+    "coreTests": 20,
+    "independentReviewTests": 20,
+    "exitCode": 0
+  },
+  "typecheck": {
+    "log": "/tmp/prophet-p041/core-typecheck.log",
+    "exitCode": 0
+  },
+  "diffCheck": {
+    "exitCode": 0
+  },
+  "native": {
+    "binary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    "script": "/tmp/prophet-p041/end-probe.cjs",
+    "output": "/tmp/prophet-p041/core-native.json",
+    "exitCode": 0,
+    "cases": 8,
+    "originalTransportCalls": 0,
+    "scope": "Controlled injected native JS ordering, not proof arbitrary injected statuses are physically reachable. Source proof supplies deterministic pending0 domain."
+  },
+  "actualReviewDefectsFixed": [
+    {
+      "defect": "P040 completion model may return finite record choice; merged choice was read without selection and crashed",
+      "red": "/tmp/prophet-p041/review-record-choice.log",
+      "fix": "Select withValue before accessing fields and retaining branch record; preserve correlated sibling frontiers."
+    },
+    {
+      "defect": "Mutable captured end checks leaked first retained completion alternative into sibling, rejecting valid branch",
+      "red": "/tmp/prophet-p041/review-conditional-red.log",
+      "fix": "Branch-local concat of invariant base checks and selected record flags."
+    }
+  ],
+  "intermediateHarnessNotes": [
+    "First source core run had18/19 pass; final assertion incorrectly expected trace result instead of value. Corrected and added event-heap prefix assertions.",
+    "Combined9suite run had123/124 while integration fixture still contained unsupported process.nextTick; owner removed that unrelated fixture call and reported11/11 green. See integration-green.log.",
+    "Initial independent review red17behavior+1harness parse error is separate reviewer evidence, not core19 genuine red."
+  ],
+  "limitations": [
+    "First exact-zero-argument end only; unsupported repeated/connecting/partial/modified streams retain state.",
+    "Pending shutdown does not claim OS syscall success, final callback, finish, close or complete scheduling.",
+    "Pristine Function.prototype guard conservatively rejects any heap changes to that intrinsic.",
+    "No provider/horizon/configuration extension; generic fatal resource gap unchanged."
+  ],
+  "noCommitOrPush": true
+}

@@ -1,0 +1,59 @@
+{
+  "head": "6cec38a17dcc08d13d92e4d9f5b1a59c51d1e01f",
+  "ownedFiles": [
+    {
+      "file": "test/node-net-end-integration.spec.ts",
+      "sha256": "defbbd1c4fef3058ffb8936d9ebf3d6d3d49cf68c3fb30e0b41126ec22f1e0ad",
+      "lines": 265
+    },
+    {
+      "file": "test/node-notifier-startup.spec.ts",
+      "sha256": "e13f6a196bcc307beba6203c2134657687103139494e074b552e8df4dca82a13",
+      "lines": 373
+    }
+  ],
+  "red": {
+    "exitCode": 1,
+    "head": "6cec38a17dcc08d13d92e4d9f5b1a59c51d1e01f",
+    "status": "?? test/node-net-end-integration.spec.ts\n"
+  },
+  "green": {
+    "exitCode": 0
+  },
+  "typecheck": {
+    "exitCode": 0
+  },
+  "commands": {
+    "test": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-net-end-integration.spec.ts test/node-notifier-startup.spec.ts",
+    "typecheck": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH node .yarn/releases/yarn-3.1.1.cjs tsc --noEmit"
+  },
+  "result": {
+    "suites": 2,
+    "tests": 11,
+    "durableNativeCases": 8,
+    "sourceFrozen": true
+  },
+  "notes": [
+    "Genuine initial red recorded with only new spec untracked, before implementation.",
+    "Expanded/development failures included existing unsupported multiargument console and public process.nextTick fixture usage; corrected to supported guest assertions, not production changes.",
+    "All8 native end probe cases retained inline; no original transport APIs or native package execution.",
+    "No commit, push, docs, production or other-test edits by integration agent."
+  ],
+  "logs": [
+    {
+      "file": "/tmp/prophet-p041/integration-red.log",
+      "sha256": "8694f89d2d9e99764d23784d7c2c98418790548373ca488acdadf60eef97da24",
+      "byteLength": 1172
+    },
+    {
+      "file": "/tmp/prophet-p041/integration-green.log",
+      "sha256": "f3ff56fb97d4e0a399a582091402f31f374dd4e4e93a851224f814e61864cd4c",
+      "byteLength": 477
+    },
+    {
+      "file": "/tmp/prophet-p041/integration-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byteLength": 0
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { invoke, readMember } from "../ASTResolvers";
 import { isESFunction } from "../Function/Function";
+import { getFunctionPrototype } from "../Function/prototype";
 import { ESObject, TESObject, isESObject } from "../Object";
 import { withKeyOrder } from "../Object/enumeration";
 import { getObjectPrototype, prototypeOf } from "../Object/prototype";
@@ -18,6 +19,7 @@ import { strictEquality } from "../symbolic";
 import { ESString } from "../string/String";
 import { Any, ESNumber, TESBoolean, isESBoolean, isESNull, isESNumber, isESString, isUndefined, ThrownValue, Undefined } from "../types";
 import { createEventEmitterModel } from "./events";
+import { createEmptyWritableState, endEmptyWritable } from "./writable-end";
 
 export type NetModelOptions = {
   nextTick: JobQueue;
@@ -85,6 +87,8 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
   const externalEvents = options.externalEvents, completionModel = options.completion || symbolicTCPCompletion;
   const sockets = new WeakMap<object, TESObject>();
   const timers = new WeakMap<object, TESObject>();
+  const writables = new WeakMap<object, TESObject>();
+  const shutdowns = new WeakMap<object, TESObject>();
   const lifecycle = ["connectionAttempt", "connect", "ready", "error", "close", "connectionAttemptFailed"];
   const socketState = (socket: Any) => sockets.get(socket) || unsupported("receiver is not a socket from this environment");
   const submit = operation("net.socket.submit", (call, context) =>
@@ -198,26 +202,71 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
         return unsupported("completion requires the original socket property domain");
       }
       const endpoint = getProperties(state, pending);
-      return bindNormal(invoke(completion, [endpoint.address, endpoint.port, ESNumber(4)], pending, socket), (outcome, delivered) => {
-        const fields = getProperties(outcome as TESObject, delivered);
-        const consumed = change(state, { completion: outcome, completionPending: ESBoolean(false) },
-          writeProperty(socket, "connecting", ESBoolean(false), delivered));
-        return evaluateBranches(fields.success as TESBoolean, consumed, success => {
-          const connected = writeProperty(state, "phase", ESString("connected"), success);
-          return evaluateBranches(fields.readable as TESBoolean, connected, readable =>
-            evaluateBranches(fields.writable as TESBoolean, readable, writable =>
-              bindNormal(refreshTimer(socket, writable), (_refreshed, refreshed) =>
-                bindNormal(events.emit(socket, "connect", [], refreshed), (_connected, afterConnect) =>
-                  bindNormal(events.emit(socket, "ready", [], afterConnect), (_ready, afterReady) =>
-                    captureExecutionBoundary(afterReady, () => unsupported("socket read(0), pause inspection and read initiation after connection"))))),
-              () => unsupported("partial writable completion requires socket end")),
-            () => unsupported("partial readable completion requires socket push(null)/read"));
-        }, failed => {
-          const stopped = writeProperty(state, "phase", ESString("connection-failed"), failed);
-          return captureExecutionBoundary(stopped, () => unsupported("connection completion failure Error construction and lifecycle"));
-        });
-      });
+      return bindNormal(invoke(completion, [endpoint.address, endpoint.port, ESNumber(4)], pending, socket), (outcome, delivered) =>
+        withValue(outcome, delivered, (record, selected) => {
+          const fields = getProperties(record as TESObject, selected);
+          const consumed = change(state, { completion: record, completionPending: ESBoolean(false) },
+            writeProperty(socket, "connecting", ESBoolean(false), selected));
+          return evaluateBranches(fields.success as TESBoolean, consumed, success => {
+            const connected = writeProperty(state, "phase", ESString("connected"), success);
+            return evaluateBranches(fields.readable as TESBoolean, connected, readable =>
+              evaluateBranches(fields.writable as TESBoolean, readable, writable =>
+                bindNormal(refreshTimer(socket, writable), (_refreshed, refreshed) =>
+                  bindNormal(events.emit(socket, "connect", [], refreshed), (_connected, afterConnect) =>
+                    bindNormal(events.emit(socket, "ready", [], afterConnect), (_ready, afterReady) =>
+                      captureExecutionBoundary(afterReady, () => unsupported("socket read(0), pause inspection and read initiation after connection"))))),
+                () => unsupported("partial writable completion requires socket end")),
+              () => unsupported("partial readable completion requires socket push(null)/read"));
+          }, failed => {
+            const stopped = writeProperty(state, "phase", ESString("connection-failed"), failed);
+            return captureExecutionBoundary(stopped, () => unsupported("connection completion failure Error construction and lifecycle"));
+          });
+        }));
     }, () => unsupported("completion requires an admitted pending socket"))));
+  const shutdown = operation("net.socket.shutdown", (call, context) => {
+    // The guarded fresh POSIX full-duplex domain entails uv_shutdown return0:
+    // the handle is writable, not shut/shutting/closing. This retains a request;
+    // shutdown(2), its status and final callback are still future work.
+    return [ESNumber(0), writeProperty(shutdowns.get(call.receiver)!, "pending", ESBoolean(true), context)];
+  });
+  const end = operation("net.socket.end", (call, context) => {
+    if (call.args.length !== 0) return unsupported("end requires no arguments");
+    const state = socketState(call.receiver), socket = call.receiver as TESObject;
+    requirePristineDefaults(context);
+    // Socket.end dynamically uses Duplex.prototype.end.call. Conditional or
+    // changed intrinsic lookup is outside this host prefix before any mutation.
+    if (context.value.heap && context.value.heap.has(getFunctionPrototype())) {
+      return unsupported("altered or conditional Function.prototype defaults at socket end");
+    }
+    if (prototypeOf(socket) !== getObjectPrototype() || socket.propertyAccess || socket.unmodeledPrototype || socket.wellKnownSymbols) {
+      return unsupported("end requires the original socket property domain");
+    }
+    const writable = writables.get(socket)!, shutdownState = shutdowns.get(socket)!;
+    const fields = getProperties(state, context), publicFields = getProperties(socket, context);
+    const stream = getProperties(writable, context);
+    const checks: Array<[Any, Any]> = [[fields.phase, ESString("connected")],
+      [fields.submissionAccepted, ESBoolean(true)], [fields.completionPending, ESBoolean(false)],
+      [fields.closePending, ESBoolean(false)], [publicFields.connecting, ESBoolean(false)],
+      [publicFields.destroyed, ESBoolean(false)], [publicFields.writable, ESBoolean(true)],
+      [publicFields.writableEnded, ESBoolean(false)], [publicFields.writableFinished, ESBoolean(false)],
+      [stream.constructed, ESBoolean(true)], [getProperties(shutdownState, context).pending, ESBoolean(false)]];
+    for (const name of ["ending", "ended", "finalCalled", "finalPending", "prefinished", "finished"]) {
+      checks.push([stream[name], ESBoolean(false)]);
+    }
+    return withValue(fields.completion, context, (record, selected) => {
+      if (!isESObject(record)) return unsupported("end requires a fresh full-duplex connected writable");
+      const completed = getProperties(record, selected);
+      const selectedChecks = checks.concat(["success", "readable", "writable"].map(name =>
+        [completed[name], ESBoolean(true)] as [Any, Any]));
+      const check = (index: number, current: TExecutionContext): BranchResult => {
+        if (index === selectedChecks.length) return endEmptyWritable(socket, writable,
+          entering => invoke(shutdown, [], entering, socket), current);
+        return evaluateBranches(strictEquality(selectedChecks[index][0], selectedChecks[index][1], current.value.knowledge), current,
+          valid => check(index + 1, valid), () => unsupported("end requires the first end of a fresh full-duplex live writable"));
+      };
+      return check(0, selected);
+    });
+  });
   const setTimeout = operation("net.socket.setTimeout", (call, context) => {
     if (call.args.length !== 1) return unsupported("setTimeout requires exactly one duration argument");
     const state = socketState(call.receiver), socket = call.receiver as TESObject;
@@ -260,19 +309,24 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
       if (!isESString(phase) || phase.value !== "queued") return unsupported("destroy requires a queued socket before initiation");
       return bindNormal(cancelArm(timers.get(call.receiver)!, branch), (_ignored, cleared) => {
         const closing = change(state, { phase: ESString("closing"), completionPending: ESBoolean(false), closePending: ESBoolean(true) }, cleared);
-        return [call.receiver, change(call.receiver as TESObject, { connecting: ESBoolean(false), destroyed: ESBoolean(true) }, closing)];
+        return [call.receiver, change(call.receiver as TESObject, { connecting: ESBoolean(false), destroyed: ESBoolean(true), writable: ESBoolean(false) }, closing)];
       });
     });
   });
   const create = (address: Any, port: Any, callback: Any, context: TExecutionContext): BranchResult => {
-    const socket = markUnsupportedBoundaryObject(Object.assign(ESObject({ connecting: ESBoolean(true), destroyed: ESBoolean(false), destroy, setTimeout, timeout: Undefined }), {
+    const socket = markUnsupportedBoundaryObject(Object.assign(ESObject({ connecting: ESBoolean(true), destroyed: ESBoolean(false), destroy, setTimeout, end, timeout: Undefined,
+      writable: ESBoolean(true), writableEnded: ESBoolean(false), writableFinished: ESBoolean(false) }), {
       unknownProperties: "Node net Socket API", unmodeledOwnPropertyInspection: "Node net Socket descriptors",
-      unmodeledPropertyWrites: ["connecting", "destroyed", "destroy", "setTimeout", "timeout"]
+      unmodeledPropertyWrites: ["connecting", "destroyed", "destroy", "setTimeout", "timeout", "end", "writable", "writableEnded", "writableFinished"]
     }));
     const state = ESObject(), timer = ESObject({ arm: Undefined });
+    const writable = createEmptyWritableState(), shutdownState = ESObject({ pending: ESBoolean(false) });
     sockets.set(socket, state);
     timers.set(socket, timer);
-    socket.hostSlots = Object.freeze({ "node.net.socket": state, "node.net.timeout": timer });
+    writables.set(socket, writable);
+    shutdowns.set(socket, shutdownState);
+    socket.hostSlots = Object.freeze({ "node.net.socket": state, "node.net.timeout": timer,
+      "node.stream.writable": writable, "node.net.shutdown": shutdownState });
     const attached = events.attach(socket, context, { allowedRegistrations: lifecycle, restrictedEvents: lifecycle });
     const initialized = change(state, { phase: ESString("queued"), address, port, submissionAccepted: Undefined,
       completionPending: ESBoolean(false), closePending: ESBoolean(false), completion: Undefined }, attached);
