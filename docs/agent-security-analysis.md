@@ -162,7 +162,8 @@ Never infer missing evidence or reinterpret an unknown result as permission.
 
 Bind decisions and caches to exact artifacts/dependency graph, starting state,
 command/runtime, external policy and engine/model versions. Changes invalidate
-approval. Downloaded/generated code becomes additional execution input with its
+the cached admission decision; standing grants retain only their explicitly
+declared scope. Downloaded/generated code becomes additional execution input with its
 own provenance and coverage. Where prevention is promised, install/runtime
 containment must enforce approved capabilities; a static result cannot stop
 execution that bypasses the gate.
