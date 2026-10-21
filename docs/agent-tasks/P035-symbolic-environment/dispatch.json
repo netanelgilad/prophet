@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-21",
+  "base": "573f8cca86225a7c4fa1491d76f936bff413d22d",
+  "orchestrator": "01a15f01-bb95-7473-af10-3f01d7370982",
+  "stage": "design-only; no implementation accepted",
+  "muse": {
+    "thread": "ses_ea0c3614dffe5vDAFnqPFwNLFR",
+    "model": "opencode/muse-spark-1.3-contributor-free",
+    "result": "non-retryable deprecated-model error, zero tokens/tools",
+    "archiveVerifiedAt": "2026-10-21T16:17:42.226Z"
+  },
+  "pilot": {
+    "thread": "ses_ea0c20abbffetX6Z32B2DDV7Bl",
+    "model": "opencode/longcat-2.5-preview-free",
+    "agent": "build",
+    "reasoning": "high",
+    "runtimeVerified": true,
+    "worktree": "/Users/netanelgilad/.codex/worktrees/p035-longcat-environment/prophet",
+    "branch": "agent/p035-longcat-environment",
+    "trust": "P004 spec-design history only; no implementation trust promotion"
+  },
+  "permissions": "Only own worktree read requests approved; no other project/service/access changes. Design-only edit contract remains.",
+  "evidence": {
+    "created.json": {
+      "localPath": "/tmp/prophet-p035/created.json",
+      "sha256": "a8f65b1248296be95f7a2877cb30ba4734a36953bf53587d096d4f9846d13972"
+    },
+    "prompt.json": {
+      "localPath": "/tmp/prophet-p035/prompt.json",
+      "sha256": "105dd00e54c501cf0dee0014b2cf1e63126683c7313cdb8e40ce211b5660e99b"
+    },
+    "thread.json": {
+      "localPath": "/tmp/prophet-p035/thread.json",
+      "sha256": "07d9fdc8bd89f708f2bc33f0d49ff23bfab2c7f34a4f226c854791d9346e3f91"
+    },
+    "muse-archive.json": {
+      "localPath": "/tmp/prophet-p035/muse-archive.json",
+      "sha256": "ad217af9bc79e1d24a4bdeb0567ab00e98452cc37e976fb7edd1a4c29cb311c4"
+    },
+    "longcat-created.json": {
+      "localPath": "/tmp/prophet-p035/longcat-created.json",
+      "sha256": "88f5103983d8ce42e00db55c8e8383747e6f3a80b74f4c4b8b64fd5933ff7bcf"
+    },
+    "longcat-prompt.json": {
+      "localPath": "/tmp/prophet-p035/longcat-prompt.json",
+      "sha256": "64b5f80d99eb340b2435767ff86e4446a56481e9d778803ecd137e190333c93b"
+    },
+    "longcat-runtime.json": {
+      "localPath": "/tmp/prophet-p035/longcat-runtime.json",
+      "sha256": "cc189b66c718e2932e89df5acaed0ad49a3a342022ad4176c5385e194bc3c286"
+    }
+  }
+}
