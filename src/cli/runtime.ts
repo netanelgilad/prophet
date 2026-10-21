@@ -26,12 +26,14 @@ import { createModuleResolverFromSource } from "../require/resolution";
 import { Any, isESString } from "../types";
 import { CapturedSource, captureModuleSources } from "./source-capture";
 import { captureFileSystem } from "./filesystem-capture";
+import { parseEnvironment } from "./environment";
 
 export type RuntimeOptions = {
   script: string;
   args: string[];
   maxSteps: number;
   maxEvents?: number;
+  environment?: string;
   runtime: "node@24.21.0";
 };
 
@@ -56,6 +58,9 @@ export type FileExecution = {
 export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const maxEvents = options.maxEvents === undefined ? 0 : options.maxEvents;
   if (maxEvents !== 0 && maxEvents !== 1 && maxEvents !== 2) throw new Error("Incoming event bounds other than 0, 1 or 2 are not yet supported");
+  // Validate the complete declaration before observing the target, including
+  // its real path. Declared facts do not imply an arrival or successful bind.
+  const environment = options.environment === undefined ? undefined : parseEnvironment({ path: options.environment, cwd });
   const filename = realpathSync(resolve(cwd, options.script));
   const captured = captureModuleSources();
   if (captured.source.readFile(filename) === undefined) {
@@ -64,7 +69,9 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const source = captured.files.get(filename)!;
   const input = { runtime: options.runtime, filename, args: options.args.slice(),
     cwd: resolve(cwd), source, sources: captured.files, paths: captured.paths };
-  const filesystem = captureFileSystem({ cwd });
+  const filesystem = captureFileSystem({ cwd,
+    fileDescriptorsAvailable: environment && environment.filesystem.descriptorAvailable,
+    emptyPathBeforeOpenDescriptorCheck: environment && environment.filesystem.emptyPathBeforeOpenDescriptorCheck });
   const consoleModel = createConsoleModel();
   const nextTick = createJobQueue();
   const warnings = createWarningModel({ nextTick });
@@ -77,7 +84,8 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const url = createLegacyURLModel(warnings);
   markUnsupportedBoundaryObject(filesystem.module);
   const externalEvents = createExternalEvents();
-  const http = createHTTPModel(undefined, { bind: symbolicTCPBind, nextTick, externalEvents });
+  const http = createHTTPModel(undefined, { bind: symbolicTCPBind, nextTick, externalEvents,
+    requestInput: environment && environment.requestInput });
   const math = Object.assign(ESObject({
     random: Object.assign(ESBuiltinFunction(ESMath.properties.random.implementation), {
       unknownProperties: "Math.random function API", modeledInheritedProperties: ["call"]
@@ -88,7 +96,8 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   }, "unmodeled"), { unknownProperties: "Node globals not captured by the automatic starting environment" });
   Object.assign(global.properties, { global, globalThis: global });
   Object.assign(global, { hostSlots: Object.freeze({ "node.nextTick": nextTick.state,
-    "node.fs": filesystem.state, "node.url.deprecation": url.state, externalEvents: externalEvents.state }) });
+    "node.fs": filesystem.state, "node.url.deprecation": url.state, externalEvents: externalEvents.state,
+    ...(environment === undefined ? {} : { "node.environment": environment.state }) }) });
   const initial = ExecutionContext({ global, thisValue: global,
     evaluationBudget: { remaining: options.maxSteps } });
   try {

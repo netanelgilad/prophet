@@ -25,7 +25,19 @@ normal arrivals and after the final arrival. Listener changes and newly created
 servers become visible at later steps; a throw or classified stop ends its path.
 Default zero retains startup behavior. The provider uses the same request
 transition as embedding delivery, with fresh independent unknown string method
-and URL fields; it does not claim HTTP parser or wire-dispatch coverage.
+and URL fields by default; it does not claim HTTP parser or wire-dispatch coverage.
+`createHTTPModel(events, { requestInput })` optionally accepts a zero-argument
+factory returning `{ method, url, headers? }`: method/URL are VM strings and
+headers are concrete lowercase-token names/string values. The factory runs
+inside selected incoming delivery and applies equally to all eligible servers.
+It receives no arrival ordinal; native closure counters would incorrectly mix
+sibling histories. Omitting it preserves the fresh-unknown domain. The CLI
+compiles its [environment declaration](cli.md#declaring-a-starting-environment)
+to this factory, preserving named aliases and fresh inline symbolic leaves.
+Declaration does not force arrival or bind/transport success. Direct embedding
+`deliverRequest` retains its existing input and validation semantics.
+[Provider specs](../test/node-http-request-input.spec.ts) cover lazy invocation,
+multiple servers, fresh input identities and retained shorter histories.
 Response state now has a `node.http.response` host slot in the ordinary graph.
 The [pinned API](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/doc/api/http.md#event-request)
 defines request-event arguments; the [native witnesses](../test/node-incoming-events-reference.spec.ts)

@@ -32,19 +32,21 @@ The durable interface is a command-line runtime that agents can launch, pipe and
 redirect. A caller conceptually replaces `node` with Prophet and chooses the
 runtime being modeled, preserving the target program's arguments.
 
-The [first CLI slice](cli.md) now supports the second command below for a bounded
+The [CLI slice](cli.md) now supports both commands below for a bounded
 CommonJS domain with automatic acquisition of reached source dependencies,
-console output and bounded HTTP startup with symbolic bind outcomes.
-Explicit environment input in the first
-command remains proposed:
+console output and bounded HTTP startup with symbolic bind outcomes. The first
+command accepts the [bounded JSON authoring schema](cli.md#declaring-a-starting-environment),
+not an arbitrary machine snapshot:
 
 ```sh
 prophet --runtime node@24.21.0 --environment initial.json -- app.js arg1 > final.json
 prophet --runtime node@24.21.0 -- app.js arg1 > final.json
 ```
 
-The first form supplies the initial symbolic state. The second may construct a
-concrete starting environment, represented in exactly the same value/state model.
+The first form supplies named Boolean/string inputs, two filesystem facts and
+a parsed HTTP request template. The second captures supported local facts while
+retaining unknown resource, bind and future-request inputs; it is not wholly
+concrete. Both use the same VM value/state model.
 The selected runtime/version defines program semantics; it is distinct from the
 implementation language or the runtime that happens to run Prophet itself.
 Naming a version is not evidence of complete support. Current compatibility
@@ -86,11 +88,21 @@ Known, partially known and wholly unknown values remain the same kind of VM
 values. Never choose convenient independent results for operations that consult
 the same resource state.
 
-The environment may be supplied in a JSON file or constructed through a supported
-builder such as a JS file. The precise authoring formats remain to be designed;
-do not make hand-authored JavaScript configuration mandatory or bind the runtime
-contract to it. A builder prepares initial state; it is distinct from the target
-program and must not become an implicit native-execution fallback for that program.
+The current supported authoring format is bounded strict JSON, with named
+Boolean/string values, references and typed finite selections. Named values are
+shared across filesystem facts and incoming fields; inline request-template
+unknowns are fresh per selected arrival. The complete named Map, normalized
+request domain and exact-file identity remain in the global `node.environment`
+host slot, including unused values and a horizon-zero template. Without an
+environment file, that slot is absent. Its state schema and capture limits are
+[documented with the CLI](cli.md#declaring-a-starting-environment).
+
+Process variables/argv/cwd overrides, arbitrary filesystem trees and heap
+snapshots remain future authoring work; there is no JavaScript/shell builder.
+Any future builder must prepare initial state without becoming an implicit
+native-execution fallback for the target. Explicit authoring does not supply
+full snapshot import, portable resumption, unrestricted scheduling or consumer
+permission policy.
 
 When no environment is supplied, constructing a concrete environment is a
 possible default. Its capture scope and provenance must be visible: captured

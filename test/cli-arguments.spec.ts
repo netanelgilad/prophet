@@ -42,7 +42,6 @@ test.each([
   ["--max-steps", "1", "--max-steps", "2", "--", "server.js"],
   ["--max-steps"],
   ["--unknown", "--", "server.js"],
-  ["--environment", "initial.json", "--", "server.js"],
   ["--runtime=node@24.21.0", "--", "server.js"],
   ["--help", "--", "server.js"],
   ["--runtime", "node@24.21.0", "--help"]

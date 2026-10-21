@@ -27,6 +27,12 @@ import { withHTTPChunk, appendHTTPChunk, consumeHTTPBody } from "./http-body";
 import { createHTTPStatusCodes } from "./http-status-codes";
 import { headerError, invalidHeaderText, mergeStoredHeaders, overlayRawHeaders, serializeResponseHeaders, withHeaderText } from "./http-headers";
 
+export type IncomingRequestInput = {
+  method: TESString;
+  url: TESString;
+  headers?: Record<string, string>;
+};
+
 export type HTTPModelOptions = {
   // A bind attempt returns null on success or the Error later emitted by Node.
   // The supplied transition must model the environment, never bind a real port.
@@ -34,6 +40,9 @@ export type HTTPModelOptions = {
   // Shared Node next-tick FIFO. Omission keeps explicit embedding delivery.
   nextTick?: JobQueue;
   externalEvents?: ExternalEvents;
+  // Materialize only on selected arrivals; shared facts belong in VM values.
+  // No host-side ordinal: exploration can visit several sibling histories.
+  requestInput?: () => IncomingRequestInput;
 };
 
 function unsupported(detail: string): never {
@@ -84,6 +93,10 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
       typeof options.externalEvents.register !== "function")) {
     throw new Error("HTTP external-event environment must supply a registry");
   }
+  if (options.requestInput !== undefined && typeof options.requestInput !== "function") {
+    throw new Error("HTTP request input environment must be a function");
+  }
+  const requestInput = options.requestInput;
   const nextTick = options.nextTick;
   const externalEvents = options.externalEvents;
   // Omission preserves the explicitly successful-bind domain of older embeddings.
@@ -584,10 +597,11 @@ export function createHTTPModel(events = createEventEmitterModel(), options: HTT
       ESString("listening"), context.value.knowledge), context]);
   const incomingRequest = operation("http.server.incomingRequest", (call, context) =>
     // This is a parsed-event overapproximation, not a wire parser. Allocate
-    // inputs only on the arrival branch; method/url are independent strings.
-    deliverRequest(call.receiver, { method: ESString(), url: ESString() }, context).result);
+    // inputs only on the arrival branch. Omission preserves independent strings.
+    deliverRequest(call.receiver, requestInput === undefined
+      ? { method: ESString(), url: ESString() } : requestInput(), context).result);
 
-  function deliverRequest(server: Any, input: { method: TESString; url: TESString; headers?: Record<string, string> }, context: TExecutionContext) {
+  function deliverRequest(server: Any, input: IncomingRequestInput, context: TExecutionContext) {
       if (!isESString(input.method) || !isESString(input.url)) unsupported("request method and URL must be strings");
       // A freshly delivered IncomingMessage has no cached parse: pinned Node
       // 24.21.0 reads req._parsedUrl as undefined on raw dispatch. Declaring

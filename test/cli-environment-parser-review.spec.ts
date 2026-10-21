@@ -85,3 +85,37 @@ test("a legal escaped string is bounded by its decoded length", () => {
   const environment = parseEnvironment({ path, cwd: directory });
   expect(environment.state.values.get("text")).toMatchObject({ type: "string", value: "a".repeat(16000) });
 });
+// Orchestrator review additions, authored after inspecting the partial draft.
+// Copy into the shared parser review spec only for review after worker handoff.
+
+test("captured request domains cannot be changed through their state projection", () => {
+  const environment = parse({ version: 1, http: { requests: {
+    method: "GET", url: "/initial", headers: { "x-domain": "initial" }
+  } } });
+  const domain = environment.state.requests as any;
+  try { domain.url.value = "/changed"; } catch (_error) { /* immutable projection */ }
+  try { domain.headers["x-domain"] = "changed"; } catch (_error) { /* immutable projection */ }
+  const request = environment.requestInput!();
+  expect(request.url).toMatchObject({ type: "string", value: "/initial" });
+  expect(request.headers).toEqual({ "x-domain": "initial" });
+});
+
+test("request delivery cannot mutate later deliveries through their header record", () => {
+  const environment = parse({ version: 1, http: { requests: {
+    method: "GET", url: "/", headers: { "x-domain": "initial" }
+  } } });
+  const first = environment.requestInput!();
+  try { first.headers!["x-domain"] = "changed"; } catch (_error) { /* frozen shared record */ }
+  expect(environment.requestInput!().headers).toEqual({ "x-domain": "initial" });
+});
+
+test("request-local unknowns are fresh even without an arrival index", () => {
+  const environment = parse({ version: 1, http: { requests: {
+    method: { symbolic: "string" }, url: { symbolic: "string" }
+  } } });
+  const first = environment.requestInput!();
+  const second = environment.requestInput!();
+  expect(first.method).not.toBe(first.url);
+  expect(first.method).not.toBe(second.method);
+  expect(first.url).not.toBe(second.url);
+});

@@ -304,6 +304,14 @@ host slot, using the same mechanism as `node.nextTick`, `node.fs`,
   actual declared-state/provenance fact, not limitation prose.
 - The existing graph encoder supports plain records and `Map` nodes, so no
   serializer change and no report/policy envelope is needed.
+- The slot is omitted **entirely** when no environment was supplied, preserving
+  the existing no-environment shape (`node.nextTick`, `node.fs`,
+  `node.url.deprecation`, `externalEvents` only).
+- The validated template and the complete shared map are encapsulated before
+  use: `state` is a frozen record, the shared `Map` is never mutated after
+  materialization, and no compilation cache changes after the initial graph
+  state is linked. Named VM values are retained through these graph links; they
+  are not automatically heap entries on their own.
 
 The slot is linked in `runtime.ts` after the global is created:
 
@@ -350,57 +358,72 @@ invocation error (exit 1) and never a target-acquisition error.
 1. Resolve the environment path against the process cwd to an absolute path.
 2. `lstatSync` the resolved path: it must be a regular file. Symlinks,
    directories, FIFOs, sockets and devices reject before any read.
-3. Check `stat.size <= 262144` (256 KiB). Larger files reject before reading.
-4. `openSync(path, O_RDONLY | O_NONBLOCK)`; `fstatSync(fd)` to confirm a regular
-   file and record the size; read in bounded chunks into a buffer of
-   `size + 1` bytes. If more than `size` bytes are read, or a final `fstatSync`
-   disagrees with the opening stat, reject as a changed file. `closeSync(fd)` in
-   `finally`.
-5. Decode the bytes as UTF-8; reject if re-encoding does not round-trip (invalid
+3. Check `lstat.size` is a safe nonnegative integer `<= 262144` (256 KiB).
+   Larger files reject before reading.
+4. `openSync(path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW)` on the supported POSIX
+   platforms. `fstatSync(fd)` must confirm a regular file whose size is a safe
+   nonnegative integer `<= 262144` and whose `dev`/`ino`/`size`/`mtimeMs` agree
+   with the opening `lstat`. Only then allocate at most `262145` bytes. A final
+   size check cannot repair a huge allocation made from an unchecked opening
+   `fstat`, so the opening `fstat` is the allocation gate.
+5. Read in bounded chunks by that capacity. Reject short or long reads, a final
+   `fstatSync` that disagrees with the opening metadata, or an overlong result.
+   Always `closeSync(fd)` in `finally`.
+6. Decode the bytes as UTF-8; reject if re-encoding does not round-trip (invalid
    UTF-8). Raw NUL bytes are rejected by the strict JSON parser (control
    characters must be escaped); escaped `\u0000` in a string is allowed as data.
-6. Strict recursive-descent JSON parse on the already-bounded bytes: max nesting
+7. Strict recursive-descent JSON parse on the already-bounded bytes: max nesting
    depth 32, duplicate object keys rejected at parse time, trailing tokens
    rejected, non-finite numbers rejected, token lengths bounded. The parser runs
    on the bounded buffer, so no unbounded recursion or allocation occurs.
 
+This detects some races; it does not claim atomic capture or a complete
+symlink-safe ancestor walk. A mocked `lstat`/`open`/`fstat` race test covers the
+allocation order without making giant files or depending on a timing race.
+
 ### Schema validation (before any host observation)
 
 - Walk the whole schema. Validate every object's key set and every named
-  definition, even unused refs and branches behind a concrete condition.
+  definition, even unused refs and both select branches behind a concrete
+  condition. A constant guard never skips validation.
 - Two-pass named resolution (forward refs resolve), then memoized compilation.
-- Budgets are saturating and reject when exceeded:
-
-| Budget | Value | Meaning |
-| --- | --- | --- |
-| `MAX_VALUE_NODES` | 4096 | syntactic expression nodes |
-| `MAX_REF_EDGES` | 4096 | `{ "ref": ... }` edges |
-| `MAX_NAMED` | 256 | named definitions |
-| `MAX_WORK` | 4096 | memoized compile work: +1 per structural leaf and per select, shared values counted once |
-| `MAX_DEPTH` | 32 | expanded dependency depth (longest ref/select chain) |
-| `MAX_JSON_DEPTH` | 32 | JSON object/array/expression nesting |
-| `MAX_LITERAL_BYTES` | 65536 | total literal string bytes |
-| `MAX_STRING_BYTES` | 16384 | per-string bytes |
-| `MAX_HEADERS` | 64 | header count |
-| `MAX_HEADER_NAME_BYTES` | 255 | header name bytes |
-| `MAX_HEADER_VALUE_BYTES` | 8192 | header value bytes |
-| `MAX_TEMPLATE_WORK` | 1024 | per-arrival template compile work |
-
-- `MAX_WORK` is a saturating counter over memoized compilation, so a small DAG
-  that repeats subgraphs is bounded by the number of memoized evaluations, not by
-  a select count. `selectValue` is called only after the work bound passes.
-- Cycles reject (direct and indirect). Forward refs accept. Deep chains beyond
-  `MAX_DEPTH` reject. Repeated DAG fanout beyond `MAX_WORK` rejects. Empty
-  expression objects (`{}`) reject.
+- **Expanded work.** Before constructing any VM value, compute a saturating
+  structural weight for every expression, memoizing the numeric weight per named
+  definition:
+  - literal / symbolic leaf = `1`;
+  - `ref` = `1 + weight(definition)`;
+  - `select` = `1 + weight(condition) + weight(then) + weight(else)`.
+  A reused reference adds its full weight at each occurrence even though its VM
+  value is built once. This bounds `selectValue` / Boolean reasoning that may
+  traverse a shared DAG repeatedly, which memoization of value construction alone
+  does not.
+- **Expanded depth.** A memoized longest path: leaf = `0`; `ref` = `1 +
+  depth(definition)`; `select` = `1 + max(depth(condition), depth(then),
+  depth(else))`.
+- Reject cycles (direct or indirect), any root depth `> 32`, and a saturating
+  total expanded work `> 4096` across all named definitions, explicit filesystem
+  expressions and request-template expressions. Request `method` + `url` together
+  also have a `1024` expanded-work cap.
+- Keep separate syntactic limits: `MAX_VALUE_NODES = 4096`, `MAX_REF_EDGES =
+  4096`, `MAX_NAMED = 256`, `MAX_JSON_DEPTH = 32`, `MAX_LITERAL_BYTES = 65536`,
+  `MAX_STRING_BYTES = 16384`, `MAX_HEADERS = 64`, `MAX_HEADER_NAME_BYTES = 255`,
+  `MAX_HEADER_VALUE_BYTES = 8192`.
+- `selectValue` is called only after the expanded-work and depth bounds pass.
+- Forward refs accept. Deep chains beyond `MAX_DEPTH` reject. Repeated DAG fanout
+  beyond the expanded-work bound rejects. Empty expression objects (`{}`) reject.
+  A small repeated-DAG input with a tiny syntactic node count but an expanded
+  weight over the limit rejects, with a nearby accepted case.
 
 ### Accepted/rejected boundary tests
 
-- Accepted: forward ref; acyclic DAG with shared subgraphs within `MAX_WORK`.
-- Rejected: indirect cycle; deep ref chain > `MAX_DEPTH`; repeated DAG fanout >
-  `MAX_WORK`; empty expression; unknown key at any object level; mixed-kind
-  select; non-Boolean filesystem fact; non-string method/url; bad header name or
-  non-string header value; file > 256 KiB; symlink environment file; malformed
-  UTF-8; duplicate JSON keys.
+- Accepted: forward ref; acyclic DAG with shared subgraphs within the expanded
+  work bound; the nearby repeated-DAG case.
+- Rejected: indirect cycle; deep ref chain `> MAX_DEPTH`; repeated DAG fanout
+  beyond expanded work; empty expression; unknown key at any object level;
+  mixed-kind select; non-Boolean filesystem fact; non-string method/url; bad
+  header name or non-string header value; file `> 256 KiB`; symlink environment
+  file; malformed UTF-8; duplicate JSON keys; a huge allocation from an unchecked
+  opening `fstat` (mocked race).
 
 These are rejected authoring domains, never a silent narrowing of an accepted
 input.
@@ -471,11 +494,20 @@ a successful bind, a successful read, or successful transport.
   fields. The environment does not supply bind outcomes in v1.
 - Successful transport remains the existing declared schedule; the environment
   does not declare transport outcomes.
-- Reached unsupported siblings are retained: an open symbolic URL, an unknown
-  method, a missing-index ENOENT escaping the handler, or a bound-server waiting
-  alternative.
-- The environment file itself is not stored as graph prose; only its materialized
-  values are.
+- Retained siblings are classified separately from actual analysis boundaries:
+  a missing-index ENOENT is a **modeled thrown program error** that escapes the
+  handler (not an unsupported-analysis leaf); a bound-server waiting alternative
+  is a modeled timeline end (not a failure). Unknown URL/method values remain
+  symbolic; operations that cannot handle a reached value produce an analysis
+  boundary, while supported branches still complete. Unknown input alone is
+  not a boundary. No stopped branch is silently converted into success.
+- String literals are UTF-16 values decoded from valid UTF-8 JSON; escaped
+  surrogates can already appear in URL/header fields and are accepted as data.
+- Two-event exploration materializes **at most two arrivals per represented
+  history**, potentially more factory calls across explored alternatives; fresh
+  per-arrival identities are created per call.
+- The environment file bytes are not stored as graph prose. Its materialized
+  values, normalized request-domain records and structured provenance are retained.
 
 ## 14. Excluded fields and why
 
@@ -551,7 +583,15 @@ New specs (names avoid the existing `cli-node-environment` process-env spec):
    - Shared URL reference unable to fabricate arm-then-fire.
    - Two eligible servers with the same template and listener mutation.
    - Unknown-string unsupported siblings alongside completed paths.
-6. Pinned Node controls: concrete pico GET/HEAD/OPTIONS/404 and the missing-index
+6. `test/cli-environment-bounds.spec.ts`
+   - A small repeated-DAG input whose syntactic node count is tiny but whose
+     expanded weight exceeds `4096` rejects, plus a nearby accepted case.
+   - A deep ref chain `> MAX_DEPTH` rejects; forward refs accept.
+   - A mocked `lstat`/`open`/`fstat` race test confirms the opening `fstat`
+     gates allocation (no giant files, no timing race).
+   - Stress probes run under an external timeout; a timeout is recorded as
+     inconclusive resource evidence, never as a proof result.
+7. Pinned Node controls: concrete pico GET/HEAD/OPTIONS/404 and the missing-index
    ENOENT compared with `PROPHET_NODE_BINARY` Node 24.21.0, using the existing
    `pico-static-server-reference.spec.ts` fixtures; no Test262 claim for a CLI
    schema. Native controls are benign fixtures only. Existing pinned native

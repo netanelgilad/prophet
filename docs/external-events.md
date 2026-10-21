@@ -60,17 +60,25 @@ remain registered after the declared horizon.
 The HTTP provider registers each created server and is eligible only after
 successful listening notification. A handled bind failure remains ineligible;
 a startup throw never reaches this checkpoint. On arrival it allocates fresh
-request and response identities and independent unknown **string** `method`
-and `url` values, then uses the ordinary shared EventEmitter request path.
+request and response identities, then uses the ordinary shared EventEmitter
+request path. Method and URL default to independent unknown **strings**. The
+[CLI environment template](cli.md#declaring-a-starting-environment) can supply
+concrete/finite/shared fields and concrete lowercase-token headers instead.
+Its zero-argument factory runs only on a selected arrival, never on waiting or
+an ineligible source. Inline symbolic leaves are fresh per factory invocation;
+named references retain identity across arrivals and filesystem facts. All
+eligible servers use the same template. There is no native counter: sibling
+exploration can invoke the factory more than the per-history event bound.
 Listeners see the server receiver and current registrations/captured bindings.
 The request argument fields and response host slot preserve input/body state in
 the graph; no request/response is allocated on a no-arrival path.
 
 This parsed-event domain deliberately overapproximates wire-valid strings. It
 is not an HTTP parser, and results involving e.g. CONNECT or malformed URLs do
-not establish that Node emits a request event for that wire input. Headers,
-bodies, socket allocation, dispatch rules, transport failures, automatic finish,
-histories longer than two and arbitrary event sequences remain unsupported. Existing response operations
+not establish that Node emits a request event for that wire input. Parsed concrete
+headers are supported; wire header parsing, request bodies, socket allocation,
+dispatch rules, transport failures, automatic finish, histories longer than two
+and arbitrary event sequences remain unsupported. Existing response operations
 retain their synchronous end-consumption/successful-transport assumptions.
 The waiting alternative does not establish transport failure or success.
 

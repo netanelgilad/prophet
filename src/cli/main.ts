@@ -2,13 +2,14 @@ import { parseArguments } from "./arguments";
 import { encodeGraph } from "./graph";
 import { runFile } from "./runtime";
 
-const usage = `Usage: prophet [--runtime node@24.21.0] [--max-steps N] [--max-events 0|1|2] -- SCRIPT [args...]
+const usage = `Usage: prophet [--runtime node@24.21.0] [--max-steps N] [--max-events 0|1|2] [--environment FILE] -- SCRIPT [args...]
 
 Interpret one CommonJS file and write its symbolic graph to stdout.
 This slice follows CommonJS imports and evaluates supported HTTP startup,
 including queued bind notifications. Unknown host APIs stop when reached.
 No target code or external writes run natively. --max-events 1 or 2 explores bounded
 parsed incoming events with supported jobs between arrivals; default 0 stops after startup.
+--environment FILE declares bounded symbolic starting facts and parsed request inputs.
 The graph is an inspection projection, not a resumable environment snapshot.
 Exit codes: 0 analyzed bounded completion (including a program throw),
 2 partial analysis stop, 1 invocation/acquisition/serialization failure.

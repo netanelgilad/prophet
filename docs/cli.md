@@ -6,6 +6,7 @@ Run from a dependency-installed checkout:
 ./bin/prophet.js --runtime node@24.21.0 -- app.cjs arg1 > result.json
 ./bin/prophet.js --max-steps 10000 -- app.js > result.json
 ./bin/prophet.js --max-events 2 -- app.js > two-events.json
+./bin/prophet.js --environment initial.json --max-events 1 -- app.js > declared.json
 ./bin/prophet.js --help
 ```
 
@@ -84,7 +85,7 @@ documented here and in the backlog, not a prose field in the runtime output.
 An omitted environment file does not establish stdout health.
 `Math.random()` introduces a fresh unknown in `[0, 1)`, not a sampled host value
 or a captured PRNG seed. No target external writes or native module execution
-occur. The runtime does not yet accept explicit input environments.
+occur. The optional environment file declares the bounded inputs below.
 
 HTTP setup uses a fresh symbolic bind outcome for each supported attempt, not a
 real port probe or a successful-bind default. A hostless numeric `listen` attempts
@@ -107,8 +108,9 @@ zero/one-arrival waiting alternatives. Only 0, 1 and 2 are currently accepted.
 Every step selects among the current eligible servers or waiting. Normally
 completed arrivals drain supported nextTick work before another arrival, even
 at the final horizon. Throws and classified unsupported/budget frontiers stop
-their own history while supported siblings remain. Independent unknown string method/url fields are a parsed-event
-overapproximation, not a wire parser. Timers, microtasks, promises and the public
+their own history while supported siblings remain. By default, independent unknown
+string method/url fields form a parsed-event overapproximation. An environment
+file can replace their domain; neither form is a wire parser. Timers, microtasks, promises and the public
 `process.nextTick` API remain unsupported.
 A throwing completion is the state at exception propagation, not after process
 shutdown. Handles can remain modeled as listening there; exit handlers, resource
@@ -120,6 +122,126 @@ OS-specific correlations or a shared socket/resource pool. A nonzero port is
 retained; port zero omits the Error's own port field. The model does not establish
 real port availability or explore every future callback. See the [binding and
 delivery boundary](node-http.md#callback-delivery-and-persistent-state).
+
+## Declaring a starting environment
+
+`--environment FILE` accepts one strict JSON file, resolved relative to the
+invocation cwd. The option is accepted once before `--`; tokens after `--` stay
+target arguments. Validation and value construction finish before even resolving
+the target's real path. Invalid or unreadable input gives exit 1, a stderr
+diagnostic and no graph. The file is data, never executable configuration.
+
+```json
+{
+  "version": 1,
+  "values": { "available": { "symbolic": "boolean" } },
+  "filesystem": { "descriptorAvailable": { "ref": "available" } },
+  "http": {
+    "requests": {
+      "method": "GET",
+      "url": { "select": {
+        "condition": { "ref": "available" },
+        "then": "/otherfile.html",
+        "else": "/missing.html"
+      } },
+      "headers": { "accept": "text/html" }
+    }
+  }
+}
+```
+
+`version: 1` is required. `values`, `filesystem` and `http` are optional. Each
+value expression is a Boolean or string literal, `{"symbolic":"boolean"}`,
+`{"symbolic":"string"}`, `{"ref":"name"}`, or a `select` with exactly
+`condition`, `then` and `else`. Conditions must be Boolean and both branches
+must have the same kind. Numbers are not value expressions. Names match
+`[A-Za-z_][A-Za-z0-9_]*`, excluding `__proto__`, `constructor` and `prototype`.
+Forward references work; missing references, cycles, wrong types, duplicate JSON
+keys and unknown keys at every level reject. Every definition and both selection
+branches are validated, including unused values and branches behind constant guards.
+
+`filesystem` accepts only `descriptorAvailable` and
+`emptyPathBeforeOpenDescriptorCheck`, each a Boolean expression. Omission keeps
+the existing symbolic descriptor fact and platform-dependent open-ordering fact.
+An empty object changes neither. It does not declare a filesystem tree or
+read-access permissions. `http: {}` keeps the default request domain. If
+`http.requests` exists, both string expressions `method` and `url` are required;
+`headers` optionally maps lowercase HTTP token names to concrete string values.
+Header names use a null-prototype record, so `constructor` is a valid header
+name. These are parsed fields, with no guarantee of a corresponding wire request.
+
+All named values are materialized once; references in resource facts and request
+fields share their exact VM identities. Inline symbolic expressions in a request
+template are materialized afresh on each selected arrival. The same template
+applies to every eligible server. Thus a named URL choice remains the same across
+two arrivals; an inline choice can select `/arm` then `/fire`. No host-side arrival
+counter or server ordinal affects inputs. Exploration may call the factory more
+than twice across alternative histories while each history contains at most the
+chosen 0/1/2 arrivals. Merely declaring a template never forces arrival, successful
+binding, successful I/O or successful transport, and does not remove waiting or
+unfinished alternatives. Existing response transport assumptions still apply.
+
+When supplied, the global object's `node.environment` host slot retains:
+
+- `values`: the complete Map of named VM values, including unused definitions.
+- `requests`: the validated normalized request template, or `undefined`.
+- `provenance`: `{ path, version: 1, sha256 }`, with an absolute resolved path
+  and the SHA-256 of the exact bytes read.
+
+The normalized `requests` record has `method`, `url` and `headers` (empty when
+omitted). Expressions use `{kind:"literal",type,value}`,
+`{kind:"symbolic",type}`, `{kind:"ref",name}` and
+`{kind:"select",type,condition,then,else}`; selection `type` is inferred during
+validation. This record describes the input domain, not already delivered events.
+It survives even at horizon zero. Template records and provenance are frozen;
+the completed Map guards its ordinary `set`, `delete` and `clear` methods before
+linking into initial state. This is internal mutation protection, not a membrane
+against hostile native embedding code. Graph references preserve aliases with
+filesystem and delivered inputs. With no file, the new slot is absent entirely.
+
+### Authoring bounds and file capture
+
+| Bound | Maximum |
+| --- | --- |
+| File bytes | 262144 |
+| JSON nesting; expanded expression depth | 32 each |
+| Named definitions | 256 |
+| Syntactic expression nodes; reference occurrences | 4096 each |
+| Decoded JSON string bytes, including keys | 16384 each |
+| Literal value and header-value bytes combined | 65536 |
+| Headers | 64 |
+| Header name; header value bytes | 255; 8192 each |
+| Total expanded expression work | 4096 |
+| Request method plus URL expanded work | 1024 |
+
+String sizes use UTF-8 byte length after JSON decoding. Input bytes must be valid
+UTF-8, with no BOM; raw control characters in JSON strings reject. Escaped NUL
+and lone UTF-16 surrogates remain JavaScript string data. Expanded weight is 1
+for a leaf, `1 + weight(definition)` for a reference, and 1 plus the three child
+weights for a selection. Every reference contributes its full weight even when
+compilation reuses one VM value. Total work sums all named roots, explicit
+filesystem expressions and method/URL expressions; expanded depth counts ref
+and select edges (a leaf has depth zero). These conservative limits reject an
+authoring domain; they are not complete solver cost accounting or a narrowed
+proof of an accepted input.
+
+The POSIX reader rejects nonregular files and final-component symlinks, opens
+with `O_NOFOLLOW | O_NONBLOCK`, and checks opened metadata and size before
+allocating at most 262145 bytes. It caps reads, checks short/long reads and
+metadata changes, validates UTF-8 and closes the descriptor on success or failure.
+This is non-atomic capture, not a complete symlink-safe ancestor walk or protection
+against every concurrent mutation. The recorded path is resolved, not necessarily
+an ancestor-canonicalized real path.
+
+This authoring slice does not accept process environment/argv/cwd overrides,
+shell commands, arbitrary heap snapshots, bind profiles, file trees, request
+bodies, transport outcomes or event sequences longer than the explicit horizon.
+It does not load the output graph as a resumable snapshot. Unsupported future
+behavior stays unfinished; no permissions or security verdicts are part of this
+schema. See [environment scenarios](../test/cli-environment.spec.ts),
+[parser validation](../test/cli-environment-validation.spec.ts),
+[independent parser probes](../test/cli-environment-parser-review.spec.ts) and
+[provider specs](../test/node-http-request-input.spec.ts).
 
 ## Output graph
 
@@ -148,8 +270,9 @@ This is still an experimental, nonresumable projection. The former envelope's
 schema version, captured source bytes/hashes, launch metadata and budget are not
 published. Source locations already in VM state remain in the graph. Classified
 boundary reasons survive JSON, but legacy failure diagnostics and complete run
-provenance do not. Proper environment/source representation and a portable
-versioning contract remain future work; explanatory prose is not a substitute.
+provenance do not. The supplied environment file has the structured identity
+described above; this does not supply complete source/run provenance. A portable
+versioning contract remains future work; explanatory prose is not a substitute.
 
 | CLI exit status | Meaning |
 | --- | --- |
@@ -234,12 +357,14 @@ startup message or an unhandled bind Error without that message. Its request
 handler remains registered; default `--max-events 0` analyzes no incoming request.
 With `1` or `2`, the provider supplies parsed symbolic events. Pico's completed
 OPTIONS/405, waiting and bind-failure alternatives coexist with unfinished
-GET/HEAD URL parsing. Filesystem, URL and path use the assembled models; HTTPS
+GET/HEAD URL parsing. Declared finite text-file URLs additionally reach successful
+reads, missing-path 404 responses, descriptor EMFILE and missing-index ENOENT
+branches; see the environment specs below. Filesystem, URL and path use the assembled models; HTTPS
 and querystring retain opaque APIs.
 [Queue specs](../test/jobs.spec.ts), [HTTP startup specs](../test/node-http-startup.spec.ts)
 and [pinned ordering observations](../test/node-startup-reference.spec.ts) cover
 the supported checkpoint; [opaque builtin specs](../test/node-opaque-builtins.spec.ts)
-check identities and conservative boundaries. Full environment input, portable
+check identities and conservative boundaries. Broader environment authoring, portable
 round trips/resumption, broader callback domains and unbounded scheduling follow.
 Track residual scope under REPORT-001, CJS-001, HOST-002, CONSOLE-002,
 LANG/LIB/LEGACY and SECURITY-002 in the [backlog](implementation-gaps.md).

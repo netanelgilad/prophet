@@ -14,6 +14,7 @@ not add fields to Prophet's runtime output.
 - [Provider quotas](provider-quotas.md): measured resets, shared limits and workload planning.
 - [Model trust register](../agent-models.md): separate calibration for each model/task family.
 - [VM foundations](vm-foundations.md): persistence, boundaries and common traps.
+- [CLI environment inputs](cli-environment.md): named correlations, fresh arrival templates, normalized state and bounded validation.
 - [Bounded Array.concat](array-concat.md): current heap, holes, branches and host work limits.
 - [Bounded Array.forEach](array-foreach.md): captured length, current-state visits and flat host iteration.
 - [Bounded generic UTF-16 substring](string-substring.md): ordered conversion, late admission and the measured Stats.size frontier.

@@ -5,12 +5,14 @@ export type CLIArguments = {
   readonly args: string[];
   readonly maxSteps: number;
   readonly maxEvents: number;
+  readonly environment?: string;
 } | { readonly kind: "help" };
 
 /** Parse Prophet's options without ever interpreting the target's arguments. */
 export function parseArguments(args: ReadonlyArray<string>): CLIArguments {
   if (args.length === 1 && args[0] === "--help") return { kind: "help" };
 
+  let environment: string | undefined;
   let runtimeSeen = false;
   let maxStepsSeen = false;
   let maxSteps = 100000;
@@ -22,7 +24,15 @@ export function parseArguments(args: ReadonlyArray<string>): CLIArguments {
     if (option === "--") {
       const script = args[index + 1];
       if (!script) throw new Error("Expected a script path after --.");
-      return { kind: "run", runtime: "node@24.21.0", script, args: args.slice(index + 2), maxSteps, maxEvents };
+      return { kind: "run", runtime: "node@24.21.0", script, args: args.slice(index + 2), maxSteps, maxEvents,
+        ...(environment === undefined ? {} : { environment }) };
+    }
+    if (option === "--environment") {
+      if (environment !== undefined) throw new Error("--environment may only be specified once.");
+      index += 1;
+      if (!args[index] || args[index] === "--") throw new Error("Expected an environment path.");
+      environment = args[index];
+      continue;
     }
     if (option === "--runtime") {
       if (runtimeSeen) throw new Error("--runtime may only be specified once.");
