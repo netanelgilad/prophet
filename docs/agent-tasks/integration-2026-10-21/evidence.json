@@ -3,7 +3,7 @@
   "base": "0881d9ee32b2133f65eb9e0496d6553830cf3ee3",
   "instinctSource": "e183ed98edcf82c1f95937143e2dec58577b36dd",
   "scope": "All cumulative Instinct P012\u2013P034 drafts; P007\u2013P011 already integrated at base",
-  "testedCommit": "f5d0b911961781de90b4f6990cb3106e588ace98",
+  "testedCommit": "06d8f9589b1fadf36e4d0e4f09786d2c0f3daf95",
   "runtime": {
     "version": "v24.21.0",
     "platform": "darwin-arm64",
@@ -15,8 +15,8 @@
     "full": {
       "command": "node .yarn/releases/yarn-3.1.1.cjs test --runInBand",
       "exit": 0,
-      "suitesPassed": 163,
-      "testsPassed": 5102,
+      "suitesPassed": 164,
+      "testsPassed": 5112,
       "historicalSkipped": 46
     },
     "typecheck": {
@@ -39,12 +39,26 @@
       "nativeStreamCases": 2,
       "additionalWholeTest262Cases": 1,
       "falseAlarm": "Number.prototype guest mutation already reached an explicit unsupported guard"
+    },
+    "linuxCiFailure": {
+      "commit": "e66b696b72cc1ff1260cf963c456db133bc5db7f",
+      "run": "https://github.com/netanelgilad/prophet/actions/runs/39626656763",
+      "test": "1 failure, 162 suites / 5101 tests passed, 46 historical skips",
+      "typecheck": "success",
+      "cause": "Linux7.0 open empty-path error precedence differs from historical Linux6.12 profile",
+      "correction": "Persistent emptyPathBeforeOpenDescriptorCheck Boolean, Linux default unknown; sync and stream correlation, complete native/model error comparisons; separate libc scandir profile"
+    },
+    "openOrderingFocused": {
+      "suitesPassed": 7,
+      "testsPassed": 98,
+      "newProfileTests": 11,
+      "exit": 0
     }
   },
   "sourceTrees": [
     "100644 blob b90235a83d7b9f6efd508429131f5e2be3a2dd07\t.github/workflows/validations.yml",
-    "040000 tree 0e869998c0917ddd81c0f9006577d8288c3dfc16\tsrc",
-    "040000 tree e2d72dd9678cb068899655b906303f3d8aff8879\ttest"
+    "040000 tree 7891b0a3867a780932d6ac6e3bd2a28604a5f8af\tsrc",
+    "040000 tree 4dc733e08d899f3e73dd42cfa13166396b418f1f\ttest"
   ],
   "test262": {
     "before": {
@@ -224,11 +238,11 @@
   "test262InventorySha256": "9c5b7ba5484914f9b3e4ed968c15cc7037377e63d20de643426d17cd183d6b64",
   "audits": {
     "guards.txt": {
-      "sha256": "4f835fd62931f2b3610ff67ec5b3668f7bf3941d9677bcb95ed2c07d2689468f",
+      "sha256": "a973db01de974cb0408476afd80d998e1c74d5465380a449f1b58f67156804b5",
       "lines": 766
     },
     "assertions.txt": {
-      "sha256": "0ce0a66f8394bce9316a54b4014d38f3a6e5b0bd706ab4c7941602d0fc7464ae",
+      "sha256": "769ac81d68971273f7f58f6c661ea510cc811bda7dfab1b55a23214312a9f2c7",
       "lines": 23
     },
     "skips.txt": {
@@ -236,8 +250,8 @@
       "lines": 1
     },
     "boundaries.txt": {
-      "sha256": "c86a089a629f45285b2f6928b5631714f9e6ee0fa06b85f83690acae2cadac6e",
-      "lines": 2214
+      "sha256": "7eccef66504a30e30ca42007c4a7f5b076cb0c74f0ceb7b2cd2051f56b84f608",
+      "lines": 2219
     }
   },
   "logs": {
@@ -292,6 +306,30 @@
     "typecheck-corrected.log": {
       "localPath": "/tmp/prophet-instinct-integration/typecheck-corrected.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ci-first-failure.log": {
+      "localPath": "/tmp/prophet-instinct-integration/ci-first-failure.log",
+      "sha256": "c977efb3ff204fea7d03b0c725f65d9aee686b8758bfca3b463d759eec739aec"
+    },
+    "full-open-ordering.log": {
+      "localPath": "/tmp/prophet-instinct-integration/full-open-ordering.log",
+      "sha256": "9c19e5362bb92668688388dac26775277bdc0e8031b0c96ddf294175080231fc"
+    },
+    "typecheck-open-ordering.log": {
+      "localPath": "/tmp/prophet-instinct-integration/typecheck-open-ordering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "open-ordering-red.log": {
+      "localPath": "/tmp/prophet-instinct-integration/open-ordering-red.log",
+      "sha256": "76164c766e0eb2b2de4d62f64616cf3165865fdce7714439f5017efdd8c063f9"
+    },
+    "open-ordering-focused.log": {
+      "localPath": "/tmp/prophet-instinct-integration/open-ordering-focused.log",
+      "sha256": "81e838c48fe301d0cd1842cb8a5e6291430a94aa325b6b49d473f07a6a3c678a"
+    },
+    "open-ordering-typecheck.log": {
+      "localPath": "/tmp/prophet-instinct-integration/open-ordering-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   },
   "unrelatedOwnerFiles": {
@@ -305,5 +343,6 @@
     "policy": "Owner authorized direct publication; fast-forward only after required test and type-check checks pass on the exact candidate. No protection changes or force push.",
     "ciEvidence": "GitHub check runs for the published commit are authoritative; this evidence-only follow-up changes no source or tests."
   },
-  "limits": "See review.md and stable implementation-gap IDs. No full Test262/Node or all-path application proof claimed."
+  "limits": "See review.md and stable implementation-gap IDs. No full Test262/Node or all-path application proof claimed.",
+  "priorLocallyValidatedCommit": "f5d0b911961781de90b4f6990cb3106e588ace98"
 }

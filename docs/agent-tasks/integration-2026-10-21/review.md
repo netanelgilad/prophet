@@ -92,7 +92,7 @@ ReadStream open errors use the same fact. No runner downgrade or skipped test.
 ## Acceptance
 
 Correction review and full local validation are accepted at
-`f5d0b911961781de90b4f6990cb3106e588ace98`: 163 suites / 5,102 tests passed, 46 unchanged historical
+`06d8f9589b1fadf36e4d0e4f09786d2c0f3daf95`: 164 suites / 5,112 tests passed, 46 unchanged historical
 skips; pinned Node v24.21.0; typecheck exit 0. The 25 independent review cases,
 two native stream controls, native sirv range/validator controls and Test262
 inventory/guard/assertion/skip/documentation audits pass. See

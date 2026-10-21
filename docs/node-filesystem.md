@@ -404,7 +404,7 @@ selects this ordering; the Linux default leaves it unknown rather than inferring
 kernel semantics from a platform name or release number. Native controls retain
 complete error-shape assertions and compare the selected fact to the model.
 Both paths still reject a NUL-containing JavaScript string before an OS open.
-The separate [glibc opendir empty-name check](https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/opendir.c;hb=glibc-2.39)
+The separate [glibc opendir empty-name check](https://github.com/bminor/glibc/blob/glibc-2.39/sysdeps/unix/sysv/linux/opendir.c)
 precedes its open call; scandir behavior is not inferred from open ordering.
 
 - [`test-fs-access.js`](https://github.com/nodejs/node/blob/955266bfdd854cd280dffd47548673914484e4c0/test/parallel/test-fs-access.js)
