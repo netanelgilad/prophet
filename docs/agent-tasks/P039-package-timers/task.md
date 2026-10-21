@@ -3,7 +3,9 @@
 Base `8efe72bd18a46f29641d331f5c32ae895cf27c2d`, independently reviewed and locally
 validated P038 candidate. It is now published after CI39672451837 passed. Branch
 `agent/p039-package-timers`; Codex root and its own subagents, per owner direction.
-Status: approved design; spec-first implementation/independent review underway.
+Status: root and independent review accepted;184 suites/5362 passes/46 historical
+skips and typecheck pass. Exact-candidate CI/publication pending.
+See [root review](review.md) and [evidence](evidence.json).
 
 The [unchanged source scout](target-scout.md) found the same concrete prerequisite
 independently in two reviews: whole node-notifier5.4.0/lib/checkGrowl.js calls

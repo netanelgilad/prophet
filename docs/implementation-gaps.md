@@ -1773,5 +1773,7 @@ the P038 review/evidence. Test262 remains484 complete files/959 variants, with
 - Four complete additional upstream timeout candidates were read; none activated
   because their full tests require broader server/stream/clock/lifecycle APIs.
 
-Final scans/skipped inventory and independent/full validation will be recorded
-before publication. No stable gap is closed by this prefix.
+The four documented scans and full skipped-file inventory were rerun and recorded
+in the P039 review/evidence. Test262 remains484 complete files/959 variants,
+43 parse-negative files/85 variants and46 historical skips. Independent review,
+184 full suites/5362 passes and typecheck passed. No stable gap is closed.

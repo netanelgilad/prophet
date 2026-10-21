@@ -51,7 +51,7 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P039](P039-package-timers/task.md) | Unchanged dependency startup and pending socket timers | Reviewed design; spec-first implementation underway | Explicit IPv4 checkGrowl subpath, no completed availability claim |
+| [P039](P039-package-timers/task.md) | Unchanged dependency startup and pending socket timers | Accepted;184 suites/5362 passes/46 skips and typecheck; candidate CI pending | Explicit IPv4 checkGrowl subpath, no completed availability claim |
 | [P038](P038-net-submission/task.md) | Pending IPv4 sockets and deferred submission | Published8efe72b;181 suites/5319 passes/46 skips,typecheck and CI39672451837 pass | Explicit failed-cleanup frontier; no TCP completion claim |
 | [P037](P037-program-identities/task.md) | Captured program identities in CLI graph | Published8052b02;177 suites/5262 passes/46 skips,typecheck and CI39668471592 pass | Identity-only projection, no package attestation |
 | [P036](P036-effect-activation/task.md) | Generic interpreted activation/effect origin | Published348fe0c;174 suites/5233 passes/46 skips,typecheck and CI39666780369 pass | No policy, outbound API or package-identity claim |

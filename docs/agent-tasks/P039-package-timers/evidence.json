@@ -1,0 +1,111 @@
+{
+  "implementation": "d321ab9bfe1142c0603a2df77dfa458bc91e8482",
+  "runtime": "v24.21.0",
+  "validation": {
+    "results": [
+      {
+        "name": "full-suite",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 132.13,
+        "log": "/tmp/prophet-p039/full-suite-complete.log",
+        "sha256": "8b1c81f5931d64c5c55451cd98cefe9a82d91e6d1d8d69946a6226a3e3a562f5"
+      },
+      {
+        "name": "typecheck",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 1.91,
+        "log": "/tmp/prophet-p039/typecheck-complete.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "hashesUnchanged": true
+  },
+  "reviewedHashes": {
+    "src/node/net.ts": "6acf168e4dcdf62f80452ebee27b9c6e6578466d0239c4d8d8d66c3c241bf076",
+    "test/node-net-timeout-review.spec.ts": "a3940f7b2b1e83ef1853be2cf37d360560b384d7b8df173125991ab5f6aae613",
+    "test/node-net-timeout.spec.ts": "1c133a0707d62e73680540d4b05f0cdf731415d074657ad83908c37666466549",
+    "test/node-notifier-startup.spec.ts": "2901f8de4b59e45be68b175793bc12cabaccb6a1567788c746e5ac9d160593be"
+  },
+  "audit": [
+    {
+      "name": "guards",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p039/audit-guards.log",
+      "sha256": "7d35c548151e8644facb62c092b4b88468ccfbe1b01ccc80e16884adce43b4cd",
+      "lines": 814
+    },
+    {
+      "name": "assertions",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p039/audit-assertions.log",
+      "sha256": "e61b192b55df67c9545102534e028dd1ba946e491c400704ef8fae309396d37a",
+      "lines": 23
+    },
+    {
+      "name": "skips",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p039/audit-skips.log",
+      "sha256": "b5d36faba6bc12c65e9b87d00873ee5420a3ff04b926d67d3d0cd3dd915a1214",
+      "lines": 1
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p039/audit-boundaries.log",
+      "sha256": "c28c293904eec89073e926bfd43e67529e53c61522b12a1249bd5f1f90a9c87d",
+      "lines": 2522
+    }
+  ],
+  "test262": {
+    "files": 484,
+    "variants": 959,
+    "parseNegativeFiles": 43,
+    "parseNegativeVariants": 85,
+    "historicalSkippedFiles": 46
+  },
+  "publication": "Exact-candidate CI required before origin/master push; not yet published."
+}
