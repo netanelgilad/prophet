@@ -1,5 +1,18 @@
 # Agent implementation playbook
 
+## Current owner override — 2026-10-21
+
+The user explicitly instructed: “No just do it you and sub agents of you.”
+Direct root Codex implementation and Codex subagents now replace the Atlas-only
+worker/provider selection and quota-waiting process below. Disjoint implementation
+and independent review may proceed concurrently; root coordinates ownership and
+publication. The superseded P035 Atlas retry was interrupted and verified idle
+before takeover. Historical model trust is not transferred to Codex. All
+spec-first, full semantic review, validation/evidence, gap reconciliation,
+repository protection and preservation requirements below still apply.
+
+## Historical Atlas workflow
+
 Effective 2026-10-07: the user resumed development with an **orchestrator-led,
 worker-implemented** process. This supersedes the pause and the earlier unlimited
 Astra worktree wave. Prophet remains a use-case-agnostic symbolic VM; real unchanged

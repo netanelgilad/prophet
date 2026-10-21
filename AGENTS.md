@@ -9,29 +9,22 @@ policies, classifications and verdicts ([roadmap](docs/roadmap.md)).
 
 # Repository workflow
 
-The user resumed work on 2026-10-07 with the [agent implementation playbook](docs/agent-workflow.md).
-The orchestrator scopes tasks, launches Atlas workers, reviews
-independent evidence and code, improves prompts, and integrates validated changes
-onto `master` for push to `origin/master`. Workers implement in assigned worktrees;
-they do not push or mutate the shared checkout. Start with one worker and increase
-parallelism only through the recorded review/capacity gates. Preserve unrelated
-work. Keep the [task ledger](docs/agent-tasks/README.md) and [LLM wiki](docs/wiki/README.md)
-current; capture lessons before archiving completed Atlas threads. Honor observed
-provider rate limits and reset times. Muse remains the preferred calibrated worker;
-other free models may be piloted in separate threads/worktrees with separate
-[trust records](docs/agent-models.md), following the user's 2026-10-08 update.
-Keep one active worker total until review gates permit more; no paid fallback.
-The user's 2026-10-11 request separately authorizes a Codex Sol pilot for
-unknown-length loops: catalog model `gpt-6-sol`, high reasoning, with its own
-trust record and a design/spec review before implementation (P006).
-The user's 2026-10-10 instruction is to stay active and wait/sleep through limits
-with the assigned worker until recovery; do not end a task merely because of
-quota or duplicate an already active retry.
-Atlas workers do not automatically wake this orchestrator when finished; remain
-active through review or establish a verified wake-up mechanism before relying
-on unattended follow-up.
-The earlier wave and pause remain [historical evidence](docs/autonomous-development.md),
-not an instruction to stay paused. Repository protections remain in force.
+On 2026-10-21 the user explicitly replaced the Atlas-worker workflow with
+**direct Codex implementation and Codex subagents**: “No just do it you and sub
+agents of you.” This supersedes Atlas-only implementation, free-model selection,
+one external worker, and waiting for that worker's quota. Root may implement;
+subagents may own disjoint changes and independent review. Stop superseded
+external retries before transferring ownership. Do not spend reset credits or
+start external paid services without separate authorization.
+
+Keep the [agent implementation playbook](docs/agent-workflow.md)'s spec-first,
+semantic review, evidence, gap-audit and integration requirements. Coordinate
+shared-worktree ownership; only root integrates validated changes onto `master`
+and pushes `origin/master`. Preserve unrelated work. Maintain the
+[task ledger](docs/agent-tasks/README.md) and [LLM wiki](docs/wiki/README.md), with
+honest attribution for partial inherited drafts and reviewed Codex corrections.
+Earlier Atlas/model calibration and waiting instructions are historical;
+repository protections remain in force.
 
 Develop toward full Test262 coverage and advanced symbolic evaluation by adding
 specs and extending the shared VM to satisfy them. Concrete execution remains a

@@ -1,5 +1,11 @@
 # P035 — explicit symbolic starting inputs through the CLI
 
+**Owner override, 2026-10-21:** root Codex and its subagents now implement and
+review this task directly. Atlas LongCat was interrupted and verified idle at
+19:37 UTC; its partial parser/specs are inherited drafts, not accepted work.
+The provider, one-worker and quota-wait restrictions below are historical.
+The accepted design, bounded scope, tests, evidence and integration gates remain.
+
 Owner resumed sustained roadmap work on 2026-10-21: useful symbolic evaluation
 of real unmodified packages, eventually a defensible automatic Shai-Hulud finding.
 Base: 573f8cca86225a7c4fa1491d76f936bff413d22d (reviewed P012–P034 integration).

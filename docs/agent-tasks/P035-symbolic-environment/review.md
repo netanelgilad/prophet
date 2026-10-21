@@ -253,3 +253,14 @@ The security plan now distinguishes the reported Bun-only September candidate
 from a November Node-bootstrap candidate supported by the maintainer report.
 This does not expand P035 implementation scope, acquire a benchmark, establish
 a hash or prove any malicious behavior. SECURITY-001/002 stay open.
+
+## Owner-directed Codex takeover — 2026-10-21T19:37Z
+
+User explicitly requested direct Codex and subagent implementation. Interrupted
+Atlas session via its supported interrupt endpoint, then verified status idle
+and no turn activity. This is an authorized ownership transfer, not automatic
+quota rotation. Root owns the parser and original parser specs;
+`environment_wiring` owns CLI/runtime/HTTP input seams and argument specs;
+`environment_scenarios` owns new execution/CLI specs. Shared tree, disjoint
+paths, root-only commits/push. Independent review follows implementation.
+Earlier red and partial-draft evidence is retained with its original authorship.
