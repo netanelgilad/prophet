@@ -45,8 +45,15 @@ package.json plus resolved dependency graph, with prompts for newly possible
 behavior deep in that graph. Follow the [security consumer contract](agent-security-analysis.md#owner-product-clarification--2026-10-21):
 next add generic outbound-attempt coverage/provenance and a separate benign policy
 consumer; then lifecycle/admission semantics and a pinned original Shai-Hulud
-benchmark. Do not put permissions or verdicts into VM state, and do not confuse
-an analysis result with enforcement of a later native execution.
+benchmark. Split the runtime prerequisite into reviewable increments: first
+preserve source/caller attribution on existing host invocations, then model an
+outbound API through its actual attempt boundary. An invocation can throw before
+attempting transport; an unsupported member lookup establishes neither. Begin
+attribution with explicitly bounded synchronous calls and retain asynchronous
+causality/generated-source gaps until modeled. A shared utility's direct source
+must not erase the initiating caller. No follow-on implementation is dispatched
+until P035 is accepted. Do not put permissions or verdicts into VM state, and do
+not confuse an analysis result with enforcement of a later native execution.
 
 ## Next milestone: pico startup through the CLI, with no environment file
 
