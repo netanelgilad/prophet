@@ -57,9 +57,15 @@ source location and triggering conditions; feasibility/witness status; execution
 coverage and unresolved continuations; the exact permission change requested.
 For example, a nested package newly attempting HTTPS to telemetry.example.invalid
 can require an explicit network grant even if no sampled run triggered it.
-Approval is scoped to exact artifacts, graph, runtime/scenario, policy and engine
-models; changes invalidate it. A user may deny, grant a narrow capability, or
-record an explicit risk exception. Unknown is never silently accepted.
+An execution admission decision is scoped to exact artifacts, graph,
+runtime/scenario, policy and engine models; changes invalidate that decision and
+require fresh analysis. Keep this distinct from a standing capability policy:
+an explicitly granted package/version selector may continue to permit behavior
+within its scope after reanalysis. Newly required capabilities prompt for a
+permission change; a new dependency instance needs its own matching grant.
+Cross-version or delegated grants must be explicit. A user may deny, grant a
+narrow capability, or record an explicit risk exception. Unknown is never
+silently accepted.
 
 Attribution must preserve both the executing package/source and initiating call
 chain. A shared HTTP utility must not grant its callers blanket permission;
