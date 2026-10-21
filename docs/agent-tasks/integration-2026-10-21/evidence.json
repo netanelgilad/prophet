@@ -1,0 +1,309 @@
+{
+  "date": "2026-10-21",
+  "base": "0881d9ee32b2133f65eb9e0496d6553830cf3ee3",
+  "instinctSource": "e183ed98edcf82c1f95937143e2dec58577b36dd",
+  "scope": "All cumulative Instinct P012\u2013P034 drafts; P007\u2013P011 already integrated at base",
+  "testedCommit": "f5d0b911961781de90b4f6990cb3106e588ace98",
+  "runtime": {
+    "version": "v24.21.0",
+    "platform": "darwin-arm64",
+    "archiveSha256": "bed7eea5325e1108f32ce5228ddd6a5f0f08a499ee42aa7442aea583702f6057",
+    "nativeBinary": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+  },
+  "validation": {
+    "environment": "Pinned Node prepended to PATH; PROPHET_NODE_BINARY points to same pinned binary",
+    "full": {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs test --runInBand",
+      "exit": 0,
+      "suitesPassed": 163,
+      "testsPassed": 5102,
+      "historicalSkipped": 46
+    },
+    "typecheck": {
+      "command": "node .yarn/releases/yarn-3.1.1.cjs typecheck",
+      "exit": 0
+    },
+    "previousFull": {
+      "commit": "6aa00fa54fbd42966d595b1753ce514324574c86",
+      "exit": 1,
+      "suitesFailed": 4,
+      "suitesPassed": 159,
+      "testsFailed": 4,
+      "testsPassed": 5096,
+      "reason": "1024 total-argument cap rejected existing 1500/3000-argument regressions; fixed at4096, preserving assertions"
+    },
+    "independentReview": {
+      "originalCounterexamples": 11,
+      "draftFailures": 11,
+      "finalRegressionCases": 25,
+      "nativeStreamCases": 2,
+      "additionalWholeTest262Cases": 1,
+      "falseAlarm": "Number.prototype guest mutation already reached an explicit unsupported guard"
+    }
+  },
+  "sourceTrees": [
+    "100644 blob b90235a83d7b9f6efd508429131f5e2be3a2dd07\t.github/workflows/validations.yml",
+    "040000 tree 0e869998c0917ddd81c0f9006577d8288c3dfc16\tsrc",
+    "040000 tree e2d72dd9678cb068899655b906303f3d8aff8879\ttest"
+  ],
+  "test262": {
+    "before": {
+      "activeFiles": 370,
+      "variants": 731
+    },
+    "activeFiles": 484,
+    "variants": 959,
+    "parseFiles": 43,
+    "parseVariants": 85,
+    "removed": [],
+    "added": [
+      "built-ins/String/prototype/substring/S15.5.4.15_A1_T10.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A1_T11.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A1_T13.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A1_T14.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A1_T4.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A1_T7.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A1_T8.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A3_T10.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A3_T5.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A3_T6.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A3_T7.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A6.js",
+      "built-ins/String/prototype/substring/S15.5.4.15_A7.js",
+      "built-ins/String/prototype/substring/this-value-not-obj-coercible.js",
+      "language/statements/variable/dstr/ary-name-iter-val.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-ary-elem-init.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-ary-elem-iter.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-ary-empty-iter.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-ary-val-null.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-init-exhausted.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-init-hole.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-init-skipped.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-init-throws.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-init-undef.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-init-unresolvable.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-iter-complete.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-iter-done.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-id-iter-val.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-obj-id-init.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-obj-id.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-obj-prop-id-init.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-obj-prop-id.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-obj-val-null.js",
+      "language/statements/variable/dstr/ary-ptrn-elem-obj-val-undef.js",
+      "language/statements/variable/dstr/ary-ptrn-rest-init-ary.js",
+      "language/statements/variable/dstr/ary-ptrn-rest-init-id.js",
+      "language/statements/variable/dstr/ary-ptrn-rest-init-obj.js",
+      "language/statements/variable/dstr/ary-ptrn-rest-not-final-ary.js",
+      "language/statements/variable/dstr/ary-ptrn-rest-not-final-id.js",
+      "language/statements/variable/dstr/ary-ptrn-rest-not-final-obj.js",
+      "language/statements/let/dstr/ary-name-iter-val.js",
+      "language/statements/let/dstr/ary-ptrn-elem-ary-elem-init.js",
+      "language/statements/let/dstr/ary-ptrn-elem-ary-elem-iter.js",
+      "language/statements/let/dstr/ary-ptrn-elem-ary-empty-iter.js",
+      "language/statements/let/dstr/ary-ptrn-elem-ary-val-null.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-init-exhausted.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-init-hole.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-init-skipped.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-init-throws.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-init-undef.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-init-unresolvable.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-iter-complete.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-iter-done.js",
+      "language/statements/let/dstr/ary-ptrn-elem-id-iter-val.js",
+      "language/statements/let/dstr/ary-ptrn-elem-obj-id-init.js",
+      "language/statements/let/dstr/ary-ptrn-elem-obj-id.js",
+      "language/statements/let/dstr/ary-ptrn-elem-obj-prop-id-init.js",
+      "language/statements/let/dstr/ary-ptrn-elem-obj-prop-id.js",
+      "language/statements/let/dstr/ary-ptrn-elem-obj-val-null.js",
+      "language/statements/let/dstr/ary-ptrn-elem-obj-val-undef.js",
+      "language/statements/let/dstr/ary-ptrn-rest-init-ary.js",
+      "language/statements/let/dstr/ary-ptrn-rest-init-id.js",
+      "language/statements/let/dstr/ary-ptrn-rest-init-obj.js",
+      "language/statements/let/dstr/ary-ptrn-rest-not-final-ary.js",
+      "language/statements/let/dstr/ary-ptrn-rest-not-final-id.js",
+      "language/statements/let/dstr/ary-ptrn-rest-not-final-obj.js",
+      "language/statements/const/dstr/ary-name-iter-val.js",
+      "language/statements/const/dstr/ary-ptrn-elem-ary-elem-init.js",
+      "language/statements/const/dstr/ary-ptrn-elem-ary-elem-iter.js",
+      "language/statements/const/dstr/ary-ptrn-elem-ary-empty-iter.js",
+      "language/statements/const/dstr/ary-ptrn-elem-ary-val-null.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-init-exhausted.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-init-hole.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-init-skipped.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-init-throws.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-init-undef.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-init-unresolvable.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-iter-complete.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-iter-done.js",
+      "language/statements/const/dstr/ary-ptrn-elem-id-iter-val.js",
+      "language/statements/const/dstr/ary-ptrn-elem-obj-id-init.js",
+      "language/statements/const/dstr/ary-ptrn-elem-obj-id.js",
+      "language/statements/const/dstr/ary-ptrn-elem-obj-prop-id-init.js",
+      "language/statements/const/dstr/ary-ptrn-elem-obj-prop-id.js",
+      "language/statements/const/dstr/ary-ptrn-elem-obj-val-null.js",
+      "language/statements/const/dstr/ary-ptrn-elem-obj-val-undef.js",
+      "language/statements/const/dstr/ary-ptrn-rest-init-ary.js",
+      "language/statements/const/dstr/ary-ptrn-rest-init-id.js",
+      "language/statements/const/dstr/ary-ptrn-rest-init-obj.js",
+      "language/statements/const/dstr/ary-ptrn-rest-not-final-ary.js",
+      "language/statements/const/dstr/ary-ptrn-rest-not-final-id.js",
+      "language/statements/const/dstr/ary-ptrn-rest-not-final-obj.js",
+      "built-ins/String/prototype/slice/S15.5.4.13_A3_T4.js",
+      "built-ins/String/prototype/split/S15.5.4.14_A1_T4.js",
+      "built-ins/String/prototype/split/S15.5.4.14_A2_T19.js",
+      "built-ins/String/prototype/includes/String.prototype.includes_FailBadLocation.js",
+      "built-ins/String/prototype/includes/String.prototype.includes_FailLocation.js",
+      "built-ins/String/prototype/includes/String.prototype.includes_FailMissingLetter.js",
+      "built-ins/String/prototype/includes/String.prototype.includes_Success.js",
+      "built-ins/String/prototype/includes/String.prototype.includes_SuccessNoLocation.js",
+      "built-ins/String/prototype/includes/String.prototype.includes_lengthProp.js",
+      "built-ins/String/prototype/includes/coerced-values-of-position.js",
+      "built-ins/String/prototype/includes/return-abrupt-from-position.js",
+      "built-ins/String/prototype/includes/return-abrupt-from-searchstring.js",
+      "built-ins/String/prototype/includes/return-abrupt-from-this.js",
+      "built-ins/String/prototype/includes/return-false-with-out-of-bounds-position.js",
+      "built-ins/String/prototype/includes/return-true-if-searchstring-is-empty.js",
+      "built-ins/String/prototype/includes/searchstring-is-regexp-throws.js",
+      "built-ins/String/prototype/includes/searchstring-found-with-position.js",
+      "built-ins/String/prototype/includes/searchstring-found-without-position.js",
+      "built-ins/String/prototype/includes/searchstring-not-found-with-position.js",
+      "built-ins/String/prototype/includes/searchstring-not-found-without-position.js",
+      "built-ins/String/prototype/includes/this-is-null-throws.js",
+      "built-ins/String/prototype/includes/this-is-undefined-throws.js"
+    ],
+    "historic": [
+      "built-ins/Boolean/S15.6.1.1_A1_T1.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T2.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T3.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T4.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T5.js",
+      "built-ins/Boolean/S15.6.1.1_A2.js",
+      "built-ins/Boolean/S15.6.2.1_A1.js",
+      "language/statements/if/if-async-fun-else-async-fun.js",
+      "language/statements/if/if-async-fun-else-stmt.js",
+      "language/statements/if/if-async-fun-no-else.js",
+      "language/statements/if/if-async-gen-else-async-gen.js",
+      "language/statements/if/if-async-gen-else-stmt.js",
+      "language/statements/if/if-async-gen-no-else.js",
+      "language/statements/if/if-cls-else-cls.js",
+      "language/statements/if/if-cls-else-stmt.js",
+      "language/statements/if/if-cls-no-else.js",
+      "language/statements/if/if-const-else-const.js",
+      "language/statements/if/if-decl-else-decl-strict.js",
+      "language/statements/if/if-decl-else-stmt-strict.js",
+      "language/statements/if/if-decl-no-else-strict.js",
+      "language/statements/if/if-fun-else-fun-strict.js",
+      "language/statements/if/if-fun-else-stmt-strict.js",
+      "language/statements/if/if-fun-no-else-strict.js",
+      "language/statements/if/if-gen-else-gen.js",
+      "language/statements/if/if-gen-else-stmt.js",
+      "language/statements/if/if-gen-no-else.js",
+      "language/statements/if/if-let-else-let.js",
+      "language/statements/if/if-let-else-stmt.js",
+      "language/statements/if/if-let-no-else.js",
+      "language/statements/if/if-stmt-else-async-fun.js",
+      "language/statements/if/if-stmt-else-async-gen.js",
+      "language/statements/if/if-stmt-else-cls.js",
+      "language/statements/if/if-stmt-else-const.js",
+      "language/statements/if/if-stmt-else-decl-strict.js",
+      "language/statements/if/if-stmt-else-fun-strict.js",
+      "language/statements/if/if-stmt-else-gen.js",
+      "language/statements/if/if-stmt-else-let.js",
+      "language/statements/if/labelled-fn-stmt-first.js",
+      "language/statements/if/labelled-fn-stmt-lone.js",
+      "language/statements/if/labelled-fn-stmt-second.js",
+      "language/statements/if/let-array-with-newline.js",
+      "language/statements/if/let-block-with-newline.js",
+      "language/statements/if/let-identifier-with-newline.js",
+      "language/types/boolean/S8.3_A1_T1.js",
+      "language/types/boolean/S8.3_A1_T2.js",
+      "language/types/boolean/S8.3_A3.js"
+    ]
+  },
+  "test262InventorySha256": "9c5b7ba5484914f9b3e4ed968c15cc7037377e63d20de643426d17cd183d6b64",
+  "audits": {
+    "guards.txt": {
+      "sha256": "4f835fd62931f2b3610ff67ec5b3668f7bf3941d9677bcb95ed2c07d2689468f",
+      "lines": 766
+    },
+    "assertions.txt": {
+      "sha256": "0ce0a66f8394bce9316a54b4014d38f3a6e5b0bd706ab4c7941602d0fc7464ae",
+      "lines": 23
+    },
+    "skips.txt": {
+      "sha256": "b5d36faba6bc12c65e9b87d00873ee5420a3ff04b926d67d3d0cd3dd915a1214",
+      "lines": 1
+    },
+    "boundaries.txt": {
+      "sha256": "c86a089a629f45285b2f6928b5631714f9e6ee0fa06b85f83690acae2cadac6e",
+      "lines": 2214
+    }
+  },
+  "logs": {
+    "full-initial.log": {
+      "localPath": "/tmp/prophet-instinct-integration/full-initial.log",
+      "sha256": "21568635237ee8341539d899954fe1c297da84e3ec9a77fafaac6ffe0c5b5fed"
+    },
+    "typecheck-initial.log": {
+      "localPath": "/tmp/prophet-instinct-integration/typecheck-initial.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "independent-red.log": {
+      "localPath": "/tmp/prophet-instinct-integration/independent-red.log",
+      "sha256": "a63f7017dda6df50bfb9b81322f83cc4c1a0d0dc203be5a293588c43b554700c"
+    },
+    "correction-focused-final.log": {
+      "localPath": "/tmp/prophet-instinct-integration/correction-focused-final.log",
+      "sha256": "07836cc9105b2ad5eaf8d206151ab0aea4ae2169509ca265be724fe7d324a22c"
+    },
+    "correction-stream-final.log": {
+      "localPath": "/tmp/prophet-instinct-integration/correction-stream-final.log",
+      "sha256": "406a68e433ae520dbcf3a228c3e9d8853eb1c13ccf2d7a4b4d3143c90f9d6063"
+    },
+    "correction-arguments-final.log": {
+      "localPath": "/tmp/prophet-instinct-integration/correction-arguments-final.log",
+      "sha256": "8187e6ee5c755e9579fc857c81cdab4465564ac525f9954861b9fc41753bc12c"
+    },
+    "native-sirv.log": {
+      "localPath": "/tmp/prophet-instinct-integration/native-sirv.log",
+      "sha256": "a012ef387483299ac41c0cb3950c7d124499f2528de05483cc6958c313f0003e"
+    },
+    "native-stream.log": {
+      "localPath": "/tmp/prophet-instinct-integration/native-stream.log",
+      "sha256": "5f67abeaf027b602c32194b1ae393662fe553c65f8774259cd48de1cd98cb432"
+    },
+    "upstream-regexp-includes.log": {
+      "localPath": "/tmp/prophet-instinct-integration/upstream-regexp-includes.log",
+      "sha256": "690b0ffeae372265157b9bb23d62603db99cbf19740524352ae34e6cf9a4cf1a"
+    },
+    "full-final.log": {
+      "localPath": "/tmp/prophet-instinct-integration/full-final.log",
+      "sha256": "e352f002de6b5bef2c459029e178c0209e3f5d7f105056d26482cd770d35ab7f"
+    },
+    "typecheck-final.log": {
+      "localPath": "/tmp/prophet-instinct-integration/typecheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "full-corrected.log": {
+      "localPath": "/tmp/prophet-instinct-integration/full-corrected.log",
+      "sha256": "094f7f4ec6c702cda5d772c892b6f416b0774317614c820c85117d24e4c5df1c"
+    },
+    "typecheck-corrected.log": {
+      "localPath": "/tmp/prophet-instinct-integration/typecheck-corrected.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "unrelatedOwnerFiles": {
+    "count": 19,
+    "manifestSha256": "13d023f8a8c241236d372b5b5e81f8d794a596657f2360b06ce26d76f09ecc19",
+    "verifiedUnchangedBeforePublication": true
+  },
+  "publication": {
+    "branch": "integrate/instinct-p012-p034",
+    "target": "master",
+    "policy": "Owner authorized direct publication; fast-forward only after required test and type-check checks pass on the exact candidate. No protection changes or force push.",
+    "ciEvidence": "GitHub check runs for the published commit are authoritative; this evidence-only follow-up changes no source or tests."
+  },
+  "limits": "See review.md and stable implementation-gap IDs. No full Test262/Node or all-path application proof claimed."
+}

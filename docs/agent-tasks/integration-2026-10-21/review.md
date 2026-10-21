@@ -8,7 +8,7 @@ Candidate: `e183ed98edcf82c1f95937143e2dec58577b36dd`
 (`origin/agent/p034-review-p1-fixes`), including P012–P034 and P030's branch.
 P007–P011 are already integrated: master's tree exactly equals `22c109d`.
 The initial combined index was verified byte-for-byte equal to the candidate.
-A single linear integration commit will preserve master's existing history;
+Linear integration commits preserve master's existing history;
 original source/evidence commits remain available through the source branches.
 
 The independent reviewer read the entire changed production diff and relevant
@@ -78,9 +78,16 @@ that was a reviewer false alarm, not a removed working behavior.
 
 ## Acceptance
 
-Correction review and focused validation are accepted: 25 independent regression
-cases, native stream controls and sirv native range/validator controls pass.
-Fresh full regression validation, typecheck, final audit and exact-commit CI
-publication checks remain pending. See evidence.json when
-those gates complete. Historical task evidence is retained as historical,
-including rejected source snapshots and incorrectly reported typecheck runs.
+Correction review and full local validation are accepted at
+`f5d0b911961781de90b4f6990cb3106e588ace98`: 163 suites / 5,102 tests passed, 46 unchanged historical
+skips; pinned Node v24.21.0; typecheck exit 0. The 25 independent review cases,
+two native stream controls, native sirv range/validator controls and Test262
+inventory/guard/assertion/skip/documentation audits pass. See
+[evidence.json](evidence.json) for source trees, commands and evidence hashes.
+
+The evidence-only follow-up changes no source or tests. Publication requires the
+exact candidate's GitHub `test` and `type-check` checks to pass, then a fast-forward
+to `master` under the owner's direct-push authorization. GitHub check runs and
+master's commit history record publication; protections are not changed.
+Historical task evidence remains historical, including rejected snapshots and
+incorrectly reported typecheck runs. No worker trust or concurrency promotion.
