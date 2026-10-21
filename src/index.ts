@@ -10,6 +10,7 @@ export { isExecutionBoundary, hasExecutionBoundary, isForkedCompletion } from ".
 export { evaluateCommonJS } from "./require/commonjs";
 export { createCommonJSLoader } from "./require/loader";
 export { createHostFunction, effectContext, effectPaths } from "./effects";
+export { createNetModel, symbolicTCPSubmission } from "./node/net";
 export { createHTTPModel } from "./node/http";
 export { createEventEmitterModel } from "./node/events";
 export { createConsoleModel } from "./node/console";

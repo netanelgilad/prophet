@@ -14,6 +14,8 @@ import { createJobQueue } from "../jobs";
 import { Math as ESMath } from "../math/Math";
 import { createConsoleModel } from "../node/console";
 import { symbolicTCPBind } from "../node/bind";
+import { createNetModel } from "../node/net";
+import { createEventEmitterModel } from "../node/events";
 import { createHTTPModel } from "../node/http";
 import { createOpaqueBuiltinModule } from "../node/opaque";
 import { createPosixPathModel } from "../node/path";
@@ -84,7 +86,9 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const url = createLegacyURLModel(warnings);
   markUnsupportedBoundaryObject(filesystem.module);
   const externalEvents = createExternalEvents();
-  const http = createHTTPModel(undefined, { bind: symbolicTCPBind, nextTick, externalEvents,
+  const events = createEventEmitterModel();
+  const net = createNetModel(events, { nextTick });
+  const http = createHTTPModel(events, { bind: symbolicTCPBind, nextTick, externalEvents,
     requestInput: environment && environment.requestInput });
   const math = Object.assign(ESObject({
     random: Object.assign(ESBuiltinFunction(ESMath.properties.random.implementation), {
@@ -116,7 +120,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
         return path;
       }
     }, { main: filename, builtins: {
-      console: consoleModel.module, http: http.module, events: http.eventsModule,
+      console: consoleModel.module, http: http.module, events: events.module, net: net.module,
       // Public Node models share identities and one persistent job queue.
       // Filesystem facts are acquired separately from program source.
       https: createOpaqueBuiltinModule("https"), fs: filesystem.module,

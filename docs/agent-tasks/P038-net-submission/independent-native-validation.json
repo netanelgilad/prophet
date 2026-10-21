@@ -1,0 +1,38 @@
+{
+  "node": "v24.21.0",
+  "platform": "darwin",
+  "rows": [
+    {
+      "name": "host-and-port-invalid",
+      "error": "TypeError",
+      "code": "ERR_INVALID_ARG_TYPE"
+    },
+    {
+      "name": "missing-port",
+      "error": "TypeError",
+      "code": "ERR_MISSING_ARGS"
+    },
+    {
+      "name": "hostname-port-invalid",
+      "error": "RangeError",
+      "code": "ERR_SOCKET_BAD_PORT"
+    },
+    {
+      "name": "empty-host-port-invalid",
+      "error": "RangeError",
+      "code": "ERR_SOCKET_BAD_PORT"
+    },
+    {
+      "name": "embedded-null-port-invalid",
+      "error": "TypeError",
+      "code": "ERR_INVALID_ARG_VALUE"
+    },
+    {
+      "name": "negative-zero",
+      "returned": true,
+      "fdBeforeTick": -1,
+      "connecting": true
+    }
+  ],
+  "attempts": []
+}

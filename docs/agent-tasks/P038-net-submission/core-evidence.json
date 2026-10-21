@@ -1,0 +1,39 @@
+{
+  "status": "source-stable pending independent review",
+  "base": "8052b02",
+  "node": "v24.21.0",
+  "ownedFiles": {
+    "src/node/net.ts": "876c2011429c8cb9b5708f877e847db07c001ce7af591365c322594fbea087f2",
+    "src/cli/runtime.ts": "43bb355aef93a029901ea49bac3435fe6fa86a918b8d181f7a28fd39cdd12957",
+    "src/index.ts": "4e23314fc595743ef4b70dac0743195d1bb910fdda9c69ae50e1a3910d37b05c",
+    "test/node-net.spec.ts": "8b37a2a7638a55b9fe09ae59d88bc4f3ae58e423a7123bd56f4433704ee1ae37"
+  },
+  "logs": {
+    "core-red.log": "516a2dee7f77c529b566e944fc94b05c3c386318d6bd21fb08910909e09a50ba",
+    "core-first-green-attempt.log": "137f3aa61d6bf62901684c30e51159adfcacb25b5fca596b8cce6e14346d5e4b",
+    "core-green.log": "2d2348e3e75da2ee11d3913cc5f98ff68135e1a4759fb54f752f9a05bfd5f396",
+    "core-affected.log": "0d04eda0a652fd69c97a85ff7414c97479c17b4c4f0b264ca7259b5f6c20d83c",
+    "core-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "red": {
+    "exitCode": 1,
+    "reason": "Cannot find module ../src/node/net (before implementation)",
+    "executedTests": 0
+  },
+  "green": {
+    "coreTests": 19,
+    "affectedSuites": 4,
+    "typecheckExitCode": 0
+  },
+  "harnessCorrections": [
+    "The original optional submit helper defaulted undefined to accepted; null sentinel now genuinely omits the submit model.",
+    "CommonJS fixture globals are installed in the global object, not an outer lexical scope discarded by module loading."
+  ],
+  "boundaries": [
+    "Canonical IPv4 explicit options only; nonempty non-NUL hostname admits numeric port validation before DNS boundary.",
+    "Prototype heap alterations and conditional intrinsic prototype records conservatively rejected.",
+    "No completion provider, no close delivery; true is accepted pending submission only.",
+    "False submission stops at cleanup after retained call/return and Boolean fact.",
+    "Queued-only exact-empty-argument destroy; generic allocation, recursion, enumeration and listener gaps remain."
+  ]
+}

@@ -4,7 +4,8 @@ Base: `348fe0c906f3deda30edbc5f7bef305c76785fe9`, published P036.
 Branch: `agent/p037-program-identities`. Owner: Codex root with its subagents,
 following the user's explicit direct-implementation instruction.
 Status: implementation `a7ef378` independently accepted; full177 suites/5262 passes,
-46 historical skips and typecheck pass. Exact-candidate CI/publication pending.
+46 historical skips and typecheck pass. Published8052b02 after exact-candidate
+CI39668471592 passed; [publication](publication.md).
 [Review](review.md), [evidence](evidence.json).
 
 Previous P036 supplies executing filenames and dynamic interpreted call origins.

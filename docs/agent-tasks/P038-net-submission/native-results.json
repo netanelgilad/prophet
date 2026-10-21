@@ -1,0 +1,533 @@
+{
+  "node": "v24.21.0",
+  "rows": [
+    {
+      "label": "valid",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "returned",
+          "connecting": true,
+          "destroyed": false
+        },
+        {
+          "kind": "connectionAttempt",
+          "address": "127.0.0.1",
+          "port": 43210,
+          "family": 4
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        }
+      ]
+    },
+    {
+      "label": "invalid-port--1",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "RangeError",
+            "message": "Port should be >= 0 and < 65536. Received type number (-1).",
+            "code": "ERR_SOCKET_BAD_PORT",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "invalid-port-65536",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "RangeError",
+            "message": "Port should be >= 0 and < 65536. Received type number (65536).",
+            "code": "ERR_SOCKET_BAD_PORT",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "invalid-port-1.5",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "RangeError",
+            "message": "Port should be >= 0 and < 65536. Received type number (1.5).",
+            "code": "ERR_SOCKET_BAD_PORT",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "invalid-port-NaN",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "RangeError",
+            "message": "Port should be >= 0 and < 65536. Received type number (NaN).",
+            "code": "ERR_SOCKET_BAD_PORT",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "invalid-port-Infinity",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "RangeError",
+            "message": "Port should be >= 0 and < 65536. Received type number (Infinity).",
+            "code": "ERR_SOCKET_BAD_PORT",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "wrong-host-invalid-port",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "TypeError",
+            "message": "The \"options.host\" property must be of type string. Received type number (42)",
+            "code": "ERR_INVALID_ARG_TYPE",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "nul-host-invalid-port",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "TypeError",
+            "message": "The property 'options.host' must be a string without null bytes. Received '127.0.0.1\\x00'",
+            "code": "ERR_INVALID_ARG_VALUE",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "wrong-host-missing-port",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "TypeError",
+            "message": "The \"options\" or \"port\" or \"path\" argument must be specified",
+            "code": "ERR_MISSING_ARGS",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": false,
+          "destroyed": false,
+          "hasHandle": false,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "null-port",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "TypeError",
+            "message": "The \"options.port\" property must be one of type number or string. Received null",
+            "code": "ERR_INVALID_ARG_TYPE",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "missing-port",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "sync-throw",
+          "error": {
+            "name": "TypeError",
+            "message": "The \"options\" or \"port\" or \"path\" argument must be specified",
+            "code": "ERR_MISSING_ARGS",
+            "ownNames": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": false,
+          "destroyed": false,
+          "hasHandle": false,
+          "connectListeners": 1
+        }
+      ]
+    },
+    {
+      "label": "throw-attempt",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "returned",
+          "connecting": true,
+          "destroyed": false
+        },
+        {
+          "kind": "connectionAttempt",
+          "address": "127.0.0.1",
+          "port": 43210,
+          "family": 4
+        },
+        {
+          "kind": "uncaught",
+          "error": {
+            "name": "Error",
+            "message": "fixture listener throw",
+            "ownNames": [
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": true,
+          "destroyed": false,
+          "hasHandle": true,
+          "connectListeners": 1
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        }
+      ]
+    },
+    {
+      "label": "destroy-attempt",
+      "events": [
+        {
+          "kind": "before-call"
+        },
+        {
+          "kind": "once-connect",
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "TCPWRAP-init"
+        },
+        {
+          "kind": "returned",
+          "connecting": true,
+          "destroyed": false
+        },
+        {
+          "kind": "connectionAttempt",
+          "address": "127.0.0.1",
+          "port": 43210,
+          "family": 4
+        },
+        {
+          "kind": "destroy-returned",
+          "destroyed": true,
+          "connecting": false,
+          "hasHandle": false
+        },
+        {
+          "kind": "uncaught",
+          "error": {
+            "name": "TypeError",
+            "message": "Cannot read properties of null (reading 'connect')",
+            "ownNames": [
+              "message"
+            ]
+          }
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        },
+        {
+          "kind": "after-turn"
+        },
+        {
+          "kind": "retained-before-cleanup",
+          "connecting": false,
+          "destroyed": true,
+          "hasHandle": false,
+          "connectListeners": 1
+        }
+      ]
+    }
+  ]
+}

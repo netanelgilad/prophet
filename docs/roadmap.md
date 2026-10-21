@@ -48,7 +48,9 @@ interpreted activations and direct source origins on existing host invocations.
 This prepares file-to-package attribution; it does not establish package identity
 or asynchronous registration causality. [P037](agent-tasks/P037-program-identities/task.md)
 now exposes immutable captured source identities in the CLI graph so file origins
-can be checked against exact bytes. Next model an outbound API through its
+can be checked against exact bytes. [P038](agent-tasks/P038-net-submission/task.md)
+adds pending IPv4 submission with cancellation and explicit unresolved failure,
+without delivering connection completion. Next extend outbound APIs through their
 actual attempt boundary, then build a benign transitive-dependency policy test,
 pinned lifecycle/admission orchestration and an inert original Shai-Hulud benchmark.
 An invocation can throw before attempting transport; an unsupported member lookup

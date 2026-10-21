@@ -1,0 +1,108 @@
+{
+  "runtime": "v24.21.0",
+  "probeExitStatus": 0,
+  "localScenarioCount": 13,
+  "wholeUpstreamCasesExecuted": 0,
+  "wholeUpstreamFilesRead": 18,
+  "discoveryInventoryCount": 207,
+  "tagTreeSha": "955266bfdd854cd280dffd47548673914484e4c0",
+  "network": "IPv4 binding intercepted; original never called; DNS/IPv6/IPC prohibited; no network traffic",
+  "files": {
+    "probe.cjs": {
+      "sha256": "4d36458612386269e4c46c4eec97d215cfca29552b1c336353657c38fb9460b2",
+      "bytes": 3420
+    },
+    "results.json": {
+      "sha256": "d6c695ec7fdd5d8b8d261c2be7dd5ec6dc1ee8b77d99ac446bf2223e32aaf586",
+      "bytes": 12061
+    },
+    "upstream-net-inventory.txt": {
+      "sha256": "5a603f69a5175a5f2ebcbf9f36f6bad47b08dcac3ce2314fcd64f3cf48a8567e",
+      "bytes": 9618
+    },
+    "node-tree.json": {
+      "sha256": "4bad7fd4549ee89b0a1b2b2315b004c371d9d6deca9ae4b20ca5214314a2e7d2",
+      "bytes": 12711579
+    },
+    "upstream/test__parallel__test-net-connect-after-destroy.js": {
+      "sha256": "fd3d2f85a660dc59a14794d9ed4ee48e910ae22f167cf088cf9d45f0bb42372b",
+      "bytes": 260
+    },
+    "upstream/test__parallel__test-net-connect-options-invalid.js": {
+      "sha256": "1dae6f0dbe948948ae53d6a07ca06c3c056f7cdad295551cb2b9dbb10a76c1b8",
+      "bytes": 1052
+    },
+    "upstream/test__parallel__test-net-socket-connecting.js": {
+      "sha256": "53045ee52c8a35b45149b959d354178598944fb945f20b55cf8a36cfc0e446b3",
+      "bytes": 571
+    },
+    "upstream/test__parallel__test-net-dns-lookup-skip.js": {
+      "sha256": "ec88368cb21c8aa30c147ad7882788a386e55b77a0c3dedcaac9838bc08d4116",
+      "bytes": 444
+    },
+    "upstream/test__parallel__test-net-connect-destroy.js": {
+      "sha256": "c1477033650c81f00a17c95432d6140f321c88e2fcc29b99c988e57e8d0b0259",
+      "bytes": 170
+    },
+    "upstream/test__sequential__test-net-better-error-messages-port.js": {
+      "sha256": "6da14f86d98e87b04f9fa5dd0393548f5f270db98060dbc46e92e0b10f11978c",
+      "bytes": 597
+    },
+    "upstream/test__parallel__test-net-socket-constructor.js": {
+      "sha256": "a438176d8dc81d36b30efb6f616029fb4db896688e53492a26e4363d9d45631b",
+      "bytes": 1613
+    },
+    "upstream/test__parallel__test-net-connect-options-port.js": {
+      "sha256": "5ad3612eb44a51359c0e48af34c0f43e700fbb4d7969cc821681479274a79b70",
+      "bytes": 7563
+    },
+    "upstream/test__parallel__test-net-connect-call-socket-connect.js": {
+      "sha256": "62a04ee13bcc5064c7f810d0dc2df1a09d57be27077a9da5286381d09f7f6437",
+      "bytes": 1246
+    },
+    "upstream/test__sequential__test-net-connect-econnrefused.js": {
+      "sha256": "1db0970ca5d26f8b00771478732fbc1c32b3d837bce89ec5f6d337ac2a7263bd",
+      "bytes": 2494
+    },
+    "upstream/src__tcp_wrap.cc": {
+      "sha256": "f09516ac7eac93f4a0b44ec676ace10be5cbbfec2f1a1922c6ee5c7fff0d5813",
+      "bytes": 23233
+    },
+    "upstream/test__parallel__test-net-connect-no-arg.js": {
+      "sha256": "e735a121c56fa3b5a3ad585cd00ca36a4d5a02befc9625baa8dd6d25d9b1f516",
+      "bytes": 816
+    },
+    "upstream/test__parallel__test-net-socket-connect-without-cb.js": {
+      "sha256": "36c3209698e0222777a9854f146b4540a4f1c2f2045076dfcccdef78b04371b1",
+      "bytes": 658
+    },
+    "upstream/deps__uv__src__unix__tcp.c": {
+      "sha256": "ab401c3846448501842b4c5a1973beceab00955aebecbbc05e64b71472f19053",
+      "bytes": 18228
+    },
+    "upstream/test__parallel__test-net-connect-immediate-destroy.js": {
+      "sha256": "5191dbc7a1f84d8ce67dc0bb646fb922fe18a211776805efedf4a238b981d236",
+      "bytes": 323
+    },
+    "upstream/test__parallel__test-net-socket-ready-without-cb.js": {
+      "sha256": "a66f73e4c024ac5bfdeda91ffac5dae15078e001ac3f7fa27e4408bbff1cfaf2",
+      "bytes": 482
+    },
+    "upstream/test__parallel__test-net-negative-zero.js": {
+      "sha256": "e489b02be76f1722b640851a53ae625203851352c25ccfc826f25529eee97f4b",
+      "bytes": 237
+    },
+    "upstream/test__parallel__test-net-normalize-args.js": {
+      "sha256": "a704602fcc1c0a182e9a1e071dbec953ca4d3eeec1bd5f331a65abb921691f3b",
+      "bytes": 1496
+    },
+    "upstream/test__parallel__test-net-blocklist.js": {
+      "sha256": "f03a94fa460e48ecdacdf5a5d0018f7883bd3c5344dc0a25209d4e5703ab9c6b",
+      "bytes": 1439
+    },
+    "upstream/test__parallel__test-tcp-wrap-connect.js": {
+      "sha256": "3573f04a7df6a50e294a33e3a073decc07d6ec3bdde2a213de3af23b48ea04e8",
+      "bytes": 1621
+    }
+  }
+}

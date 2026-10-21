@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    ".yarn/releases/yarn-3.1.1.cjs",
+    "test",
+    "--runInBand",
+    "test/node-net-review.spec.ts"
+  ],
+  "timeout": 45,
+  "status": 0,
+  "seconds": 1.0991592407226562,
+  "before": {
+    "src/node/net.ts": "876c2011429c8cb9b5708f877e847db07c001ce7af591365c322594fbea087f2",
+    "src/cli/runtime.ts": "43bb355aef93a029901ea49bac3435fe6fa86a918b8d181f7a28fd39cdd12957",
+    "src/index.ts": "4e23314fc595743ef4b70dac0743195d1bb910fdda9c69ae50e1a3910d37b05c",
+    "src/node/events.ts": "51ea076cb2d923e1b2e3c56c4644289768c3974f4f810f85fc1c1bd494ecbc78",
+    "test/node-net-review.spec.ts": "d33658d4c9374998c3163e76b5fd02e42e58b57f27750e2dbbe78fb36a18c30b",
+    "test/node-net-integration.spec.ts": "634d3c58f3cceb43b0f4811c721bf4705a69f8924e05eb0264d837257f68db71"
+  },
+  "after": {
+    "src/node/net.ts": "876c2011429c8cb9b5708f877e847db07c001ce7af591365c322594fbea087f2",
+    "src/cli/runtime.ts": "43bb355aef93a029901ea49bac3435fe6fa86a918b8d181f7a28fd39cdd12957",
+    "src/index.ts": "4e23314fc595743ef4b70dac0743195d1bb910fdda9c69ae50e1a3910d37b05c",
+    "src/node/events.ts": "51ea076cb2d923e1b2e3c56c4644289768c3974f4f810f85fc1c1bd494ecbc78",
+    "test/node-net-review.spec.ts": "d33658d4c9374998c3163e76b5fd02e42e58b57f27750e2dbbe78fb36a18c30b",
+    "test/node-net-integration.spec.ts": "634d3c58f3cceb43b0f4811c721bf4705a69f8924e05eb0264d837257f68db71"
+  }
+}

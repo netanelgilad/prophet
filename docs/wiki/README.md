@@ -14,6 +14,7 @@ not add fields to Prophet's runtime output.
 - [Provider quotas](provider-quotas.md): measured resets, shared limits and workload planning.
 - [Model trust register](../agent-models.md): separate calibration for each model/task family.
 - [VM foundations](vm-foundations.md): persistence, boundaries and common traps.
+- [Pending TCP submission](pending-tcp.md): public return versus deferred work, resource timing and unfinished socket lifecycle.
 - [Captured program identities](program-identities.md): exact byte identities, acquisition unions, immutable snapshots and publication limits.
 - [Interpreted activations](interpreted-activations.md): dynamic call origins, branch restoration, proof exclusion and honest generated sources.
 - [CLI environment inputs](cli-environment.md): named correlations, fresh arrival templates, normalized state and bounded validation.

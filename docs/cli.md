@@ -48,7 +48,7 @@ catchable `MODULE_NOT_FOUND`; an unresolved bare package stops because
 I/O, parser and serializer limits are not supplied by the AST evaluation budget.
 
 The VM receives a partial standard global object and one shared global/imported
-console model. `console`, `http` and the HTTP model's shared `events` builtin are
+console model. `console`, `http`, `net` and their shared `events` builtin are
 registered, including their `node:` aliases. The `fs` builtin uses a read-only
 [filesystem environment adapter](node-filesystem.md#read-only-environment-acquisition):
 its persistent state retains canonical cwd/platform, open directories, reached
@@ -69,6 +69,11 @@ warnings schedule presentation through the same next-tick FIFO as HTTP startup.
 Their persistent states remain linked through host slots. This does not supply
 process.argv, process.env, chdir, full URL parsing, warning configuration or
 complete host metadata. These reached gaps remain explicit.
+
+The [net model](node-net.md) retains pending IPv4 connection startup, deferred
+submission and pre-initiation cancellation with unresolved resource outcomes.
+It does not deliver TCP completion or close callbacks; `--max-events` remains
+the parsed incoming HTTP domain. A waiting socket is retained future behavior.
 
 HTTPS and querystring retain opaque object exports: imports and aliases work,
 but reached APIs, inspection or coercion stop. Other builtins stop on import.

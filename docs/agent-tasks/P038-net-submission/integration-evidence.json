@@ -1,0 +1,51 @@
+{
+  "ownedFile": "test/node-net-integration.spec.ts",
+  "sha256": "634d3c58f3cceb43b0f4811c721bf4705a69f8924e05eb0264d837257f68db71",
+  "byteLength": 20852,
+  "lineCount": 355,
+  "baseCommit": "8052b02f9290a334e3355544dbf11eac7794dd92",
+  "node": "v24.21.0",
+  "red": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-net-integration.spec.ts",
+    "exitStatus": 1,
+    "testsFailed": 1,
+    "log": "/tmp/prophet-p038/integration-red.log",
+    "observation": "Actual CLI alias/retained net function expected exit0 but got exit2 because net not registered; only integration spec untracked at capture, no production changes."
+  },
+  "expandedRed": {
+    "exitStatus": 1,
+    "testsFailed": 9,
+    "testsPassed": 1,
+    "log": "/tmp/prophet-p038/integration-expanded.log",
+    "observation": "All nine actual CLI scenarios fail before net implementation; eight-case pinned native oracle passes."
+  },
+  "green": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-net-integration.spec.ts",
+    "exitStatus": 0,
+    "testsPassed": 10,
+    "actualCLITests": 9,
+    "nativeOracleCases": 8,
+    "log": "/tmp/prophet-p038/integration-first-source.log"
+  },
+  "typecheck": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH node .yarn/releases/yarn-3.1.1.cjs tsc --noEmit",
+    "exitStatus": 0,
+    "log": "/tmp/prophet-p038/integration-typecheck.log"
+  },
+  "coverage": [
+    "net/node:net module and connect/createConnection identities; retained functions do not execute",
+    "dependency source SHA+activation and socket return/initiate/submit graph identity",
+    "retained once callback same identity, fired=false; two submission outcomes; no completed callbacks even maxEvents2",
+    "queued cancellation with pending close and no submission",
+    "guest throw and typed stop in attempt listener stop submission; active job/activation retained",
+    "five two-socket/cancellation histories and independent Boolean submission facts",
+    "hostname invalid numeric port validation precedence and mixed supported/invalid/unsupported endpoints",
+    "zero-network native wrapper/callback/validation/attempt/submission ordering"
+  ],
+  "nativeBoundary": "Original TCP binding connect is never called; IPv6/IPC/DNS prohibited; no OS transport/packet proof. Allocation of native wrappers remains possible. No complete upstream test coverage claimed.",
+  "harnessCorrections": [
+    "Before source green, corrected own helper type assertion and lowercase VM undefined tag after reading existing types; no intended behavior assertions weakened."
+  ],
+  "productionFilesEdited": [],
+  "commitsCreated": []
+}

@@ -7,6 +7,7 @@ import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
+import { UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { getArrayElements, getProperties, writeProperty } from "../execution-context/Heap";
 import { isESFunction } from "../Function/Function";
 import { getFunctionPrototype } from "../Function/prototype";
@@ -25,6 +26,7 @@ type EmitterPolicy = {
   // bypass its lifecycle or pretend those listeners do not exist.
   restrictedEvents?: ReadonlyArray<string>;
   unsupportedRegistrations?: ReadonlyArray<string>;
+  allowedRegistrations?: ReadonlyArray<string>;
   internalListenerCounts?: { readonly [name: string]: number };
 };
 
@@ -77,8 +79,11 @@ export function createEventEmitterModel() {
     });
   const register = (target: Any, name: string, listener: Any, once: boolean,
     context: TExecutionContext): BranchResult => {
-    if (name === "newListener" || name === "removeListener") return unsupported("listener meta-events");
     const policy = stateOf(target, context).policy;
+    if (policy.allowedRegistrations && !policy.allowedRegistrations.includes(name)) {
+      throw new UnsupportedAnalysisError(`Host event registration is not yet supported: ${name}`);
+    }
+    if (name === "newListener" || name === "removeListener") return unsupported("listener meta-events");
     if ((policy.unsupportedRegistrations || []).includes(name)) return unsupported(`host event '${name}' delivery`);
     return withListeners(target, name, context, (entries, branch) => {
       const internal = policy.internalListenerCounts &&
@@ -162,7 +167,12 @@ export function createEventEmitterModel() {
       return visit(0, branch);
     });
   const checkPublicEvent = (target: Any, name: string, context: TExecutionContext) => {
-    if ((stateOf(target, context).policy.restrictedEvents || []).includes(name)) {
+    const policy = stateOf(target, context).policy;
+    if (policy.allowedRegistrations && (!policy.allowedRegistrations.includes(name) ||
+        (policy.restrictedEvents || []).includes(name))) {
+      throw new UnsupportedAnalysisError(`Host event emission or listener counting is not yet supported: ${name}`);
+    }
+    if ((policy.restrictedEvents || []).includes(name)) {
       unsupported(`public emission or listener counting of host lifecycle event '${name}'`);
     }
   };

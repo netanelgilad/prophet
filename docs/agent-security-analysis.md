@@ -83,8 +83,11 @@ P035 bounded explicit CLI inputs are published. P036 adds
 [interpreted activation and direct effect origins](interpreted-activations.md),
 preparing file-to-package attribution without claiming package identity. P037
 adds [captured source identities](program-identities.md), so consumers can verify
-bytes corresponding to known file origins. Next:
-generic outbound-attempt observations with verified source/package provenance,
+bytes corresponding to known file origins. P038 adds the
+[pending outbound IPv4 submission prefix](node-net.md), separating public call,
+queued attempt event, actual modeled submission and unresolved cleanup. It does
+not establish HTTP/HTTPS transfer or completed connectivity. Next: extend
+outbound lifecycle observations with verified source/package provenance,
 a benign complete transitive-dependency policy test, pinned lifecycle/lockfile
 orchestration, then one inert original Shai-Hulud artifact plus clean control.
 The core retains generic state and observations throughout; security permissions,

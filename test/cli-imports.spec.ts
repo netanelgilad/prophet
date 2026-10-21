@@ -144,11 +144,11 @@ test("a reached unmodeled builtin in a dependency stops outside application catc
   const result = run({
     "entry.cjs": `console.log("entry"); try { require("./dependency.cjs"); }
       catch (error) { console.log("caught"); } console.log("after");`,
-    "dependency.cjs": `console.log("dependency"); require("net"); console.log("unreachable");`
+    "dependency.cjs": `console.log("dependency"); require("tls"); console.log("unreachable");`
   });
   expect(result.status).toBe("analysis-stop");
   expect(result.completion).toBeUndefined();
-  expect(result.diagnostic).toMatch(/net/);
+  expect(result.diagnostic).toMatch(/tls/);
   expect(outputs(result.current)).toEqual([["entry\n", "dependency\n"]]);
 });
 

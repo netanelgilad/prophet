@@ -34,7 +34,8 @@ runtime being modeled, preserving the target program's arguments.
 
 The [CLI slice](cli.md) now supports both commands below for a bounded
 CommonJS domain with automatic acquisition of reached source dependencies,
-console output and bounded HTTP startup with symbolic bind outcomes. The first
+console output, bounded HTTP startup with symbolic bind outcomes, and
+[pending IPv4 connection submission](node-net.md) with unresolved admission. The first
 command accepts the [bounded JSON authoring schema](cli.md#declaring-a-starting-environment),
 not an arbitrary machine snapshot:
 
