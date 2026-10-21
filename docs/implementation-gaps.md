@@ -1567,3 +1567,17 @@ correlation are tested; native controls compare full error shapes against the
 selected model input. CLI acquisition does not exhaust native descriptors or
 guess ordering from a kernel version. The environment profile remains bounded;
 this does not close kernel, libc, resource-pool or general filesystem coverage.
+
+
+## Dependency capability goal reconciliation — 2026-10-21
+
+The owner now explicitly requests package.json/lockfile-driven, per-dependency
+capabilities and review prompts for newly possible behavior, including transitive
+packages. This expands the SECURITY-001/SECURITY-002 acceptance target, not core
+value fields. Existing HostCall observations preserve operation, receiver,
+arguments, snapshots and path conditions but do not retain a complete initiating
+package/call-chain attribution. Generic source provenance must precede consumer
+permission inheritance; a utility package is not blanket caller authorization.
+Outbound HTTP, subprocess, lockfile/lifecycle orchestration, capability enforcement,
+precise behavior diffs and original Shai-Hulud analysis remain open. P035 begins
+REPORT-001 input authoring; no security gap is closed by planning or dispatch.
