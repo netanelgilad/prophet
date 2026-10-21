@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-socket-ready-without-cb.js",
+    "bytes": 482,
+    "sha256": "a66f73e4c024ac5bfdeda91ffac5dae15078e001ac3f7fa27e4408bbff1cfaf2",
+    "activated": false
+  },
+  {
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-socket-connect-without-cb.js",
+    "bytes": 658,
+    "sha256": "36c3209698e0222777a9854f146b4540a4f1c2f2045076dfcccdef78b04371b1",
+    "activated": false
+  },
+  {
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-socket-connecting.js",
+    "bytes": 571,
+    "sha256": "53045ee52c8a35b45149b959d354178598944fb945f20b55cf8a36cfc0e446b3",
+    "activated": false
+  },
+  {
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/sequential/test-net-connect-econnrefused.js",
+    "bytes": 2494,
+    "sha256": "1db0970ca5d26f8b00771478732fbc1c32b3d837bce89ec5f6d337ac2a7263bd",
+    "activated": false
+  }
+]

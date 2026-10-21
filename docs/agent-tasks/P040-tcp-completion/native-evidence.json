@@ -1,0 +1,62 @@
+{
+  "runtime": "v24.21.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "probeCommand": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node /tmp/prophet-p040/completion-probe.cjs",
+  "probeExitStatus": 0,
+  "assertionExitStatus": 0,
+  "scenarios": 10,
+  "socketReadUnmodified": true,
+  "guardHits": [],
+  "networkBoundary": "Original TCP connect and readStart never invoked. IPv6/IPC/DNS guarded. Controlled callback and read status injection, not real OS result. Native wrapper allocation/cleanup permitted.",
+  "sourceAcquisition": "process.binding('natives') from pinned Node24.21.0",
+  "files": {
+    "net.js": {
+      "sha256": "b4bc6d76e255c67673a3bdf4676e0816e1f13906e4a46a6bdcc07dd614329ffa",
+      "bytes": 86162
+    },
+    "completion-probe.cjs": {
+      "sha256": "105764b27853f55277e4fd63415a1c306bf810446b25021d1feebb1fd7ca1350",
+      "bytes": 5586
+    },
+    "internal_streams_destroy.js": {
+      "sha256": "74aaae64ff7e4553fbf981baffb1f1dab7748c1e3fedfbef59eb8ab9ed4ec22d",
+      "bytes": 7355
+    },
+    "internal_streams_readable.js": {
+      "sha256": "554afb7d2d72d87aadc2dcddab103d81451cd7b0e77b91425e19330a2fc57775",
+      "bytes": 54872
+    },
+    "native-findings.md": {
+      "sha256": "a1685b18ddfe39d66f766534e678a9f9bf05dfaab19d55b3b74264e013584228",
+      "bytes": 8807
+    },
+    "completion-results.json": {
+      "sha256": "7ac5a670d42e756fc5592f395b5af56927f1e65153a6cd5512a2e6f3c7948c44",
+      "bytes": 15059
+    },
+    "verification.json": {
+      "sha256": "961a4cde615ef1b0d5ad939552440cfb52ce3925d62057dbf40710e1b7e28211",
+      "bytes": 293
+    },
+    "design.md": {
+      "sha256": "46824412beb3ee3a9517d4369643cddfd7be8557f25cf9281a862307dab77af0",
+      "bytes": 6691
+    },
+    "design-review.md": {
+      "sha256": "d9121a96688cad4ace6f835c686ff6fa9a68cc7601e229bea6510b28747ff021",
+      "bytes": 6314
+    },
+    "internal_stream_base_commons.js": {
+      "sha256": "bfdad04241cc86e8eccb1cfdd0c3aea0f355a348535be50d92c0e8fb74be9d3a",
+      "bytes": 7322
+    },
+    "internal_timers.js": {
+      "sha256": "8ef50a8988efbec26a40514518e89789acc2f7085418c2cc526f89f72cf8251e",
+      "bytes": 23962
+    }
+  },
+  "repoEdits": [],
+  "packageNativeExecution": false,
+  "upstreamCasesExecuted": 0
+}

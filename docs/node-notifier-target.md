@@ -30,3 +30,12 @@ Default localhost remains a DNS frontier, while explicit IPv4 is a declared call
 input. Broader config errors, full connection/error/timeout/close delivery, end
 and transport completion, retries and all-timeline proofs remain open. The next
 actual callback frontier must be measured rather than inferred from registration.
+
+
+P040 adds selected completion histories under the shared HTTP/TCP horizon.
+On full-duplex success, the actual unchanged connect listener executes and stops
+at its socket.end lookup, before the caller's availability callback. Failure and
+partial flags remain earlier typed frontiers; waiting retains the pending timer
+and callbacks. Source and package bytes are unchanged. This is measured progress
+into one dependency callback, not a completed availability result or package-wide
+capability claim. Timer expiration and close remain outside the provider set.

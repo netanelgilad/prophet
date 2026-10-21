@@ -13,13 +13,24 @@ import { captureExecutionBoundary, markUnsupportedBoundaryObject, UnsupportedAna
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getProperties, getPropertyKeys, ownPropertyPresence, writeProperty } from "../execution-context/Heap";
 import { JobQueue } from "../jobs";
+import { ExternalEvents } from "../external-events";
+import { strictEquality } from "../symbolic";
 import { ESString } from "../string/String";
-import { Any, ESNumber, isESBoolean, isESNull, isESNumber, isESString, isUndefined, ThrownValue, Undefined } from "../types";
+import { Any, ESNumber, TESBoolean, isESBoolean, isESNull, isESNumber, isESString, isUndefined, ThrownValue, Undefined } from "../types";
 import { createEventEmitterModel } from "./events";
 
-export type NetModelOptions = { nextTick: JobQueue; submit?: HostModel };
+export type NetModelOptions = {
+  nextTick: JobQueue;
+  submit?: HostModel;
+  externalEvents?: ExternalEvents;
+  completion?: HostModel;
+};
 // Fresh at the reached submission, never at API entry or mere observation.
 export const symbolicTCPSubmission: HostModel = (_call, context) => [ESBoolean(), context];
+// Callback flags are conservative independent facts, not an assertion that
+// every combination is physically reachable on the admitted POSIX transport.
+export const symbolicTCPCompletion: HostModel = (_call, context) =>
+  [ESObject({ success: ESBoolean(), readable: ESBoolean(), writable: ESBoolean() }), context];
 
 function unsupported(detail: string): never {
   throw new UnsupportedAnalysisError(`Node net analysis is not yet supported: ${detail}`);
@@ -59,13 +70,19 @@ function durationErrorText(value: number) {
   return text.slice(0, end) + suffix;
 }
 
-/** A pending POSIX IPv4 socket prefix; no native transport or completion provider. */
+/** A POSIX IPv4 socket prefix with optional bounded completion exploration; no native transport. */
 export function createNetModel(events: ReturnType<typeof createEventEmitterModel>, options: NetModelOptions): { module: TESObject } {
   if (!options || !options.nextTick || typeof options.nextTick.enqueue !== "function") {
     throw new Error("Net next-tick environment must supply a job queue");
   }
   if (options.submit !== undefined && typeof options.submit !== "function") throw new Error("Net submission environment must be a model function");
+  if (options.externalEvents !== undefined && (!options.externalEvents || typeof options.externalEvents.register !== "function")) {
+    throw new Error("Net completion environment must supply an external-event registry");
+  }
+  if (options.completion !== undefined && typeof options.completion !== "function") throw new Error("Net completion environment must be a model function");
+  if (options.completion !== undefined && !options.externalEvents) throw new Error("Net completion model requires an external-event registry");
   const nextTick = options.nextTick, submitModel = options.submit || symbolicTCPSubmission;
+  const externalEvents = options.externalEvents, completionModel = options.completion || symbolicTCPCompletion;
   const sockets = new WeakMap<object, TESObject>();
   const timers = new WeakMap<object, TESObject>();
   const lifecycle = ["connectionAttempt", "connect", "ready", "error", "close", "connectionAttemptFailed"];
@@ -87,7 +104,11 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
           if (!isESBoolean(outcome)) throw new Error("Net submission model must return a Boolean value");
           const retained = writeProperty(state, "submissionAccepted", outcome, after);
           return evaluateBranches(outcome, retained,
-            accepted => [Undefined, change(state, { phase: ESString("submitted"), completionPending: ESBoolean(true) }, accepted)],
+            accepted => {
+              const pending = change(state, { phase: ESString("submitted"), completionPending: ESBoolean(true) }, accepted);
+              return externalEvents ? externalEvents.register(ESObject({ eligible: completionEligible,
+                deliver: complete, receiver: call.receiver }), pending) : [Undefined, pending];
+            },
             rejected => {
               const stopped = writeProperty(state, "phase", ESString("submission-failed"), rejected);
               return captureExecutionBoundary(stopped, () => unsupported("immediate submission failure cleanup/error lifecycle"));
@@ -101,6 +122,102 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
       if (!isESObject(arm)) throw new Error("Invalid internal net timeout arm");
       return [Undefined, writeProperty(arm, "active", ESBoolean(false), branch)];
     });
+  const completionError = (): never => { throw new Error("Net completion model must return a closed Boolean record {success, readable, writable}"); };
+  const completion = operation("net.socket.completion", (call, context) =>
+    mapCompletions(completionModel(call, context), (result, after) => withValue(result, after, (record, branch) => {
+      if (!isESObject(record) || record.ownPropertyModel !== "enumerable-data" || record.unknownProperties ||
+          record.unmodeledOwnPropertyInspection || record.unmodeledPrototype || record.propertyAccess || record.wellKnownSymbols ||
+          (record.unmodeledPropertyReads && record.unmodeledPropertyReads.length) || Object.getOwnPropertySymbols(record.properties).length) return completionError();
+      const prototype = prototypeOf(record);
+      if (prototype !== getObjectPrototype() && !isESNull(prototype)) return completionError();
+      const properties = getProperties(record, branch);
+      // Trusted model records still must honor their declared data-property
+      // domain. Inspect descriptors without executing native getter values.
+      for (const key of Reflect.ownKeys(properties)) {
+        const descriptor = Object.getOwnPropertyDescriptor(properties, key)!;
+        if (typeof key !== "string" || !descriptor.enumerable ||
+            !Object.prototype.hasOwnProperty.call(descriptor, "value")) return completionError();
+      }
+      return withKeyOrder(getPropertyKeys(record, branch), branch, (orderedKeys, selected) => {
+        const keys = Array.from(new Set([...orderedKeys, ...Object.keys(properties)]));
+        const names = ["success", "readable", "writable"];
+        const checkExtras = (index: number, current: TExecutionContext): BranchResult => {
+          if (index === keys.length) return checkFields(0, current);
+          return names.includes(keys[index]) ? checkExtras(index + 1, current) :
+            evaluateBranches(ownPropertyPresence(record, keys[index], current), current,
+              completionError, absent => checkExtras(index + 1, absent));
+        };
+        const checkFields = (index: number, current: TExecutionContext): BranchResult => {
+          if (index === names.length) {
+            const fields = getProperties(record, current);
+            // Snapshot the three VM facts in a model-owned record. Boolean
+            // identities remain shared with the returned environment record.
+            return [ESObject({ success: fields.success, readable: fields.readable, writable: fields.writable }), current];
+          }
+          const name = names[index];
+          return evaluateBranches(ownPropertyPresence(record, name, current), current, present => {
+            const descriptor = Object.getOwnPropertyDescriptor(getProperties(record, present), name);
+            if (!descriptor || !Object.prototype.hasOwnProperty.call(descriptor, "value") || !descriptor.enumerable ||
+                !isESBoolean(descriptor.value)) return completionError();
+            return checkFields(index + 1, present);
+          }, completionError);
+        };
+        return checkExtras(0, selected);
+      });
+    })));
+  const eligibleCompletion = (socket: Any, context: TExecutionContext): BranchResult => {
+    const fields = getProperties(socketState(socket), context);
+    const checks = [strictEquality(fields.phase, ESString("submitted"), context.value.knowledge),
+      strictEquality(fields.submissionAccepted, ESBoolean(true), context.value.knowledge),
+      strictEquality(fields.completionPending, ESBoolean(true), context.value.knowledge),
+      strictEquality(getProperties(socket as TESObject, context).destroyed, ESBoolean(false), context.value.knowledge)];
+    const check = (index: number, current: TExecutionContext): BranchResult => index === checks.length
+      ? [ESBoolean(true), current] : evaluateBranches(checks[index], current,
+        yes => check(index + 1, yes), no => [ESBoolean(false), no]);
+    return check(0, context);
+  };
+  const completionEligible = operation("net.socket.completionEligible", (call, context) => eligibleCompletion(call.receiver, context));
+  const refreshTimer = (socket: Any, context: TExecutionContext): BranchResult => {
+    const timer = timers.get(socket)!;
+    return withValue(getProperties(timer, context).arm, context, (arm, branch) => {
+      if (isUndefined(arm)) return [Undefined, branch];
+      if (!isESObject(arm)) throw new Error("Invalid internal net timeout arm");
+      const fields = getProperties(arm, branch);
+      return evaluateBranches(fields.active as TESBoolean, branch, active => {
+        const canceled = writeProperty(arm, "active", ESBoolean(false), active);
+        const refreshed = ESObject({ active: ESBoolean(true), delay: fields.delay, refed: ESBoolean(false) });
+        return [Undefined, writeProperty(timer, "arm", refreshed, canceled)];
+      }, inactive => [Undefined, inactive]);
+    });
+  };
+  const complete = operation("net.socket.complete", (call, context) =>
+    bindNormal(eligibleCompletion(call.receiver, context), (eligible, checked) => evaluateBranches(eligible as TESBoolean, checked, pending => {
+      const socket = call.receiver as TESObject, state = socketState(socket);
+      requirePristineDefaults(pending);
+      if (prototypeOf(socket) !== getObjectPrototype() || socket.propertyAccess || socket.unmodeledPrototype || socket.wellKnownSymbols) {
+        return unsupported("completion requires the original socket property domain");
+      }
+      const endpoint = getProperties(state, pending);
+      return bindNormal(invoke(completion, [endpoint.address, endpoint.port, ESNumber(4)], pending, socket), (outcome, delivered) => {
+        const fields = getProperties(outcome as TESObject, delivered);
+        const consumed = change(state, { completion: outcome, completionPending: ESBoolean(false) },
+          writeProperty(socket, "connecting", ESBoolean(false), delivered));
+        return evaluateBranches(fields.success as TESBoolean, consumed, success => {
+          const connected = writeProperty(state, "phase", ESString("connected"), success);
+          return evaluateBranches(fields.readable as TESBoolean, connected, readable =>
+            evaluateBranches(fields.writable as TESBoolean, readable, writable =>
+              bindNormal(refreshTimer(socket, writable), (_refreshed, refreshed) =>
+                bindNormal(events.emit(socket, "connect", [], refreshed), (_connected, afterConnect) =>
+                  bindNormal(events.emit(socket, "ready", [], afterConnect), (_ready, afterReady) =>
+                    captureExecutionBoundary(afterReady, () => unsupported("socket read(0), pause inspection and read initiation after connection"))))),
+              () => unsupported("partial writable completion requires socket end")),
+            () => unsupported("partial readable completion requires socket push(null)/read"));
+        }, failed => {
+          const stopped = writeProperty(state, "phase", ESString("connection-failed"), failed);
+          return captureExecutionBoundary(stopped, () => unsupported("connection completion failure Error construction and lifecycle"));
+        });
+      });
+    }, () => unsupported("completion requires an admitted pending socket"))));
   const setTimeout = operation("net.socket.setTimeout", (call, context) => {
     if (call.args.length !== 1) return unsupported("setTimeout requires exactly one duration argument");
     const state = socketState(call.receiver), socket = call.receiver as TESObject;
@@ -158,7 +275,7 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
     socket.hostSlots = Object.freeze({ "node.net.socket": state, "node.net.timeout": timer });
     const attached = events.attach(socket, context, { allowedRegistrations: lifecycle, restrictedEvents: lifecycle });
     const initialized = change(state, { phase: ESString("queued"), address, port, submissionAccepted: Undefined,
-      completionPending: ESBoolean(false), closePending: ESBoolean(false) }, attached);
+      completionPending: ESBoolean(false), closePending: ESBoolean(false), completion: Undefined }, attached);
     const registered: BranchResult = isUndefined(callback) ? [socket, initialized] : events.register(socket, "connect", callback, true, initialized);
     return bindNormal(registered, (_ignored, ready) => bindNormal(nextTick.enqueue(initiate, [], ready, socket), (_job, queued) => [socket, queued]));
   };

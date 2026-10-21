@@ -1,0 +1,68 @@
+{
+  "baseCommit": "5afe23a62f055c4a2462b39f05458d3f93f03538",
+  "runtime": "v24.21.0",
+  "ownedFiles": [
+    {
+      "path": "test/node-net-completion-integration.spec.ts",
+      "sha256": "f6707c9c917481e36707ce7e99dd0c7c133f571b4eecb31e4a2ae7dc3554ead0",
+      "bytes": 21178,
+      "lines": 327
+    },
+    {
+      "path": "test/node-notifier-startup.spec.ts",
+      "sha256": "ffdec7c60a047548392ceee3abe76594eea65475dbccc62cc32abc4841a49881",
+      "bytes": 20633,
+      "lines": 324
+    },
+    {
+      "path": "test/node-net-integration.spec.ts",
+      "sha256": "f1bcd1c1384bc33e25e6a475c21d1d7fb330920a09f2510b31358bfaed6d64c0",
+      "bytes": 20855,
+      "lines": 355
+    }
+  ],
+  "red": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-net-completion-integration.spec.ts",
+    "exitStatus": 1,
+    "testFailures": 1,
+    "log": "/tmp/prophet-p040/integration-red.log",
+    "evidence": "Only new completion spec present; actual maxEvents1 had no completion HostCall. Source unchanged."
+  },
+  "firstExpanded": {
+    "exitStatus": 1,
+    "log": "/tmp/prophet-p040/integration-first-expanded.log",
+    "caveat": "This run overlapped source landing. Earlier suite completion assertions red; later realpackage delivery green. Not a coherent full before/after snapshot."
+  },
+  "combinedGreen": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-net-completion-integration.spec.ts test/node-notifier-startup.spec.ts test/node-net-integration.spec.ts",
+    "exitStatus": 0,
+    "tests": 23,
+    "suites": 3,
+    "log": "/tmp/prophet-p040/integration-source-run.log"
+  },
+  "finalIdentityGreen": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-net-completion-integration.spec.ts",
+    "exitStatus": 0,
+    "tests": 7,
+    "log": "/tmp/prophet-p040/integration-final-identity.log",
+    "change": "Added explicit completion environment return-record/state alias and HostCall identity assertions after combined green."
+  },
+  "typecheck": {
+    "command": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH node .yarn/releases/yarn-3.1.1.cjs tsc --noEmit",
+    "exitStatus": 0,
+    "log": "/tmp/prophet-p040/integration-typecheck.log"
+  },
+  "migration": "Only former pending-submission horizon2 scenarios changed to explicit0. Queued cancellation remains horizon2; retained import/no-call now horizon2. Genuine completion coverage added at horizons1/2.",
+  "newCoverage": [
+    "Four processing frontiers plus waiting and submission failure, consumed facts and graph aliases",
+    "Connect/ready guest throws clear active delivery and prevent later stages",
+    "Old100ms timer refresh despite public timeout=-1, abstract arm histories",
+    "Two sockets eligible without provider priority or repeated completion",
+    "HTTP and TCP compete under total horizon1/2; HTTP thenTCP observed, TCP frontier prevents laterHTTP",
+    "Complete unchanged checkGrowl copied from pinned package; real connect callback/activation reaches end lookup before user availability callback; refreshed arm and activecheckpoint",
+    "Durable10case native fixture retains Socket._read and intercepts connect/readStart; callbackonce\u2192connect\u2192ready\u2192readStart\u2192nextTicks; timeout refresh/cancel; throwcutoffs; readfailure/async refusal/stalecompletion"
+  ],
+  "nativeBoundary": "No package executes natively. Original TCP connect/readStart never invoked, IPv6/IPC/DNS guarded. Success/status injection is JS compatibility evidence, not OS/traffic/read proof. Sentinel throw is not native ExecutionBoundary evidence. Immediate-failure dummy-handle message not asserted.",
+  "productionEdits": [],
+  "commits": []
+}

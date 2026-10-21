@@ -72,8 +72,11 @@ complete host metadata. These reached gaps remain explicit.
 
 The [net model](node-net.md) retains pending IPv4 connection startup, deferred
 submission and pre-initiation cancellation with unresolved resource outcomes.
-It does not deliver TCP completion or close callbacks; `--max-events` remains
-the parsed incoming HTTP domain. A waiting socket is retained future behavior.
+The shared `--max-events` horizon now also selects TCP completion prefixes: it
+retains failure/partial-flag frontiers and invokes actual connect/ready callbacks
+on full-duplex success, stopping before unmodeled read(0) unless a callback stops
+earlier. Timer expiration and close remain future behavior. An admitted pending
+submission is distinct from completion; waiting does not establish either outcome.
 
 HTTPS and querystring retain opaque object exports: imports and aliases work,
 but reached APIs, inspection or coercion stop. Other builtins stop on import.
@@ -110,12 +113,16 @@ event loop. By default request handlers remain registered. `--max-events 1`
 adds [one optional symbolic incoming event](external-events.md) after normal
 startup; `--max-events 2` retains histories through a second arrival, including
 zero/one-arrival waiting alternatives. Only 0, 1 and 2 are currently accepted.
-Every step selects among the current eligible servers or waiting. Normally
+Every step selects among current eligible HTTP servers, pending TCP completions
+or waiting, under one shared horizon. TCP completion facts are fresh only on
+selection. Success/readable/writable are independent unknown Booleans by default,
+a conservative callback-input domain rather than observed OS combinations. Normally
 completed arrivals drain supported nextTick work before another arrival, even
 at the final horizon. Throws and classified unsupported/budget frontiers stop
 their own history while supported siblings remain. By default, independent unknown
 string method/url fields form a parsed-event overapproximation. An environment
-file can replace their domain; neither form is a wire parser. Timers, microtasks, promises and the public
+file can replace their domain; neither form is a wire parser. It does not yet
+author TCP completion facts. Timer expiration, microtasks, promises and the public
 `process.nextTick` API remain unsupported.
 A throwing completion is the state at exception propagation, not after process
 shutdown. Handles can remain modeled as listening there; exit handlers, resource

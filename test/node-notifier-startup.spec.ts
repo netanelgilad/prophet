@@ -97,7 +97,7 @@ test("unchanged node-notifier helper returns before deferred submission and reta
   const { roots, child, target } = cli(`var check = require('node-notifier/lib/checkGrowl');
     var result = check({host:'127.0.0.1',port:23053}, function(error, available) { throw 'availability callback ran'; });
     if (result !== undefined) throw 'helper returned a value';
-    console.log('helper returned');`, 2, 2);
+    console.log('helper returned');`, 2, 0);
   // A stopped default submission remains beside its admitted pending sibling.
   expect(child.stderr).not.toMatch(/connect requires|options require|callback requires/);
   const all = paths(roots); expect(all).toHaveLength(2);
@@ -280,4 +280,45 @@ test("pinned native socket timers retain public timeout writes, unrefed arms and
       error:{name:'RangeError',code:'ERR_OUT_OF_RANGE',message:'The value of "msecs" is out of range. It must be a non-negative finite number. Received '+value}});
     expect(row(label).afterDestroy.publicTimeout).toBe(value);
   }
+});
+
+test("one TCP completion enters unchanged checkGrowl's actual connect callback and stops at socket.end",()=>{
+  const {roots,target}=cli(`var check=require('node-notifier/lib/checkGrowl');
+    check({host:'127.0.0.1',port:23053},function(){console.log('availability callback');});
+    console.log('helper returned');`,2,1);
+  const all=paths(roots);expect(all).toHaveLength(6);
+  const waiting=all.filter(path=>!isExecutionBoundary(path.completion));expect(waiting).toHaveLength(1);
+  const socket=socketOf(waiting[0].events);
+  const previousArm=getProperties(socket.hostSlots['node.net.timeout'],waiting[0].context).arm;
+  const full=all.filter(({events,context})=>{
+    if(!calls(events,'net.socket.completion').length)return false;
+    const outcome=getProperties(phase(socketOf(events),context).completion,context) as any;
+    return [outcome.success,outcome.readable,outcome.writable].every(value=>resolveBoolean(value,context.value.knowledge)===true);
+  });
+  expect(full).toHaveLength(1);
+  const {events,context,completion}=full[0];
+  expect(isExecutionBoundary(completion)).toBe(true);expect(completion.message).toMatch(/end/);
+  expect(socketOf(events)).toBe(socket);
+  expect(messages(events)).toEqual(['helper returned']);
+  expect(getProperties(socket,context).connecting).toMatchObject({value:false});
+  expect(phase(socket,context)).toMatchObject({phase:{value:'connected'},completionPending:{value:false}});
+  const filename=join(target,'lib/checkGrowl.js');
+  expect(roots.program.sources.get(filename)).toEqual({sha256:sourceHash,byteLength:536});
+  expect(context.value.sourceFile).toBe(filename);
+  expect(context.value.activation.sourceFile).toBe(filename);
+  expect(context.value.activation.parent).toBeUndefined();
+  const entries=getArrayElements(getProperties(socket.hostSlots['node.events'],context)['event:connect'] as any,context)!;
+  expect(entries).toHaveLength(1);
+  expect(context.value.activation.target).toBe(getProperties(entries[0] as any,context).listener);
+  const completionCall=calls(events,'net.socket.completion')[0].call;
+  expect(completionCall.receiver).toBe(socket);expect(completionCall.origin.activation).toBeUndefined();
+  const active=getProperties(context.value.global.hostSlots.externalEvents,context).active;
+  expect(getProperties(active as any,context).receiver).toBe(socket);
+  const refreshed=getProperties(socket.hostSlots['node.net.timeout'],context).arm;
+  expect(refreshed).not.toBe(previousArm);
+  expect(getProperties(previousArm as any,context).active).toMatchObject({value:false});
+  expect(getProperties(refreshed as any,context)).toMatchObject({active:{value:true},delay:{value:100},refed:{value:false}});
+  expect(calls(events,'net.socket.end')).toHaveLength(0); // Lookup stopped before any modeled end invocation.
+  expect(calls(events,'net.socket.readStart')).toHaveLength(0);
+  for(const path of all)expect(messages(path.events)).not.toContain('availability callback');
 });

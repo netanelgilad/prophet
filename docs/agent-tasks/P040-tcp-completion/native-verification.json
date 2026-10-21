@@ -1,0 +1,5 @@
+{
+  "exitStatus": 0,
+  "cases": 10,
+  "assertions": "success ordering, receiver/once removal, connected state, old timer duration, disabled inactivity, callback throw cutoffs, read failure, refusal identity, native close order, stale completion ignored, guards/read implementation identity"
+}

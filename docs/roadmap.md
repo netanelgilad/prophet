@@ -185,6 +185,11 @@ The first bounded [automatic incoming-event checkpoint](external-events.md) is
 available with `--max-events 1` or `2`: the Node provider supplies symbolic parsed
 requests without a hand-authored concrete request, retaining waiting and failed
 bind paths. Multiple/conditional servers share the generic persistent registry.
+P040 extends the same horizon to pending TCP completions, invoking actual
+connect/ready callbacks until a reached unsupported stream transition. The
+[unchanged checkGrowl target](node-notifier-target.md) reaches its socket.end
+frontier inside the real connect listener; availability is still unfinished.
+Timers and close are not providers, so this is not arbitrary schedule coverage.
 Bounds above two explicitly reject; default zero preserves startup. Parsed
 method/URL strings overapproximate wire-valid inputs; parser dispatch and
 histories beyond two remain work. Preserve [callback summaries and invocation-state dependencies](symbolic-runtime.md#conditional-history-and-callback-knowledge);

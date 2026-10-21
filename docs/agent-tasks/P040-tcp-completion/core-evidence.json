@@ -1,0 +1,57 @@
+{
+  "baseline": "5afe23a",
+  "node": "v24.21.0",
+  "status": "owned source frozen, pending independent final review/full validation",
+  "ownedFiles": {
+    "src/node/net.ts": "f86f4ab45a7ed7db555737332a3f9b5c1506b502d0a31f998b85e1a2cedbe0ea",
+    "src/cli/runtime.ts": "68cb769ee81748e013431deae905dd4532fb291f588315605b00a303f870363b",
+    "src/index.ts": "0d3c45b65ea9c8088f9bfbbc1876aaa77019bdecb9f8c2c337a87ffccabb1826",
+    "test/node-net-completion.spec.ts": "ea39bc7c269659be2126cabf193f15f63565fa57916d7bb64c3b37fde60c5a80"
+  },
+  "logs": {
+    "core-red.log": "55f26361e24180532810d57a5f1d6696ac3fd0683cceb54282d197136b476e79",
+    "core-red.sha256": "ef513e6fe044c5b21ffeffcec674bf41a20353b6d5ab760716a483b84bee9fd6",
+    "core-first-green.log": "a139e7af25bf4391c3d457f799f47165ca7737032d2197a204c637a256d26784",
+    "core-descriptor-red.log": "eac259d74df9267779449e6de67088769c43e863542a4392cb8505cccefe273c",
+    "core-green.log": "07ea57f6dc068f061fb587d5d535db827304e9f201b942db9001e137a2615849",
+    "core-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "red": {
+    "initial": "14/14 behavioral tests failed before production edits",
+    "descriptor": "1 failed/14passed before strengthening current-heap data descriptor validation"
+  },
+  "green": {
+    "core": 15,
+    "affectedSuites": 6,
+    "affectedTests": 98,
+    "typecheckExitCode": 0
+  },
+  "API": {
+    "options": [
+      "externalEvents?: ExternalEvents",
+      "completion?: HostModel"
+    ],
+    "export": "symbolicTCPCompletion",
+    "operations": [
+      "net.socket.completionEligible",
+      "net.socket.complete",
+      "net.socket.completion"
+    ],
+    "retained": "node.net.socket.completion record aliases completion HostCall return; Boolean identities copied from model result"
+  },
+  "semantics": [
+    "provider registered only after accepted submission",
+    "outcome fresh only at selected eligible delivery; waiting/horizon0 remain lazy",
+    "consume before callbacks; connecting=false; phase connection-failed or connected",
+    "failure/partial flags stop before error/stream work; only full duplex refreshes active timer using old arm delay",
+    "connect then ready then typed read(0) frontier; no queue drain across typed callback/read frontier",
+    "current-heap pristine Socket/default guard; closed Boolean record validation excludes unknown/accessor/nonenumerable/symbol fields",
+    "CLI shares HTTP/TCP registry and common horizon; pending-only embeddings without registry preserved"
+  ],
+  "gaps": [
+    "no timer or close provider, no full timeline coverage",
+    "partial flag combinations conservatively overapproximate unseen POSIX outcomes",
+    "custom model keyhistory/descriptor traversal inherits resource gap; no new arbitrary cap"
+  ],
+  "commits": []
+}

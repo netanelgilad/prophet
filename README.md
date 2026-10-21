@@ -56,12 +56,15 @@ CommonJS resolver and loader. Source bytes and positive/negative file probes are
 cached across symbolic branches; evaluated modules retain each branch's own
 cache state. Capture is read-only, POSIX-only and non-atomic. Unresolved bare
 packages stop because external search paths are not captured. The CLI composes
-console, HTTP/EventEmitter, read-only filesystem observations, POSIX path,
+console, HTTP/TCP/EventEmitter, read-only filesystem observations, POSIX path,
 process cwd and legacy URL models; HTTPS/querystring APIs remain opaque.
 HTTP binding can succeed or fail symbolically without probing or opening a real
 socket. A shared persistent FIFO drains supported startup/warning jobs and runs
 registered callbacks against current state. Default `--max-events 0` stops after
-startup; `1` or `2` explores bounded parsed incoming events and intervening jobs.
+startup; `1` or `2` explores bounded parsed HTTP arrivals and TCP completions,
+with supported jobs between normally completed arrivals. TCP success executes
+connect/ready callbacks until the next unsupported stream operation; retained
+timers have no expiration provider. This is not an all-schedule analysis.
 Default stdout is modeled as healthy; random draws stay symbolic. Classified
 unsupported/budget leaves preserve exact state alongside completed siblings;
 legacy unclassified failures retain one checkpoint. The graph is nonresumable.

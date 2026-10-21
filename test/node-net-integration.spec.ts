@@ -90,7 +90,7 @@ test("actual CLI imports identical net aliases without executing a retained API 
   const { roots } = cli(`const net = require('net');
     if (net !== require('node:net') || net.connect !== net.createConnection) throw 'identity';
     function later() { net.connect({host:'127.0.0.1',port:43210}); }
-    module.exports = {later:later, connect:net.connect}; console.log('retained');`, 0);
+    module.exports = {later:later, connect:net.connect}; console.log('retained');`, 0, 2);
   expect(paths(roots)).toHaveLength(1);
   expect(messages(paths(roots)[0].events)).toEqual(["retained"]);
   expect(paths(roots)[0].events.some(event => event.call.operation.indexOf("net.") === 0)).toBe(false);
@@ -110,7 +110,7 @@ test("actual CLI joins dependency identity, public return and deferred submissio
     return socket;
   };`);
   const { roots } = cli(`try { module.exports = require('connector')(); console.log('caller continued'); }
-    catch (error) { console.log('caught'); }`, 2, 2);
+    catch (error) { console.log('caught'); }`, 2, 0);
   const all = paths(roots);
   expect(all).toHaveLength(2);
   expect(all.filter(path => isExecutionBoundary(path.completion))).toHaveLength(1);

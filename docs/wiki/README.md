@@ -57,3 +57,5 @@ until review is recorded; a model-generated article is not independent evidence.
 - [Bounded String.prototype.charCodeAt](string-charcodeat.md): ToIntegerOrInfinity positions, single-unit reads, no scan budget; viaCache lookup completes on the delivered sirv GET; reviewed in the 2026-10-21 cumulative integration.
 - [Bounded for-in enumeration](for-in.md): snapshot keys, native mutation semantics, per-iteration cells; send header loop completes on the delivered sirv GET; reviewed in the 2026-10-21 cumulative integration.
 - [Response getHeader/setHeader surface](response-headers.md): lazily-created raw store, writeHead merge, pinned error codes; sirv send reaches the content-length projection decision; reviewed in the 2026-10-21 cumulative integration.
+
+- [TCP completion prefixes](tcp-completion-prefixes.md): event selection, stable outcomes, timer refresh and active stop checkpoints.

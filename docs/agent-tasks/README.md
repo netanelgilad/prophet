@@ -7,9 +7,9 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 ## Sustained roadmap run — 2026-10-21
 
-**Latest checkpoint:** P038 is published at `8efe72b`; full181 suites /
-5319 passing /46 historical skips and typecheck passed. Exact-candidate
-CI39672451837 passed before publication. [Publication](P038-net-submission/publication.md).
+**Latest checkpoint:** P039 is published at `5afe23a`; full184 suites /
+5362 passing /46 historical skips and typecheck passed. Exact-candidate
+CI39674392064 passed before publication. [Publication](P039-package-timers/publication.md).
 P035 remains published at `007afa2`.
 Root and independent reviewer accepted the corrected implementation; this does
 not erase the original partial-parser findings or imply a model trust promotion.
@@ -51,7 +51,8 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P039](P039-package-timers/task.md) | Unchanged dependency startup and pending socket timers | Accepted;184 suites/5362 passes/46 skips and typecheck; candidate CI pending | Explicit IPv4 checkGrowl subpath, no completed availability claim |
+| [P040](P040-tcp-completion/task.md) | Selected TCP completion and actual dependency callbacks | Accepted;187 suites/5403 passes/46 skips and typecheck; candidate CI pending | Shared HTTP/TCP horizon; explicit error/stream/timer boundaries |
+| [P039](P039-package-timers/task.md) | Unchanged dependency startup and pending socket timers | Published5afe23a;184 suites/5362 passes/46 skips,typecheck and CI39674392064 pass | Explicit IPv4 checkGrowl subpath, no completed availability claim |
 | [P038](P038-net-submission/task.md) | Pending IPv4 sockets and deferred submission | Published8efe72b;181 suites/5319 passes/46 skips,typecheck and CI39672451837 pass | Explicit failed-cleanup frontier; no TCP completion claim |
 | [P037](P037-program-identities/task.md) | Captured program identities in CLI graph | Published8052b02;177 suites/5262 passes/46 skips,typecheck and CI39668471592 pass | Identity-only projection, no package attestation |
 | [P036](P036-effect-activation/task.md) | Generic interpreted activation/effect origin | Published348fe0c;174 suites/5233 passes/46 skips,typecheck and CI39666780369 pass | No policy, outbound API or package-identity claim |

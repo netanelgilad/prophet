@@ -178,7 +178,10 @@ queue does not imply the whole process finished or that future request handlers
 were explored. The [queue boundary](jobs.md) remains distinct from a general
 scheduler or process recovery. Optional [bounded event exploration](external-events.md)
 follows this checkpoint with `--max-events 1` or `2`; zero remains the default.
-Supported jobs drain between normal arrivals and after the final one.
+The current provider set includes parsed HTTP requests and admitted TCP completion
+prefixes under one shared horizon. Unsupported callback/read transitions retain
+an active delivery; retained timers have no expiration provider. Supported jobs
+drain between normal arrivals and after the final one.
 A symbolic event path is a permitted timeline plus its conditions, and can stand
 for many concrete executions. Preserve shared prefixes and conditional states;
 the first startup-queue component does not enumerate all possible timelines or

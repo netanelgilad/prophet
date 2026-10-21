@@ -1,0 +1,654 @@
+{
+  "node": "v24.21.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "socketReadUnmodified": true,
+  "guardHits": [],
+  "rows": [
+    {
+      "mode": "success",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "inject-completion",
+          "status": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "timer-refresh",
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "activeBefore": true,
+          "connecting": false
+        },
+        {
+          "kind": "callback",
+          "sameReceiver": true,
+          "connecting": false,
+          "callbackStillRegistered": false
+        },
+        {
+          "kind": "connect-listener",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "ready",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "binding-readStart-intercepted",
+          "reading": true
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": false,
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "timerActive": true
+        },
+        {
+          "kind": "callback-nextTick"
+        },
+        {
+          "kind": "listener-nextTick"
+        },
+        {
+          "kind": "ready-nextTick"
+        },
+        {
+          "kind": "before-cleanup"
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        }
+      ]
+    },
+    {
+      "mode": "invalid-public-timeout",
+      "events": [
+        {
+          "kind": "caught-timeout-error",
+          "error": {
+            "name": "RangeError",
+            "code": "ERR_OUT_OF_RANGE",
+            "message": "The value of \"msecs\" is out of range. It must be a non-negative finite number. Received -1"
+          }
+        },
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "inject-completion",
+          "status": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "timer-refresh",
+          "publicTimeout": -1,
+          "activeDelay": 100,
+          "activeBefore": true,
+          "connecting": false
+        },
+        {
+          "kind": "callback",
+          "sameReceiver": true,
+          "connecting": false,
+          "callbackStillRegistered": false
+        },
+        {
+          "kind": "connect-listener",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "ready",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "binding-readStart-intercepted",
+          "reading": true
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": false,
+          "publicTimeout": -1,
+          "activeDelay": 100,
+          "timerActive": true
+        },
+        {
+          "kind": "callback-nextTick"
+        },
+        {
+          "kind": "listener-nextTick"
+        },
+        {
+          "kind": "ready-nextTick"
+        },
+        {
+          "kind": "before-cleanup"
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        }
+      ]
+    },
+    {
+      "mode": "disabled-timeout",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "inject-completion",
+          "status": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "timer-refresh",
+          "publicTimeout": 0,
+          "activeDelay": -1,
+          "activeBefore": false,
+          "connecting": false
+        },
+        {
+          "kind": "callback",
+          "sameReceiver": true,
+          "connecting": false,
+          "callbackStillRegistered": false
+        },
+        {
+          "kind": "connect-listener",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "ready",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "binding-readStart-intercepted",
+          "reading": true
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": false,
+          "publicTimeout": 0,
+          "activeDelay": -1,
+          "timerActive": false
+        },
+        {
+          "kind": "callback-nextTick"
+        },
+        {
+          "kind": "listener-nextTick"
+        },
+        {
+          "kind": "ready-nextTick"
+        },
+        {
+          "kind": "before-cleanup"
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        }
+      ]
+    },
+    {
+      "mode": "throw-connect",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "inject-completion",
+          "status": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "timer-refresh",
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "activeBefore": true,
+          "connecting": false
+        },
+        {
+          "kind": "callback",
+          "sameReceiver": true,
+          "connecting": false,
+          "callbackStillRegistered": false
+        },
+        {
+          "kind": "injection-threw",
+          "fixtureBoundary": false,
+          "error": {
+            "name": "Error",
+            "message": "fixture connect throw"
+          }
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": false,
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "timerActive": true
+        },
+        {
+          "kind": "callback-nextTick"
+        },
+        {
+          "kind": "before-cleanup"
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        }
+      ]
+    },
+    {
+      "mode": "boundary-connect",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "inject-completion",
+          "status": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "timer-refresh",
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "activeBefore": true,
+          "connecting": false
+        },
+        {
+          "kind": "callback",
+          "sameReceiver": true,
+          "connecting": false,
+          "callbackStillRegistered": false
+        },
+        {
+          "kind": "injection-threw",
+          "fixtureBoundary": true,
+          "error": {}
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": false,
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "timerActive": true
+        },
+        {
+          "kind": "callback-nextTick"
+        },
+        {
+          "kind": "before-cleanup"
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        }
+      ]
+    },
+    {
+      "mode": "throw-ready",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "inject-completion",
+          "status": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "timer-refresh",
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "activeBefore": true,
+          "connecting": false
+        },
+        {
+          "kind": "callback",
+          "sameReceiver": true,
+          "connecting": false,
+          "callbackStillRegistered": false
+        },
+        {
+          "kind": "connect-listener",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "ready",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "injection-threw",
+          "fixtureBoundary": false,
+          "error": {
+            "name": "Error",
+            "message": "fixture ready throw"
+          }
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": false,
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "timerActive": true
+        },
+        {
+          "kind": "callback-nextTick"
+        },
+        {
+          "kind": "listener-nextTick"
+        },
+        {
+          "kind": "ready-nextTick"
+        },
+        {
+          "kind": "before-cleanup"
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        }
+      ]
+    },
+    {
+      "mode": "read-failure",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "inject-completion",
+          "status": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "timer-refresh",
+          "publicTimeout": 100,
+          "activeDelay": 100,
+          "activeBefore": true,
+          "connecting": false
+        },
+        {
+          "kind": "callback",
+          "sameReceiver": true,
+          "connecting": false,
+          "callbackStillRegistered": false
+        },
+        {
+          "kind": "connect-listener",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "ready",
+          "sameReceiver": true,
+          "connecting": false
+        },
+        {
+          "kind": "binding-readStart-intercepted",
+          "reading": true
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": true,
+          "publicTimeout": 100,
+          "activeDelay": -1,
+          "timerActive": false
+        },
+        {
+          "kind": "callback-nextTick"
+        },
+        {
+          "kind": "listener-nextTick"
+        },
+        {
+          "kind": "ready-nextTick"
+        },
+        {
+          "kind": "error",
+          "connecting": false,
+          "destroyed": true,
+          "sameFailureError": false,
+          "error": {
+            "name": "Error",
+            "code": "EIO",
+            "message": "read EIO",
+            "errno": -5,
+            "syscall": "read"
+          }
+        },
+        {
+          "kind": "error-nextTick"
+        },
+        {
+          "kind": "close",
+          "hadError": true
+        },
+        {
+          "kind": "before-cleanup"
+        }
+      ]
+    },
+    {
+      "mode": "async-failure",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "inject-completion",
+          "status": -61,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "connectionAttemptFailed",
+          "address": "127.0.0.1",
+          "port": 43210,
+          "family": 4,
+          "connecting": false,
+          "destroyed": false,
+          "error": {
+            "name": "Error",
+            "code": "ECONNREFUSED",
+            "message": "connect ECONNREFUSED 127.0.0.1:43210",
+            "errno": -61,
+            "syscall": "connect",
+            "address": "127.0.0.1",
+            "port": 43210
+          }
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": true,
+          "publicTimeout": 100,
+          "activeDelay": -1,
+          "timerActive": false
+        },
+        {
+          "kind": "error",
+          "connecting": false,
+          "destroyed": true,
+          "sameFailureError": true,
+          "error": {
+            "name": "Error",
+            "code": "ECONNREFUSED",
+            "message": "connect ECONNREFUSED 127.0.0.1:43210",
+            "errno": -61,
+            "syscall": "connect",
+            "address": "127.0.0.1",
+            "port": 43210
+          }
+        },
+        {
+          "kind": "error-nextTick"
+        },
+        {
+          "kind": "close",
+          "hadError": true
+        },
+        {
+          "kind": "before-cleanup"
+        }
+      ]
+    },
+    {
+      "mode": "immediate-failure",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "error",
+          "connecting": false,
+          "destroyed": true,
+          "sameFailureError": false,
+          "error": {
+            "name": "Error",
+            "code": "ECONNREFUSED",
+            "message": "connect ECONNREFUSED 127.0.0.1:43210 - Local (undefined:undefined)",
+            "errno": -61,
+            "syscall": "connect",
+            "address": "127.0.0.1",
+            "port": 43210
+          }
+        },
+        {
+          "kind": "error-nextTick"
+        },
+        {
+          "kind": "close",
+          "hadError": true
+        },
+        {
+          "kind": "before-cleanup"
+        }
+      ]
+    },
+    {
+      "mode": "stale-after-destroy",
+      "events": [
+        {
+          "kind": "public-return",
+          "connecting": true
+        },
+        {
+          "kind": "binding-connect-intercepted",
+          "address": "127.0.0.1",
+          "port": 43210
+        },
+        {
+          "kind": "destroy-before-completion"
+        },
+        {
+          "kind": "inject-completion",
+          "status": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "kind": "after-injection",
+          "connecting": false,
+          "destroyed": true,
+          "publicTimeout": 100,
+          "activeDelay": -1,
+          "timerActive": false
+        },
+        {
+          "kind": "close",
+          "hadError": false
+        },
+        {
+          "kind": "before-cleanup"
+        }
+      ]
+    }
+  ]
+}

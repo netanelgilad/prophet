@@ -106,3 +106,24 @@ still necessary. Local two-request witnesses do not activate those whole files
 or the complete HTTP/client/stream cases in [the HTTP record](node-http.md#complete-upstream-cases-reviewed).
 The CLI graph retains histories and source/job state, not executable native
 continuations or a proof about events after the invocation's chosen horizon.
+
+
+## TCP completion providers
+
+P040 adds admitted pending IPv4 sockets to this same registry and global CLI
+horizon; it does not create a separate TCP event budget. Pure eligibility reads
+current submitted/pending/undestroyed state. Actual selection creates stable
+success/readable/writable facts and consumes the pending completion before any
+callback. Failure/partial-flag cases retain their first unsupported transition.
+Full-duplex success refreshes any active idle timer and invokes connect then ready
+through the VM, stopping before unmodeled read(0) or at an earlier callback stop.
+Therefore this prefix has no normal fully delivered TCP completion; it preserves
+the active source at a typed stop and does not drain callback nextTicks. Guest
+throws retain existing registry abrupt-completion behavior. Other providers and
+waiting remain independently explored siblings, without provider priority.
+
+Default independent completion Booleans are an explicit callback-input
+overapproximation, not a proof of physical reachability for every combination.
+No expiration or native close provider is introduced. Timers may expire in
+unmodeled interleavings; waiting is neither inactivity nor eventual success.
+See [network semantics and boundaries](node-net.md#p040-selected-completion-prefix).

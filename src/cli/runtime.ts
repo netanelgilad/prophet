@@ -87,7 +87,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   markUnsupportedBoundaryObject(filesystem.module);
   const externalEvents = createExternalEvents();
   const events = createEventEmitterModel();
-  const net = createNetModel(events, { nextTick });
+  const net = createNetModel(events, { nextTick, externalEvents });
   const http = createHTTPModel(events, { bind: symbolicTCPBind, nextTick, externalEvents,
     requestInput: environment && environment.requestInput });
   const math = Object.assign(ESObject({

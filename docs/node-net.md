@@ -1,4 +1,4 @@
-# Pending outbound IPv4 connections
+# Bounded outbound IPv4 connection behavior
 
 P038 models an initial prefix of Node24.21.0 `net.connect` and
 `net.createConnection`. Both aliases, including `node:net`, share one function.
@@ -50,18 +50,19 @@ initiation stop. In pinned Node, destroy inside connectionAttempt clears the
 handle and native JavaScript subsequently throws; silently treating it as clean
 cancellation would be inaccurate.
 
-Only connectionAttempt listeners execute in this increment. Connect, ready,
-error, close and connectionAttemptFailed registrations remain retained future
-callbacks. Other event registrations, stream APIs and unmodeled public state
+P038 executes connectionAttempt; P040 additionally executes connect and ready
+on a selected full-duplex completion prefix. Error, close and
+connectionAttemptFailed registrations remain retained future callbacks. Other event registrations, stream APIs and unmodeled public state
 remain guarded; registration through a borrowed EventEmitter method uses the
 same policy. Public emit/listenerCount stop for every name, since even other names can
 have omitted native internal listeners (notably end). The socket's `node.net.socket` host slot links its persistent
 phase, endpoint, submission fact and pending completion/close state. It is
 inspection data, not a resumption interface.
 
-No TCP completion/close provider is registered. `--max-events` still bounds
-parsed incoming HTTP requests, not network completion. A drained queue with a
-pending socket is not process exit or proof that its future callback cannot run.
+P040 registers TCP completion alongside parsed HTTP providers under the shared
+`--max-events` horizon. No close or timer-expiration provider is registered.
+A drained queue with a pending socket is not process exit or proof that its
+future callback cannot run.
 No HTTP/HTTPS client, DNS, IPv6, IPC, raw Socket constructor, stream read/write,
 agent/proxy/pooling policy, shared descriptor pool or all-timeline result follows.
 Source identity and original public call origins can be correlated through the
@@ -119,4 +120,47 @@ deadline. No timer provider/listener registration or delivery is added here.
 The [unchanged dependency scenario](node-notifier-target.md) uses this shared
 behavior to reach pending TCP submission. Startup FIFO priority explains why the
 modeled prefix precedes timer callbacks. It does not prove that time never advances
-or cover timer/HTTP-arrival interleavings under the existing HTTP-only horizon.
+or cover timer interleavings under the HTTP/TCP-only arrival horizon.
+
+
+## P040 selected completion prefix
+
+`createNetModel` accepts an optional shared externalEvents registry and completion
+HostModel. A completion model without a registry rejects as configuration error;
+embeddings omitting both retain pending-only behavior. The CLI passes its shared
+registry. Only admitted submissions register a provider; eligibility reads current
+submitted/pending/undestroyed state. Waiting, horizon0 and eligibility checks do
+not generate completion facts. A selected delivery invokes net.socket.completion
+with the socket receiver and endpoint arguments, then stores a model-owned record
+with stable success/readable/writable Booleans. Trusted models can correlate these
+facts; the default independent facts conservatively overapproximate callback
+inputs, without claiming every flag combination is a witnessed OS result.
+
+Before status processing, completionPending becomes false and connecting becomes
+false. Failure retains phase connection-failed and stops before unmodeled native
+Error construction; no errno or connectionAttemptFailed/error/close is invented.
+Success retains connected phase. A false readable flag stops before push/read;
+a false writable flag stops before end. Both precede timer refresh and callbacks.
+The original protected socket/prototype domain is rechecked at delivery.
+
+Full-duplex success refreshes an active logical timeout occurrence using its
+retained delay, even when a caught invalid setter left public timeout negative.
+Its previous occurrence becomes inactive; public timeout is unchanged. Absent or
+canceled arms stay inactive. Connect listeners run in actual registration/once
+order, then ready. Their throws or typed stops suppress later stages. No nextTick
+runs between these synchronous stages. After normal ready, analysis stops before
+read(0); it does not assume readStart admission or create bytes. This unfinished
+external delivery retains its active checkpoint and any queued work. A guest
+throw follows the registry's existing abrupt-completion rules instead.
+
+The real unchanged checkGrowl connect listener first calls socket.end; P040 stops
+there before its availability callback. Actual invocation now supplies evidence
+beyond mere retention, but its whole operation remains unfinished. Socket receiver
+identity joins startup, submission and completion effects; deferred execution does
+not restore the registration activation. Selected completion is consumed once.
+
+HTTP and multiple sockets compete under one global horizon0/1/2. Waiting and
+shorter histories remain. No timer, close, arbitrary phase chronology, eventual
+arrival or all-schedule claim follows. See [contract/review](agent-tasks/P040-tcp-completion/task.md)
+and the pinned native intercepted-completion findings: they preserve Socket._read
+and intercept readStart before native reading, verifying ordering without traffic.
