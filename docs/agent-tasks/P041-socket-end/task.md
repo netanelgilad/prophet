@@ -5,7 +5,7 @@ Base P040 candidate `6cec38a17dcc08d13d92e4d9f5b1a59c51d1e01f`, with187 suites /
 Branch `agent/p041-socket-end` develops separately while immutable candidate
 CI39675598027 passed, but publication is held for the correction below.
 Status: implementation and independent review accepted after both fixes; combined
-full validation running. Earlier P040 CI is not sufficient for this new tree.
+full validation passed:190 suites/5448 passes/46 historical skips and typecheck0. Exact-candidate CI remains required. Earlier P040 CI is not sufficient for this new tree.
 
 The [final contract](contract.md) supersedes an initial three-outcome proposal.
 [Independent review](design-review.md) and [native findings](native-findings.md)

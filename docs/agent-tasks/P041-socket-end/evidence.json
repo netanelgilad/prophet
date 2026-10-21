@@ -1,0 +1,122 @@
+{
+  "implementation": "e43912333e19ab73b015c1a5c23bfd625a6a66a9",
+  "runtime": "v24.21.0",
+  "validation": {
+    "results": [
+      {
+        "name": "full-suite",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 162.03,
+        "log": "/tmp/prophet-p041/full-suite-complete.log",
+        "sha256": "761368955e71c9413665d79befe3046caaab1ba9081854048c391ea9fbd9335b"
+      },
+      {
+        "name": "typecheck",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 2.35,
+        "log": "/tmp/prophet-p041/typecheck-complete.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "hashesUnchanged": true
+  },
+  "reviewedHashes": {
+    "src/node/net.ts": "a04d82bc94fa80b29537a1ec45103c85fffe39bb6890683f7b86c31041cf3ce1",
+    "src/node/writable-end.ts": "6cc7fe2b3acae2401058d38cf158da6752c99f2058d1c7e8d70c6acb048b785e",
+    "src/cli/runtime.ts": "68cb769ee81748e013431deae905dd4532fb291f588315605b00a303f870363b",
+    "src/index.ts": "0d3c45b65ea9c8088f9bfbbc1876aaa77019bdecb9f8c2c337a87ffccabb1826",
+    "src/cli/main.ts": "29026e8ec718469409dded8eb67223c8bdfc6cee3520c7244a9c51d2181cd9a3",
+    "src/cli/arguments.ts": "18110c5f968cbd0abd4187edac45ec3b3848548718ceb1df313478c7038909cc",
+    "test/node-net-completion.spec.ts": "ea39bc7c269659be2126cabf193f15f63565fa57916d7bb64c3b37fde60c5a80",
+    "test/node-net-completion-review.spec.ts": "e9a041c1f2af55423cc780273739039223c3b87e8a4ce2f971b1ddcd2b4ef848",
+    "test/node-net-completion-integration.spec.ts": "f6707c9c917481e36707ce7e99dd0c7c133f571b4eecb31e4a2ae7dc3554ead0",
+    "test/node-net-end.spec.ts": "4f0647013915025e558810db7526232fe15a79525bc1cecb07050b0b19740df1",
+    "test/node-net-end-review.spec.ts": "f51a39afb2ae0ee27749b8e0a15ab58671c66991ebb6d9179b5ea28795833170",
+    "test/node-net-end-integration.spec.ts": "defbbd1c4fef3058ffb8936d9ebf3d6d3d49cf68c3fb30e0b41126ec22f1e0ad",
+    "test/node-net-integration.spec.ts": "f1bcd1c1384bc33e25e6a475c21d1d7fb330920a09f2510b31358bfaed6d64c0",
+    "test/node-notifier-startup.spec.ts": "e13f6a196bcc307beba6203c2134657687103139494e074b552e8df4dca82a13"
+  },
+  "audit": [
+    {
+      "name": "guards",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p041/audit-guards.log",
+      "sha256": "5556c2ad53cb7b6ce40386e1dd51b34b4466c60d05d2d1445a2231b0c9b2dbb6",
+      "lines": 835
+    },
+    {
+      "name": "assertions",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p041/audit-assertions.log",
+      "sha256": "940abf7346b20b8331b18f1b5ddd9a86a1fcfab2d05412e329fcb315f4f71179",
+      "lines": 23
+    },
+    {
+      "name": "skips",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p041/audit-skips.log",
+      "sha256": "b5d36faba6bc12c65e9b87d00873ee5420a3ff04b926d67d3d0cd3dd915a1214",
+      "lines": 1
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/prophet-p041/audit-boundaries.log",
+      "sha256": "9ce738fefc914a36fb8350e6968dd24f58a0fac6c35d51051c8828eba7ccae5e",
+      "lines": 2652
+    }
+  ],
+  "test262": {
+    "files": 484,
+    "variants": 959,
+    "parseNegativeFiles": 43,
+    "parseNegativeVariants": 85,
+    "historicalSkippedFiles": 46,
+    "reconciliation": "test262-reconciliation.json"
+  },
+  "publication": "Pending exact-candidate CI; supersedes held P040 candidate only when combined corrected tree passes."
+}

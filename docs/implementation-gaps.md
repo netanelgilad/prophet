@@ -1857,5 +1857,7 @@ P040 review/evidence before candidate CI/publication. No stable gap closes.
   file blockers and exact source hashes are retained. Local injected status
   controls are compatibility evidence, not reachable fresh-POSIX outcomes.
 
-Full independent validation, scans and complete skipped inventory must be
-reconciled before publication. No stable gap closes.
+Full independent validation and root190-suite/5448-pass/46-skip run passed with
+typecheck0 and stable source hashes. Four scans and complete unchanged Test262
+inventory are reconciled in P041 evidence; exact-candidate CI precedes publication.
+No stable gap closes.

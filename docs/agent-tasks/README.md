@@ -51,7 +51,7 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P041](P041-socket-end/task.md) | Empty socket end and actual package callback | Both conditional corrections accepted;38 independent probes pass; full validation running | Source-derived pending shutdown; no OS success/finish claim |
+| [P041](P041-socket-end/task.md) | Empty socket end and actual package callback | Both conditional corrections accepted;38 independent probes pass; full validation passed; exact-candidate CI pending | Source-derived pending shutdown; no OS success/finish claim |
 | [P040](P040-tcp-completion/task.md) | Selected TCP completion and actual dependency callbacks | Publication held: P041 found finite-record-choice crash; correction and combined gates pending | Shared HTTP/TCP horizon; explicit error/stream/timer boundaries |
 | [P039](P039-package-timers/task.md) | Unchanged dependency startup and pending socket timers | Published5afe23a;184 suites/5362 passes/46 skips,typecheck and CI39674392064 pass | Explicit IPv4 checkGrowl subpath, no completed availability claim |
 | [P038](P038-net-submission/task.md) | Pending IPv4 sockets and deferred submission | Published8efe72b;181 suites/5319 passes/46 skips,typecheck and CI39672451837 pass | Explicit failed-cleanup frontier; no TCP completion claim |
