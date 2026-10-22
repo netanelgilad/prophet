@@ -1,0 +1,121 @@
+{
+  "command": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node /tmp/prophet-p042/read-probe.cjs",
+  "exitCode": 0,
+  "cases": 9,
+  "verification": "ordering/state assertions passed",
+  "originalNativeTransportCalls": 0,
+  "nativePackageExecution": false,
+  "upstreamWholeCasesExecuted": 0,
+  "sourceProvenance": {
+    "builtinSources": "process.binding('natives') in installed pinned Node24.21.0",
+    "cppAndLibuv": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/",
+    "sourceTreeSha": "955266bfdd854cd280dffd47548673914484e4c0"
+  },
+  "files": [
+    {
+      "file": "/tmp/prophet-p042/candidate-paths.json",
+      "sha256": "dfb05f46bfc0df0cb5818f2c5c90d9feb2462eb0dd44b7fec3e5b8caadb8d285",
+      "byteLength": 121
+    },
+    {
+      "file": "/tmp/prophet-p042/deps_uv_src_unix_core.c",
+      "sha256": "18bfd5f2045417f8ace5d76e222bf7441b31ead5fc2cbaf6225965e0afea8767",
+      "byteLength": 50911
+    },
+    {
+      "file": "/tmp/prophet-p042/deps_uv_src_unix_internal.h",
+      "sha256": "959e3ce94dd0a1c12f090f40aac1f0cc9287b199eff4ed6dd9e2e944963a06ff",
+      "byteLength": 19209
+    },
+    {
+      "file": "/tmp/prophet-p042/deps_uv_src_unix_stream.c",
+      "sha256": "736cd948a28acdb1544dd683becd78fb744e79de55562229da54923b20f41c7c",
+      "byteLength": 41572
+    },
+    {
+      "file": "/tmp/prophet-p042/deps_uv_src_unix_tcp.c",
+      "sha256": "ab401c3846448501842b4c5a1973beceab00955aebecbbc05e64b71472f19053",
+      "byteLength": 18228
+    },
+    {
+      "file": "/tmp/prophet-p042/deps_uv_src_uv-common.c",
+      "sha256": "252aba2acd1172375f07a4cb2ab3a278eaf3f63e5958506daa2892ba6e7af4bc",
+      "byteLength": 24293
+    },
+    {
+      "file": "/tmp/prophet-p042/design-review.md",
+      "sha256": "5a7b0ea6db1c3f036b481035c95689b562a96bc32613d113e3bb207c40421397",
+      "byteLength": 6337
+    },
+    {
+      "file": "/tmp/prophet-p042/design.md",
+      "sha256": "54605e9d185319936df30bcf0ff39b7d6b1255b7516b39ff025491dc275037ed",
+      "byteLength": 7126
+    },
+    {
+      "file": "/tmp/prophet-p042/internal_streams_readable.js",
+      "sha256": "554afb7d2d72d87aadc2dcddab103d81451cd7b0e77b91425e19330a2fc57775",
+      "byteLength": 54872
+    },
+    {
+      "file": "/tmp/prophet-p042/internal_streams_state.js",
+      "sha256": "4b5e014feed92eab8832debc31090ec8a6024226fa147db37a448f89ad157c29",
+      "byteLength": 1440
+    },
+    {
+      "file": "/tmp/prophet-p042/native-read-findings.md",
+      "sha256": "c144e1da858b6ef153f6d44a8fc7118997a005852a1539e310e2c75dd110380c",
+      "byteLength": 14098
+    },
+    {
+      "file": "/tmp/prophet-p042/net.js",
+      "sha256": "b4bc6d76e255c67673a3bdf4676e0816e1f13906e4a46a6bdcc07dd614329ffa",
+      "byteLength": 86162
+    },
+    {
+      "file": "/tmp/prophet-p042/read-probe.cjs",
+      "sha256": "a6cb4319e4f75fc9984f3d25b112f91938a5f4c09f310e12aefa7fa1d307d7c1",
+      "byteLength": 5485
+    },
+    {
+      "file": "/tmp/prophet-p042/read-results.json",
+      "sha256": "a2148c1502d760236e2ed63c9b892e330b30b873e040eb9d163a36dacc94172e",
+      "byteLength": 84832
+    },
+    {
+      "file": "/tmp/prophet-p042/src_api_callback.cc",
+      "sha256": "0a4c8ecf051f995f9669826dc9d85560add6ecd6fb2e28ce6b2f3dd309947de2",
+      "byteLength": 13682
+    },
+    {
+      "file": "/tmp/prophet-p042/src_connection_wrap.cc",
+      "sha256": "76a4492674dedda6d5e7699eab9c3903f11da4b46a9c991c628becadfa181cf0",
+      "byteLength": 4507
+    },
+    {
+      "file": "/tmp/prophet-p042/src_stream_base.cc",
+      "sha256": "0e5390e15073f4782df139ef0513c69e7dc293fca51b916de4db81d8279b8bd4",
+      "byteLength": 28312
+    },
+    {
+      "file": "/tmp/prophet-p042/src_stream_wrap.cc",
+      "sha256": "dfdd17750234228b3b4a79feda9717eed3b1fb739de9a3caa5ebae02a30d04b7",
+      "byteLength": 13107
+    },
+    {
+      "file": "/tmp/prophet-p042/upstream/manifest.json",
+      "sha256": "5997d958de7078f01e955c19944534f13ceae2335846d2578fb62ff1b86da9b0",
+      "byteLength": 587
+    },
+    {
+      "file": "/tmp/prophet-p042/upstream/test-net-server-pause-on-connect.js",
+      "sha256": "821b6b38bcb9a1c5fc4dcbc23adff94f41c38241a62503b2f31317f375961836",
+      "byteLength": 2464
+    },
+    {
+      "file": "/tmp/prophet-p042/upstream/test-stream-readable-reading-readingMore.js",
+      "sha256": "64e4b0b2237a8623b34a1ca2457e34240e19eb7768d64b05a6ffbe2d533ed879",
+      "byteLength": 4474
+    }
+  ]
+}

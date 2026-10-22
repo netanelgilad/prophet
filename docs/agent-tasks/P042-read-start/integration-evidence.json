@@ -1,0 +1,81 @@
+{
+  "head": "fb84e98e0fcce0c63076298903ef9558ddc51e22",
+  "ownedFiles": [
+    {
+      "file": "test/node-net-read-start-integration.spec.ts",
+      "sha256": "9460739369e7ec2eb30004056070cdbe7c78e4a4ac030ad57ee24650f61d1a12",
+      "lines": 228
+    },
+    {
+      "file": "test/node-net-completion-integration.spec.ts",
+      "sha256": "36cc5b6e673123e42dccb63b83e205a42f9bd60db8422878b3e4892a03e1bc52",
+      "lines": 352
+    },
+    {
+      "file": "test/node-net-end-integration.spec.ts",
+      "sha256": "c3678f6f8fe331cb6e37f0e52f5a33e5f35ed071aadebedc69586e09658744cd",
+      "lines": 281
+    },
+    {
+      "file": "test/node-notifier-startup.spec.ts",
+      "sha256": "9c82ee0d947065716a05406888b3a9afed4cbf6aa254f555c3f96ab7f0571030",
+      "lines": 393
+    }
+  ],
+  "frozen": true,
+  "red": {
+    "exitCode": 1,
+    "head": "fb84e98e0fcce0c63076298903ef9558ddc51e22",
+    "status": "?? docs/agent-tasks/P042-read-start/\n?? test/node-net-read-start-integration.spec.ts\n?? test/node-net-read-start-review.spec.ts\n"
+  },
+  "fourSuiteGreen": {
+    "exitCode": 0
+  },
+  "finalAffectedGreen": {
+    "exitCode": 0
+  },
+  "typecheck": {
+    "exitCode": 1
+  },
+  "typecheckRemaining": "Only reviewer-owned test/node-net-read-start-review.spec.ts54/55 expected length literal typing; no owned-file errors. Root notified.",
+  "commands": {
+    "tests": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH PROPHET_NODE_BINARY=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node node .yarn/releases/yarn-3.1.1.cjs test --runInBand test/node-net-read-start-integration.spec.ts test/node-net-completion-integration.spec.ts test/node-net-end-integration.spec.ts test/node-notifier-startup.spec.ts",
+    "typecheck": "PATH=/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin:$PATH node .yarn/releases/yarn-3.1.1.cjs tsc --noEmit"
+  },
+  "result": {
+    "suites": 4,
+    "tests": 21,
+    "finalAffectedSuites": 2,
+    "finalAffectedTests": 11,
+    "nativeCases": 9
+  },
+  "notes": [
+    "Genuine behavior red before source implementation at immutable fb84e98.",
+    "Normal merged heap inspection selects known choices using effect-path knowledge and preserves value identity; unresolved facts stay symbolic.",
+    "Native nine cases inline; no native transport or package execution.",
+    "Existing normal full-read frontier assertions upgraded; failure/partial/throw/boundary/waiting histories retained.",
+    "No docs, production, other tests, commits or push by integration agent."
+  ],
+  "logs": [
+    {
+      "file": "/tmp/prophet-p042/integration-red.log",
+      "sha256": "d8738e37ee0eba195f7da12f2651bfd0a388e236f4d5bd0fd308f28eb6c2e063",
+      "byteLength": 1261
+    },
+    {
+      "file": "/tmp/prophet-p042/integration-source.log",
+      "sha256": "0d77cee077013d1dea951342b47ff3c7a51b0afec00ee0b54f2f751c23327264",
+      "byteLength": 679
+    },
+    {
+      "file": "/tmp/prophet-p042/integration-final.log",
+      "sha256": "c376f07085987e9de1351bcd4fce3bd2d2a13a1286ad2674910552f61f5ba6aa",
+      "byteLength": 491
+    },
+    {
+      "file": "/tmp/prophet-p042/integration-typecheck-final.log",
+      "sha256": "fe013a40ea6be23c1606b4f313078bde639dabda1d438d98b59175de91906e72",
+      "byteLength": 342
+    }
+  ]
+}

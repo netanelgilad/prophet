@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-stream-readable-reading-readingMore.js",
+    "file": "test-stream-readable-reading-readingMore.js",
+    "sha256": "64e4b0b2237a8623b34a1ca2457e34240e19eb7768d64b05a6ffbe2d533ed879",
+    "byteLength": 4474
+  },
+  {
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-server-pause-on-connect.js",
+    "file": "test-net-server-pause-on-connect.js",
+    "sha256": "821b6b38bcb9a1c5fc4dcbc23adff94f41c38241a62503b2f31317f375961836",
+    "byteLength": 2464
+  }
+]

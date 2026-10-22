@@ -189,7 +189,9 @@ P040 extends the same horizon to pending TCP completions, invoking actual
 connect/ready callbacks until a reached unsupported stream transition. The
 [unchanged checkGrowl target](node-notifier-target.md) first reached socket.end
 inside its real connect listener. P041 now queues fresh empty shutdown and lets
-its actual caller callback report null,true, then preserves the read(0) frontier.
+its actual caller callback report null,true. P042 models its fresh read(0)
+registration and normal completion return, preserving pending input and shutdown
+while the shared queue can proceed to actual jobs and another bounded event.
 That report does not prove a service response or completed OS shutdown.
 Timers and close are not providers, so this is not arbitrary schedule coverage.
 Bounds above two explicitly reject; default zero preserves startup. Parsed
@@ -762,3 +764,5 @@ siblings. CLI nextTick draining occurs between normal arrivals and after the las
 one. A stateful `/arm` then `/fire` spec now reaches the second-request failure;
 its one-event domain cannot fabricate the prior arming request. This is a bounded
 history result, not a general callback summary or proof over arbitrary timelines.
+
+Current continuation plan: [next work after P042](next-work.md).

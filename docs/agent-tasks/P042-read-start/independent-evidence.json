@@ -1,0 +1,28 @@
+{
+  "tests": {
+    "suites": 3,
+    "passed": 50,
+    "failed": 0,
+    "exit": 0,
+    "log": "/tmp/prophet-p042/review-final-green.log"
+  },
+  "typecheck": {
+    "exit": 0,
+    "log": "/tmp/prophet-p042/review-final-typecheck.log"
+  },
+  "diff_check": 0,
+  "hashes": {
+    "src/node/net.ts": "8a209786a700c57f542a66e504a63a6254b5798b607d09cdd0d75941acf26b5e",
+    "src/node/readable-start.ts": "447ac8b3cad683786ff43be1606bda7ed462337521060cbb8ffbddd69924d1d4",
+    "test/node-net-read-start-review.spec.ts": "d753010451370b4e2f8d88a09aefa672a47c2bfd50fb7d257ddbfdd0f1b93510",
+    "test/node-net-completion-review.spec.ts": "20387b71d677cde9c45714b64df1cf88c7ab13c473499e73213b8a46b2e6a78f",
+    "test/node-net-end-review.spec.ts": "801bd94c5b6a4dbcecf055034cad5f9121cd4170653f50b25e1dda48f17bffbf",
+    "test/node-net-read-start.spec.ts": "e7625a3fd5c1b3868b458ff458544631804bcb88aceef1c38259d3f7f0b80958",
+    "test/node-net-completion.spec.ts": "59b5e2ebfd15e243e3f0d0abb028bfb74f5be01360c39cc62903c9c0a0d5a352",
+    "test/node-net-end.spec.ts": "6f39efe80ff06d71517843834794e7135be1b6b9995f6c7e295dc2a799b02836",
+    "test/node-net-read-start-integration.spec.ts": "9460739369e7ec2eb30004056070cdbe7c78e4a4ac030ad57ee24650f61d1a12",
+    "test/node-net-completion-integration.spec.ts": "36cc5b6e673123e42dccb63b83e205a42f9bd60db8422878b3e4892a03e1bc52",
+    "test/node-net-end-integration.spec.ts": "c3678f6f8fe331cb6e37f0e52f5a33e5f35ed071aadebedc69586e09658744cd",
+    "test/node-notifier-startup.spec.ts": "9c82ee0d947065716a05406888b3a9afed4cbf6aa254f555c3f96ab7f0571030"
+  }
+}

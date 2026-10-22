@@ -6,7 +6,7 @@ import { tmpdir } from "os";
 import { join, resolve } from "path";
 import { effectPaths, isExecutionBoundary, isForkedCompletion } from "../src";
 import { getArrayElements, getProperties } from "../src/execution-context/Heap";
-import { resolveBoolean } from "../src/symbolic";
+import { choiceOf, resolveBoolean } from "../src/symbolic";
 
 const packageDirectory = resolve("node_modules/node-notifier");
 const sourceHash = "6d8fdba983f2589ac744b68437918c63e679a962c4e06007b4f81cb089fdb103";
@@ -69,11 +69,26 @@ function cli(source: string, expectedStatus = 2, maxEvents = 0) {
 function leaves(result: any[]): any[][] {
   return isForkedCompletion(result[0]) ? leaves(result[0].consequent).concat(leaves(result[0].alternate)) : [result];
 }
+// Select known alternatives in a merged final heap using this effect history.
+// This is inspection only: unresolved values remain symbolic, identities survive.
+function inspectPath(context:any,knowledge:any){
+  const select=(value:any):any=>{
+    const choice=choiceOf(value);if(!choice)return value;
+    const known=resolveBoolean(choice.condition,knowledge);
+    return known===undefined?value:select(known?choice.consequent:choice.alternate);
+  };
+  const heap=new Map();
+  if(context.value.heap)context.value.heap.forEach((entry:any,key:any)=>{
+    const properties:any={};for(const name of Object.keys(entry.properties))properties[name]=select(entry.properties[name]);
+    heap.set(key,{...entry,properties,elements:entry.elements&&entry.elements.map(select)});
+  });
+  return {...context,value:{...context.value,heap,knowledge}};
+}
 function paths(roots: any) {
   const result: Array<{ completion: any; context: any; events: any[] }> = [];
   for (const [completion, context] of leaves([roots.completion, roots.current]))
     for (const path of effectPaths(context.value.effects, context.value.knowledge))
-      result.push({ completion, context, events: path.events as any[] });
+      result.push({ completion, context: inspectPath(context,path.knowledge), events: path.events as any[] });
   return result;
 }
 function calls(events: any[], operation: string): any[] {
@@ -282,19 +297,19 @@ test("pinned native socket timers retain public timeout writes, unrefed arms and
   }
 });
 
-test("one TCP completion runs unchanged checkGrowl end and its real availability callback before the read frontier",()=>{
+test("one TCP completion runs unchanged checkGrowl end and its real availability callback before normal read registration",()=>{
   const {roots,target}=cli(`var check=require('node-notifier/lib/checkGrowl');
     check({host:'127.0.0.1',port:23053},function(error,available){
       if(error!==null||available!==true)throw 'callback arguments';console.log('availability callback');
     });console.log('helper returned');`,2,1);
   const all=paths(roots);expect(all).toHaveLength(6);
-  const waiting=all.filter(path=>!isExecutionBoundary(path.completion));expect(waiting).toHaveLength(1);
+  const waiting=all.filter(path=>!calls(path.events,'net.socket.completion').length&&!isExecutionBoundary(path.completion));expect(waiting).toHaveLength(1);
   const socket=socketOf(waiting[0].events);
   const previousArm=getProperties(socket.hostSlots['node.net.timeout'],waiting[0].context).arm;
   const full=all.filter(path=>calls(path.events,'net.socket.end').length===1);
   expect(full).toHaveLength(1);
   const {events,context,completion}=full[0];
-  expect(isExecutionBoundary(completion)).toBe(true);expect(completion.message).toMatch(/read/);
+  expect(isExecutionBoundary(completion)).toBe(false);
   expect(socketOf(events)).toBe(socket);
   expect(messages(events)).toEqual(['helper returned','availability callback']);
   expect(getProperties(socket,context)).toMatchObject({connecting:{value:false},
@@ -323,7 +338,7 @@ test("one TCP completion runs unchanged checkGrowl end and its real availability
   const completionCall=calls(events,'net.socket.completion')[0].call;
   expect(completionCall.receiver).toBe(socket);expect(completionCall.origin.activation).toBeUndefined();
   const active=getProperties(context.value.global.hostSlots.externalEvents,context).active;
-  expect(getProperties(active as any,context).receiver).toBe(socket);
+  expect(active).toMatchObject({type:'undefined'});
   const refreshed=getProperties(socket.hostSlots['node.net.timeout'],context).arm;
   const beforeEnd={value:{...context.value,heap:calls(events,'net.socket.end')[0].heap}};
   expect(getProperties(socket.hostSlots['node.net.timeout'],beforeEnd).arm).toBe(refreshed);
@@ -334,8 +349,13 @@ test("one TCP completion runs unchanged checkGrowl end and its real availability
   expect(getProperties(socket.hostSlots['node.stream.writable'],context)).toMatchObject({
     ending:{value:true},ended:{value:true},finalCalled:{value:true},finalPending:{value:true},
     prefinished:{value:false},finished:{value:false}});
-  expect(context.value.activation).toBeUndefined(); // Both interpreted callbacks returned before native read frontier.
-  expect(calls(events,'net.socket.readStart')).toHaveLength(0);
+  expect(context.value.activation).toBeUndefined(); // Both interpreted callbacks returned before native read registration.
+  expect(calls(events,'net.socket.readStart')).toHaveLength(1);
+  expect(getProperties(socket.hostSlots['node.net.read'],context)).toMatchObject({handleReading:{value:true},pending:{value:true}});
+  expect(getProperties(socket.hostSlots['node.stream.readable'],context) as any).toMatchObject({reading:{value:true},sync:{value:false},ended:{value:false}});
+  expect(getProperties(socket.hostSlots['node.stream.readable'],context).length).toMatchObject({value:0});
+  expect(calls(events,'net.socket.readStart')[0].call.origin.activation).toBeUndefined();
+  expect(events.filter(event=>event.kind==='return'&&event.call.operation==='net.socket.complete')).toHaveLength(1);
   for(const path of all.filter(path=>path!==full[0])){
     expect(messages(path.events)).toEqual(['helper returned']);
     expect(calls(path.events,'net.socket.shutdown')).toHaveLength(0);

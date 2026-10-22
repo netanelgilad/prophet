@@ -61,3 +61,5 @@ until review is recorded; a model-generated article is not independent evidence.
 - [TCP completion prefixes](tcp-completion-prefixes.md): event selection, stable outcomes, timer refresh and active stop checkpoints.
 
 - [Pending shutdown](pending-shutdown.md): derive local admission from runtime state and keep future OS results distinct.
+
+- [Normal callback prefixes and pending input](pending-read.md): preserve symbolic histories when a previous boundary becomes normal.

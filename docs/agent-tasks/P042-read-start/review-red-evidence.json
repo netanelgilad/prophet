@@ -1,0 +1,12 @@
+{
+  "status": 1,
+  "tests": {
+    "failed": 7,
+    "passed": 0
+  },
+  "log": "/tmp/prophet-p042/review-red.log",
+  "hashes": {
+    "src/node/net.ts": "a04d82bc94fa80b29537a1ec45103c85fffe39bb6890683f7b86c31041cf3ce1",
+    "test/node-net-read-start-review.spec.ts": "182338071339275aa203610674f9b760bd57796abb0dd27519b03cef07a96948"
+  }
+}

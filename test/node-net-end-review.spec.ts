@@ -10,8 +10,8 @@ import { createJobQueue } from '../src/jobs';
 import { createEventEmitterModel } from '../src/node/events';
 import { createNetModel } from '../src/node/net';
 import { ESObject, TESObject } from '../src/Object';
-import { selectValue } from '../src/symbolic';
-import { isThrownValue, Undefined } from '../src/types';
+import { choiceOf, resolveBoolean, selectValue } from '../src/symbolic';
+import { Any, isThrownValue, Undefined } from '../src/types';
 
 const full:HostModel=(_call,context)=>[ESObject({success:ESBoolean(true),readable:ESBoolean(true),writable:ESBoolean(true)}),context];
 function setup(completion:HostModel|undefined=full){
@@ -35,13 +35,28 @@ function fields(context:TExecutionContext,slot:string,name='socket'){
 function writable(context:TExecutionContext,name='socket'){return fields(context,'node.stream.writable',name);}
 function shutdown(context:TExecutionContext,name='socket'){return fields(context,'node.net.shutdown',name);}
 function ready(env:ReturnType<typeof setup>,source:string){return normal(env.queue.drain(normal(evaluateCode(source,env.initial)),30));}
-function deliver(env:ReturnType<typeof setup>,context:TExecutionContext){const found=leaves(env.external.explore(context,1)).filter(pair=>isExecutionBoundary(pair[0])||isThrownValue(pair[0]));expect(found).toHaveLength(1);return found[0];}
+// Inspect graph histories without executing guest work or resuming checkpoints.
+function histories(result:BranchResult):BranchResult[]{
+ if(isForkedCompletion(result[0]))return histories(result[0].consequent).concat(histories(result[0].alternate));
+ return effectPaths(result[1].value.effects,result[1].value.knowledge).map(path=>{
+  const select=(value:Any):Any=>{const choice=choiceOf(value);if(!choice)return value;const known=resolveBoolean(choice.condition,path.knowledge);return known===undefined?value:select(known?choice.consequent:choice.alternate);};
+  const heap=new Map(result[1].value.heap || []);
+  for(const [key,entry] of heap){const properties:{[name:string]:Any}={};for(const name of Object.keys(entry.properties))properties[name]=select(entry.properties[name]);heap.set(key,{...entry,properties});}
+  return [result[0],ExecutionContext({...result[1].value,heap,knowledge:path.knowledge})] as BranchResult;
+ });
+}
+function deliveries(env:ReturnType<typeof setup>,context:TExecutionContext){
+ const healthy:BranchResult[]=[];
+ const result=env.external.explore(context,1,after=>{healthy.push([Undefined,after]);return [Undefined,after];});
+ return healthy.concat(leaves(result).filter(([value])=>isExecutionBoundary(value)||isThrownValue(value)));
+}
+function deliver(env:ReturnType<typeof setup>,context:TExecutionContext){const found=deliveries(env,context);expect(found).toHaveLength(1);return found[0];}
 const open="var socket=net.connect(1234,'127.0.0.1');";
 const fresh={constructed:{value:true},ending:{value:false},ended:{value:false},finalCalled:{value:false},finalPending:{value:false},prefinished:{value:false},finished:{value:false}};
 
 test('empty end retains deterministic pending shutdown with exact before/after state and return identity',()=>{
  const env=setup(),before=ready(env,`${open}socket.setTimeout(100);socket.on('connect',function(){mark('entered');if(socket.end()!==socket)throw 'identity';mark('returned');});socket.on('ready',function(){mark('ready');});`);
- const [value,after]=deliver(env,before);expect(value).toMatchObject({kind:'unsupported',message:expect.stringMatching(/read\(0\)/)});
+ const [value,after]=deliver(env,before);expect(value).toBe(Undefined);
  expect(marks(after)).toEqual(['entered','returned','ready']);
  const events=trace(after).filter(event=>['net.socket.end','net.socket.shutdown'].includes(event.call.operation));
  expect(events.map(event=>[event.kind,event.call.operation])).toEqual([['call','net.socket.end'],['call','net.socket.shutdown'],['return','net.socket.shutdown'],['return','net.socket.end']]);
@@ -56,7 +71,7 @@ test('empty end retains deterministic pending shutdown with exact before/after s
  const initialArm=fields(entry,'node.net.timeout').arm,finalArm=fields(after,'node.net.timeout').arm;expect(finalArm).toBe(initialArm);
  expect(getProperties(finalArm as TESObject,after)).toMatchObject({active:{value:true},refed:{value:false},delay:{value:100}});
  expect(getArrayElements(getProperties(env.queue.state,after).pending as any,after)).toHaveLength(0);
- expect(getProperties(env.external.state,after).active).not.toBe(Undefined);
+ expect(getProperties(env.external.state,after).active).toBe(Undefined);
  expect(events[0].call.origin.activation).toBe(events[1].call.origin.activation);
  expect(events[0].call.origin.activation.sourceFile).toBe('/end-review.cjs');
 });
@@ -116,8 +131,9 @@ test.each(['writable','writableEnded','writableFinished','end'])('public %s writ
 test('two possible selected sockets keep independent writable and shutdown state',()=>{
  const env=setup(),before=ready(env,`var first=net.connect(1234,'127.0.0.1');var second=net.connect(1235,'127.0.0.1');
  first.on('connect',function(){first.end();mark('first');});second.on('connect',function(){second.end();mark('second');});`);
- const all=leaves(env.external.explore(before,2));expect(all).toHaveLength(3);
- for(const [,context] of all){const selected=marks(context);expect(selected.length).toBeLessThanOrEqual(1);
+ const all=histories(env.external.explore(before,2));expect(all).toHaveLength(5);
+ expect(all.map(([,context])=>marks(context)).sort()).toEqual([[],['first'],['first','second'],['second'],['second','first']].sort());
+ for(const [,context] of all){const selected=marks(context);expect(new Set(selected).size).toBe(selected.length);
    for(const name of ['first','second']){const ended=selected.includes(name);expect(writable(context,name).ended).toMatchObject({value:ended});expect(shutdown(context,name).pending).toMatchObject({value:ended});}
  }
  expect(writable(before,'first')).toMatchObject(fresh);expect(writable(before,'second')).toMatchObject(fresh);
@@ -129,9 +145,9 @@ test('finite completion-record choices preserve a full-duplex end sibling beside
    ESObject({success:ESBoolean(true),readable:ESBoolean(true),writable:ESBoolean(true)}),
    ESObject({success:ESBoolean(true),readable:ESBoolean(false),writable:ESBoolean(true)})),context];
  const env=setup(model),before=ready(env,`${open}socket.on('connect',function(){socket.end();mark('ended');});`);
- const all=leaves(env.external.explore(before,1));expect(all).toHaveLength(3);
+ const all=deliveries(env,before);expect(all).toHaveLength(2);
  expect(all.filter(([,context])=>marks(context).includes('ended'))).toHaveLength(1);
- expect(all.filter(([value])=>isExecutionBoundary(value))).toHaveLength(2);
+ expect(all.filter(([value])=>isExecutionBoundary(value))).toHaveLength(1);
 });
 
 

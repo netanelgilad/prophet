@@ -11,7 +11,7 @@ import { isExecutionBoundary, isForkedCompletion } from '../src/execution-contex
 import { getArrayElements, getProperties } from '../src/execution-context/Heap';
 import { ESObject, TESObject } from '../src/Object';
 import { ESString } from '../src/string/String';
-import { resolveBoolean } from '../src/symbolic';
+import { choiceOf, resolveBoolean } from '../src/symbolic';
 import { Any, isThrownValue, TESBoolean, ThrownValue, Undefined } from '../src/types';
 
 const outcome=(success=true,readable=true,writable=true)=>ESObject({success:ESBoolean(success),readable:ESBoolean(readable),writable:ESBoolean(writable)});
@@ -25,7 +25,16 @@ function setup(completion?:HostModel) {
   return {queue,externalEvents,initial};
 }
 function normal(result:BranchResult){expect(isExecutionBoundary(result[0])||isForkedCompletion(result[0])||isThrownValue(result[0])).toBe(false);return result[1];}
-function leaves(result:BranchResult):BranchResult[]{return isForkedCompletion(result[0])?leaves(result[0].consequent).concat(leaves(result[0].alternate)):[result];}
+function leaves(result:BranchResult):BranchResult[]{
+  if(isForkedCompletion(result[0]))return leaves(result[0].consequent).concat(leaves(result[0].alternate));
+  return effectPaths(result[1].value.effects,result[1].value.knowledge).map(path=>{
+    const select=(value:Any):Any=>{const choice=choiceOf(value);if(!choice)return value;
+      const truth=resolveBoolean(choice.condition,path.knowledge);return truth===undefined?value:select(truth?choice.consequent:choice.alternate);};
+    const heap=new Map(result[1].value.heap || []);
+    for(const [key,entry] of heap){const properties:{[key:string]:Any}={};for(const name of Object.keys(entry.properties))properties[name]=select(entry.properties[name]);heap.set(key,{...entry,properties});}
+    return [result[0],{value:{...result[1].value,heap,knowledge:path.knowledge}}] as BranchResult;
+  });
+}
 function state(socket:TESObject,result:BranchResult){return getProperties(socket.hostSlots!['node.net.socket'] as TESObject,result[1]);}
 function arm(socket:TESObject,result:BranchResult){return getProperties(socket.hostSlots!['node.net.timeout'] as TESObject,result[1]).arm as TESObject;}
 function events(result:BranchResult){return effectPaths(result[1].value.effects,result[1].value.knowledge)[0].events;}
@@ -39,7 +48,7 @@ test('completion outcome is lazy at horizon zero and waiting preserves pending f
   expect(completion).not.toHaveBeenCalled();normal(externalEvents.explore(ready[1],0));expect(completion).not.toHaveBeenCalled();
   expect(state(socket,ready).completion).toBe(Undefined);
   const all=leaves(externalEvents.explore(ready[1],1));expect(completion).toHaveBeenCalledTimes(1);expect(all).toHaveLength(2);
-  const waiting=all.find(([value])=>!isExecutionBoundary(value))!;normal(waiting);
+  const waiting=all.find(history=>!events(history).some(event=>event.call.operation==='net.socket.completion'))!;normal(waiting);
   expect(state(socket,waiting)).toMatchObject({phase:{value:'submitted'},completionPending:{value:true},completion:Undefined});
 });
 
@@ -47,7 +56,7 @@ test('default completion retains failure, both partial flag frontiers, full succ
   const {queue,externalEvents,initial}=setup();const started=evaluateCode(connect+"socket.on('connect',function(){record('connect');});socket.on('ready',function(){record('ready');});",initial);
   const ready=queue.drain(normal(started),100);normal(ready);const socket=started[1].value.scope.socket as TESObject;
   const all=leaves(externalEvents.explore(ready[1],1));expect(all).toHaveLength(5);
-  const stopped=all.filter(([value])=>isExecutionBoundary(value));expect(stopped).toHaveLength(4);
+  const stopped=all.filter(history=>events(history).some(event=>event.call.operation==='net.socket.completion'));expect(stopped).toHaveLength(4);expect(stopped.filter(([value])=>isExecutionBoundary(value))).toHaveLength(3);
   const records=stopped.map(result=>state(socket,result).completion);expect(new Set(records).size).toBe(1);
   for(const result of stopped){
     const facts=getProperties(state(socket,result).completion as TESObject,result[1]);
@@ -56,22 +65,22 @@ test('default completion retains failure, both partial flag frontiers, full succ
     expect(state(socket,result).completionPending).toMatchObject({value:false});expect(getProperties(socket,result[1]).connecting).toMatchObject({value:false});
     const full=success&&resolveBoolean(facts.readable as TESBoolean,result[1].value.knowledge)&&resolveBoolean(facts.writable as TESBoolean,result[1].value.knowledge);
     expect(marks(result)).toEqual(full?['connect','ready']:[]);
-    expect(getProperties(externalEvents.state,result[1]).active).not.toBe(Undefined);
+    if(full){normal(result);expect(getProperties(externalEvents.state,result[1]).active).toBe(Undefined);}else expect(getProperties(externalEvents.state,result[1]).active).not.toBe(Undefined);
     expect(events(result).filter(event=>event.call.operation==='net.socket.completion').map(event=>event.kind)).toEqual(['call','return']);
-    expect(events(result).filter(event=>event.call.operation==='net.socket.complete').map(event=>event.kind)).toEqual(['call']);
+    expect(events(result).filter(event=>event.call.operation==='net.socket.complete').map(event=>event.kind)).toEqual(full?['call','return']:['call']);
   }
 });
 
-test('full success refreshes old active delay, emits connect then ready, and leaves nested ticks pending',()=>{
+test('full success refreshes old active delay, emits connect then ready, and drains nested ticks after normal completion',()=>{
   const {queue,externalEvents,initial}=setup(known());
   const started=evaluateCode("var socket=net.connect(80,'127.0.0.1',function(){record('first');tick(function(){record('tick');});});socket.setTimeout(100);try{socket.setTimeout(-1);}catch(e){}socket.on('connect',function(){record('second');});socket.on('ready',function(){record('ready');});",initial);
   const ready=queue.drain(normal(started),100);normal(ready);const socket=started[1].value.scope.socket as TESObject,oldArm=arm(socket,ready);
-  const result=leaves(externalEvents.explore(ready[1],1,context=>queue.drain(context,100))).find(([value])=>isExecutionBoundary(value))!;
-  expect(marks(result)).toEqual(['first','second','ready']);expect(result[0]).toMatchObject({kind:'unsupported',message:expect.stringMatching(/read\(0\)/)});
+  const result=leaves(externalEvents.explore(ready[1],1,context=>queue.drain(context,100))).find(history=>events(history).some(event=>event.call.operation==='net.socket.completion'))!;
+  expect(marks(result)).toEqual(['first','second','ready','tick']);normal(result);
   const newArm=arm(socket,result);expect(newArm).not.toBe(oldArm);expect(getProperties(oldArm,result[1]).active).toMatchObject({value:false});
   expect(getProperties(oldArm,ready[1]).active).toMatchObject({value:true});expect(getProperties(newArm,result[1])).toMatchObject({active:{value:true},delay:{value:100},refed:{value:false}});
   expect(getProperties(socket,result[1]).timeout).toMatchObject({value:-1});
-  expect(getArrayElements(getProperties(queue.state,result[1]).pending as any,result[1])).toHaveLength(1);
+  expect(getArrayElements(getProperties(queue.state,result[1]).pending as any,result[1])).toHaveLength(0);
 });
 
 test.each([[false,true,true],[true,false,true],[true,true,false]])('completion flags %s/%s/%s stop before timer refresh',(success,readable,writable)=>{
@@ -84,7 +93,7 @@ test.each([[false,true,true],[true,false,true],[true,true,false]])('completion f
 test('canceled timer stays inactive after successful connection completion',()=>{
   const {queue,externalEvents,initial}=setup(known());const started=evaluateCode(connect+'socket.setTimeout(100);socket.setTimeout(0);',initial);
   const ready=queue.drain(normal(started),100);normal(ready);const socket=started[1].value.scope.socket as TESObject,oldArm=arm(socket,ready);
-  const stopped=leaves(externalEvents.explore(ready[1],1)).find(([value])=>isExecutionBoundary(value))!;
+  const stopped=leaves(externalEvents.explore(ready[1],1)).find(history=>events(history).some(event=>event.call.operation==='net.socket.completion'))!;
   expect(arm(socket,stopped)).toBe(oldArm);expect(getProperties(oldArm,stopped[1]).active).toMatchObject({value:false});
 });
 

@@ -51,8 +51,9 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P041](P041-socket-end/task.md) | Empty socket end and actual package callback | Both conditional corrections accepted;38 independent probes pass; full validation passed; exact-candidate CI pending | Source-derived pending shutdown; no OS success/finish claim |
-| [P040](P040-tcp-completion/task.md) | Selected TCP completion and actual dependency callbacks | Publication held: P041 found finite-record-choice crash; correction and combined gates pending | Shared HTTP/TCP horizon; explicit error/stream/timer boundaries |
+| [P042](P042-read-start/task.md) | Fresh read registration and normal completion | Reviewed;193 suites/5475 passes/typecheck green; CI pending | Pending bytes/shutdown/timers remain unknown |
+| [P041](P041-socket-end/task.md) | Empty socket end and actual package callback | Published fb84e98 with corrected P040; CI39677573075 green | Source-derived pending shutdown; no OS success/finish claim |
+| [P040](P040-tcp-completion/task.md) | Selected TCP completion and actual dependency callbacks | Corrected and published with P041 at fb84e98; earlier defect evidence retained | Shared HTTP/TCP horizon; explicit error/stream/timer boundaries |
 | [P039](P039-package-timers/task.md) | Unchanged dependency startup and pending socket timers | Published5afe23a;184 suites/5362 passes/46 skips,typecheck and CI39674392064 pass | Explicit IPv4 checkGrowl subpath, no completed availability claim |
 | [P038](P038-net-submission/task.md) | Pending IPv4 sockets and deferred submission | Published8efe72b;181 suites/5319 passes/46 skips,typecheck and CI39672451837 pass | Explicit failed-cleanup frontier; no TCP completion claim |
 | [P037](P037-program-identities/task.md) | Captured program identities in CLI graph | Published8052b02;177 suites/5262 passes/46 skips,typecheck and CI39668471592 pass | Identity-only projection, no package attestation |

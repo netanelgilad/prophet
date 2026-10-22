@@ -1,0 +1,44 @@
+{
+  "status": "source and owned specs frozen",
+  "files": {
+    "src/node/net.ts": "8a209786a700c57f542a66e504a63a6254b5798b607d09cdd0d75941acf26b5e",
+    "src/node/readable-start.ts": "447ac8b3cad683786ff43be1606bda7ed462337521060cbb8ffbddd69924d1d4",
+    "test/node-net-read-start.spec.ts": "e7625a3fd5c1b3868b458ff458544631804bcb88aceef1c38259d3f7f0b80958",
+    "test/node-net-completion.spec.ts": "59b5e2ebfd15e243e3f0d0abb028bfb74f5be01360c39cc62903c9c0a0d5a352",
+    "test/node-net-end.spec.ts": "6f39efe80ff06d71517843834794e7135be1b6b9995f6c7e295dc2a799b02836"
+  },
+  "firstRed": {
+    "log": "/tmp/prophet-p042/core-red.log",
+    "testsFailed": 10,
+    "testsPassed": 0,
+    "sourceHash": "a04d82bc94fa80b29537a1ec45103c85fffe39bb6890683f7b86c31041cf3ce1",
+    "testHash": "002dac68bcf512e1ee52c0b79e5895b171dfac07a8bc998ffc9b68272c1b66ec",
+    "genuineBehavioralRun": true
+  },
+  "green": {
+    "log": "/tmp/prophet-p042/core-green.log",
+    "suites": 5,
+    "tests": 88,
+    "newCoreTests": 12,
+    "exitCode": 0
+  },
+  "typecheck": {
+    "log": "/tmp/prophet-p042/core-final-typecheck.log",
+    "exitCode": 0
+  },
+  "diffCheck": {
+    "exitCode": 0
+  },
+  "implemented": [
+    "Persistent fresh readable + ongoing read registration state initialized at socket construction.",
+    "Internal read0/readStart exact flags, return0 then null; complete returns undefined normally. No new public API/provider/budget/horizon/tick/emission/timer change.",
+    "Post-ready per-branch current intrinsic property/presence checks preserve healthy conditional siblings.",
+    "Prior completion/end specs select effect histories and final merged heap fields; no skipping or weakened state assertions."
+  ],
+  "limits": [
+    "Normal callback completion retains unknown future input/shutdown/timers; no full event-loop/program completion claim.",
+    "Public read/pause/readable getters/data registrations and private stream state remain guarded.",
+    "Pinned fresh POSIX binding return0 derives from native source, not invented admission or future I/O success."
+  ],
+  "commitsOrPushes": false
+}

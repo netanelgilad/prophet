@@ -11,8 +11,8 @@ import { createJobQueue } from "../src/jobs";
 import { createEventEmitterModel } from "../src/node/events";
 import { createNetModel } from "../src/node/net";
 import { ESObject, TESObject } from "../src/Object";
-import { resolveBoolean } from "../src/symbolic";
-import { ESNumber, isThrownValue, TESBoolean, ThrownValue, Undefined } from "../src/types";
+import { choiceOf, resolveBoolean } from "../src/symbolic";
+import { Any, ESNumber, isThrownValue, TESBoolean, ThrownValue, Undefined } from "../src/types";
 
 const full: HostModel = (_call, context) => [ESObject({success:ESBoolean(true),readable:ESBoolean(true),writable:ESBoolean(true)}),context];
 function setup(completion?: HostModel) {
@@ -36,6 +36,23 @@ function socket(context:TExecutionContext,name='socket') {return context.value.s
 function state(context:TExecutionContext,name='socket') {return getProperties(socket(context,name).hostSlots!['node.net.socket'] as TESObject,context);}
 function arm(context:TExecutionContext) {return getProperties(socket(context).hostSlots!['node.net.timeout'] as TESObject,context).arm;}
 function ready(env:ReturnType<typeof setup>,source:string) {return normal(env.queue.drain(normal(evaluateCode(source,env.initial)),30));}
+// Inspect graph histories without executing guest work or resuming checkpoints.
+function histories(result:BranchResult):BranchResult[]{
+ if(isForkedCompletion(result[0]))return histories(result[0].consequent).concat(histories(result[0].alternate));
+ return effectPaths(result[1].value.effects,result[1].value.knowledge).map(path=>{
+  const select=(value:Any):Any=>{const choice=choiceOf(value);if(!choice)return value;const known=resolveBoolean(choice.condition,path.knowledge);return known===undefined?value:select(known?choice.consequent:choice.alternate);};
+  const heap=new Map(result[1].value.heap || []);
+  for(const [key,entry] of heap){const properties:{[name:string]:Any}={};for(const name of Object.keys(entry.properties))properties[name]=select(entry.properties[name]);heap.set(key,{...entry,properties});}
+  return [result[0],ExecutionContext({...result[1].value,heap,knowledge:path.knowledge})] as BranchResult;
+ });
+}
+// Capture each normal delivery before the generic scheduler joins it with waiting.
+function observedDeliveries(env:ReturnType<typeof setup>,context:TExecutionContext) {
+ const healthy:BranchResult[]=[];
+ const result=env.external.explore(context,1,after=>{healthy.push([Undefined,after]);return [Undefined,after];});
+ expect(leaves(result).some(([value,branch])=>!isExecutionBoundary(value)&&!isThrownValue(value)&&effectPaths(branch.value.effects,branch.value.knowledge).some(path=>!path.events.some(event=>event.call.operation==='net.socket.completion')))).toBe(true);
+ return healthy.concat(leaves(result).filter(([value])=>isExecutionBoundary(value)||isThrownValue(value)));
+}
 const open="var socket=net.connect(1234,'127.0.0.1');";
 
 test('outcomes are lazy and one default arrival retains four correlated frontiers plus waiting',()=>{
@@ -43,42 +60,42 @@ test('outcomes are lazy and one default arrival retains four correlated frontier
   expect(state(before).completion).toBe(Undefined);
   expect(calls(before,'net.socket.completion')).toHaveLength(0);
   const zero=normal(env.external.explore(before,0));expect(state(zero).completion).toBe(Undefined);
-  const all=leaves(env.external.explore(before,1));expect(all).toHaveLength(5);
+  const all=histories(env.external.explore(before,1));expect(all).toHaveLength(5);
   const kinds:string[]=[];
   for(const [value,context] of all){
     const completion=state(context).completion;
     if(completion===Undefined){expect(isExecutionBoundary(value)).toBe(false);expect(state(context).completionPending).toMatchObject({value:true});kinds.push('wait');continue;}
-    expect(isExecutionBoundary(value)).toBe(true);
     expect(calls(context,'net.socket.completion')).toHaveLength(1);
     expect(state(context).completionPending).toMatchObject({value:false});
     expect(getProperties(socket(context),context).connecting).toMatchObject({value:false});
-    expect(getProperties(env.external.state,context).active).not.toBe(Undefined);
     const fields=getProperties(completion as TESObject,context);
     const known=(name:string)=>resolveBoolean(fields[name] as TESBoolean,context.value.knowledge);
     kinds.push(!known('success')?'failure':!known('readable')?'readable':!known('writable')?'writable':'full');
-    expect(calls(context,'net.socket.readStart')).toHaveLength(0);
+    expect(isExecutionBoundary(value)).toBe(kinds[kinds.length-1]!=='full');
+    expect(getProperties(env.external.state,context).active===Undefined).toBe(kinds[kinds.length-1]==='full');
+    expect(calls(context,'net.socket.readStart')).toHaveLength(kinds[kinds.length-1]==='full'?1:0);
     expect(calls(context,'events.emit').some(call=>call.args[0].value==='error')).toBe(false);
   }
   expect(kinds.sort()).toEqual(['failure','full','readable','wait','writable']);
 });
 
-test('successful callback sees consumed state and current once/listener order before read frontier',()=>{
+test('successful callback sees consumed state and current once/listener order before normal read completion',()=>{
   const env=setup(full);const before=ready(env,`var socket=net.connect(1234,'127.0.0.1',function(){mark('original');if(this!==socket||socket.connecting)throw 'bad receiver';});
     socket.on('connect',function(){mark('late');});socket.on('ready',function(){mark('ready');});`);
-  const all=leaves(env.external.explore(before,1));const delivered=all.filter(pair=>isExecutionBoundary(pair[0]));expect(delivered).toHaveLength(1);
+  const all=observedDeliveries(env,before);const delivered=all;expect(delivered).toHaveLength(1);
   const context=delivered[0][1];expect(marks(context)).toEqual(['original','late','ready']);
   expect(state(context)).toMatchObject({phase:{value:'connected'},completionPending:{value:false}});
   const emitter=getProperties(socket(context).hostSlots!['node.events'] as TESObject,context);
   const listeners=getArrayElements(emitter['event:connect'] as any,context)!;
   expect(listeners).toHaveLength(1);
-  expect(getProperties(env.external.state,context).active).not.toBe(Undefined);
+  expect(getProperties(env.external.state,context).active).toBe(Undefined);
   expect(events(context).filter(event=>event.kind==='return'&&event.call.operation==='net.socket.completion')).toHaveLength(1);
 });
 
 test('refresh uses old active delay after invalid public write and preserves old snapshots',()=>{
   const env=setup(full);const before=ready(env,`${open}socket.setTimeout(100);try{socket.setTimeout(-1);}catch(e){}`);
   const old=arm(before);expect(getProperties(socket(before),before).timeout).toMatchObject({value:-1});
-  const delivered=leaves(env.external.explore(before,1)).filter(pair=>isExecutionBoundary(pair[0]));expect(delivered).toHaveLength(1);
+  const delivered=observedDeliveries(env,before);expect(delivered).toHaveLength(1);
   const after=delivered[0][1],fresh=arm(after);expect(fresh).not.toBe(old);
   expect(getProperties(fresh as TESObject,after)).toMatchObject({active:{value:true},refed:{value:false},delay:{value:100}});
   expect(getProperties(old as TESObject,after).active).toMatchObject({value:false});
@@ -88,7 +105,7 @@ test('refresh uses old active delay after invalid public write and preserves old
 
 test('successful completion does not revive a disabled timer',()=>{
   const env=setup(full);const before=ready(env,`${open}socket.setTimeout(100);socket.setTimeout(-0);`),old=arm(before);
-  const delivered=leaves(env.external.explore(before,1)).filter(pair=>isExecutionBoundary(pair[0]));expect(delivered).toHaveLength(1);
+  const delivered=observedDeliveries(env,before);expect(delivered).toHaveLength(1);
   const after=delivered[0][1];expect(arm(after)).toBe(old);
   expect(getProperties(old as TESObject,after).active).toMatchObject({value:false});
   expect(Object.is((getProperties(socket(after),after).timeout as any).value,-0)).toBe(true);
@@ -107,13 +124,13 @@ test.each(['throw 77','stop()'])('connect callback interruption %s preserves the
 
 test('an intrinsic mutation after connect cannot silently use native-default completion behavior',()=>{
   const env=setup(full);const before=ready(env,`${open}socket.setTimeout(100);Object.prototype.changed=1;socket.on('connect',function(){mark('connect');});`);
-  const delivered=leaves(env.external.explore(before,1)).filter(pair=>isExecutionBoundary(pair[0]));expect(delivered).toHaveLength(1);
+  const delivered=observedDeliveries(env,before);expect(delivered).toHaveLength(1);
   expect(marks(delivered[0][1])).toEqual([]);expect(arm(delivered[0][1])).toBe(arm(before));
 });
 
 test('two sockets can each be selected without allocating facts for the other',()=>{
   const env=setup();const before=ready(env,`var first=net.connect(1234,'127.0.0.1');var second=net.connect(1235,'127.0.0.1');`);
-  const all=leaves(env.external.explore(before,2));expect(all).toHaveLength(9);
+  const all=histories(env.external.explore(before,1));expect(all).toHaveLength(9);
   const counts={first:0,second:0,wait:0};
   for(const [,context] of all){const a=state(context,'first').completion,b=state(context,'second').completion;
     expect(a===Undefined||b===Undefined).toBe(true);
@@ -139,7 +156,7 @@ test('completion reads current outcome heap and retains its own record with shar
   const raw=ESObject({success:ESBoolean(false),readable:ESBoolean(true),writable:ESBoolean(true)}),success=ESBoolean(true);
   const completion:HostModel=(_call,context)=>[raw,writeProperty(raw,'success',success,context)];
   const env=setup(completion),before=ready(env,`${open}socket.on('connect',function(){mark('connect');});`);
-  const delivered=leaves(env.external.explore(before,1)).filter(pair=>isExecutionBoundary(pair[0]));expect(delivered).toHaveLength(1);
+  const delivered=observedDeliveries(env,before);expect(delivered).toHaveLength(1);
   const context=delivered[0][1],outcome=state(context).completion as TESObject;
   expect(outcome).not.toBe(raw);expect(getProperties(outcome,context).success).toBe(success);expect(marks(context)).toEqual(['connect']);
   const changed=writeProperty(raw,'success',ESBoolean(false),context);
@@ -165,14 +182,14 @@ test('callback removal uses the current heap and emission snapshot without inven
     socket.on('connect',removed);socket.removeListener('connect',removed);
     socket.on('connect',function(){mark('first');socket.removeListener('connect',later);});
     socket.on('connect',later);socket.on('ready',function(){mark('ready');});`);
-  const delivered=leaves(env.external.explore(before,1)).filter(pair=>isExecutionBoundary(pair[0]));expect(delivered).toHaveLength(1);
+  const delivered=observedDeliveries(env,before);expect(delivered).toHaveLength(1);
   expect(marks(delivered[0][1])).toEqual(['first','later','ready']);
 });
 
 test('shared completion Boolean identities preserve custom correlations rather than expanding impossible outcomes',()=>{
   const shared=ESBoolean(),model:HostModel=(_call,context)=>[ESObject({success:shared,readable:shared,writable:ESBoolean(true)}),context];
   const env=setup(model),before=ready(env,`${open}socket.on('connect',function(){mark('connect');});`);
-  const all=leaves(env.external.explore(before,1));expect(all).toHaveLength(3);
+  const all=observedDeliveries(env,before);expect(all).toHaveLength(2);
   for(const [,context] of all){
     const outcome=state(context).completion;if(outcome===Undefined)continue;
     const fields=getProperties(outcome as TESObject,context);expect(fields.success).toBe(fields.readable);

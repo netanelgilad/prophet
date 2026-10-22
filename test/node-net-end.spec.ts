@@ -10,7 +10,8 @@ import { BranchResult } from '../src/execution-context/branches';
 import { isExecutionBoundary, isForkedCompletion } from '../src/execution-context/Completion';
 import { getArrayElements, getProperties } from '../src/execution-context/Heap';
 import { ESObject, TESObject } from '../src/Object';
-import { isThrownValue, Undefined } from '../src/types';
+import { choiceOf, resolveBoolean } from '../src/symbolic';
+import { Any, isThrownValue, Undefined } from '../src/types';
 
 function setup(completion?:HostModel) {
   const queue=createJobQueue(), externalEvents=createExternalEvents();
@@ -23,7 +24,16 @@ function setup(completion?:HostModel) {
   return {queue,externalEvents,initial};
 }
 function normal(result:BranchResult){expect(isExecutionBoundary(result[0])||isForkedCompletion(result[0])||isThrownValue(result[0])).toBe(false);return result[1];}
-function leaves(result:BranchResult):BranchResult[]{return isForkedCompletion(result[0])?leaves(result[0].consequent).concat(leaves(result[0].alternate)):[result];}
+function leaves(result:BranchResult):BranchResult[]{
+  if(isForkedCompletion(result[0]))return leaves(result[0].consequent).concat(leaves(result[0].alternate));
+  return effectPaths(result[1].value.effects,result[1].value.knowledge).map(path=>{
+    const select=(value:Any):Any=>{const choice=choiceOf(value);if(!choice)return value;
+      const truth=resolveBoolean(choice.condition,path.knowledge);return truth===undefined?value:select(truth?choice.consequent:choice.alternate);};
+    const heap=new Map(result[1].value.heap || []);
+    for(const [key,entry] of heap){const properties:{[key:string]:Any}={};for(const name of Object.keys(entry.properties))properties[name]=select(entry.properties[name]);heap.set(key,{...entry,properties});}
+    return [result[0],{value:{...result[1].value,heap,knowledge:path.knowledge}}] as BranchResult;
+  });
+}
 function slot(socket:TESObject,result:BranchResult,name:string){return getProperties(socket.hostSlots![name] as TESObject,result[1]);}
 function events(result:BranchResult){return effectPaths(result[1].value.effects,result[1].value.knowledge)[0].events;}
 function marks(result:BranchResult){return events(result).filter(event=>event.kind==='call'&&event.call.operation==='record').map(event=>(event.call.args[0] as any).value);}
@@ -33,14 +43,14 @@ function delivered(source:string,completion?:HostModel){
   const ready=runtime.queue.drain(normal(started),100);normal(ready);
   const all=leaves(runtime.externalEvents.explore(ready[1],1));
   return {...runtime,started,ready,all,socket:started[1].value.scope.socket as TESObject,
-    stopped:all.find(([value])=>isExecutionBoundary(value)||isThrownValue(value))!};
+    stopped:all.find(history=>events(history).some(event=>event.call.operation==='net.socket.complete'))!};
 }
 const fresh={constructed:{value:true},ending:{value:false},ended:{value:false},finalCalled:{value:false},finalPending:{value:false},prefinished:{value:false},finished:{value:false}};
 const pending={constructed:{value:true},ending:{value:true},ended:{value:true},finalCalled:{value:true},finalPending:{value:true},prefinished:{value:false},finished:{value:false}};
 
-test('first empty end returns the socket after pending shutdown, then connect/ready continue before read frontier',()=>{
+test('first empty end returns the socket after pending shutdown, then connect/ready and the read prefix complete',()=>{
   const run=delivered("socket.setTimeout(100);socket.on('connect',function(){record(socket.writable);var same=socket.end();record(same===socket);record(socket.writable);record(socket.writableEnded);record(socket.writableFinished);tick(function(){record('tick');});});socket.on('ready',function(){record('ready');});");
-  expect(run.stopped[0]).toMatchObject({kind:'unsupported',message:expect.stringMatching(/read\(0\)/)});
+  normal(run.stopped);expect(slot(run.socket,run.stopped,'node.net.read').pending).toMatchObject({value:true});
   expect(marks(run.stopped)).toEqual([true,true,false,true,false,'ready']);
   expect(slot(run.socket,run.ready,'node.stream.writable')).toMatchObject(fresh);
   expect(slot(run.socket,run.stopped,'node.stream.writable')).toMatchObject(pending);
@@ -57,7 +67,7 @@ test('first empty end returns the socket after pending shutdown, then connect/re
   expect(getProperties(run.socket,submitting)).toMatchObject({writable:{value:false},writableEnded:{value:true},writableFinished:{value:false}});
   expect(getProperties(run.socket.hostSlots!['node.stream.writable'] as TESObject,submitting)).toMatchObject({...pending,ended:{value:false}});
   expect(getProperties(run.socket.hostSlots!['node.net.shutdown'] as TESObject,submitting)).toMatchObject({pending:{value:false}});
-  const waiting=run.all.find(([value])=>!isExecutionBoundary(value))!;normal(waiting);
+  const waiting=run.all.find(history=>!events(history).some(event=>event.call.operation==='net.socket.complete'))!;normal(waiting);
   expect(slot(run.socket,waiting,'node.stream.writable')).toMatchObject(fresh);
   expect(slot(run.socket,waiting,'node.net.shutdown')).toMatchObject({pending:{value:false}});
 });
@@ -68,8 +78,8 @@ test('end keeps the currently refreshed timer identity and active delay unchange
   const initial=setVariablesInScope(runtime.initial,{capture:createHostFunction('capture',(_call,context)=>{beforeEnd=[Undefined,context];return [Undefined,context];})});
   const started=evaluateCode(connect+"socket.setTimeout(100);socket.on('connect',function(){capture();socket.end();});",initial);
   const ready=runtime.queue.drain(normal(started),100);normal(ready);const socket=started[1].value.scope.socket as TESObject;
-  const stopped=leaves(runtime.externalEvents.explore(ready[1],1)).find(([value])=>isExecutionBoundary(value))!;
-  expect(stopped[0]).toMatchObject({message:expect.stringMatching(/read\(0\)/)});expect(beforeEnd).toBeDefined();
+  const stopped=leaves(runtime.externalEvents.explore(ready[1],1)).find(history=>events(history).some(event=>event.call.operation==='net.socket.complete'))!;
+  normal(stopped);expect(beforeEnd).toBeDefined();
   const before=slot(socket,beforeEnd!,'node.net.timeout').arm,after=slot(socket,stopped,'node.net.timeout').arm;
   expect(after).toBe(before);expect(getProperties(after as TESObject,stopped[1])).toMatchObject({active:{value:true},delay:{value:100},refed:{value:false}});
 });
@@ -127,9 +137,9 @@ test('selected completion ends only its socket and preserves the other waiting w
   const ready=runtime.queue.drain(normal(started),100);normal(ready);
   const first=started[1].value.scope.socket as TESObject,second=started[1].value.scope.second as TESObject;
   const all=leaves(runtime.externalEvents.explore(ready[1],1));expect(all).toHaveLength(3);
-  const outcomes=all.filter(([value])=>isExecutionBoundary(value));expect(outcomes).toHaveLength(2);
+  const outcomes=all.filter(history=>events(history).some(event=>event.call.operation==='net.socket.complete'));expect(outcomes).toHaveLength(2);
   for(const result of outcomes){
-    expect(result[0]).toMatchObject({message:expect.stringMatching(/read\(0\)/)});
+    normal(result);expect(slot((events(result).find(event=>event.call.operation==='net.socket.end')!).call.receiver as TESObject,result,'node.net.read').pending).toMatchObject({value:true});
     const calls=events(result).filter(event=>event.kind==='call'&&event.call.operation==='net.socket.end');expect(calls).toHaveLength(1);
     const ended=calls[0].call.receiver as TESObject,waiting=ended===first?second:first;
     expect(slot(ended,result,'node.stream.writable')).toMatchObject(pending);

@@ -45,9 +45,18 @@ P041 supports the first empty end in that fresh full-duplex socket state. The
 unchanged helper now executes its user's callback with null,true after end has
 locally queued shutdown and returned. Source bytes remain unchanged. Caller
 callback effects and its dynamic parent (the real dependency connect activation)
-are inspectable. If the caller returns, ready executes and the existing read(0)
-frontier remains; if it throws or stops, that earlier result is retained. Pending
+are inspectable. P042 lets normal caller return continue through ready and the
+fresh read(0) prefix, returning from completion with input registration pending.
+If the caller throws or stops, that earlier result is retained. Pending
 shutdown does not prove syscall success, remote service response or clean close.
 Waiting, submission/completion failure and partial-flag paths do not run the
 availability callback. The default localhost/DNS and broader package boundaries
 remain open; this is still one explicit-input package subpath.
+
+
+P042 retains pending read and shutdown after the actual callback reports true;
+the generic scheduler can then drain real queued jobs and select a second existing
+HTTP/TCP event within the declared horizon. It neither observes incoming bytes nor
+proves that the reported service is usable. Timers, data, shutdown and close can
+compete in omitted future schedules; this remains one explicit-input dependency
+subpath, not package-wide behavior or supply-chain policy enforcement.

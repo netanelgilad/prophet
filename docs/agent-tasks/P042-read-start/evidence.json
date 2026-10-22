@@ -1,0 +1,109 @@
+{
+  "validation": {
+    "results": [
+      {
+        "name": "full-suite",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 142.42,
+        "log": "/tmp/prophet-p042/full-suite-complete.log",
+        "sha256": "52e32ce4010f7ac2a3126706f5f17c949b2781dfedb8deb39a769fafb9dc22c9"
+      },
+      {
+        "name": "typecheck",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 1.99,
+        "log": "/tmp/prophet-p042/typecheck-complete.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "hashesUnchanged": true
+  },
+  "reviewedHashes": {
+    "src/node/net.ts": "8a209786a700c57f542a66e504a63a6254b5798b607d09cdd0d75941acf26b5e",
+    "test/node-net-completion-integration.spec.ts": "36cc5b6e673123e42dccb63b83e205a42f9bd60db8422878b3e4892a03e1bc52",
+    "test/node-net-completion-review.spec.ts": "20387b71d677cde9c45714b64df1cf88c7ab13c473499e73213b8a46b2e6a78f",
+    "test/node-net-completion.spec.ts": "59b5e2ebfd15e243e3f0d0abb028bfb74f5be01360c39cc62903c9c0a0d5a352",
+    "test/node-net-end-integration.spec.ts": "c3678f6f8fe331cb6e37f0e52f5a33e5f35ed071aadebedc69586e09658744cd",
+    "test/node-net-end-review.spec.ts": "801bd94c5b6a4dbcecf055034cad5f9121cd4170653f50b25e1dda48f17bffbf",
+    "test/node-net-end.spec.ts": "6f39efe80ff06d71517843834794e7135be1b6b9995f6c7e295dc2a799b02836",
+    "test/node-notifier-startup.spec.ts": "9c82ee0d947065716a05406888b3a9afed4cbf6aa254f555c3f96ab7f0571030",
+    "src/node/readable-start.ts": "447ac8b3cad683786ff43be1606bda7ed462337521060cbb8ffbddd69924d1d4",
+    "test/node-net-read-start-integration.spec.ts": "9460739369e7ec2eb30004056070cdbe7c78e4a4ac030ad57ee24650f61d1a12",
+    "test/node-net-read-start-review.spec.ts": "d753010451370b4e2f8d88a09aefa672a47c2bfd50fb7d257ddbfdd0f1b93510",
+    "test/node-net-read-start.spec.ts": "e7625a3fd5c1b3868b458ff458544631804bcb88aceef1c38259d3f7f0b80958"
+  },
+  "audit": [
+    {
+      "name": "guards",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "lines": 840,
+      "exitCode": 0,
+      "sha256": "d65d1ac13a0f112836f0e6b34227f3934346f1874231b0b08664e13eae26e592",
+      "log": "/tmp/prophet-p042/audit-guards.log"
+    },
+    {
+      "name": "assertions",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "lines": 23,
+      "exitCode": 0,
+      "sha256": "940abf7346b20b8331b18f1b5ddd9a86a1fcfab2d05412e329fcb315f4f71179",
+      "log": "/tmp/prophet-p042/audit-assertions.log"
+    },
+    {
+      "name": "skips",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "lines": 1,
+      "exitCode": 0,
+      "sha256": "b5d36faba6bc12c65e9b87d00873ee5420a3ff04b926d67d3d0cd3dd915a1214",
+      "log": "/tmp/prophet-p042/audit-skips.log"
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "lines": 2707,
+      "exitCode": 0,
+      "sha256": "27e0f8153ba1e531a86f40a998da9c56d7acca3d0b7082c155d3d0d655f2351b",
+      "log": "/tmp/prophet-p042/audit-boundaries.log"
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import { tmpdir } from "os";
 import { dirname, join, resolve } from "path";
 import { effectPaths, isExecutionBoundary, isForkedCompletion } from "../src";
 import { getArrayElements, getProperties } from "../src/execution-context/Heap";
-import { resolveBoolean } from "../src/symbolic";
+import { choiceOf, resolveBoolean } from "../src/symbolic";
 
 let directory: string;
 beforeEach(() => { directory = realpathSync(mkdtempSync(join(tmpdir(), "prophet-net-completion-"))); });
@@ -65,11 +65,26 @@ function cli(source: string, status = 2, maxEvents = 0) {
 function leaves(result: any[]): any[][] {
   return isForkedCompletion(result[0]) ? leaves(result[0].consequent).concat(leaves(result[0].alternate)) : [result];
 }
+// Select known alternatives in a merged final heap using this effect history.
+// This is inspection only: unresolved values remain symbolic, identities survive.
+function inspectPath(context:any,knowledge:any){
+  const select=(value:any):any=>{
+    const choice=choiceOf(value);if(!choice)return value;
+    const known=resolveBoolean(choice.condition,knowledge);
+    return known===undefined?value:select(known?choice.consequent:choice.alternate);
+  };
+  const heap=new Map();
+  if(context.value.heap)context.value.heap.forEach((entry:any,key:any)=>{
+    const properties:any={};for(const name of Object.keys(entry.properties))properties[name]=select(entry.properties[name]);
+    heap.set(key,{...entry,properties,elements:entry.elements&&entry.elements.map(select)});
+  });
+  return {...context,value:{...context.value,heap,knowledge}};
+}
 function paths(roots: any) {
   const result: Array<{ completion: any; context: any; events: any[] }> = [];
   for (const [completion, context] of leaves([roots.completion, roots.current]))
     for (const path of effectPaths(context.value.effects, context.value.knowledge))
-      result.push({ completion, context, events: path.events as any[] });
+      result.push({ completion, context: inspectPath(context,path.knowledge), events: path.events as any[] });
   return result;
 }
 function calls(events: any[], operation: string): any[] {
@@ -113,9 +128,9 @@ test("real CLI selects completion separately from submission and retains its wai
     expect(outcomeReturn[0].call).toBe(delivered[0].call);
     expect(state.completionPending).toMatchObject({value:false});
     expect(getProperties(socket,context).connecting).toMatchObject({value:false});
-    expect(isExecutionBoundary(completion)).toBe(true);
+
     const active=getProperties(context.value.global.hostSlots.externalEvents,context).active;
-    expect(getProperties(active as any,context).receiver).toBe(socket);
+
     const success=resolveBoolean(outcome.success,context.value.knowledge);
     if(!success){categories.push('failure');expect(state.phase.value).toBe('connection-failed');}
     else {
@@ -125,6 +140,8 @@ test("real CLI selects completion separately from submission and retains its wai
       else categories.push('full');
     }
     if(categories[categories.length-1]==='full'){
+      expect(isExecutionBoundary(completion)).toBe(false);
+      expect(active).toMatchObject({type:'undefined'});
       expect(messages(events)).toEqual(['returned','connected','ready']);
       const once=getProperties(socket.hostSlots['node.events'],context)['event:connect'];
       expect(getArrayElements(once as any,context)).toHaveLength(0);
@@ -136,9 +153,13 @@ test("real CLI selects completion separately from submission and retains its wai
           sha256:createHash('sha256').update(readFileSync(join(directory,'entry.cjs'))).digest('hex')
         });
       }
-    } else expect(messages(events)).toEqual(['returned']);
-    expect(events.filter(event=>event.kind==='return'&&event.call.operation==='net.socket.complete')).toHaveLength(0);
-    expect(calls(events,'net.socket.readStart')).toHaveLength(0);
+    } else {
+      expect(isExecutionBoundary(completion)).toBe(true);
+      expect(getProperties(active as any,context).receiver).toBe(socket);
+      expect(messages(events)).toEqual(['returned']);
+    }
+    expect(events.filter(event=>event.kind==='return'&&event.call.operation==='net.socket.complete')).toHaveLength(categories[categories.length-1]==='full'?1:0);
+    expect(calls(events,'net.socket.readStart')).toHaveLength(categories[categories.length-1]==='full'?1:0);
   }
   expect(categories.sort()).toEqual(['failure','full','partial-readable','partial-writable']);
 });
@@ -163,7 +184,7 @@ test("full-duplex completion refreshes the existing delay after invalid public t
     socket.on('connect',function(){console.log('connect');});`,2,1);
   const all=paths(roots);
   expect(all.filter(path=>messages(path.events).includes('connect'))).toHaveLength(1);
-  const waiting=all.filter(path=>!isExecutionBoundary(path.completion));expect(waiting).toHaveLength(1);
+  const waiting=all.filter(path=>!calls(path.events,'net.socket.completion').length&&!isExecutionBoundary(path.completion));expect(waiting).toHaveLength(1);
   const oldSocket=socketOf(waiting[0].events);
   const oldArm=getProperties(oldSocket.hostSlots['node.net.timeout'],waiting[0].context).arm;
   for(const {events,context} of all){
@@ -186,10 +207,13 @@ test("two sockets can each win the shared delivery choice without repeated compl
   expect(all.some(path=>messages(path.events).includes('first'))).toBe(true);
   expect(all.some(path=>messages(path.events).includes('second'))).toBe(true);
   expect(all.some(path=>!isExecutionBoundary(path.completion))).toBe(true);
+  expect(all.some(path=>messages(path.events).join(',')==='first,second')).toBe(true);
+  expect(all.some(path=>messages(path.events).join(',')==='second,first')).toBe(true);
   for(const {events} of all){
-    // Every delivered TCP branch terminates at a declared frontier or throw.
-    expect(calls(events,'net.socket.completion').length).toBeLessThanOrEqual(1);
-    expect(messages(events).length).toBeLessThanOrEqual(1);
+    // Normal full completions permit the other socket to arrive within horizon2.
+    expect(calls(events,'net.socket.completion').length).toBeLessThanOrEqual(2);
+    const receivers=calls(events,'net.socket.completion').map(event=>event.call.receiver);expect(new Set(receivers).size).toBe(receivers.length);
+    expect(messages(events).length).toBeLessThanOrEqual(2);
   }
 });
 
@@ -204,9 +228,10 @@ test("HTTP arrivals and TCP completion compete in the same bounded history witho
   for(const {events} of one)expect(calls(events,'http.server.request').length+calls(events,'net.socket.completion').length).toBeLessThanOrEqual(1);
   expect(two.some(path=>messages(path.events).join(',')==='http,tcp')).toBe(true);
   expect(two.some(path=>messages(path.events).join(',')==='http,http')).toBe(true);
+  expect(two.some(path=>messages(path.events).join(',')==='tcp,http')).toBe(true);
   for(const {events} of two){
     expect(calls(events,'http.server.request').length+calls(events,'net.socket.completion').length).toBeLessThanOrEqual(2);
-    expect(messages(events).join(',')).not.toBe('tcp,http');
+
   }
 });
 

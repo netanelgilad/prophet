@@ -17,9 +17,10 @@ import { JobQueue } from "../jobs";
 import { ExternalEvents } from "../external-events";
 import { strictEquality } from "../symbolic";
 import { ESString } from "../string/String";
-import { Any, ESNumber, TESBoolean, isESBoolean, isESNull, isESNumber, isESString, isUndefined, ThrownValue, Undefined } from "../types";
+import { Any, ESNull, ESNumber, TESBoolean, isESBoolean, isESNull, isESNumber, isESString, isUndefined, ThrownValue, Undefined } from "../types";
 import { createEventEmitterModel } from "./events";
 import { createEmptyWritableState, endEmptyWritable } from "./writable-end";
+import { createFreshReadableState, startEmptyReadable } from "./readable-start";
 
 export type NetModelOptions = {
   nextTick: JobQueue;
@@ -89,6 +90,8 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
   const timers = new WeakMap<object, TESObject>();
   const writables = new WeakMap<object, TESObject>();
   const shutdowns = new WeakMap<object, TESObject>();
+  const readables = new WeakMap<object, TESObject>();
+  const reads = new WeakMap<object, TESObject>();
   const lifecycle = ["connectionAttempt", "connect", "ready", "error", "close", "connectionAttemptFailed"];
   const socketState = (socket: Any) => sockets.get(socket) || unsupported("receiver is not a socket from this environment");
   const submit = operation("net.socket.submit", (call, context) =>
@@ -214,7 +217,7 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
                 bindNormal(refreshTimer(socket, writable), (_refreshed, refreshed) =>
                   bindNormal(events.emit(socket, "connect", [], refreshed), (_connected, afterConnect) =>
                     bindNormal(events.emit(socket, "ready", [], afterConnect), (_ready, afterReady) =>
-                      captureExecutionBoundary(afterReady, () => unsupported("socket read(0), pause inspection and read initiation after connection"))))),
+                      bindNormal(invoke(read, [ESNumber(0)], afterReady, socket), (_read, finished) => [Undefined, finished])))),
                 () => unsupported("partial writable completion requires socket end")),
               () => unsupported("partial readable completion requires socket push(null)/read"));
           }, failed => {
@@ -223,6 +226,63 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
           });
         }));
     }, () => unsupported("completion requires an admitted pending socket"))));
+  // Callback branches may merge before the native read. Validate current
+  // intrinsic values/presence per branch, preserving an untouched sibling.
+  const readDefaults = (context: TExecutionContext, proceed: (context: TExecutionContext) => BranchResult): BranchResult => {
+    const intrinsics = [getObjectPrototype(), getFunctionPrototype()];
+    const inspect = (index: number, current: TExecutionContext): BranchResult => {
+      if (index === intrinsics.length) return proceed(current);
+      const intrinsic = intrinsics[index], actual = getProperties(intrinsic, current), original = intrinsic.properties as { [name: string]: Any };
+      const names = Array.from(new Set([...Object.keys(actual), ...Object.keys(original)]));
+      const check = (at: number, branch: TExecutionContext): BranchResult => {
+        if (at === names.length) return inspect(index + 1, branch);
+        const name = names[at], expected = Object.prototype.hasOwnProperty.call(original, name);
+        return evaluateBranches(strictEquality(ownPropertyPresence(intrinsic, name, branch), ESBoolean(expected), branch.value.knowledge), branch,
+          present => expected ? evaluateBranches(strictEquality(actual[name], original[name], present.value.knowledge), present,
+            same => check(at + 1, same), () => unsupported("altered intrinsic prototype defaults at socket read")) : check(at + 1, present),
+          () => unsupported("altered intrinsic prototype defaults at socket read"));
+      };
+      return check(0, current);
+    };
+    return inspect(0, context);
+  };
+  const readStart = operation("net.socket.readStart", (call, context) => {
+    // Fresh readable live POSIX TCP + nonnull native callbacks entail return0.
+    // This registers desired input; no bytes, EOF or eventual delivery is known.
+    return [ESNumber(0), writeProperty(reads.get(call.receiver)!, "pending", ESBoolean(true), context)];
+  });
+  const read = operation("net.socket.read", (call, context) => {
+    const socket = call.receiver as TESObject, state = socketState(socket);
+    return readDefaults(context, pristine => {
+      if (prototypeOf(socket) !== getObjectPrototype() || socket.propertyAccess || socket.unmodeledPrototype || socket.wellKnownSymbols) {
+        return unsupported("read requires the original socket property domain");
+      }
+      const readable = readables.get(socket)!, transport = reads.get(socket)!;
+      const fields = getProperties(state, pristine), publicFields = getProperties(socket, pristine);
+      const stream = getProperties(readable, pristine), native = getProperties(transport, pristine);
+      const checks: Array<[Any, Any]> = [[fields.phase, ESString("connected")], [fields.submissionAccepted, ESBoolean(true)],
+        [fields.completionPending, ESBoolean(false)], [fields.closePending, ESBoolean(false)],
+        [publicFields.connecting, ESBoolean(false)], [publicFields.destroyed, ESBoolean(false)],
+        [stream.constructed, ESBoolean(true)], [stream.sync, ESBoolean(true)], [stream.length, ESNumber(0)],
+        [stream.highWaterMark, ESNumber(65536)], [stream.flowing, ESNull],
+        [native.handleReading, ESBoolean(false)], [native.pending, ESBoolean(false)]];
+      for (const name of ["reading", "needReadable", "ended", "endEmitted", "paused", "emittedReadable", "readableListening", "resumeScheduled", "readingMore"]) {
+        checks.push([stream[name], ESBoolean(false)]);
+      }
+      return withValue(fields.completion, pristine, (record, selected) => {
+        if (!isESObject(record)) return unsupported("read requires fresh full-duplex completion facts");
+        const completed = getProperties(record, selected);
+        const selectedChecks = checks.concat(["success", "readable", "writable"].map(name => [completed[name], ESBoolean(true)] as [Any, Any]));
+        const check = (index: number, current: TExecutionContext): BranchResult => {
+          if (index === selectedChecks.length) return startEmptyReadable(readable,
+            entering => invoke(readStart, [], writeProperty(transport, "handleReading", ESBoolean(true), entering), socket), current);
+          return evaluateBranches(strictEquality(selectedChecks[index][0], selectedChecks[index][1], current.value.knowledge), current,
+            valid => check(index + 1, valid), () => unsupported("read requires a fresh live unpaused empty readable"));
+        };
+        return check(0, selected);
+      });
+    });
+  });
   const shutdown = operation("net.socket.shutdown", (call, context) => {
     // The guarded fresh POSIX full-duplex domain entails uv_shutdown return0:
     // the handle is writable, not shut/shutting/closing. This retains a request;
@@ -321,12 +381,16 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
     }));
     const state = ESObject(), timer = ESObject({ arm: Undefined });
     const writable = createEmptyWritableState(), shutdownState = ESObject({ pending: ESBoolean(false) });
+    const readable = createFreshReadableState(), readState = ESObject({ handleReading: ESBoolean(false), pending: ESBoolean(false) });
     sockets.set(socket, state);
     timers.set(socket, timer);
     writables.set(socket, writable);
     shutdowns.set(socket, shutdownState);
+    readables.set(socket, readable);
+    reads.set(socket, readState);
     socket.hostSlots = Object.freeze({ "node.net.socket": state, "node.net.timeout": timer,
-      "node.stream.writable": writable, "node.net.shutdown": shutdownState });
+      "node.stream.writable": writable, "node.net.shutdown": shutdownState,
+      "node.stream.readable": readable, "node.net.read": readState });
     const attached = events.attach(socket, context, { allowedRegistrations: lifecycle, restrictedEvents: lifecycle });
     const initialized = change(state, { phase: ESString("queued"), address, port, submissionAccepted: Undefined,
       completionPending: ESBoolean(false), closePending: ESBoolean(false), completion: Undefined }, attached);

@@ -1,0 +1,8 @@
+{
+  "inventory": "../P040-tcp-completion/test262-inventory.json",
+  "sha256": "da8c1f206d2a792e229e913e69a07c2d140ec17c7f1bbf976f5a78b0a0c87d30",
+  "byteIdentical": true,
+  "files": 484,
+  "variants": 959,
+  "historicalSkips": 46
+}

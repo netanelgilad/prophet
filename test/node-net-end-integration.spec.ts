@@ -5,6 +5,7 @@ import { tmpdir } from "os";
 import { dirname, join, resolve } from "path";
 import { effectPaths, isExecutionBoundary, isForkedCompletion } from "../src";
 import { getProperties } from "../src/execution-context/Heap";
+import { choiceOf, resolveBoolean } from "../src/symbolic";
 
 let directory: string;
 beforeEach(() => { directory = realpathSync(mkdtempSync(join(tmpdir(), "prophet-net-completion-"))); });
@@ -63,11 +64,26 @@ function cli(source: string, status = 2, maxEvents = 0) {
 function leaves(result: any[]): any[][] {
   return isForkedCompletion(result[0]) ? leaves(result[0].consequent).concat(leaves(result[0].alternate)) : [result];
 }
+// Select known alternatives in a merged final heap using this effect history.
+// This is inspection only: unresolved values remain symbolic, identities survive.
+function inspectPath(context:any,knowledge:any){
+  const select=(value:any):any=>{
+    const choice=choiceOf(value);if(!choice)return value;
+    const known=resolveBoolean(choice.condition,knowledge);
+    return known===undefined?value:select(known?choice.consequent:choice.alternate);
+  };
+  const heap=new Map();
+  if(context.value.heap)context.value.heap.forEach((entry:any,key:any)=>{
+    const properties:any={};for(const name of Object.keys(entry.properties))properties[name]=select(entry.properties[name]);
+    heap.set(key,{...entry,properties,elements:entry.elements&&entry.elements.map(select)});
+  });
+  return {...context,value:{...context.value,heap,knowledge}};
+}
 function paths(roots: any) {
   const result: Array<{ completion: any; context: any; events: any[] }> = [];
   for (const [completion, context] of leaves([roots.completion, roots.current]))
     for (const path of effectPaths(context.value.effects, context.value.knowledge))
-      result.push({ completion, context, events: path.events as any[] });
+      result.push({ completion, context: inspectPath(context,path.knowledge), events: path.events as any[] });
   return result;
 }
 function calls(events: any[], operation: string): any[] {
@@ -90,7 +106,7 @@ test("actual CLI returns socket.end before caller continuation with pending shut
   expect(ended).toHaveLength(1);expect(all).toHaveLength(6);
   const {events,context,completion}=ended[0],socket=socketOf(events);
   expect(messages(events)).toEqual(['before','ended','ready']);
-  expect(isExecutionBoundary(completion)).toBe(true);expect(completion.message).toMatch(/read/);
+  expect(isExecutionBoundary(completion)).toBe(false);
   const end=calls(events,'net.socket.end'),shutdown=calls(events,'net.socket.shutdown');
   expect(end).toHaveLength(1);expect(shutdown).toHaveLength(1);
   expect(shutdown[0].call.receiver).toBe(socket);expect(end[0].call.receiver).toBe(socket);
@@ -114,7 +130,7 @@ test("actual CLI returns socket.end before caller continuation with pending shut
     finalPending:{value:true},prefinished:{value:false},finished:{value:false}});
   const timer=getProperties(socket.hostSlots['node.net.timeout'],context).arm;
   expect(getProperties(timer as any,context)).toMatchObject({active:{value:true},delay:{value:100},refed:{value:false}});
-  expect(calls(events,'net.socket.readStart')).toHaveLength(0);
+  expect(calls(events,'net.socket.readStart')).toHaveLength(1);
   expect(context.value.activation).toBeUndefined();
   for(const path of all.filter(path=>path!==ended[0])){
     expect(calls(path.events,'net.socket.end')).toHaveLength(0);
@@ -134,9 +150,9 @@ test("separate sockets retain independent end state under either eligible comple
     expect(sockets).toHaveLength(2);expect(sockets[0]).not.toBe(sockets[1]);
     expect(sockets[0].hostSlots['node.net.shutdown']).not.toBe(sockets[1].hostSlots['node.net.shutdown']);
     expect(sockets[0].hostSlots['node.stream.writable']).not.toBe(sockets[1].hostSlots['node.stream.writable']);
-    const end=calls(events,'net.socket.end');expect(end.length).toBeLessThanOrEqual(1);
+    const end=calls(events,'net.socket.end');expect(end.length).toBeLessThanOrEqual(2);
     for(const socket of sockets){
-      const ended=end.length===1&&end[0].call.receiver===socket;
+      const ended=end.some(event=>event.call.receiver===socket);
       expect(getProperties(socket.hostSlots['node.net.shutdown'],context)).toMatchObject({pending:{value:ended}});
       expect(getProperties(socket.hostSlots['node.stream.writable'],context)).toMatchObject({ended:{value:ended},finished:{value:false}});
     }

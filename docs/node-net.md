@@ -148,10 +148,9 @@ retained delay, even when a caught invalid setter left public timeout negative.
 Its previous occurrence becomes inactive; public timeout is unchanged. Absent or
 canceled arms stay inactive. Connect listeners run in actual registration/once
 order, then ready. Their throws or typed stops suppress later stages. No nextTick
-runs between these synchronous stages. After normal ready, analysis stops before
-read(0); it does not assume readStart admission or create bytes. This unfinished
-external delivery retains its active checkpoint and any queued work. A guest
-throw follows the registry's existing abrupt-completion rules instead.
+runs between these synchronous stages. P040 originally stopped after normal ready before read(0); P042 below advances
+the pristine read prefix. Callback typed stops retain their active checkpoint and
+queued work; a guest throw follows the registry's abrupt-completion rules.
 
 The real unchanged checkGrowl connect listener first calls socket.end; P040
 first stopped there before its availability callback (P041 below advances it).
@@ -207,5 +206,41 @@ The unchanged checkGrowl helper now invokes its actual supplied callback with
 null,true after end returns on the full-duplex branch. This is its application
 report, not verified service response, shutdown success or all-path availability.
 A callback throw/typed stop halts later stages; a normal callback continues through
-ready to the existing read(0) frontier with shutdown and any callback jobs pending.
+ready to the first read(0), now supported by P042 below with shutdown still pending.
 See [source/native proof and review](agent-tasks/P041-socket-end/task.md).
+
+
+## P042 first read registration
+
+After normal connect and ready return, a fresh live connected readable socket
+executes the automatic zero-byte read prefix. Pending first empty end is allowed:
+write-side shutdown admission does not clear the native readable flag. Current
+socket/property, Object.prototype and Function.prototype defaults are rechecked
+after both callbacks, before read changes. Current intrinsic property values and
+own presence are checked per selected branch so an unchanged sibling survives a
+conditional mutation. Custom dispatch, pause/resume, previous
+reads, data/readable listeners, user buffers and stream hooks remain guarded.
+
+The persistent node.stream.readable slot records actual fresh POSIX defaults,
+including constructed=true, length0, highWaterMark65536, flowing=null,
+reading=false, needReadable=false and sync=true. The node.net.read slot begins
+handleReading=false,pending=false. Internal net.socket.read(0) sets reading,
+sync and needReadable; Socket._read sets handleReading before traced
+net.socket.readStart. The latter returns0 and retains pending registration; read
+clears sync and returns null. No bytes, EOF or future callback are implied.
+
+This local admission follows pinned source invariants for a fresh successful
+readable handle, not an arbitrary success assumption. Immediate libuv error
+conditions require a closing, already-reading, unreadable or invalid handle,
+excluded here. The same fd already had a watcher for successful connect. No read
+syscall or buffer allocation callback runs in this prefix. Future backend,
+resource and transport failures remain unresolved.
+
+No new event, queue job, timer refresh or shutdown change occurs. The completion
+handler returns normally; the existing external registry then clears its active
+record and drains actual callback jobs before selecting another event. A callback
+throw or typed stop prevents the read; a later queued-job stop has an idle external
+checkpoint. Waiting and shorter histories remain beside completed prefixes.
+Horizon0/1/2 still covers only existing HTTP/TCP providers, excluding data, EOF,
+shutdown, timer and close interleavings. Normal return is not application exit.
+See [contract and evidence](agent-tasks/P042-read-start/task.md).
