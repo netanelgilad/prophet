@@ -1936,5 +1936,7 @@ Exact-candidate CI precedes publication. No stable gap closes.
   precision/resources remain open. Five complete upstream candidates were read
   but cannot run whole in this domain; zero activated, blockers retained.
 
-Independent review, full suite/typecheck, four scans and complete skipped-file
-reconciliation are required before publication. No stable gap is closed.
+Independent review and full196-suite/5518-pass/46-historical-skip run with
+typecheck passed; source hashes stayed stable. Four scans and complete unchanged
+Test262/skipped inventory are reconciled in P043 evidence. Exact-candidate CI
+precedes publication. No stable gap is closed.

@@ -1,0 +1,118 @@
+{
+  "implementation": "1ea3b1565d207000f88493401d4e616fb2ff519a",
+  "runtime": "v24.21.0",
+  "validation": {
+    "results": [
+      {
+        "name": "full-suite",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 147.63,
+        "log": "/tmp/prophet-p043/full-suite-complete.log",
+        "sha256": "78291e9ae6b0c3406c06c8e25a5ee2f0368546fe7b708fa26588d262262dcd29"
+      },
+      {
+        "name": "typecheck",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 2.02,
+        "log": "/tmp/prophet-p043/typecheck-complete.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "hashesUnchanged": true
+  },
+  "reviewedHashes": {
+    "src/node/events.ts": "0625acf98b4720661d8dc2ef7c49f1a26eb900ac9886365dfb7ccdb1b61f4399",
+    "src/node/net.ts": "42dda187167fb091f0215c46c9213421b7a71770db0121584c1b4d3545ab8cea",
+    "src/node/writable-end.ts": "1f7c33e6dd8d83632f55cb092e2e412d87dd700520a4bf358df2f8974555cbf5",
+    "test/node-events.spec.ts": "f2819aa88b5c516c43d9425563ce359184ad06535a1327a68f66c91b921f03dd",
+    "test/node-net-end-integration.spec.ts": "bb06c1fa0d55f42092b4ac40c8e000c8bd06644075325ade5f7c024eadda46c6",
+    "test/node-net-end-review.spec.ts": "0590f3dddfd35795e3e5315a745ee80a8e7f09860536f36eda163864ede9c788",
+    "test/node-net-shutdown-integration.spec.ts": "b5f189a2934239ded54fae22c9daf7a839971334251514077e046844766d688e",
+    "test/node-net-shutdown-review.spec.ts": "4ca958397f3466ecdbac7ebcf42b2f53200c037c21784036335408880402e898",
+    "test/node-net-shutdown.spec.ts": "d4cbc3920465d498f04957c6e55c63e01e89790e6dd5f84f5aa869c72041880b",
+    "test/node-notifier-startup.spec.ts": "dd0d4e7274c6f641497c4c188d48a4bdecb15d15ccf6304d67928100f1eaa2ad"
+  },
+  "audit": [
+    {
+      "name": "guards",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 844,
+      "sha256": "2d30a1e014569cd661004171f6e4e8bca1fd4d7b95f6415e5e2fbae46aec991c",
+      "log": "/tmp/prophet-p043/audit-guards.log"
+    },
+    {
+      "name": "assertions",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 23,
+      "sha256": "940abf7346b20b8331b18f1b5ddd9a86a1fcfab2d05412e329fcb315f4f71179",
+      "log": "/tmp/prophet-p043/audit-assertions.log"
+    },
+    {
+      "name": "skips",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 1,
+      "sha256": "b5d36faba6bc12c65e9b87d00873ee5420a3ff04b926d67d3d0cd3dd915a1214",
+      "log": "/tmp/prophet-p043/audit-skips.log"
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "exitCode": 0,
+      "lines": 2767,
+      "sha256": "ed4ecd24b2567b63e3e1c7ba7d6c35fef669208cb1743053ea48a22abe942424",
+      "log": "/tmp/prophet-p043/audit-boundaries.log"
+    }
+  ],
+  "test262": {
+    "reconciliation": "test262-reconciliation.json",
+    "files": 484,
+    "variants": 959,
+    "parseNegativeFiles": 43,
+    "parseNegativeVariants": 85,
+    "historicalSkippedFiles": 46
+  },
+  "publication": "Pending exact candidate CI; source/spec tree unchanged since validation."
+}

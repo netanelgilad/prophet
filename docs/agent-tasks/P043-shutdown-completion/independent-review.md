@@ -1,0 +1,13 @@
+# P043 independent final review
+
+Approved the final production diff for the scoped pending-shutdown completion domain. Read the complete net/writable-end/EventEmitter changes against pinned Node afterShutdown/onFinish/finish, the initial/final state contract and shared queues. No remaining implementation finding.
+
+18 new independent specs plus50 existing net completion/end/read reviews pass (4 suites,68tests); typecheck passes. Exact hashes and logs are in review-final-evidence.json. No production edits, commits or pushes by this reviewer. One existing end-review assertion was expanded from5to7 two-event/two-socket histories, retaining the original histories and adding per-socket shutdown completion/pending finish checks.
+
+One inherited defect was demonstrated: the custom listener.apply guard threw an ordinary Error, losing the typed partial completion and waiting/healthy siblings at the new prefinish/finish stages. Two independent tests were genuinely red with13other cases green. Core corrected only this shared guard to capture UnsupportedAnalysisError at the actual emitter context. Retests preserve prefinished/finished writes, waiting alternatives, a separately selected healthy listener branch, active queue distinctions and uncatchability by guest catch. No other production correction was requested by this reviewer.
+
+Baseline10tests were red before implementation. Two later exposed review harness use of unsupported implicit arguments objects; these were corrected to explicit parameter undefined assertions. They are not counted as implementation defects.
+
+Coverage includes pending-only/waiting state, selected shutdown consumption, no invented transport success, queued finish state, unchanged read/timer identity, receiver/parameter/state/activation facts, prefinish and finish throws/stops, prior user-job interruption, finite conditional end, once/removal/current lexical state, invalid writable invariants consumed before stopping, finite healthy state sibling, late readable autoDestroy boundary, typed apply dispatch and guest catch.
+
+Semantic limits remain: native asynchronous status is intentionally unobserved because afterShutdown ignores it; finish does not prove successful shutdown syscall. Fresh enabled readable with endEmitted=false prevents autoDestroy; data/EOF/error/close/cancellation remain future work. Public protected APIs preserve that domain, with a model-owned altered-readable witness stopping after actual finish callbacks. Existing conditional apply conservatism remains a documented gap. Native whole upstream cases are not newly activated by these local compatibility fixtures.

@@ -2,7 +2,7 @@
 
 Base master45416bd7401c1bbe243daf8299654e5f7eeb6af0, published after CI39719425357. User explicitly requested this next roadmap increment. Root and its own Codex subagents implement in shared branch agent/p043-shutdown-completion; primary master retains unrelated owner files.
 
-Status: design and native compatibility contract approved; implementation and focused tests pass; independent final review and full validation pending.
+Status: design and native compatibility contract approved; implementation and independent review accepted; full196 suites/5518 passes/46 historical skips and typecheck pass. Exact-candidate CI/publication pending.
 
 - shutdown_core owns production and new core spec after design approval.
 - shutdown_native owns pinned native compatibility and actual CLI/package integration specs after design approval.
