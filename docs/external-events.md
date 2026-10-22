@@ -116,9 +116,9 @@ current submitted/pending/undestroyed state. Actual selection creates stable
 success/readable/writable facts and consumes the pending completion before any
 callback. Failure/partial-flag cases retain their first unsupported transition.
 Full-duplex success refreshes any active idle timer and invokes connect then ready
-through the VM, stopping before unmodeled read(0) or at an earlier callback stop.
-Therefore this prefix has no normal fully delivered TCP completion; it preserves
-the active source at a typed stop and does not drain callback nextTicks. Guest
+through the VM. P042 now completes the fresh read(0) prefix with input pending,
+allowing normal delivery to clear active state and drain actual queued work. An
+earlier callback typed stop retains its active source and queued work. Guest
 throws retain existing registry abrupt-completion behavior. Other providers and
 waiting remain independently explored siblings, without provider priority.
 
@@ -127,3 +127,30 @@ overapproximation, not a proof of physical reachability for every combination.
 No expiration or native close provider is introduced. Timers may expire in
 unmodeled interleavings; waiting is neither inactivity nor eventual success.
 See [network semantics and boundaries](node-net.md#p040-selected-completion-prefix).
+
+
+## Pending shutdown completion providers
+
+P043 registers one provider when a first empty socket end reaches local shutdown
+submission. Selection shares the global horizon with HTTP and TCP completion;
+it neither guarantees eventual delivery nor successful OS shutdown. Pinned Node
+ignores the asynchronous shutdown status and invokes the final callback without
+an error. The model therefore projects that unused native argument out, retaining
+no invented success Boolean, errno or peer-receipt fact.
+
+Selected arrival consumes shutdown.pending and enters finalization, clearing
+finalPending before later supported-domain checks. prefinished becomes true
+before synchronous prefinish listeners. Only normal listener return marks
+finishPending and enqueues the actual finish transition. It runs on the shared
+FIFO after any jobs queued earlier by prefinish listeners, with finished and
+public writableFinished true before finish emission. The finish job is not a
+separate external arrival. Current open readable state excludes autodestroy;
+input and timer work remain pending. Callback throws/typed stops retain exactly
+the preceding state and the generic registry/queue interruption semantics.
+
+Eligibility observes the actual pending transport association; malformed
+finalization state must become an explicit selected continuation boundary rather
+than disappear through eligibility. Consumed shutdown cannot arrive twice.
+From fresh startup, horizon2 can cover TCP completion then shutdown completion;
+other eligible resources compete under the same budget. Data, EOF, read errors,
+timer expiry, connected destruction and close interleavings remain gaps.

@@ -57,6 +57,13 @@ remain open; this is still one explicit-input package subpath.
 P042 retains pending read and shutdown after the actual callback reports true;
 the generic scheduler can then drain real queued jobs and select a second existing
 HTTP/TCP event within the declared horizon. It neither observes incoming bytes nor
-proves that the reported service is usable. Timers, data, shutdown and close can
+proves that the reported service is usable. P043 adds the selected shutdown
+callback and queued writable finish at horizon2. Timers, data and close can
 compete in omitted future schedules; this remains one explicit-input dependency
 subpath, not package-wide behavior or supply-chain policy enforcement.
+
+
+P043's second arrival may consume the helper's pending shutdown and complete
+writable finalization, leaving input and timer work unresolved. Its earlier
+cb(null,true) is unchanged and still only the package's own report. The ignored
+native shutdown status cannot justify successful syscall or service claims.

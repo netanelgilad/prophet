@@ -10,7 +10,7 @@ import { createHostFunction, HostModel } from "../effects";
 import { createError } from "../error/Error";
 import { bindNormal, mapCompletions } from "../evaluate";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
-import { captureExecutionBoundary, markUnsupportedBoundaryObject, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
+import { captureExecutionBoundary, withAnalysisFailureContext, markUnsupportedBoundaryObject, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
 import { getProperties, getPropertyKeys, ownPropertyPresence, writeProperty } from "../execution-context/Heap";
 import { JobQueue } from "../jobs";
@@ -19,7 +19,7 @@ import { strictEquality } from "../symbolic";
 import { ESString } from "../string/String";
 import { Any, ESNull, ESNumber, TESBoolean, isESBoolean, isESNull, isESNumber, isESString, isUndefined, ThrownValue, Undefined } from "../types";
 import { createEventEmitterModel } from "./events";
-import { createEmptyWritableState, endEmptyWritable } from "./writable-end";
+import { createEmptyWritableState, endEmptyWritable, completeEmptyWritableFinal, finishEmptyWritable } from "./writable-end";
 import { createFreshReadableState, startEmptyReadable } from "./readable-start";
 
 export type NetModelOptions = {
@@ -92,7 +92,7 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
   const shutdowns = new WeakMap<object, TESObject>();
   const readables = new WeakMap<object, TESObject>();
   const reads = new WeakMap<object, TESObject>();
-  const lifecycle = ["connectionAttempt", "connect", "ready", "error", "close", "connectionAttemptFailed"];
+  const lifecycle = ["connectionAttempt", "connect", "ready", "error", "close", "connectionAttemptFailed", "prefinish", "finish"];
   const socketState = (socket: Any) => sockets.get(socket) || unsupported("receiver is not a socket from this environment");
   const submit = operation("net.socket.submit", (call, context) =>
     mapCompletions(submitModel(call, context), (result, after) => withValue(result, after, (selected, branch) => {
@@ -283,11 +283,55 @@ export function createNetModel(events: ReturnType<typeof createEventEmitterModel
       });
     });
   });
+  const shutdownEligibleState = (socket: Any, context: TExecutionContext): BranchResult => {
+    const pending = getProperties(shutdowns.get(socket)!, context).pending;
+    const fields = getProperties(socketState(socket), context);
+    const checks = [[pending, ESBoolean(true)], [fields.closePending, ESBoolean(false)],
+      [getProperties(socket as TESObject, context).destroyed, ESBoolean(false)]];
+    const check = (index: number, current: TExecutionContext): BranchResult => index === checks.length
+      ? [ESBoolean(true), current] : evaluateBranches(strictEquality(checks[index][0], checks[index][1], current.value.knowledge), current,
+        yes => check(index + 1, yes), no => [ESBoolean(false), no]);
+    return check(0, context);
+  };
+  const shutdownEligible = operation("net.socket.shutdownEligible", (call, context) => shutdownEligibleState(call.receiver, context));
+  const finish = operation("net.socket.finish", (call, context) => {
+    const socket = call.receiver as TESObject, writable = writables.get(socket)!;
+    return evaluateBranches(strictEquality(getProperties(writable, context).finishPending, ESBoolean(true), context.value.knowledge), context,
+      pending => bindNormal(finishEmptyWritable(socket, writable, entering => withAnalysisFailureContext(entering, () => events.emit(socket, "finish", [], entering)), pending),
+        (_ignored, emitted) => {
+          // Native autoDestroy follows finish listeners. The admitted readable
+          // remains open; unknown/ended readable state cannot be treated as open.
+          const readable = getProperties(readables.get(socket)!, emitted);
+          return evaluateBranches(strictEquality(readable.endEmitted, ESBoolean(false), emitted.value.knowledge), emitted,
+            open => [Undefined, open], () => unsupported("finished writable requires open readable autoDestroy handling"));
+        }), () => unsupported("finish requires its pending runtime job"));
+  });
+  const shutdownComplete = operation("net.socket.shutdownComplete", (call, context) =>
+    bindNormal(shutdownEligibleState(call.receiver, context), (eligible, checked) => evaluateBranches(eligible as TESBoolean, checked,
+      pending => {
+        const socket = call.receiver as TESObject, writable = writables.get(socket)!;
+        const before = getProperties(writable, pending);
+        // Callback arrival and final callback entry precede onFinish admission.
+        // afterShutdown ignores native status: this is not syscall success.
+        const consumed = writeProperty(shutdowns.get(socket)!, "pending", ESBoolean(false), pending);
+        const entered = writeProperty(writable, "finalPending", ESBoolean(false), consumed);
+        const checks: Array<[Any, Any]> = ["constructed", "ending", "ended", "finalCalled", "finalPending"].map(name => [before[name], ESBoolean(true)] as [Any, Any]);
+        for (const name of ["prefinished", "finished", "finishPending"]) checks.push([before[name], ESBoolean(false)]);
+        const check = (index: number, current: TExecutionContext): BranchResult => index === checks.length
+          ? completeEmptyWritableFinal(writable, entering => withAnalysisFailureContext(entering, () => events.emit(socket, "prefinish", [], entering)),
+            emitted => nextTick.enqueue(finish, [], emitted, socket), current)
+          : evaluateBranches(strictEquality(checks[index][0], checks[index][1], current.value.knowledge), current,
+            valid => check(index + 1, valid), () => unsupported("shutdown final callback requires pending empty writable finalization"));
+        return check(0, entered);
+      }, () => unsupported("shutdown completion requires a live pending transport request"))));
   const shutdown = operation("net.socket.shutdown", (call, context) => {
     // The guarded fresh POSIX full-duplex domain entails uv_shutdown return0:
     // the handle is writable, not shut/shutting/closing. This retains a request;
-    // shutdown(2), its status and final callback are still future work.
-    return [ESNumber(0), writeProperty(shutdowns.get(call.receiver)!, "pending", ESBoolean(true), context)];
+    // shutdown(2) and its status remain unknown; its final callback is a future arrival.
+    const pending = writeProperty(shutdowns.get(call.receiver)!, "pending", ESBoolean(true), context);
+    return externalEvents ? bindNormal(externalEvents.register(ESObject({ eligible: shutdownEligible,
+      deliver: shutdownComplete, receiver: call.receiver }), pending), (_ignored, registered) => [ESNumber(0), registered])
+      : [ESNumber(0), pending];
   });
   const end = operation("net.socket.end", (call, context) => {
     if (call.args.length !== 0) return unsupported("end requires no arguments");

@@ -145,7 +145,10 @@ test("separate sockets retain independent end state under either eligible comple
     var b=net.connect(43211,'127.0.0.1',function(){b.end();console.log('second');});`,2,2);
   const all=paths(roots);expect(all.some(path=>messages(path.events).includes('first'))).toBe(true);
   expect(all.some(path=>messages(path.events).includes('second'))).toBe(true);
+  expect(all.some(path=>calls(path.events,'net.socket.shutdownComplete').length===1)).toBe(true);
+  expect(all.some(path=>calls(path.events,'net.socket.end').length===2)).toBe(true);
   for(const {events,context} of all){
+    expect(calls(events,'net.socket.complete').length+calls(events,'net.socket.shutdownComplete').length).toBeLessThanOrEqual(2);
     const sockets=events.filter(event=>event.kind==='return'&&event.call.operation==='net.connect').map(event=>event.value);
     expect(sockets).toHaveLength(2);expect(sockets[0]).not.toBe(sockets[1]);
     expect(sockets[0].hostSlots['node.net.shutdown']).not.toBe(sockets[1].hostSlots['node.net.shutdown']);
@@ -153,8 +156,11 @@ test("separate sockets retain independent end state under either eligible comple
     const end=calls(events,'net.socket.end');expect(end.length).toBeLessThanOrEqual(2);
     for(const socket of sockets){
       const ended=end.some(event=>event.call.receiver===socket);
-      expect(getProperties(socket.hostSlots['node.net.shutdown'],context)).toMatchObject({pending:{value:ended}});
-      expect(getProperties(socket.hostSlots['node.stream.writable'],context)).toMatchObject({ended:{value:ended},finished:{value:false}});
+      const finalized=calls(events,'net.socket.shutdownComplete').some(event=>event.call.receiver===socket);
+      expect(getProperties(socket.hostSlots['node.net.shutdown'],context)).toMatchObject({pending:{value:ended&&!finalized}});
+      expect(getProperties(socket.hostSlots['node.stream.writable'],context)).toMatchObject({ended:{value:ended},finished:{value:finalized}});
+      expect(calls(events,'net.socket.finish').filter(event=>event.call.receiver===socket)).toHaveLength(finalized?1:0);
+      if(finalized)expect(ended).toBe(true);
     }
   }
 });

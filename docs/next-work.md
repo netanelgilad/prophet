@@ -1,12 +1,24 @@
-# Next work after P042
+# Next work after P043
 
 ## Current checkpoint
 
-Instinct draft work is integrated and reviewed. The CLI exposes conditional state/effect graphs with exact source/package identity and actual call origins. It evaluates the unchanged node-notifier5.4.0 checkGrowl helper on explicit IPv4 inputs through TCP submission, selected connection completion, its actual empty end and user callback, and first read registration. Pending work remains visible. Tests retain waiting/failure/partial histories and bounded HTTP/TCP combinations. This is one package subpath, not full npm coverage or Shai-Hulud detection.
+Instinct draft work is integrated and reviewed. The CLI exposes conditional state/effect graphs with exact source/package identity and actual call origins. It evaluates the unchanged node-notifier5.4.0 checkGrowl helper on explicit IPv4 inputs through TCP submission, selected connection completion, its actual empty end and user callback, first read registration, and selected empty-shutdown finalization. Pending input
+and timer work remain visible. Tests retain waiting/failure/partial histories and bounded HTTP/TCP combinations. This is one package subpath, not full npm coverage or Shai-Hulud detection.
 
 ## Next implementation decision
 
-Start with a spec/design increment for pending shutdown completion on this same unchanged dependency path. Read pinned Node afterShutdown/finalization and full upstream candidates, define the external input and ordering contract, and use controlled native compatibility cases. afterShutdown ignores its asynchronous status: do not equate finish with successful shutdown syscall. Preserve finalPending, prefinish/finish ordering, callback exceptions and pending readable/timer state. Decide explicitly how this event competes with existing providers within the declared horizon; do not silently invent chronological ordering or timer behavior.
+P043 implements the pending shutdown callback and synchronous prefinish/queued
+finish sequence. afterShutdown ignores its asynchronous status: writable finish
+still does not establish successful shutdown syscall. Current reads and timers
+remain pending, with explicit waiting and bounded event histories.
+
+Next, scope incoming data/EOF/error or timer delivery from a concrete unchanged
+application path. First establish pinned native behavior and the external input
+contract. Decide how each new event competes with existing providers within the
+declared horizon. EOF can change autoDestroy and end behavior; timer expiration
+must preserve actual listener semantics and may occur before connection completion.
+Do not silently impose chronological order, default successful I/O, or broaden
+repeated-end/destroy support without independent specs.
 
 Then model incoming data/EOF/error and timeout delivery where demonstrated package behavior needs them. Each increment must retain unknown/unsupported paths and current cancellation/resource facts. Broader resumption, event horizons, DNS/default localhost, read/write overloads and stream listeners remain gaps. Continue unchanged sirv/pico paths and grow the pinned package corpus as shared semantics improve, with source and dependency provenance.
 

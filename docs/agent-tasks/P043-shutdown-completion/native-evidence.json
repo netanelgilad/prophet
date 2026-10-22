@@ -1,0 +1,86 @@
+{
+  "runtime": "v24.21.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "nodeSourceCommit": "955266bfdd854cd280dffd47548673914484e4c0",
+  "probeExit": 0,
+  "cases": 6,
+  "finishThrowProbeExit": 1,
+  "finishThrowExpected": true,
+  "guardHits": 0,
+  "wholeUpstreamCasesRead": [
+    {
+      "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-end-close.js",
+      "filename": "test-net-end-close.js",
+      "byteLength": 800,
+      "sha256": "cdd20c684f9e6bedb6f52eefa27a29ae3d0d435cf7b87e95c07ae25f655d9c00"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-end-destroyed.js",
+      "filename": "test-net-end-destroyed.js",
+      "byteLength": 610,
+      "sha256": "be9cc117ac065d80c75b80020ac85df71f83aca634f4db1a3e731b7c7985f5ec"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-net-end-without-connect.js",
+      "filename": "test-net-end-without-connect.js",
+      "byteLength": 1361,
+      "sha256": "b53f7eeca9244f1fbe37e950fc6a1bb2c51193ca587cf4b9e5ee02bc5d9a03fa"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-stream-writable-ended-state.js",
+      "filename": "test-stream-writable-ended-state.js",
+      "byteLength": 1147,
+      "sha256": "350bd7d4332f67cc072c25fbb0e699522051a24050e0d6a5294cc1a3419fbe38"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/test/parallel/test-stream-writableState-ending.js",
+      "filename": "test-stream-writableState-ending.js",
+      "byteLength": 916,
+      "sha256": "e65e0a51dc7dac2a9c21f18eee1fb02256ee9e89e1316f73df304d69668959fe"
+    }
+  ],
+  "wholeUpstreamActivated": 0,
+  "files": [
+    {
+      "path": "/tmp/prophet-p043/end-probe.cjs",
+      "bytes": 7919,
+      "sha256": "6e20f74c2ac1d7244e493e9260029b68c7a84b4c481a17072259c977181a4744"
+    },
+    {
+      "path": "/tmp/prophet-p043/end-results.json",
+      "bytes": 86679,
+      "sha256": "121d681b9638d592140dfb0d79c0007ea0b377f2bbb8c81b8c7a0638ff67f8e1"
+    },
+    {
+      "path": "/tmp/prophet-p043/finish-throw-probe.cjs",
+      "bytes": 7677,
+      "sha256": "a9024966b2c65d973ea7b41c875cc19cc48223292d02ba4967a555ba1107f608"
+    },
+    {
+      "path": "/tmp/prophet-p043/finish-throw-results.json",
+      "bytes": 9399,
+      "sha256": "ff8bf796d2803dca8a0b626cae76124612788639066e0c276a65174bccced9f1"
+    },
+    {
+      "path": "/tmp/prophet-p041/net.js",
+      "bytes": 86162,
+      "sha256": "b4bc6d76e255c67673a3bdf4676e0816e1f13906e4a46a6bdcc07dd614329ffa"
+    },
+    {
+      "path": "/tmp/prophet-p041/internal_streams_writable.js",
+      "bytes": 33756,
+      "sha256": "2aa0dd9f76ceca631601c06b65085741b51e1853fd9d8177af5f18d7ef5ee8d8"
+    },
+    {
+      "path": "/tmp/prophet-p041/src_stream_base.cc",
+      "bytes": 28312,
+      "sha256": "0e5390e15073f4782df139ef0513c69e7dc293fca51b916de4db81d8279b8bd4"
+    },
+    {
+      "path": "/tmp/prophet-p041/deps_uv_src_unix_stream.c",
+      "bytes": 41572,
+      "sha256": "736cd948a28acdb1544dd683becd78fb744e79de55562229da54923b20f41c7c"
+    }
+  ]
+}

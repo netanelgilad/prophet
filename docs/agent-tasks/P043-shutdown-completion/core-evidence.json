@@ -1,0 +1,32 @@
+{
+  "base": "45416bd7401c1bbe243daf8299654e5f7eeb6af0",
+  "sourceHashes": {
+    "src/node/net.ts": "42dda187167fb091f0215c46c9213421b7a71770db0121584c1b4d3545ab8cea",
+    "src/node/writable-end.ts": "1f7c33e6dd8d83632f55cb092e2e412d87dd700520a4bf358df2f8974555cbf5",
+    "src/node/events.ts": "0625acf98b4720661d8dc2ef7c49f1a26eb900ac9886365dfb7ccdb1b61f4399",
+    "test/node-net-shutdown.spec.ts": "d4cbc3920465d498f04957c6e55c63e01e89790e6dd5f84f5aa869c72041880b",
+    "test/node-events.spec.ts": "f2819aa88b5c516c43d9425563ce359184ad06535a1327a68f66c91b921f03dd"
+  },
+  "red": {
+    "log": "/tmp/prophet-p043/core-red.log",
+    "sha256": "069e011a46f2b49e1dea2f622c339b56da274003e2a044c94aff567e1619eb75",
+    "testsFailed": 8,
+    "testsPassed": 3,
+    "cause": "unsupported prefinish/finish registration and missing shutdown event; genuine behavior failures"
+  },
+  "focused": {
+    "log": "/tmp/prophet-p043/core-affected.log",
+    "sha256": "437163658ea2aeee401e74bb7e3ee6a2cc84aa2d1a0d88ee51f66df5d37c6379",
+    "suitesPassed": 5,
+    "testsPassed": 105
+  },
+  "typecheck": {
+    "log": "/tmp/prophet-p043/core-typecheck.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "notes": [
+    "Additional independent custom-apply red evidence held by reviewer; narrow shared guard now typed with exact branch checkpoint.",
+    "No existing net completion/end/read-start core specs required weakening or migration.",
+    "Native and CLI integration evidence owned separately."
+  ]
+}

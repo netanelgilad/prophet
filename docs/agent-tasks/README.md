@@ -7,9 +7,9 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 ## Sustained roadmap run — 2026-10-21
 
-**Latest checkpoint:** P039 is published at `5afe23a`; full184 suites /
-5362 passing /46 historical skips and typecheck passed. Exact-candidate
-CI39674392064 passed before publication. [Publication](P039-package-timers/publication.md).
+**Latest checkpoint:** P042 is published at `45416bd`; full193 suites /
+5475 passing /46 historical skips and typecheck passed. Exact-candidate
+CI39719425357 passed before publication. [Publication](P042-read-start/publication.json).
 P035 remains published at `007afa2`.
 Root and independent reviewer accepted the corrected implementation; this does
 not erase the original partial-parser findings or imply a model trust promotion.
@@ -51,7 +51,8 @@ increase or first-review acceptance streak.
 
 | Task | Target | State | Review / knowledge |
 | --- | --- | --- | --- |
-| [P042](P042-read-start/task.md) | Fresh read registration and normal completion | Reviewed;193 suites/5475 passes/typecheck green; CI pending | Pending bytes/shutdown/timers remain unknown |
+| [P043](P043-shutdown-completion/task.md) | Pending shutdown completion and writable finalization | Implemented; focused tests/typecheck green; final review/full validation pending | Arrival does not establish OS shutdown success |
+| [P042](P042-read-start/task.md) | Fresh read registration and normal completion | Published45416bd;193 suites/5475 passes/typecheck and CI green | Pending bytes/shutdown/timers remain unknown |
 | [P041](P041-socket-end/task.md) | Empty socket end and actual package callback | Published fb84e98 with corrected P040; CI39677573075 green | Source-derived pending shutdown; no OS success/finish claim |
 | [P040](P040-tcp-completion/task.md) | Selected TCP completion and actual dependency callbacks | Corrected and published with P041 at fb84e98; earlier defect evidence retained | Shared HTTP/TCP horizon; explicit error/stream/timer boundaries |
 | [P039](P039-package-timers/task.md) | Unchanged dependency startup and pending socket timers | Published5afe23a;184 suites/5362 passes/46 skips,typecheck and CI39674392064 pass | Explicit IPv4 checkGrowl subpath, no completed availability claim |

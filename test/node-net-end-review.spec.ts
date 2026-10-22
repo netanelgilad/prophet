@@ -131,10 +131,11 @@ test.each(['writable','writableEnded','writableFinished','end'])('public %s writ
 test('two possible selected sockets keep independent writable and shutdown state',()=>{
  const env=setup(),before=ready(env,`var first=net.connect(1234,'127.0.0.1');var second=net.connect(1235,'127.0.0.1');
  first.on('connect',function(){first.end();mark('first');});second.on('connect',function(){second.end();mark('second');});`);
- const all=histories(env.external.explore(before,2));expect(all).toHaveLength(5);
- expect(all.map(([,context])=>marks(context)).sort()).toEqual([[],['first'],['first','second'],['second'],['second','first']].sort());
+ const all=histories(env.external.explore(before,2));expect(all).toHaveLength(7);
+ expect(all.map(([,context])=>marks(context)).sort()).toEqual([[],['first'],['first'],['first','second'],['second'],['second'],['second','first']].sort());
  for(const [,context] of all){const selected=marks(context);expect(new Set(selected).size).toBe(selected.length);
-   for(const name of ['first','second']){const ended=selected.includes(name);expect(writable(context,name).ended).toMatchObject({value:ended});expect(shutdown(context,name).pending).toMatchObject({value:ended});}
+   for(const name of ['first','second']){const ended=selected.includes(name),completed=calls(context,'net.socket.shutdownComplete').some(event=>event.call.receiver===socket(context,name));expect(writable(context,name).ended).toMatchObject({value:ended});expect(shutdown(context,name).pending).toMatchObject({value:ended&&!completed});expect(writable(context,name).prefinished).toMatchObject({value:completed});expect(writable(context,name).finishPending).toMatchObject({value:completed});expect(writable(context,name).finished).toMatchObject({value:false});}
+   expect(calls(context,'net.socket.complete').length+calls(context,'net.socket.shutdownComplete').length).toBeLessThanOrEqual(2);
  }
  expect(writable(before,'first')).toMatchObject(fresh);expect(writable(before,'second')).toMatchObject(fresh);
 });

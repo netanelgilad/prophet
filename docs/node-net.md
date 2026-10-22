@@ -120,7 +120,7 @@ deadline. No timer provider/listener registration or delivery is added here.
 The [unchanged dependency scenario](node-notifier-target.md) uses this shared
 behavior to reach pending TCP submission. Startup FIFO priority explains why the
 modeled prefix precedes timer callbacks. It does not prove that time never advances
-or cover timer interleavings under the HTTP/TCP-only arrival horizon.
+or cover timer interleavings under the bounded arrival horizon.
 
 
 ## P040 selected completion prefix
@@ -200,7 +200,7 @@ End itself preserves the current timer arm and emits no prefinish/finish/error/
 close, queues no finish job and introduces no event provider. Pinned afterShutdown
 ignores its eventual status argument; a future provider must not invent a guest
 shutdown Error from every negative asynchronous status. Generic stream handling,
-read/EOF, shutdown completion and close remain work.
+read/EOF and close remain work; P043 below adds the pending shutdown callback.
 
 The unchanged checkGrowl helper now invokes its actual supplied callback with
 null,true after end returns on the full-duplex branch. This is its application
@@ -241,6 +241,44 @@ handler returns normally; the existing external registry then clears its active
 record and drains actual callback jobs before selecting another event. A callback
 throw or typed stop prevents the read; a later queued-job stop has an idle external
 checkpoint. Waiting and shorter histories remain beside completed prefixes.
-Horizon0/1/2 still covers only existing HTTP/TCP providers, excluding data, EOF,
-shutdown, timer and close interleavings. Normal return is not application exit.
+P043 extends horizon0/1/2 to pending shutdown callbacks alongside HTTP/TCP
+providers. Data, EOF, timer and close interleavings remain excluded. Normal return
+is not application exit.
 See [contract and evidence](agent-tasks/P042-read-start/task.md).
+
+
+## P043 shutdown callback and writable finish
+
+The first empty end registers a shutdown provider only after local submission.
+Without an external registry it remains pending. The provider's current transport
+eligibility is pure and cannot restore consumed/cancelled work. Selected delivery
+consumes shutdown.pending and clears finalPending at entered finalization, then
+checks the supported empty constructed writable domain. Invalid state becomes a
+typed continuation boundary; it is not silently hidden by eligibility.
+
+Node afterShutdown ignores its status and calls the final callback without error.
+The ignored native argument is projected out; completion carries no syscall
+success assertion. prefinished=true precedes actual synchronous prefinish emit.
+Only normal return sets finishPending and queues finish on the shared FIFO.
+Prefinish throw retains consumed finalization/prefinished and no finish job.
+The finish job consumes finishPending and sets finished/public writableFinished
+before actual finish emit. It does not repeat native needFinish checks. Public
+writable=false and writableEnded=true remain; readable and timeout state are
+unchanged. After normal finish callbacks, current open readable state excludes
+autodestroy. Unsupported readable state stops at that reached decision.
+
+Prefinish and finish listener registration now uses the shared EventEmitter,
+including once/removal/current lexical state and actual callback origins. Native
+fresh sockets have no hidden listeners for these two names. Public emit/count
+remain guarded, as do end/data/readable/timeout registrations. A custom apply
+boundary occurs at actual emission after preceding state changes; inherited
+conditional-apply conservatism remains a shared emitter gap. No unrelated blanket
+intrinsic check is inserted before known native finalization effects.
+
+One shutdown callback consumes one external horizon step; its finish job consumes
+shared job budget. Typed prefinish boundaries retain external active delivery;
+typed finish boundaries retain an active job after external delivery is clear.
+Guest throws preserve prior effects and prevent later jobs/events. Waiting and
+shorter histories remain; horizon2 can cover TCP then shutdown on the unchanged
+helper. No bytes, EOF, timer expiry, transport close, generic writable support or
+process-liveness proof follows. See [contract/review](agent-tasks/P043-shutdown-completion/task.md).

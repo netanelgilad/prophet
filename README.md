@@ -61,7 +61,8 @@ process cwd and legacy URL models; HTTPS/querystring APIs remain opaque.
 HTTP binding can succeed or fail symbolically without probing or opening a real
 socket. A shared persistent FIFO drains supported startup/warning jobs and runs
 registered callbacks against current state. Default `--max-events 0` stops after
-startup; `1` or `2` explores bounded parsed HTTP arrivals and TCP completions,
+startup; `1` or `2` explores bounded parsed HTTP arrivals, TCP completions and
+pending socket shutdown callbacks,
 with supported jobs between normally completed arrivals. TCP success executes
 connect/ready callbacks until the next unsupported stream operation; retained
 timers have no expiration provider. This is not an all-schedule analysis.

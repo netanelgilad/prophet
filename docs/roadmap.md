@@ -193,7 +193,9 @@ its actual caller callback report null,true. P042 models its fresh read(0)
 registration and normal completion return, preserving pending input and shutdown
 while the shared queue can proceed to actual jobs and another bounded event.
 That report does not prove a service response or completed OS shutdown.
-Timers and close are not providers, so this is not arbitrary schedule coverage.
+P043 adds pending shutdown callbacks and writable prefinish/queued finish under
+the same horizon; ignored native status remains no syscall-success claim.
+Timers, data/EOF and close are not providers, so this is not arbitrary schedule coverage.
 Bounds above two explicitly reject; default zero preserves startup. Parsed
 method/URL strings overapproximate wire-valid inputs; parser dispatch and
 histories beyond two remain work. Preserve [callback summaries and invocation-state dependencies](symbolic-runtime.md#conditional-history-and-callback-knowledge);
@@ -765,4 +767,4 @@ one. A stateful `/arm` then `/fire` spec now reaches the second-request failure;
 its one-event domain cannot fabricate the prior arming request. This is a bounded
 history result, not a general callback summary or proof over arbitrary timelines.
 
-Current continuation plan: [next work after P042](next-work.md).
+Current continuation plan: [next work after P043](next-work.md).

@@ -1,0 +1,77 @@
+{
+  "initialIntegrationRed": {
+    "tests": 7,
+    "failed": 4,
+    "passed": 3,
+    "log": "integration-red.log",
+    "note": "Four genuine missing-behavior failures before support; native and horizon0 passed. Exact source hash at red not captured; current hash snapshot is not red evidence."
+  },
+  "packageInitialRun": {
+    "tests": 9,
+    "passed": 9,
+    "log": "package-red.log",
+    "note": "Filename historical; execution occurred after concurrent production edit, green-only evidence."
+  },
+  "firstAffectedRun": {
+    "tests": 31,
+    "passed": 30,
+    "failed": 1,
+    "log": "integration-green.log",
+    "note": "Existing two-socket horizon2 expected all ended sockets pending; migrated to assert new actual completion history and retained competitors."
+  },
+  "finalAffected": {
+    "suites": 5,
+    "tests": 31,
+    "passed": 31,
+    "exitCode": 0,
+    "log": "integration-final.log"
+  },
+  "typecheck": {
+    "exitCode": 0,
+    "log": "integration-typecheck-final.log"
+  },
+  "files": [
+    {
+      "path": "src/node/net.ts",
+      "sha256": "42dda187167fb091f0215c46c9213421b7a71770db0121584c1b4d3545ab8cea"
+    },
+    {
+      "path": "src/node/writable-end.ts",
+      "sha256": "1f7c33e6dd8d83632f55cb092e2e412d87dd700520a4bf358df2f8974555cbf5"
+    },
+    {
+      "path": "test/node-net-shutdown-integration.spec.ts",
+      "sha256": "b5f189a2934239ded54fae22c9daf7a839971334251514077e046844766d688e"
+    },
+    {
+      "path": "test/node-net-end-integration.spec.ts",
+      "sha256": "bb06c1fa0d55f42092b4ac40c8e000c8bd06644075325ade5f7c024eadda46c6"
+    },
+    {
+      "path": "test/node-notifier-startup.spec.ts",
+      "sha256": "dd0d4e7274c6f641497c4c188d48a4bdecb15d15ccf6304d67928100f1eaa2ad"
+    }
+  ],
+  "logs": [
+    {
+      "path": "integration-red.log",
+      "sha256": "2310a14cff39075824b82321401ecb69642bd313c6e0691204fe693421e14625"
+    },
+    {
+      "path": "package-red.log",
+      "sha256": "6f96b604315354bb6a78f8aad31676d75b245e4bcf2ffdaa619f8e8a739f45b9"
+    },
+    {
+      "path": "integration-green.log",
+      "sha256": "6aef96fddfe9eab9b115ab2517f301a7f29830191b46be644113697e2bcd7b16"
+    },
+    {
+      "path": "integration-final.log",
+      "sha256": "7b4a606f39edac59f7492c3c4d570a7883c13919c60eabeac37118fc07295fe5"
+    },
+    {
+      "path": "integration-typecheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

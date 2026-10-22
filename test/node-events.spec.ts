@@ -280,7 +280,7 @@ test("a single ordinary listener's custom apply behavior remains an explicit com
       kind: "return", value: { type: "boolean", value: true }
     });
   });
-  expect(() => load(source)).toThrow(/not yet supported|not supported/);
+  expect(load(source).value).toMatchObject({ kind: "unsupported", message: expect.stringContaining("custom listener apply") });
 });
 
 test("a single once wrapper observes an overridden Function.prototype.apply and reports that analysis gap", () => {
@@ -302,7 +302,7 @@ test("a single once wrapper observes an overridden Function.prototype.apply and 
       kind: "return", value: { type: "boolean", value: true }
     });
   });
-  expect(() => load(source)).toThrow(/not yet supported|not supported/);
+  expect(load(source).value).toMatchObject({ kind: "unsupported", message: expect.stringContaining("custom listener apply") });
 });
 
 test("multiple ordinary listeners use direct invocation even when a callback has its own apply override", () => {

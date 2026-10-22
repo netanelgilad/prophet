@@ -7,7 +7,7 @@ import { createError } from "../error/Error";
 import { bindNormal } from "../evaluate";
 import { TExecutionContext } from "../execution-context/ExecutionContext";
 import { BranchResult, evaluateBranches } from "../execution-context/branches";
-import { UnsupportedAnalysisError } from "../execution-context/analysis-failure";
+import { captureExecutionBoundary, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 import { getArrayElements, getProperties, writeProperty } from "../execution-context/Heap";
 import { isESFunction } from "../Function/Function";
 import { getFunctionPrototype } from "../Function/prototype";
@@ -146,7 +146,9 @@ export function createEventEmitterModel() {
         const functionObject = resolveBoolean(only.once as TESBoolean, branch.value.knowledge)
           ? getFunctionPrototype() : only.listener;
         if (resolveBoolean(hasProperty(functionObject, "apply", branch), branch.value.knowledge) !== false) {
-          return unsupported("custom listener apply dispatch");
+          return captureExecutionBoundary(branch, () => {
+            throw new UnsupportedAnalysisError("EventEmitter analysis is not yet supported: custom listener apply dispatch");
+          });
         }
       }
       const visit = (index: number, current: TExecutionContext): BranchResult => {

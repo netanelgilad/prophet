@@ -391,3 +391,31 @@ for(const cutoff of ['throw','boundary'])test(`unchanged helper caller ${cutoff}
   }
   expect(calls(events,'net.socket.readStart')).toHaveLength(0);
 });
+
+test("second selected arrival completes unchanged checkGrowl shutdown while reads and timer remain pending",()=>{
+ const {roots,target}=cli(`var check=require('node-notifier/lib/checkGrowl');
+ check({host:'127.0.0.1',port:23053},function(error,available){
+ if(error!==null||available!==true)throw 'callback arguments';console.log('availability callback');
+ });console.log('helper returned');`,2,2);
+ const all=paths(roots),completed=all.filter(path=>(getProperties(socketOf(path.events),path.context).writableFinished as any).value===true);
+ expect(completed).toHaveLength(1);
+ const waiting=all.filter(path=>calls(path.events,'net.socket.end').length===1&&(getProperties(socketOf(path.events),path.context).writableFinished as any).value===false);
+ expect(waiting).toHaveLength(1);
+ const path=completed[0],socket=socketOf(path.events),filename=join(target,'lib/checkGrowl.js');
+ expect(isExecutionBoundary(path.completion)).toBe(false);
+ expect(messages(path.events)).toEqual(['helper returned','availability callback']);
+ expect(roots.program.sources.get(filename)).toEqual({sha256:sourceHash,byteLength:536});
+ expect(roots.program.sources.get(join(target,'package.json'))).toEqual({sha256:manifestHash,byteLength:1954});
+ expect(getProperties(socket.hostSlots['node.net.shutdown'],path.context)).toMatchObject({pending:{value:false}});
+ expect(getProperties(socket.hostSlots['node.stream.writable'],path.context)).toMatchObject({finalPending:{value:false},prefinished:{value:true},finished:{value:true}});
+ expect(getProperties(socket.hostSlots['node.net.read'],path.context)).toMatchObject({handleReading:{value:true},pending:{value:true}});
+ expect(getProperties(socket.hostSlots['node.stream.readable'],path.context)).toMatchObject({reading:{value:true},ended:{value:false},endEmitted:{value:false}});
+ const end=calls(path.events,'net.socket.end')[0],beforeEnd={value:{...path.context.value,heap:end.heap}};
+ const timer=getProperties(socket.hostSlots['node.net.timeout'],path.context).arm;
+ expect(getProperties(socket.hostSlots['node.net.timeout'],beforeEnd).arm).toBe(timer);
+ expect(getProperties(timer as any,path.context)).toMatchObject({active:{value:true},delay:{value:100}});
+ expect(end.call.origin.sourceFile).toBe(filename);
+ expect(calls(path.events,'console.log')[1].call.origin.activation.parent).toBe(end.call.origin.activation);
+ expect(path.context.value.activation).toBeUndefined();
+ expect(getProperties(path.context.value.global.hostSlots.externalEvents,path.context).active).toMatchObject({type:'undefined'});
+});

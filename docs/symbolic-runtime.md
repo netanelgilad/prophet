@@ -178,7 +178,8 @@ queue does not imply the whole process finished or that future request handlers
 were explored. The [queue boundary](jobs.md) remains distinct from a general
 scheduler or process recovery. Optional [bounded event exploration](external-events.md)
 follows this checkpoint with `--max-events 1` or `2`; zero remains the default.
-The current provider set includes parsed HTTP requests and admitted TCP completion
+The current provider set includes parsed HTTP requests, pending shutdown callbacks
+and admitted TCP completion
 prefixes under one shared horizon. Unsupported callback/read transitions retain
 an active delivery; retained timers have no expiration provider. Supported jobs
 drain between normal arrivals and after the final one.

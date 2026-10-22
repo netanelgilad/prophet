@@ -63,3 +63,5 @@ until review is recorded; a model-generated article is not independent evidence.
 - [Pending shutdown](pending-shutdown.md): derive local admission from runtime state and keep future OS results distinct.
 
 - [Normal callback prefixes and pending input](pending-read.md): preserve symbolic histories when a previous boundary becomes normal.
+
+- [Shutdown arrival and writable finalization](shutdown-finalization.md): ignored native status, synchronous prefinish and queued finish ordering.

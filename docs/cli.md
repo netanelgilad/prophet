@@ -74,8 +74,10 @@ The [net model](node-net.md) retains pending IPv4 connection startup, deferred
 submission and pre-initiation cancellation with unresolved resource outcomes.
 The shared `--max-events` horizon now also selects TCP completion prefixes: it
 retains failure/partial-flag frontiers and invokes actual connect/ready callbacks
-on full-duplex success, stopping before unmodeled read(0) unless a callback stops
-earlier. Timer expiration and close remain future behavior. An admitted pending
+on full-duplex success, then registering fresh input unless a callback stops
+earlier. P043 additionally selects pending empty-shutdown callbacks and runs
+writable prefinish/queued finish; this does not assert syscall success. Timer
+expiration, data/EOF and close remain future behavior. An admitted pending
 submission is distinct from completion; waiting does not establish either outcome.
 
 HTTPS and querystring retain opaque object exports: imports and aliases work,
@@ -113,8 +115,8 @@ event loop. By default request handlers remain registered. `--max-events 1`
 adds [one optional symbolic incoming event](external-events.md) after normal
 startup; `--max-events 2` retains histories through a second arrival, including
 zero/one-arrival waiting alternatives. Only 0, 1 and 2 are currently accepted.
-Every step selects among current eligible HTTP servers, pending TCP completions
-or waiting, under one shared horizon. TCP completion facts are fresh only on
+Every step selects among current eligible HTTP servers, pending TCP completions,
+pending socket shutdown callbacks or waiting, under one shared horizon. TCP completion facts are fresh only on
 selection. Success/readable/writable are independent unknown Booleans by default,
 a conservative callback-input domain rather than observed OS combinations. Normally
 completed arrivals drain supported nextTick work before another arrival, even
