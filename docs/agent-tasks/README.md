@@ -10,7 +10,8 @@ has run. Review depth changes require a recorded decision, not a growing test co
 [P047](P047-adversarial-proofs/task.md) follows the user-approved sorting,
 aliased-transfer and unknown-length classification examples. Correct flags prove
 false; broken controls remain nonconstant or explicitly unfinished. Independent
-solver review accepted in scope; full validation/publication pending.
+solver review accepted in scope; 214 suites/6058 passes/46 historical skips and
+typecheck passed on frozen source. Exact-candidate CI/publication pending.
 See [proof domains](../adversarial-proofs.md) and [review](P047-adversarial-proofs/review.md).
 
 ## URI decoding — P046
@@ -18,7 +19,7 @@ See [proof domains](../adversarial-proofs.md) and [review](P047-adversarial-proo
 [P046](P046-decode-uri/task.md) implements shared bounded decodeURI through
 unchanged sirv encoded paths. Spec-first red evidence retained; scoped conversion
 and shared intrinsic corrections accepted at f581992.210 suites/6003 passes/46
-skips/typecheck0; exact-candidate CI/publication pending. [Evidence](P046-decode-uri/evidence.json).
+skips/typecheck0; published at 98e3a90 with exact-candidate CI success. [Evidence](P046-decode-uri/evidence.json).
 
 ## Continued package API coverage — P045
 

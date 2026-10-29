@@ -42,3 +42,7 @@ Final independent rerun on frozen production:55 tests across all four adversaria
 suites passed. Reviewer accepted the final256-binding/4-candidate early caps and
 all changed source. Full validation/evidence follows; exact source hashes and
 commands are recorded in evidence.json.
+
+Frozen implementation 7115ffc: full suite214/6058 passes/46 historical skips,
+typecheck exit0. Source/test hashes unchanged across validation. Four guard scans
+and complete unchanged upstream skip inventory are bound in evidence.json.

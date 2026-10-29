@@ -2067,3 +2067,7 @@ may stop, never count as a concrete false proof. TEST-002 remains519 active whol
 files/1029 variants,43 parse-negative/85 variants and46 historical skips; no new
 syntax/host semantics or new selected upstream files in this reasoning increment.
 All residuals above remain open; focused successes are not universal coverage.
+
+P047 final local validation:214 suites/6058 passes/46 historical skips and
+typecheck0, frozen source hashes unchanged. Four scans and complete skip inventory
+are recorded in [evidence](agent-tasks/P047-adversarial-proofs/evidence.json).
