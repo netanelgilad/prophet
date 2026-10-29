@@ -1,0 +1,190 @@
+{
+  "implementation": "aebb9f7cba244e3dd5e07b45b418cbb8525fcd1b",
+  "base": "44af2111ef71de35feae08c866c3265969579391",
+  "runtime": "v24.21.0",
+  "validation": {
+    "results": [
+      {
+        "name": "full-suite",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 206.51,
+        "log": "/tmp/prophet-p050/full-suite.log",
+        "sha256": "13cb9f0c36931427f9d4bf03a1d115ed2c518cc3365c9f0298c7679b7fb062c0"
+      },
+      {
+        "name": "typecheck",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 2.95,
+        "log": "/tmp/prophet-p050/typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "hashesUnchanged": true,
+    "suites": 228,
+    "passed": 6281,
+    "historicalSkips": 46
+  },
+  "reviewedHashes": {
+    "src/ASTResolvers.ts": "69cc1429f76323929e2b2ab3d11e8250d5434489666c01ee9e39fa89881319f1",
+    "src/array/joined-write.ts": "6ca158bdfdd5fd7ffe8109924f82628e3eac8bdb56b9d296faf9d4f6cf38c111",
+    "src/execution-context/Heap.ts": "6cc897578516a6269c075dc17260577d2faf7bc7c565fa01b54eb0fc8f33f586",
+    "test/adversarial-p049-review.spec.ts": "659de7e293945d499c60d94bc03e0d01108d2d6d89b3dc56a50220d6fa8a85a6",
+    "test/conditional-member-keys.spec.ts": "12ec7108289dcfc6997e4c4f33bd88d1e00d34686fb11df8380a169ca417a694",
+    "test/joined-array-writes-review.spec.ts": "06564b25089c086f0c1da951e5dbc033d886656ae288ecfdd6e7153b28c03365",
+    "test/joined-array-writes.spec.ts": "c0ecc8e61a9aa51b066aeb5fa90da30a3d72e027930598a10d7969705b2663f7",
+    "test/test262.spec.ts": "7483cd4f2fb26c020d2524eb4b4241189d5d9f8534a37bf636fe2a2d44149be5",
+    "test/test262/README.md": "6e55a7a1157a8e21b5c027b9d7b5d2d8ecb4b3f742ecdc681f4d941d2b9f9083"
+  },
+  "audit": [
+    {
+      "name": "guards",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 909,
+      "sha256": "27c7f2c8b1a267f8d93d07f82351ed65cca10ef8235ae4d428d467b0761539e3",
+      "log": "/tmp/prophet-p050/audit-guards.log"
+    },
+    {
+      "name": "assertions",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 22,
+      "sha256": "c959d0efc6e33dbdb689147049dc53a7fcc6f674afad79e542cb2b0223b5ebff",
+      "log": "/tmp/prophet-p050/audit-assertions.log"
+    },
+    {
+      "name": "skips",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 1,
+      "sha256": "d216022531da2671e195e43729f9ac516f7313ba95f94f437fee25dc20b54fab",
+      "log": "/tmp/prophet-p050/audit-skips.log"
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "exitCode": 0,
+      "lines": 2999,
+      "sha256": "7b863e44a835c344b2c90c8e91b1acdd4c7fb55eba3556e46bde824cef0b362c",
+      "log": "/tmp/prophet-p050/audit-boundaries.log"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/tmp/prophet-p050/red.log",
+      "sha256": "d394ad8a764a4947c14931878437d41235909a897e8c47f070d9d08498e5a6ef"
+    },
+    {
+      "path": "/tmp/prophet-p050/upstream.log",
+      "sha256": "d9904d0fc77ffd5abe19eff949db187aae34c2afe35dba48f719d25f8a399926"
+    },
+    {
+      "path": "/tmp/p050-review-holdout.log",
+      "sha256": "589f5d7cc71b0687f501cc17e8e99bda370356bcb38525bedd4feb7714facf37"
+    }
+  ],
+  "test262": {
+    "before": {
+      "activeFiles": 525,
+      "variants": 1041
+    },
+    "activeFiles": 527,
+    "variants": 1045,
+    "parseFiles": 43,
+    "parseVariants": 85,
+    "historic": [
+      "built-ins/Boolean/S15.6.1.1_A1_T1.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T2.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T3.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T4.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T5.js",
+      "built-ins/Boolean/S15.6.1.1_A2.js",
+      "built-ins/Boolean/S15.6.2.1_A1.js",
+      "language/statements/if/if-async-fun-else-async-fun.js",
+      "language/statements/if/if-async-fun-else-stmt.js",
+      "language/statements/if/if-async-fun-no-else.js",
+      "language/statements/if/if-async-gen-else-async-gen.js",
+      "language/statements/if/if-async-gen-else-stmt.js",
+      "language/statements/if/if-async-gen-no-else.js",
+      "language/statements/if/if-cls-else-cls.js",
+      "language/statements/if/if-cls-else-stmt.js",
+      "language/statements/if/if-cls-no-else.js",
+      "language/statements/if/if-const-else-const.js",
+      "language/statements/if/if-decl-else-decl-strict.js",
+      "language/statements/if/if-decl-else-stmt-strict.js",
+      "language/statements/if/if-decl-no-else-strict.js",
+      "language/statements/if/if-fun-else-fun-strict.js",
+      "language/statements/if/if-fun-else-stmt-strict.js",
+      "language/statements/if/if-fun-no-else-strict.js",
+      "language/statements/if/if-gen-else-gen.js",
+      "language/statements/if/if-gen-else-stmt.js",
+      "language/statements/if/if-gen-no-else.js",
+      "language/statements/if/if-let-else-let.js",
+      "language/statements/if/if-let-else-stmt.js",
+      "language/statements/if/if-let-no-else.js",
+      "language/statements/if/if-stmt-else-async-fun.js",
+      "language/statements/if/if-stmt-else-async-gen.js",
+      "language/statements/if/if-stmt-else-cls.js",
+      "language/statements/if/if-stmt-else-const.js",
+      "language/statements/if/if-stmt-else-decl-strict.js",
+      "language/statements/if/if-stmt-else-fun-strict.js",
+      "language/statements/if/if-stmt-else-gen.js",
+      "language/statements/if/if-stmt-else-let.js",
+      "language/statements/if/labelled-fn-stmt-first.js",
+      "language/statements/if/labelled-fn-stmt-lone.js",
+      "language/statements/if/labelled-fn-stmt-second.js",
+      "language/statements/if/let-array-with-newline.js",
+      "language/statements/if/let-block-with-newline.js",
+      "language/statements/if/let-identifier-with-newline.js",
+      "language/types/boolean/S8.3_A1_T1.js",
+      "language/types/boolean/S8.3_A1_T2.js",
+      "language/types/boolean/S8.3_A3.js"
+    ],
+    "skipsUnchanged": true,
+    "addedFiles": [
+      "built-ins/Array/S15.4.5.2_A3_T1.js",
+      "built-ins/Array/S15.4.5.2_A2_T1.js"
+    ]
+  },
+  "review": "Independent full cumulative source review; see review.md and independent review artifacts. Exact-candidate CI follows this evidence-only commit."
+}

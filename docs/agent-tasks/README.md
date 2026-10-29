@@ -9,7 +9,9 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 [P050](P050-joined-array-writes/task.md) removes the post-join write restriction
 using persistent properties/presence rather than enumerated element vectors.
-Independent review and final validation are pending. Unknown-length sequence
+Independent review passed98 tests; frozen source aebb9f7 passed228 suites/6281
+tests plus typecheck with46 historical skips unchanged. Exact-head CI precedes
+publication. Unknown-length sequence
 mutation and vector-dependent methods remain separate gaps.
 
 ## Adversarial mutable state — P049
