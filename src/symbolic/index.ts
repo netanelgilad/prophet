@@ -674,7 +674,15 @@ function tryResolveChoiceEquality(selected: Any, candidate: Any, knowledge: Know
   }
 }
 
+// Constructing facts uses the direct reasoner. Starting a new disjunctive
+// query from inside that construction recursively spends work on assumptions
+// instead of the caller's proof; ordinary queries may refine afterward.
+let assumptionDepth=0;
 export function assume(knowledge: Knowledge, condition: TESBoolean, truth: boolean): Knowledge {
+  assumptionDepth++;
+  try {return assumeDirect(knowledge,condition,truth);} finally {assumptionDepth--;}
+}
+function assumeDirect(knowledge: Knowledge, condition: TESBoolean, truth: boolean): Knowledge {
   let facts: Knowledge = knowledge.concat({ kind: "truth", condition, truth });
   const expression = condition.expression;
   if (!expression) return facts;
@@ -903,8 +911,12 @@ function resolveBooleanDirect(condition: TESBoolean, knowledge: Knowledge): bool
 // facts alone lose that relation. Prove a query on every feasible leaf of one
 // bounded remembered selection; unknown leaves never count as a proof.
 let priorSelectionDepth = 0;
+// Share the extra-inference budget across one complete Boolean resolution,
+// including all recursively visited alternatives and operands.
+let booleanResolutionDepth = 0;
+let remainingPriorWork = 128;
 function resolveFromSelectionPrior(query: TESBoolean, knowledge: Knowledge): boolean | undefined {
-  if (priorSelectionDepth || knowledge.length > 128) return undefined;
+  if (priorSelectionDepth || assumptionDepth || knowledge.length > 128 || remainingPriorWork<=0) return undefined;
   const priors = knowledge.filter((f): f is Extract<Fact,{kind:"truth"}> =>
     f.kind === "truth" && !!f.condition.expression && f.condition.expression.kind === "select");
   if (!priors.length || priors.length > 4) return undefined;
@@ -918,7 +930,7 @@ function resolveFromSelectionPrior(query: TESBoolean, knowledge: Knowledge): boo
       let declined=false;
       const visit=(value: TESBoolean,facts:Knowledge,depth:number): void => {
         if (declined) return;
-        if (++work>128 || depth>8 || facts.length>512) {declined=true;return;}
+        if (++work>128 || --remainingPriorWork<0 || depth>8 || facts.length>512) {declined=true;return;}
         const expression=value.expression;
         if (expression && expression.kind === "select") {
           if (!isESBoolean(expression.consequent) || !isESBoolean(expression.alternate)) {declined=true;return;}
@@ -928,7 +940,7 @@ function resolveFromSelectionPrior(query: TESBoolean, knowledge: Knowledge): boo
           const splitGuard=(guard:TESBoolean,branchFacts:Knowledge,guardDepth:number,
             next:(truth:boolean,ready:Knowledge)=>void):void=>{
             if (declined) return;
-            if (++work>128 || guardDepth>8 || branchFacts.length>512) {declined=true;return;}
+            if (++work>128 || --remainingPriorWork<0 || guardDepth>8 || branchFacts.length>512) {declined=true;return;}
             const known=resolveBooleanDirect(guard,branchFacts);
             const selected=guard.expression;
             if (selected && selected.kind === "select" &&
@@ -937,7 +949,14 @@ function resolveFromSelectionPrior(query: TESBoolean, knowledge: Knowledge): boo
               // Enumerate its compatible paths before continuing the prior.
               splitGuard(selected.condition,branchFacts,guardDepth+1,(truth,ready)=>
                 splitGuard((truth?selected.consequent:selected.alternate) as TESBoolean,ready,guardDepth+1,
-                  (result,leaf)=>{if(known===undefined || result===known) next(result,assume(leaf,guard,result));}));
+                  (result,leaf)=>{
+                    if(known===undefined || result===known) {
+                      // The enumerated selector and leaf already establish this
+                      // Boolean result. Re-assuming the whole selection repeats
+                      // its disjunction expansion and shared-fact intersections.
+                      next(result,leaf.concat({kind:"truth",condition:guard,truth:result}));
+                    }
+                  }));
               return;
             }
             if (known !== undefined) {next(known,assume(branchFacts,guard,known));return;}
@@ -949,7 +968,14 @@ function resolveFromSelectionPrior(query: TESBoolean, knowledge: Knowledge): boo
         }
         const leaf=resolveBooleanDirect(value,facts);
         if (leaf !== undefined && leaf !== prior.truth) return;
-        answers.push(resolveBooleanDirect(query,assume(facts,value,prior.truth)));
+        const answer=resolveBooleanDirect(query,assume(facts,value,prior.truth));
+        // One unresolved or disagreeing compatible leaf disqualifies this
+        // prior. Continuing its other paths cannot turn it into a proof.
+        if (answer === undefined || answers.length && answer !== answers[0]) {
+          declined=true;
+          return;
+        }
+        answers.push(answer);
       };
       visit(prior.condition,base,0);
       if (!declined && answers.length && answers[0] !== undefined &&
@@ -961,8 +987,11 @@ function resolveFromSelectionPrior(query: TESBoolean, knowledge: Knowledge): boo
 }
 
 export function resolveBoolean(condition: TESBoolean, knowledge: Knowledge = []): boolean | undefined {
-  const direct=resolveBooleanDirect(condition,knowledge);
-  return direct === undefined ? resolveFromSelectionPrior(condition,knowledge) : direct;
+  if (booleanResolutionDepth++===0) remainingPriorWork=128;
+  try {
+    const direct=resolveBooleanDirect(condition,knowledge);
+    return direct === undefined ? resolveFromSelectionPrior(condition,knowledge) : direct;
+  } finally {booleanResolutionDepth--; }
 }
 
 export function negate(condition: TESBoolean, knowledge: Knowledge = []): TESBoolean {

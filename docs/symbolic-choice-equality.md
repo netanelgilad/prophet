@@ -111,7 +111,10 @@ Finite-choice relation preflight is capped at64 nodes/depth8 and256 input facts;
 dispatch at256 visits/512 branch facts. Boolean same/complement tree checks use
 64 visits/depth8, with complement lookup limited to128 facts. Nonstrict-order
 strengthening admits256 collected facts. Prior inference admits128 input facts,
-four priors,128 shared traversal visits/depth8 and512 branch facts, and disables
-reentrant prior exploration. Unknown leaves, empty evidence and exhausted work
+four priors,128 traversal visits/depth8 and512 branch facts. The128-visit budget
+is shared across an entire outer Boolean-resolution call, including recursive
+queries. Prior inference is disabled during assumption construction and reentrant
+prior exploration; a fresh outer query resets its optional inference budget.
+An unknown or disagreeing compatible leaf declines that prior immediately. Unknown leaves, empty evidence and exhausted work
 cannot become proofs. This bounds added reasoning, not all inherited solver or
 merge work; no input value is rewritten and general satisfiability remains open.

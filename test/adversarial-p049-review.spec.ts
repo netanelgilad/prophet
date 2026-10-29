@@ -271,3 +271,25 @@ test('independent nested-guard review: selected condition retains all numeric al
  expect(completion).toBe(Undefined);expect(context.value.scope.proof).toMatchObject({value:true});
  expect((context.value.scope.unjustified as TESBoolean).value).toBeUndefined();
 });
+function priorDependentProof():boolean|undefined {
+ const guard=ESBoolean(),a=ESNumber(),b=ESNumber();
+ const prior=booleanChoice(guard,compareNumbers(a,ESNumber(0),'<'),compareNumbers(b,ESNumber(0),'<'));
+ const query=booleanChoice(guard,compareNumbers(a,ESNumber(1),'<'),compareNumbers(b,ESNumber(1),'<'));
+ return resolveBoolean(query,[{kind:'truth',condition:prior,truth:true}]);
+}
+test('independent inference lifetime review: exhausted optional proof leaves the next query independent',()=>{
+ expect(priorDependentProof()).toBe(true);
+ const a=ESNumber();const leaf=compareNumbers(a,ESNumber(0),'<');
+ function tree(depth:number):TESBoolean{return depth===0?leaf:booleanChoice(ESBoolean(),tree(depth-1),tree(depth-1));}
+ const prior=tree(7);
+ expect(resolveBoolean(compareNumbers(a,ESNumber(1),'<'),[{kind:'truth',condition:prior,truth:true}])).toBeUndefined();
+ expect(priorDependentProof()).toBe(true);
+});
+test('independent inference lifetime review: assumption and resolution depth recover after exceptions',()=>{
+ const malformed=ESBoolean();
+ Object.defineProperty(malformed,'expression',{get(){throw new Error('review-only metadata failure');}});
+ expect(()=>assume([],malformed,true)).toThrow('review-only metadata failure');
+ expect(priorDependentProof()).toBe(true);
+ expect(()=>resolveBoolean(malformed,[])).toThrow('review-only metadata failure');
+ expect(priorDependentProof()).toBe(true);
+});

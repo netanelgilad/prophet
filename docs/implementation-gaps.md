@@ -2148,3 +2148,17 @@ TEST-002: six whole Math.floor A1..A6 files add12 variants (525 active files/104
 variants); the current complete inventory confirms43 parse-negative files/85
 variants and46 unchanged historical skips. Reverify after final source freeze. A7
 requires ceil; length/name/prop-desc candidates retain metadata/descriptor gaps.
+
+P049 residual precision: a smaller selected-guard absence implication remains
+unknown despite the full fixed-length binary-search proof passing. The exact
+[program and domain](agent-tasks/P049-adversarial-state/remaining-precision.md)
+record this representation-sensitive SYM-001 boundary; it is not a mandatory
+unknown semantic result or evidence of a counterexample.
+
+P049 SYM-004 performance correction: optional prior exploration shares128 visits
+across one outer Boolean resolution rather than restarting for every recursive
+query, and is disabled while constructing assumptions. Already established guard
+facts need no repeated disjunction merge; unknown/disagreeing leaves decline
+early. This is a precision budget, not a restricted input domain or a global
+bound on inherited direct solving. Timing regressions and interrupted runs are
+recorded in the task review; all three proof contracts must survive the correction.
