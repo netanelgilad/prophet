@@ -1977,3 +1977,25 @@ passed. Active Test262494 files/979 variants includes10 new files/20 variants;
 43 parse-negative files/85 variants and the full historical46-file inventory
 remain unchanged. Four documented scans were reconciled against93145f9; all
 new guards map to the residual IDs above. No broad gap is closed.
+
+
+## P045 reconciliation — ignoreCase and startsWith
+
+REGEXP-001 now admits i-only matching for ASCII input and decoded pattern atoms,
+with equivalence applied before set negation. Non-ASCII literal/escaped atoms,
+any non-ASCII input, combined/other flags, open strings, exec/captures and earlier
+syntax exclusions remain open. Existing length/state/work limits precede ASCII
+scan/preparation; scan work is capped by input length but not separately charged.
+STRING-001/LIB-001 now include bounded UTF-16 startsWith and ordered conversion.
+Open/chunk operands, unknown positions, exotic array/function conversion, custom
+toPrimitive, partial/cyclic symbol graphs and >65536 units remain boundaries.
+LEGACY-002 retains older includes symbol lookup assumptions: startsWith has a
+scoped corrected helper; this is not a repository-wide symbol-model repair.
+SYM-004 retains branch/coercion-volume limits; REPORT-001 retains resumption.
+TARGET-002 advances unchanged sirv Brotli precedence/fallback and dev filesystem
+selection. Tests declare successful stream delivery and text-safe bytes; broader
+failures/events, arbitrary binary/codec behavior and transport remain FS-002,
+BUFFER-002 and HTTP gaps. No policy/security CLI was introduced.
+TEST-002 adds13 complete startsWith files/26 variants; no admissible full /i case
+was found among reviewed exec/capture/global candidates, retained in regexp docs.
+Historical46 skipped files and parse-negative inventory remain open/unchanged.

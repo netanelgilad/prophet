@@ -767,7 +767,7 @@ one. A stateful `/arm` then `/fire` spec now reaches the second-request failure;
 its one-event domain cannot fabricate the prior arming request. This is a bounded
 history result, not a general callback summary or proof over arbitrary timelines.
 
-Current continuation plan: [next work after P044](next-work.md).
+Current continuation plan: [next work after P045](next-work.md).
 
 
 ## 2026-10-29 owner priority: broader unchanged-package coverage
@@ -780,3 +780,11 @@ further increments from reached package execution or concrete semantic defects.
 This does not change the agnostic runtime/state contract or establish entire
 Node/npm coverage. Brotli dispatch, percent-encoded paths, dev filesystem mode
 and broader syntax remain useful future target paths with explicit boundaries.
+
+
+P045 extends the unchanged sirv target through bounded ASCII /i matching and
+String.startsWith: Brotli precedence/fallback and declared development filesystem
+paths complete with pinned Node references. Non-ASCII case folding, codec/binary
+fidelity and wider failures remain explicit. Next concrete API target: decodeURI
+for percent-encoded request paths; custom-ignore RegExp construction is another
+reached path. Continue generic VM support; security CLI remains deferred.

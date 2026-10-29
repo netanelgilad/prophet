@@ -115,9 +115,13 @@ separate work alongside loops.
 The unchanged factory's `extensions.map` now completes for gzip, Brotli or both,
 preserving original extensions, distinct derived arrays and filesystem-failure
 siblings. Tests compare gzip-enabled missing-file and ordinary GET paths against
-pinned Node; source acquisition retains exact published package bytes. Brotli
-request dispatch still reaches `/(br|brotli)/i` even without accept-encoding;
-case-insensitive RegExp semantics are not established by factory completion.
+pinned Node; source acquisition retains exact published package bytes. P045 now executes the actual `/(br|brotli)/i` with ASCII inputs, selecting
+Brotli before gzip and preserving fallback/ordinary-file behavior. Non-ASCII /i
+inputs remain explicit stops. [Brotli specs](../test/sirv-brotli.spec.ts) compare
+selected text-safe bytes/headers with pinned Node. Development mode now executes
+shared startsWith, filesystem lookup and streaming for the
+[declared scenarios](../test/sirv-dev.spec.ts), including missing-file and
+outside-site fallback. These cases do not prove containment for arbitrary paths.
 Shared bounded unshift now completes gzip candidate ordering. The actual handler
 selects an existing .gz file with Content-Encoding:gzip, falls back to the original
 when absent, and keeps the original when gzip is not accepted. Pinned Node

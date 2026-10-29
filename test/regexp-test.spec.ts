@@ -91,7 +91,7 @@ test("open numeric lastIndex is coerced but need not be concretized without g/y"
 });
 
 for (const expression of [
-  '/a/g.test("a")', '/a/y.test("a")', '/a/i.test("a")', '/a/m.test("a")', '/a/s.test("a")', '/a/u.test("a")',
+  '/a/g.test("a")', '/a/y.test("a")', '/a/mi.test("a")', '/a/m.test("a")', '/a/s.test("a")', '/a/u.test("a")',
   '/(?=a)a/.test("a")', '/a|(?=b)/.test("a")', '/(a)\\1/.test("aa")', '/\\bword/.test("word")', '/\\cA/.test("a")', '/\\q/.test("q")',
   '/a/.test(open)', '/a/.test.call({exec() { return {}; }}, "a")',
   'r.exec = function() {}', 'r.test = function() {}'

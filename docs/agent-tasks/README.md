@@ -5,6 +5,13 @@ independent review and integration. Keep actual thread IDs, model invocation,
 base/tested/published commits and archive status here; do not imply a queued task
 has run. Review depth changes require a recorded decision, not a growing test count.
 
+## Continued package API coverage — P045
+
+[P045](P045-package-apis/task.md) implements bounded RegExp ignoreCase and
+String.startsWith for unchanged sirv Brotli and development-mode paths. Independent
+review accepted; full validation/publication pending. Prior P044 is published at
+0f5060b after CI40901033465; [publication](P044-array-map/publication.json).
+
 ## Real-package coverage resumed — 2026-10-29
 
 [P044: shared Array.prototype.map](P044-array-map/task.md) is implemented at93145f9 against bcb4b14. Codex owns implementation, independent package controls and

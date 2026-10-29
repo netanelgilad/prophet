@@ -62,10 +62,10 @@ function test(receiver: Any, args: Any[], context: TExecutionContext): BranchRes
         bindNormal(withoutCustomPrimitive(lastIndex, afterRead, toNumber), (_number, afterIndex) => {
           // ToLength's pure clamp is unobservable here: with neither g nor y,
           // BuiltinExec replaces the local index with zero and never writes it.
-          if (value.regexpData.originalFlags !== "") return regexpBoundary("flags (including global/sticky state)");
+          if (value.regexpData.originalFlags !== "" && value.regexpData.originalFlags !== "i") return regexpBoundary("flags (including global/sticky state)");
           return withValue(string, afterIndex, (input, after) => {
             if (typeof (input as TESString).value !== "string") return regexpBoundary("open symbolic input strings");
-            return [ESBoolean(matches(value.regexpData.originalSource, (input as TESString).value as string)), after];
+            return [ESBoolean(matches(value.regexpData.originalSource, (input as TESString).value as string, value.regexpData.originalFlags === "i")), after];
           });
         }));
     });

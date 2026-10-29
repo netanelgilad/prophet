@@ -25,6 +25,7 @@ import { stringToLowerCase } from "./toLowerCase";
 import { stringLastIndexOf } from "./lastIndexOf";
 import { stringCharCodeAt } from "./charCodeAt";
 import { stringIncludes } from "./includes";
+import { stringStartsWith } from "./startsWith";
 import { stringIndexOf } from "./indexOf";
 import { stringSubstring } from "./substring";
 import { stringNormalize } from "./normalize";
@@ -52,7 +53,7 @@ const deferredPrototypeNames = ["anchor", "at", "big", "blink", "bold", "charAt"
   "isWellFormed", "italics", "link",
   "localeCompare", "match", "matchAll", "padEnd", "padStart",
   "repeat", "replaceAll", "search", "small", "split", "strike",
-  "sub", "substr", "sup", "startsWith", "toWellFormed",
+  "sub", "substr", "sup", "toWellFormed",
   "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase",
   "toLocaleUpperCase", "toUpperCase"];
 export function getStringPrototype(): TESObject {
@@ -98,6 +99,14 @@ export function getStringPrototype(): TESObject {
       ...ESBuiltinFunction(stringIncludes),
       properties: { length: ESNumber(1), name: ESString("includes") },
       unknownProperties: "String.includes metadata",
+      modeledInheritedProperties: ["call", "prototype"],
+      unmodeledPropertyReads: ["caller", "arguments"],
+      unmodeledPropertyWrites: ["length", "name"]
+    });
+    prototype.properties.startsWith = markUnsupportedBoundaryObject({
+      ...ESBuiltinFunction(stringStartsWith),
+      properties: { length: ESNumber(1), name: ESString("startsWith") },
+      unknownProperties: "String.startsWith metadata",
       modeledInheritedProperties: ["call", "prototype"],
       unmodeledPropertyReads: ["caller", "arguments"],
       unmodeledPropertyWrites: ["length", "name"]

@@ -13,6 +13,21 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // P045: complete bounded generic startsWith cases.
+  "built-ins/String/prototype/startsWith/coerced-values-of-position.js",
+  "built-ins/String/prototype/startsWith/out-of-bounds-position.js",
+  "built-ins/String/prototype/startsWith/return-abrupt-from-position.js",
+  "built-ins/String/prototype/startsWith/return-abrupt-from-searchstring.js",
+  "built-ins/String/prototype/startsWith/return-abrupt-from-this.js",
+  "built-ins/String/prototype/startsWith/return-true-if-searchstring-is-empty.js",
+  "built-ins/String/prototype/startsWith/searchstring-found-with-position.js",
+  "built-ins/String/prototype/startsWith/searchstring-found-without-position.js",
+  "built-ins/String/prototype/startsWith/searchstring-not-found-with-position.js",
+  "built-ins/String/prototype/startsWith/searchstring-not-found-without-position.js",
+  "built-ins/String/prototype/startsWith/this-is-null-throws.js",
+  "built-ins/String/prototype/startsWith/this-is-undefined-throws.js",
+  "built-ins/String/prototype/startsWith/searchstring-is-regexp-throws.js",
+
   "built-ins/Array/prototype/unshift/S15.4.4.13_A1_T1.js",
   "built-ins/Array/prototype/map/15.4.4.19-1-1.js",
   "built-ins/Array/prototype/map/15.4.4.19-1-2.js",

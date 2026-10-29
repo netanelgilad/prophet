@@ -1,4 +1,4 @@
-# Next work after P044
+# Next work after P045
 
 ## Current checkpoint
 
@@ -15,13 +15,20 @@ The pending network events below remain roadmap work, not the only next path.
 
 ## Next package execution decision
 
-Scope case-insensitive RegExp.test from sirv's actual Brotli dispatch, including
-ASCII/non-ASCII case-fold boundaries and complete Test262 evidence. Alternatively
-follow dev-mode startsWith/filesystem paths or percent-encoded URL decoding when
-those are the chosen package scenario. Do not label gzip text-safe selection tests
-as binary compression support. Sparse unshift needs correct array deletion
-bookkeeping; implicit arguments, rest and other syntax remain open and should be
-prioritized when an unchanged package reaches them.
+P045 completes bounded ASCII RegExp.test ignoreCase for sirv Brotli selection
+and bounded generic String.startsWith for development filesystem lookup. Actual
+Brotli precedence/fallback and dev plain/gzip/missing/outside-site scenarios now
+pass pinned Node controls. Keep text-safe selection distinct from codec/binary
+or transport support; non-ASCII /i remains an explicit boundary.
+
+Next, follow percent-encoded request paths into the shared decodeURI gap, with
+valid UTF-8 sequences, malformed encodings, reserved characters and symbolic
+alternatives tested before implementation. A separate useful path is custom
+ignores reaching the RegExp constructor. Prioritize the next reached operation;
+do not rewrite package code. Full Unicode matching, sparse unshift deletion,
+implicit arguments/rest and other syntax remain open. The older includes helper
+retains its inherited Symbol.match limitation; startsWith's scoped correction
+is not a repository-wide repair.
 
 ## Pending network event decision
 

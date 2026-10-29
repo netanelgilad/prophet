@@ -1,0 +1,10 @@
+{
+  "published": "0f5060b69aa3941e262fa92054a7537cd45682a8",
+  "ci": {
+    "conclusion": "success",
+    "headSha": "0f5060b69aa3941e262fa92054a7537cd45682a8",
+    "status": "completed",
+    "url": "https://github.com/netanelgilad/prophet/actions/runs/40901033465"
+  },
+  "preservedOwnerFiles": 19
+}

@@ -30,7 +30,8 @@ bind Error. Explicit environment input and future-request exploration remain wor
 
 Shared bounded `Array.prototype.map` and `unshift` now advance unchanged sirv
 through gzip extension setup, compressed-file selection and fallback. Pinned Node
-references cover text-safe selected bytes and headers; Brotli case-insensitive
+references cover text-safe selected bytes and headers; P045 adds bounded ASCII RegExp ignoreCase and generic UTF-16 startsWith,
+advancing Brotli selection and development-mode file lookup. Full Unicode
 matching and broader binary/transport behavior remain gaps. See the
 [sirv target](docs/sirv-target.md) and [next work](docs/next-work.md).
 

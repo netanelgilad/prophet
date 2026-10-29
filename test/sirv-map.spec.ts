@@ -69,7 +69,7 @@ for (const options of [{ gzip: true }, { brotli: true }, { gzip: true, brotli: t
 
 // No sockets or lifecycle scripts: exercise real native factory and missing-file
 // dispatch with an interpreted application next callback. Compression matching
-// is deliberately absent; brotli still reaches its explicit RegExp /i boundary.
+// is deliberately absent; both options now reach the interpreted next callback.
 for (const brotli of [false, true]) test(`gzip-enabled sirv missing-file dispatch, brotli=${brotli}, has explicit coverage`, () => {
   assertPinnedNode();
   const source = `const handler = require('sirv')('./site', {gzip:true,brotli:${brotli}});
@@ -85,12 +85,6 @@ for (const brotli of [false, true]) test(`gzip-enabled sirv missing-file dispatc
   expect(child.stderr).toBe("");
   expect(JSON.parse(child.stdout)).toBe(1);
   const result = runFile({ script: "entry.cjs", args: [], maxSteps: 100000, runtime: "node@24.21.0" }, directory);
-  if (brotli) {
-    expect(result.status).toBe("analysis-stop");
-    expect(result.diagnostic).toBe("RegExp.test is not yet supported: flags (including global/sticky state)");
-    expect(hasExecutionBoundary(result.completion as Any)).toBe(true);
-    return;
-  }
   expect(result.diagnostic).toBeUndefined();
   expect(result.status).toBe("evaluated");
   expect(isForkedCompletion(result.completion)).toBe(true);

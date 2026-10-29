@@ -1,6 +1,6 @@
 import { ExecutionBudgetError, UnsupportedAnalysisError } from "../execution-context/analysis-failure";
 
-// Boolean, flagless UTF-16 matching only. No captures, backreferences or lookaround
+// Boolean UTF-16 matching without flags, or ASCII matching with i only. No captures, backreferences or lookaround
 // can observe path priority, so an epsilon NFA computes the same existence result
 // as ordered ECMAScript backtracking. It must NOT be reused for exec or g/y.
 // Bounds are checked before parsing/expansion/allocation; epsilon closure and
@@ -26,7 +26,11 @@ const whitespace: Range[] = [[9, 13], [32, 32], [160, 160], [5760, 5760],
 
 class Parser {
   private index = 0;
-  constructor(private source: string) {}
+  constructor(private source: string, private ignoreCase: boolean) {}
+  private character(code: number): SetPart {
+    if (this.ignoreCase && code > 127) return regexpBoundary("ignoreCase non-ASCII pattern characters");
+    return singleton(code);
+  }
   parse(): Node {
     const node = this.disjunction(0);
     if (this.index !== this.source.length) return regexpBoundary("pattern syntax");
@@ -106,12 +110,12 @@ class Parser {
       return { kind: "set", set: { parts, invert } };
     }
     if ("*+?{}]".includes(c)) return regexpBoundary("legacy or unsupported pattern syntax");
-    return { kind: "set", set: { parts: [c === "\\" ? this.escape(false) : singleton(c.charCodeAt(0))], invert: false } };
+    return { kind: "set", set: { parts: [c === "\\" ? this.escape(false) : this.character(c.charCodeAt(0))], invert: false } };
   }
   private classPart(): SetPart {
     const c = this.source[this.index++];
     if (c === undefined) return regexpBoundary("character-class syntax");
-    return c === "\\" ? this.escape(true) : singleton(c.charCodeAt(0));
+    return c === "\\" ? this.escape(true) : this.character(c.charCodeAt(0));
   }
   private escape(inClass: boolean): SetPart {
     const c = this.source[this.index++];
@@ -122,11 +126,11 @@ class Parser {
         ? [[48, 57], [65, 90], [95, 95], [97, 122]] : whitespace;
       return { ranges, invert: c !== kind };
     }
-    if ("^$\\.*+?()[]{}|/-".includes(c)) return singleton(c.charCodeAt(0));
+    if ("^$\\.*+?()[]{}|/-".includes(c)) return this.character(c.charCodeAt(0));
     const control: { [name: string]: number } = { f: 12, n: 10, r: 13, t: 9, v: 11 };
-    if (Object.prototype.hasOwnProperty.call(control, c)) return singleton(control[c]);
-    if (c === "b" && inClass) return singleton(8);
-    if (c === "0" && !digit(this.peek())) return singleton(0);
+    if (Object.prototype.hasOwnProperty.call(control, c)) return this.character(control[c]);
+    if (c === "b" && inClass) return this.character(8);
+    if (c === "0" && !digit(this.peek())) return this.character(0);
     if (c === "x" || c === "u") {
       let value = 0;
       for (let i = 0; i < (c === "x" ? 2 : 4); i++) {
@@ -135,7 +139,7 @@ class Parser {
         if (digitValue < 0) return regexpBoundary("hex escape syntax");
         value = value * 16 + digitValue;
       }
-      return singleton(value);
+      return this.character(value);
     }
     return regexpBoundary("backreferences, assertions, control or identity escapes");
   }
@@ -144,10 +148,15 @@ class Parser {
 type State = { kind: "accept" } | { kind: "split"; next: number; other: number } |
   { kind: "start" | "end"; next: number } | { kind: "set"; set: AtomSet; next: number };
 
-export function matches(source: string, input: string): boolean {
+export function matches(source: string, input: string, ignoreCase = false): boolean {
   if (source.length > limits.source) return budget("source length");
   if (input.length > limits.input) return budget("input length");
-  const tree = new Parser(source).parse();
+  // Caps precede every preparatory scan. Non-ASCII input remains an explicit
+  // boundary even where a particular pattern might not inspect that character.
+  if (ignoreCase) for (let i = 0; i < input.length; i++) {
+    if (input.charCodeAt(i) > 127) return regexpBoundary("ignoreCase non-ASCII input characters");
+  }
+  const tree = new Parser(source, ignoreCase).parse();
   let remaining = limits.work;
   const tick = () => { if (--remaining < 0) budget("work"); };
   const states: State[] = [];
@@ -201,10 +210,16 @@ export function matches(source: string, input: string): boolean {
       else if (state.kind === "end") { if (position === input.length) enqueue(state.next); }
       else if (state.kind === "set" && position < input.length) {
         const code = input.charCodeAt(position);
+        // For ASCII non-Unicode Canonicalize, a letter's equivalence class
+        // contains exactly its upper/lower forms. Test both against the ORIGINAL
+        // range before either part or whole-class complement. Folding endpoints
+        // would incorrectly erase punctuation from ranges such as [A-z].
+        const partner = !ignoreCase ? code : code >= 65 && code <= 90 ? code + 32 :
+          code >= 97 && code <= 122 ? code - 32 : code;
         let included = false;
         for (const part of state.set.parts) {
           let within = false;
-          for (const range of part.ranges) { tick(); if (code >= range[0] && code <= range[1]) { within = true; break; } }
+          for (const range of part.ranges) { tick(); if ((code >= range[0] && code <= range[1]) || (partner >= range[0] && partner <= range[1])) { within = true; break; } }
           if (within !== part.invert) { included = true; break; }
         }
         if (included !== state.set.invert) next.add(state.next);

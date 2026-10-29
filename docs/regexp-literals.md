@@ -126,7 +126,8 @@ lists ECMAScript whitespace/line terminators, including FEFF and excluding 180E.
 Astral characters are two units. Unknown escapes, decimal/octal references,
 word-boundary assertions, control-letter escapes, lookaround, named groups,
 Unicode properties and legacy malformed-brace/class-range forms stop explicitly.
-All flags, including g/y/i/m/s/u and parser-unadmitted d/v, remain outside matching.
+Only i is additionally admitted by the P045 domain below. Global/sticky, m/s/u,
+combined flags and parser-unadmitted d/v remain outside matching.
 
 The pattern is fully parsed before matching; an unsupported suffix cannot be
 hidden by an earlier successful alternative. A Thompson-style epsilon NFA tests
@@ -180,3 +181,32 @@ remain separate work. Local specs add exact native controls, an 816-case matrix,
 finite-choice proofs/unknowns, prefix/conversion state retention and size/depth/
 empty-expansion/state/work stress under an external timeout. Full Test262
 conformance and unbounded resource compatibility are not claimed.
+
+
+## Bounded ASCII ignoreCase (P045)
+
+Nonstateful i now uses the same NFA for admitted ASCII input and decoded
+literal/class atoms. Each ASCII letter is tested together with its opposite-case
+partner against original ranges, before per-part or whole-class complement.
+This preserves punctuation in [A-z], inverse escapes and negated classes; lowering
+raw regex source or range endpoints would not. Built-in whitespace and dot tables
+retain their complete existing code-unit sets, with only ASCII input admitted.
+Flagless UTF-16 behavior is unchanged. No native matcher or Unicode folding API
+is invoked. Literal/hex/Unicode escape atoms above127 stop even on unreachable
+alternatives; any non-ASCII input stops even when an earlier match could decide.
+These are explicit implementation boundaries, not restrictions on JavaScript.
+
+Input/source length caps precede the added ASCII scan; its linear work is bounded
+by4096 input units. Existing parser/compiler/state/range budgets remain. Required
+input and lastIndex conversions occur before admission, preserve effects and
+throws, and lastIndex is never updated. Finite choices retain correlations and
+unsupported siblings; open strings remain unknown/unsupported rather than false.
+
+[New specs](../test/regexp-ignorecase.spec.ts) include2304 pinned Node matrix
+comparisons and boundary/conversion/budget controls; [independent review](../test/package-apis-review.spec.ts)
+covers negation/ranges, prefixes, choices and unknowns. No complete new /i upstream
+file was activated: inspected prototype/test/S15.10.6.3_A1_T15 also needs public
+exec; S15.10.2.8_A5_T1 needs global exec; A3_T17 needs captures/exec and A3_T18 needs
+global replace/non-ASCII ranges. These remain whole/inactive; existing complete
+RegExp matching files still run. Full Unicode, u/v, stateful g/y, exec/captures,
+lookaround and other previously excluded syntax remain REGEXP-001 gaps.
