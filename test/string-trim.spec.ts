@@ -270,11 +270,11 @@ const deferredStringNames = ["anchor", "at", "big", "blink", "bold", "charAt",
   "codePointAt", "endsWith", "fontcolor", "fontsize", "fixed",
   "isWellFormed", "italics", "link", "localeCompare", "match", "matchAll",
   "padEnd", "padStart", "repeat", "replaceAll", "search", "small",
-  "split", "strike", "sub", "substr", "sup", "startsWith", "toWellFormed",
+  "split", "strike", "sub", "substr", "sup", "toWellFormed",
   "trimStart", "trimLeft", "trimEnd", "trimRight", "toLocaleLowerCase", "toLocaleUpperCase",
   "toUpperCase"];
 test("native pinned String prototype own-name inventory", () => {
-  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "toLowerCase", "charCodeAt", "includes", "indexOf", "lastIndexOf", "normalize", "replace", "substring", "valueOf"]).sort();
+  const names = deferredStringNames.concat(["length", "constructor", "concat", "slice", "toString", "trim", "toLowerCase", "charCodeAt", "includes", "indexOf", "lastIndexOf", "normalize", "replace", "startsWith", "substring", "valueOf"]).sort();
   withModuleFixture(`module.exports = Object.getOwnPropertyNames(String.prototype).sort().join("|") === ${JSON.stringify(names.join("|"))};`, file => {
     expect(nodeModuleObservation(file)).toEqual({kind: "return", value: {type: "boolean", value: true}});
   });
