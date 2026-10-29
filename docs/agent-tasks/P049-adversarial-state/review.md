@@ -111,3 +111,9 @@ status-key choices and all four Boolean assignments in pinned Node. Variable
 guards/equalities remain unknown and opaque numeric keys still reject. Both
 suites passed34 tests in0.929seconds; typecheck0. Root reviewed the complete
 spec diff. See boundary-review.json; no production source changed.
+
+Final frozen-source validation at f39fb04:226 suites/6238 tests passed,46
+unchanged historical skips, full-suite exit0 in201.836seconds; typecheck exit0.
+All tracked source/test hashes were unchanged throughout validation. Complete
+audit scans and Test262 inventory are recorded in evidence.json; the following
+commit changes documentation/evidence only. Exact-candidate CI precedes publication.

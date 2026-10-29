@@ -10,8 +10,9 @@ has run. Review depth changes require a recorded decision, not a growing test co
 [P049](P049-adversarial-state/task.md) implements bounded in-place compaction,
 binary search and competing-callback contracts. Shared conditional member keys,
 array-length dispatch and Math.floor extend the VM; search-related generic
-inference remains under semantic review. Full suite, typecheck, exact-candidate
-CI and publication are pending. See [declared domains](../adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state).
+inference passed independent semantic review. Frozen source f39fb04 passed226
+suites/6238 tests with46 unchanged historical skips; typecheck passed.
+Exact-candidate CI and publication follow the evidence commit. See [declared domains](../adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state).
 
 ## Harder adversarial proofs — P048
 
