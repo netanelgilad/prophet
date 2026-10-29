@@ -1,3 +1,5 @@
+import { floor } from "./floor";
+import { ESBuiltinFunction } from "../Function/Function";
 import { round } from "./round";
 import { FunctionImplementation } from "../types";
 import { randomNumber } from "../number/symbolic";
@@ -9,6 +11,7 @@ const random: FunctionImplementation = function*(_self, _args, execContext) {
 
 export const Math = {
   properties: {
+    floor: Object.assign(ESBuiltinFunction(floor), { unknownProperties: "Math.floor function API", modeledInheritedProperties: ["call"] }),
     random: {
       implementation: random
     },

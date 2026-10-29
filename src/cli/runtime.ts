@@ -91,6 +91,7 @@ export function runFile(options: RuntimeOptions, cwd: string): FileExecution {
   const http = createHTTPModel(events, { bind: symbolicTCPBind, nextTick, externalEvents,
     requestInput: environment && environment.requestInput });
   const math = Object.assign(ESObject({
+    floor: ESMath.properties.floor,
     random: Object.assign(ESBuiltinFunction(ESMath.properties.random.implementation), {
       unknownProperties: "Math.random function API", modeledInheritedProperties: ["call"]
     })

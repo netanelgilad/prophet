@@ -13,6 +13,13 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  "built-ins/Math/floor/S15.8.2.9_A1.js",
+  "built-ins/Math/floor/S15.8.2.9_A2.js",
+  "built-ins/Math/floor/S15.8.2.9_A3.js",
+  "built-ins/Math/floor/S15.8.2.9_A4.js",
+  "built-ins/Math/floor/S15.8.2.9_A5.js",
+  "built-ins/Math/floor/S15.8.2.9_A6.js",
+
   // P046: whole decodeURI reserved, malformed, conversion and metadata cases.
   "built-ins/decodeURI/S15.1.3.1_A1.1_T1.js",
   "built-ins/decodeURI/S15.1.3.1_A3_T1.js",

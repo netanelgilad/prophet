@@ -113,3 +113,66 @@ nonzero initializers, general recurrences and mutable arrays remain unsupported
 by this verifier. Existing AST96/choice-depth8/private-proof2400 and heap/environment
 caps apply; candidate bindings are bounded before scanning. Harmless local-object
 heap identity and ordinary fallback merge-work limits remain open.
+
+
+## P049: mutable sequences, search and callback state
+
+The three examples are implemented; final independent review and full validation
+are pending. The contracts are bounded deliberately; none establishes arbitrary-length mutable
+sequence induction or arbitrary Node event scheduling.
+
+| Example | Declared domain and proof | Broken control |
+| --- | --- | --- |
+| [In-place compaction](../test/adversarial-compaction.spec.ts) | Ordinary dense arrays at each fixed length0..4; independent arbitrary finite Numbers. Returned alias has exactly the original nonnegative survivors, in order, with exact length and removed tail; original slice snapshot is unchanged. | Advancing on rejection and duplicating the first value cannot establish exact survivors. |
+| [Binary search](../test/adversarial-binary-search.spec.ts) | Each fixed length0..4; sorted symbolic integers and target in[-1000000,1000000], duplicates allowed. A returned index matches; -1 implies absence. | Skipping a boundary element and omitting sortedness cannot establish the property. |
+| [Competing callbacks](../test/adversarial-settlement.spec.ts) | Explicit interpreted driver delivers0..3 events of success/timeout/cancel, including repeats; optional single synchronous reentry. Settlement occurs at most once, cleanup matches settlement, and first result remains fixed. | Flag-after-notification, omitted cancellation cleanup, and cleanup-after-throwing-notification retain violations. |
+
+Compaction checks every sign-mask implication in interpreted source, rather than
+sampling concrete values or reproducing a second filter implementation. Inputs
+remain symbolic. The fixed lengths are separate proofs; unknown-length immutable
+array summaries do not admit writes and are not used here. Native controls include
+empty arrays, duplicates, signed zeros and extreme finite values. The declared
+finite domain excludes NaN, whose inclusion would require a different predicate
+partition. Binary search uses ordinary `for` syntax; `while` is still unsupported.
+
+Conditional member references now split explicit finite choices of concrete
+string/number keys, preserving the evaluated receiver, key, RHS and method `this`.
+Conditional array lengths split before ordinary truncation. Dispatch preflights
+at most256 expanded nodes/depth16 and rejects cycles before invoking the branch
+continuation. This bounds dispatch work, not arbitrary continuation/merge work.
+Merged ordinary arrays retain exact own-key presence even when differing lengths
+lose a shared elements vector: absent reads still perform prototype lookup.
+Subsequent array mutation after that loss remains unsupported. Arbitrary opaque
+symbolic keys, general ToPropertyKey and invalid array-length guest errors remain
+separate gaps; an unsupported branch is never silently discarded.
+
+[Shared Math.floor](math-floor.md) rounds concrete Numbers after VM ToNumber,
+including finite alternatives and coercion effects/throws. Open symbolic rounding
+remains a typed boundary. The CLI exposes the same intrinsic.
+
+The new search-related inference is generic and under semantic review: finite
+choice comparison/equality trees preserve guards; established nonstrict order
+plus explicit disequality can strengthen an edge; bounded Boolean selection
+priors can prove a result only when every retained leaf agrees. Unknown leaves
+and exhausted budgets decline. These are neither source-pattern recognizers nor
+a complete satisfiability solver. Selected Boolean guards retain their compatible
+alternatives even when their result is known, so a guard's value does not erase
+the disjunction needed for a later proof. Numeric leaves may themselves remain
+symbolic: their ordinary comparison stays unknown unless separately established.
+
+Current local caps: finite-choice relation preflight64 nodes/depth8, at most256
+input facts,256 dispatch visits and512 branch facts. Boolean equivalence and
+complement checks use64 visits/depth8; complement lookup admits at most128 facts.
+Order-edge strengthening admits at most256 collected facts. Selection-prior
+inference admits at most128 input facts/four prior selections,128 shared traversal
+steps/depth8 and512 branch facts, with reentrant prior exploration disabled.
+These caps bound the added work, not the inherited solver or merge globally;
+ordinary comparison resolution runs before the bounded relation helper.
+Final evidence records the accepted source and validation after freeze.
+
+The callback fixture invokes actual interpreted closures and observes shared
+state. Its cleanup is a modeled counter action, not an operating-system resource
+close. A throwing notification is caught by the explicit driver so later events
+can be delivered. The pending no-event state remains possible. The240 concrete
+base histories independently checked in pinned Node supplement the symbolic
+contract; they do not establish unbounded scheduling or async host compatibility.

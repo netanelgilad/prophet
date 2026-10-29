@@ -441,3 +441,13 @@ Remaining descriptor/deletion/name cases, String.fromCharCode dependencies,
 decimalToHexString.js includes and exhaustive loops stay unselected; see
 [decoder boundary](../../docs/decode-uri.md). Local UTF8 matrices do not replace
 those upstream files or establish whole decodeURI conformance.
+
+
+P049 activates six whole Math.floor files, S15.8.2.9_A1.js through A6.js,
+adding12 strict/sloppy variants. Selection count is525 files/1041 variants with
+43 parse-negative files/85 variants. No source is trimmed or new skip added;
+full validation and the exact unchanged46-file skip inventory must be retained
+before publication. [The complete ten-file candidate inventory](../../docs/math-floor.md#complete-pinned-upstream-candidate-inventory)
+keeps A7 (ceil/2000-iteration loop), length/name metadata and descriptor helpers
+inactive whole. Conditional member choices and search-related symbolic inference
+have dedicated symbolic controls; they are not claims of new syntax conformance.

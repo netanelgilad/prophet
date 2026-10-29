@@ -5,13 +5,22 @@ independent review and integration. Keep actual thread IDs, model invocation,
 base/tested/published commits and archive status here; do not imply a queued task
 has run. Review depth changes require a recorded decision, not a growing test count.
 
+## Adversarial mutable state — P049
+
+[P049](P049-adversarial-state/task.md) implements bounded in-place compaction,
+binary search and competing-callback contracts. Shared conditional member keys,
+array-length dispatch and Math.floor extend the VM; search-related generic
+inference remains under semantic review. Full suite, typecheck, exact-candidate
+CI and publication are pending. See [declared domains](../adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state).
+
 ## Harder adversarial proofs — P048
 
 [P048](P048-adversarial-proofs/task.md) adds determinant preservation, exception
 rollback and three-way weighted partition examples. Shared polynomial and bounded
 integer-domain inference plus verified weighted induction passed independent
 full semantic review. Frozen source:218 suites/6120 passes/46 historical skips,
-typecheck0. Exact-candidate CI/publication pending.
+typecheck0. Published5d2e488 with exact-candidate CI success; see
+[publication](P048-adversarial-proofs/publication.json).
 
 ## Three adversarial proofs — P047
 

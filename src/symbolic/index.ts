@@ -84,10 +84,44 @@ function sameCondition(left: TESBoolean, right: TESBoolean): boolean {
   return false;
 }
 
+function boundedSameCondition(left: TESBoolean, right: TESBoolean,
+  budget: {remaining:number}, depth = 0): boolean {
+  if (--budget.remaining < 0 || depth > 8) return false;
+  if (sameValue(left,right)) return true;
+  const a=left.expression,b=right.expression;
+  if (!a || !b || a.kind !== b.kind) return false;
+  if (a.kind === "not" && b.kind === "not") return boundedSameCondition(a.operand,b.operand,budget,depth+1);
+  if (a.kind === "select" && b.kind === "select") return isESBoolean(a.consequent) && isESBoolean(a.alternate) && isESBoolean(b.consequent) && isESBoolean(b.alternate) &&
+    boundedSameCondition(a.condition,b.condition,budget,depth+1) &&
+    boundedSameCondition(a.consequent,b.consequent,budget,depth+1) &&
+    boundedSameCondition(a.alternate,b.alternate,budget,depth+1);
+  return sameCondition(left,right);
+}
+
+// Recognize Boolean decision trees that are exact complements. This retains
+// disjunctive knowledge such as "a selected index is not the -1 alternative"
+// without inventing which of its several remaining alternatives was selected.
+function complementaryConditions(left: TESBoolean, right: TESBoolean,
+  budget = { remaining: 64 }, depth = 0): boolean {
+  if (--budget.remaining < 0 || depth > 8) return false;
+  if (typeof left.value === "boolean" && typeof right.value === "boolean") return left.value !== right.value;
+  const a=left.expression,b=right.expression;
+  if (!a || !b) return false;
+  if (a.kind === "not") return boundedSameCondition(a.operand,right,budget,depth+1);
+  if (b.kind === "not") return boundedSameCondition(left,b.operand,budget,depth+1);
+  if (a.kind !== "select" || b.kind !== "select" || !boundedSameCondition(a.condition,b.condition,budget,depth+1) ||
+      !isESBoolean(a.consequent) || !isESBoolean(a.alternate) ||
+      !isESBoolean(b.consequent) || !isESBoolean(b.alternate)) return false;
+  return complementaryConditions(a.consequent,b.consequent,budget,depth+1) &&
+    complementaryConditions(a.alternate,b.alternate,budget,depth+1);
+}
+
 function truthIn(condition: TESBoolean, knowledge: Knowledge): boolean | undefined {
   for (let index = knowledge.length - 1; index >= 0; index--) {
     const fact = knowledge[index];
     if (fact.kind === "truth" && sameCondition(fact.condition, condition)) return fact.truth;
+    if (fact.kind === "truth" && knowledge.length <= 128 &&
+        complementaryConditions(fact.condition,condition)) return !fact.truth;
   }
   return undefined;
 }
@@ -447,7 +481,15 @@ export function numberBounds(number: TESNumber, knowledge: Knowledge = []): { lo
 
 function hasOrder(left: TESNumber, right: TESNumber, strict: boolean, knowledge: Knowledge): boolean {
   const facts = collectFacts([left, right], knowledge);
-  const edges = facts.filter((fact): fact is OrderFact => fact.kind === "order");
+  const originalEdges = facts.filter((fact): fact is OrderFact => fact.kind === "order");
+  // An established <= edge excludes NaN. A known inequality between the same
+  // endpoints therefore strengthens it to <, including for transitive paths.
+  // Bound only this refinement; oversized facts retain the existing graph.
+  const edges = facts.length <= 256 ? originalEdges.map(edge => {
+    if (edge.strict) return edge;
+    const equality = { ...ESBoolean(), expression: {kind:"strict-equal" as "strict-equal",left:edge.left,right:edge.right} };
+    return truthIn(equality,facts) === false ? {...edge,strict:true} : edge;
+  }) : originalEdges;
   const numbers: TESNumber[] = [];
   const add = (number: TESNumber) => {
     if (!numbers.some(existing => sameNumber(existing, number))) numbers.push(number);
@@ -770,13 +812,66 @@ function resolveComparison(left: TESNumber, right: TESNumber, operator: NumberOp
   return consequent === alternate ? consequent : undefined;
 }
 
+// Retain the guards of comparisons over explicit finite choice trees.
+// An opaque compare(select(...), ...) loses those guards when later assumed.
+// Numeric leaves may remain symbolic: their ordinary relation stays unknown
+// unless the shared reasoner proves it. This is dispatch, never interval sampling.
+function finiteChoiceRelation(left: Any, right: Any,
+  operator: NumberOperator | "===", knowledge: Knowledge): TESBoolean | undefined {
+  let inspected = 0;
+  const active = new Set<Any>();
+  const check = (value: Any, depth: number): boolean => {
+    if (++inspected > 64 || depth > 8 || active.has(value)) return false;
+    const choice = choiceOf(value);
+    if (!choice) return operator === "===" || isESNumber(value);
+    if (operator !== "===" && (!isESNumber(choice.consequent) || !isESNumber(choice.alternate))) return false;
+    active.add(value);
+    const valid = check(choice.consequent, depth+1) && check(choice.alternate, depth+1);
+    active.delete(value);
+    return valid;
+  };
+  if (knowledge.length > 256 || !check(left,0) || !check(right,0)) return undefined;
+  let work = 0;
+  const visit = (a: Any, b: Any, facts: Knowledge): TESBoolean | undefined => {
+    if (++work > 256 || facts.length > 512) return undefined;
+    const ca = choiceOf(a), cb = choiceOf(b), choice = ca || cb;
+    if (!choice) {
+      if (operator === "===") {
+        const result=ESBoolean(resolveEquality(a,b,facts));
+        if (result.value === undefined) result.expression={kind:"strict-equal",left:a,right:b};
+        return result;
+      }
+      const leftNumber=a as TESNumber, rightNumber=b as TESNumber;
+      const result=ESBoolean(resolveComparison(leftNumber,rightNumber,operator,facts));
+      if (result.value === undefined) result.expression={kind:"compare",left:leftNumber,right:rightNumber,operator};
+      return result;
+    }
+    const branch = (truth: boolean): TESBoolean | undefined => visit(
+      ca ? (truth?choice.consequent:choice.alternate) as TESNumber : a,
+      ca ? b : (truth?choice.consequent:choice.alternate) as TESNumber,
+      assume(facts,choice.condition,truth));
+    const known=resolveBoolean(choice.condition,facts);
+    if (known !== undefined) return branch(known);
+    const yes=branch(true), no=branch(false);
+    if (!yes || !no) return undefined;
+    return selectValue(choice.condition,yes,no,facts) as TESBoolean;
+  };
+  return visit(left,right,knowledge);
+}
+
 export function compareNumbers(left: TESNumber, right: TESNumber, operator: NumberOperator, knowledge: Knowledge = []): TESBoolean {
   const result = ESBoolean(resolveComparison(left, right, operator, knowledge));
-  if (result.value === undefined) result.expression = { kind: "compare", left, right, operator };
+  if (result.value === undefined) {
+    if (choiceOf(left) || choiceOf(right)) {
+      const finite = finiteChoiceRelation(left,right,operator,knowledge);
+      if (finite) return finite;
+    }
+    result.expression = { kind: "compare", left, right, operator };
+  }
   return result;
 }
 
-export function resolveBoolean(condition: TESBoolean, knowledge: Knowledge = []): boolean | undefined {
+function resolveBooleanDirect(condition: TESBoolean, knowledge: Knowledge): boolean | undefined {
   if (typeof condition.value === "boolean") return condition.value;
   const remembered = truthIn(condition, knowledge);
   if (remembered !== undefined) return remembered;
@@ -802,6 +897,72 @@ export function resolveBoolean(condition: TESBoolean, knowledge: Knowledge = [])
     }
     default: return undefined;
   }
+}
+
+// A remembered Boolean selection is a disjunction of guarded paths. Shared
+// facts alone lose that relation. Prove a query on every feasible leaf of one
+// bounded remembered selection; unknown leaves never count as a proof.
+let priorSelectionDepth = 0;
+function resolveFromSelectionPrior(query: TESBoolean, knowledge: Knowledge): boolean | undefined {
+  if (priorSelectionDepth || knowledge.length > 128) return undefined;
+  const priors = knowledge.filter((f): f is Extract<Fact,{kind:"truth"}> =>
+    f.kind === "truth" && !!f.condition.expression && f.condition.expression.kind === "select");
+  if (!priors.length || priors.length > 4) return undefined;
+  let work=0;
+  priorSelectionDepth++;
+  try {
+    for (const prior of priors) {
+      const base=knowledge.filter(f=>f.kind !== "truth" ||
+        !boundedSameCondition(f.condition,prior.condition,{remaining:64}));
+      const answers: Array<boolean | undefined>=[];
+      let declined=false;
+      const visit=(value: TESBoolean,facts:Knowledge,depth:number): void => {
+        if (declined) return;
+        if (++work>128 || depth>8 || facts.length>512) {declined=true;return;}
+        const expression=value.expression;
+        if (expression && expression.kind === "select") {
+          if (!isESBoolean(expression.consequent) || !isESBoolean(expression.alternate)) {declined=true;return;}
+          // A guard can itself be a selected Boolean. Retain each of its
+          // alternatives here rather than intersecting their facts via assume;
+          // the prior's implication may depend on exactly that disjunction.
+          const splitGuard=(guard:TESBoolean,branchFacts:Knowledge,guardDepth:number,
+            next:(truth:boolean,ready:Knowledge)=>void):void=>{
+            if (declined) return;
+            if (++work>128 || guardDepth>8 || branchFacts.length>512) {declined=true;return;}
+            const known=resolveBooleanDirect(guard,branchFacts);
+            const selected=guard.expression;
+            if (selected && selected.kind === "select" &&
+                isESBoolean(selected.consequent) && isESBoolean(selected.alternate)) {
+              // A known result does not identify the selected alternative.
+              // Enumerate its compatible paths before continuing the prior.
+              splitGuard(selected.condition,branchFacts,guardDepth+1,(truth,ready)=>
+                splitGuard((truth?selected.consequent:selected.alternate) as TESBoolean,ready,guardDepth+1,
+                  (result,leaf)=>{if(known===undefined || result===known) next(result,assume(leaf,guard,result));}));
+              return;
+            }
+            if (known !== undefined) {next(known,assume(branchFacts,guard,known));return;}
+            for (const truth of [true,false]) next(truth,assume(branchFacts,guard,truth));
+          };
+          splitGuard(expression.condition,facts,depth+1,(truth,ready)=>
+            visit((truth?expression.consequent:expression.alternate) as TESBoolean,ready,depth+1));
+          return;
+        }
+        const leaf=resolveBooleanDirect(value,facts);
+        if (leaf !== undefined && leaf !== prior.truth) return;
+        answers.push(resolveBooleanDirect(query,assume(facts,value,prior.truth)));
+      };
+      visit(prior.condition,base,0);
+      if (!declined && answers.length && answers[0] !== undefined &&
+          answers.every(value=>value === answers[0])) return answers[0];
+      if (work>128) return undefined;
+    }
+  } finally { priorSelectionDepth--; }
+  return undefined;
+}
+
+export function resolveBoolean(condition: TESBoolean, knowledge: Knowledge = []): boolean | undefined {
+  const direct=resolveBooleanDirect(condition,knowledge);
+  return direct === undefined ? resolveFromSelectionPrior(condition,knowledge) : direct;
 }
 
 export function negate(condition: TESBoolean, knowledge: Knowledge = []): TESBoolean {
@@ -858,7 +1019,7 @@ function resolveEquality(left: Any, right: Any, knowledge: Knowledge): boolean |
     const first = resolveBoolean(left, knowledge);
     const second = resolveBoolean(right, knowledge);
     if (first !== undefined && second !== undefined) return first === second;
-    if (sameCondition(left, right)) return true;
+    if (boundedSameCondition(left,right,{remaining:64})) return true;
     return undefined;
   }
   if (a.type === "null" || a.type === "undefined") return true;
@@ -871,7 +1032,13 @@ function resolveEquality(left: Any, right: Any, knowledge: Knowledge): boolean |
 
 export function strictEquality(left: Any, right: Any, knowledge: Knowledge = []): TESBoolean {
   const result = ESBoolean(resolveEquality(left, right, knowledge));
-  if (result.value === undefined) result.expression = { kind: "strict-equal", left, right };
+  if (result.value === undefined) {
+    if (choiceOf(left) || choiceOf(right)) {
+      const finite = finiteChoiceRelation(left,right,"===",knowledge);
+      if (finite) return finite;
+    }
+    result.expression = { kind: "strict-equal", left, right };
+  }
   return result;
 }
 

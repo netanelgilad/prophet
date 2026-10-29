@@ -809,3 +809,12 @@ P048 advances the user-prioritized adversarial reasoning track with bounded
 nonlinear determinant preservation, alias-aware exception rollback and weighted
 three-counter induction. [Domains and residual limits](adversarial-proofs.md#p048-nonlinear-exceptional-and-weighted-reasoning)
 remain explicit; these do not imply general nonlinear or loop theorem proving.
+
+
+P049 (implemented, final review/validation pending) follows with bounded mutable-array
+compaction, sorted binary search and callback settlement. Shared conditional
+member references and Math.floor remove demonstrated execution blockers; generic
+finite-choice reasoning is under review. [Contracts](adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state)
+cover each fixed length0..4 and an explicit0..3 event horizon with single optional
+reentry. Arbitrary-length mutable induction and automatic unbounded Node event
+exploration are subsequent work, not consequences of these examples.

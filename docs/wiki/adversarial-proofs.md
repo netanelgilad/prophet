@@ -31,3 +31,17 @@ but a pending primitive return captures its earlier value. An exhaustive small
 integer domain can close return-identity branches; finite numeric bounds alone
 cannot eliminate fractional possibilities. First native rounding witness and
 compound-assignment fixture were corrected before being used as evidence.
+
+
+P049 lessons: preserve evaluated references while splitting symbolic keys;
+re-evaluating a receiver after RHS mutation writes to the wrong object. A merged
+ordinary array can retain exact per-property presence without a common elements
+vector; valid absent reads do not imply later writes are modeled. Exhaustive sign
+regions over arbitrary symbolic values differ from sampled concrete examples,
+but fixed-length proofs do not become unknown-length induction. Binary-search
+sortedness belongs in the proof premise, and a no-match sentinel must retain its
+relationship to the selected index. Callback guards must be set before calling
+user code because synchronous reentry and throws can otherwise defeat cleanup
+and single-settlement assertions. The explicit event driver has a finite horizon;
+its local cleanup counter proves no external cleanup success. Full semantic review
+and final validation remain pending.

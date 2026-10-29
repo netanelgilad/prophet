@@ -835,7 +835,7 @@ boundaries below; no gap group closes from this loop family.
 | LANG-007 — open — unsupported/precision | [Eval](../src/eval/eval.ts) needs concrete source. Conditional new binding presence in an existing environment is rejected by [branch merging](../src/execution-context/branches.ts). CommonJS global var/function creation is rejected until global bindings share object storage. Eval declarations crossing implicit-arguments parameter markers are rejected. Environment records are retained indefinitely. | Model binding presence and object-backed globals, preserve eval collisions/TDZ/capture on each branch, establish accurate completion values (LANG-003), and add safe reclamation only when snapshots/closures retain their meaning. |
 | OBJ-001 — open — unsupported | [Property operations](../src/ASTResolvers.ts) support ordinary data writes/lookup with persistent state, not general descriptors, getters/setters, proxies, symbol keys, exotic objects, object-literal `__proto__` setters or full prototype mutation. Ordinary inherited __proto__ reads/writes now reject explicitly while existing own computed data properties remain writable; Object/Function/Number/Boolean intrinsic prototype writes are guarded alongside existing Error/String guards. `Object.defineProperty`, `getPrototypeOf`/related reflective APIs and symbol-based coercion are missing. Borrowed `Object.prototype.toString` rejects partial host objects and objects inheriting from them because their `Symbol.toStringTag` is unknown; for example, Node console has the tag `console`, not `Object`. | Add shared internal property/descriptor/prototype operations used by literals, reads/writes, reflection and builtins; test getter order/throws, inherited setters, attributes, symbols and symbolic state. |
 | OBJ-002 — open — unsupported | [Enumeration](../src/Object/enumeration.ts) only trusts complete enumerable string-keyed data objects and concrete string indices. Arrays/functions, Error/intrinsic/global layouts, partial host objects, unknown strings/key domains and unmodeled reads are rejected. Conditional known keys/order are supported. See [spread specs](../test/object-spread.spec.ts). | Establish real own keys, order, enumerability, presence, values and descriptors for each added kind; share rules across `Object.keys` and spread, including getters and branch-specific mutation. Never infer ownership by filtering familiar names. |
-| OBJ-003 — open — unsupported | Computed keys currently require concrete strings/numbers; unknown key domains and general ToPropertyKey are absent. [Object construction](../src/Object/ObjectConstructor.ts) rejects primitive wrappers; [hasOwnProperty](../src/Object/prototype.ts) rejects primitive receiver boxing and unmodeled layouts. String wrappers and primitive writes are unsupported. | Implement wrapper/exotic indexed properties and key conversion, including conversion side effects and failures; test primitive access/ownership and symbolic keys without pretending unknown keys are absent. |
+| OBJ-003 — open — unsupported | Computed keys admit concrete strings/numbers and bounded explicit conditional choices of those keys (P049); opaque unknown key domains and general ToPropertyKey remain absent. [Object construction](../src/Object/ObjectConstructor.ts) rejects primitive wrappers; [hasOwnProperty](../src/Object/prototype.ts) rejects primitive receiver boxing and unmodeled layouts. String wrappers and primitive writes are unsupported. | Implement wrapper/exotic indexed properties and key conversion, including conversion side effects and failures; test primitive access/ownership and symbolic keys without pretending unknown keys are absent. |
 | REGEXP-001 — open — unsupported/assumption/testing | [RegExp literal values](regexp-literals.md) preserve fresh identities, original source/flags and persistent lastIndex state. P007 adds bounded flagless UTF-16 Boolean test with shared coercion/finite branches and an explicit NFA (512 source units, depth32, finite repeat128, 1024 states, 4096 input units, 200000 work visits). All flags/stateful matching, open strings, array/function primitive conversion, custom exec/Symbol.toPrimitive, lookaround/backreferences/named groups, public exec/results, global constructor, source/flag getters, other public prototype/symbol APIs, descriptor enumeration/definition/deletion and mutation remain guarded or absent. Existing Cherow compilation depends on the running host RegExp/Unicode version and admits gimsy/u flags only; d/v stop as parser boundaries. Flag-sensitive compilation failures now reject before all guest effects and native compilation objects are removed from every retained AST. Pinned Node24.21.0 controls and fifteen whole Boolean matching/conversion files supplement the one identity/six parse-negative cases; they do not establish full grammar or matching conformance. Whole descriptor/constructor/getter/stateful/Unicode/result-object cases remain unselected. Matcher caps do not bound Cherow native compilation, conversion or total symbolic branches. | Implement each intrinsic/descriptor/matcher operation with shared symbolic state, effects, current properties and lastIndex semantics. Establish a declared portable grammar/matching profile with explicit Unicode/backend dependencies; activate complete unmodified cases without treating parser or identity evidence as full RegExp support. |
 | LIB-001 — open — unsupported/testing | [Initial globals](../src/execution-context/ESInitialGlobal.ts) and builtin prototypes are a small selection, not the standard library. Examples include missing Number constants/global `isNaN`, most Array constructor overloads and methods, JSON parse/stringify, the RegExp constructor/matching APIs (literal values are REGEXP-001), Date, BigInt, collections, iterators and promises. Symbol now has a partial callable global preserving typeof, but creation and property access explicitly reject; it does not implement symbol values or keys. Bounded trim, ASCII toLowerCase, lastIndexOf, substring and subsequent package-driven operations are implemented in the recorded increments below; Unicode casing and broader domains remain open. P046 also adds bounded decodeURI. Some other absent members currently return ordinary `undefined`, so missing builtin coverage needs audit as well as implementation. | Add shared concrete/symbolic semantics and complete Test262 coverage incrementally; mark partial intrinsic surfaces honestly until their absent-versus-unmodeled properties are distinguished. |
 | LIB-002 — open — unsupported | [Coercion](../src/conversion/toString.ts) models supported ordinary string conversion. Shared [numeric-hint conversion](../src/conversion/toNumber.ts) now serves slice indices, preserving valueOf/toString calls, throws and finite choices. Slice receiver/index conversion rejects explicit exotic slots and partial-host symbol reads. General exotic `Symbol.toPrimitive`, default array conversion, function source conversion and unsupported value kinds remain gaps. [Operators](../src/operators.ts) reject arithmetic object coercion and unsupported symbolic numeric/relational/loose-equality coercions. Error cause/options, stacks and full Error descriptors/prototype behavior remain gaps in [Error](../src/error/Error.ts). | Share the correct hint-specific conversion and Error operations, preserve user code, coercion order and abrupt paths, and validate with complete upstream cases. |
@@ -2101,3 +2101,50 @@ P048 final local validation:218 suites/6120 passes/46 historical skips/typecheck
 Four scans and full unchanged Test262 skip inventory are recorded in
 [evidence](agent-tasks/P048-adversarial-proofs/evidence.json). No residual gap is
 closed solely by passing examples or the selected corpus count.
+
+
+## P049 reconciliation — mutable sequences, search and callback state
+
+The scoped implementation passes its focused specs. Final validation and semantic
+review are pending; no residual gap is closed by these examples.
+OBJ-003: member references split explicit finite key choices without re-evaluating
+receiver/key; generic symbolic numeric keys, Boolean/object key conversion and
+other ToPropertyKey cases remain unsupported. ARRAY-001/SYM-002: conditional length
+assignment and exact per-key presence allow reads after mixed-length ordinary
+array merges; a missing shared elements vector still blocks subsequent writes.
+Unknown/segmented array missing positions and immutable symbolic-array writes
+remain boundaries. Compaction proves only each dense ordinary length0..4 with
+independent finite values; arbitrary-length mutable sequence/store relations remain.
+LANG-003 retains invalid array-length host assertions rather than catchable guest
+RangeError. LANG-001 retains while syntax; binary-search source uses ordinary for.
+
+LIB-001/LIB-002: Math.floor now uses shared ToNumber and concrete/finite-choice
+rounding, preserving coercion calls and failures, NaN/infinity/signed zero and
+nonconstruction. Open symbolic rounding is a typed unsupported path; inherited
+conversion limits and unmodeled function metadata/descriptors remain. The CLI
+exposes the same intrinsic. Math.ceil and other Math methods remain separate work.
+Number/undefined relational comparison preserves NaN's false result for primitive
+operands only, without skipping observable object coercion.
+
+SYM-001: new finite-choice Boolean/order inference is under review. Comparison
+and equality retain finite branch guards; order plus disequality can strengthen
+an edge. Bounded selection-prior inference requires agreement on all retained
+leaves and nonempty evidence. This is not complete satisfiability checking;
+unknown leaves and budget exhaustion must remain unknown. SYM-004: member-choice
+preflight256 expanded nodes/depth16 with cycle rejection precedes continuation.
+Relation preflight64nodes/depth8/inputfacts256 and dispatch256visits/facts512;
+Boolean equivalence/complement64visits/depth8, complement lookup128facts;
+order strengthening256facts; selection-prior128inputfacts/four priors,
+128shared visits/depth8/512branchfacts/no reentry. Selected Boolean guard paths
+stay separate even for known results. Numeric relation leaves can remain symbolic;
+unknown/empty/exhausted inference stays conservative. These local caps do not
+bound all inherited solver, continuation or merge work.
+
+REPORT-001: callback proofs cover an explicit0..3-delivery interpreted driver plus
+one optional synchronous reentry, not automatic async host exploration or all
+future events. Cleanup is local accounting; external cleanup success is not
+assumed. Throwing notification and empty pending histories remain visible.
+TEST-002: six whole Math.floor A1..A6 files add12 variants (525 active files/1041
+variants); the current complete inventory confirms43 parse-negative files/85
+variants and46 unchanged historical skips. Reverify after final source freeze. A7
+requires ceil; length/name/prop-desc candidates retain metadata/descriptor gaps.

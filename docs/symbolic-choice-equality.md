@@ -93,3 +93,25 @@ Nine complete, unmodified strict equality/inequality Test262 cases add 18 varian
 for signed zero, primitive comparisons and operand effects/throws. See the
 [Test262 record](../test/test262/README.md) for remaining whole-file NaN and
 boxing blockers. Local symbolic proofs are separate from upstream conformance.
+
+
+## P049: retained finite-choice relations
+
+Search contracts expose lost relationships between a conditional index and its
+not-found sentinel. The shared reasoner retains finite relational/equality
+choices as Boolean decision trees, recognizes bounded complements and explores
+bounded remembered selection priors to prove queries only when all retained
+leaves agree. Known nonstrict order plus disequality can strengthen transitive
+order edges. A selected guard's known Boolean result does not identify its
+alternative: compatible paths are retained before applying the prior. Numeric
+choice leaves can be symbolic; their normal comparisons stay unknown until proven.
+Final soundness review and full validation remain pending.
+
+Finite-choice relation preflight is capped at64 nodes/depth8 and256 input facts;
+dispatch at256 visits/512 branch facts. Boolean same/complement tree checks use
+64 visits/depth8, with complement lookup limited to128 facts. Nonstrict-order
+strengthening admits256 collected facts. Prior inference admits128 input facts,
+four priors,128 shared traversal visits/depth8 and512 branch facts, and disables
+reentrant prior exploration. Unknown leaves, empty evidence and exhausted work
+cannot become proofs. This bounds added reasoning, not all inherited solver or
+merge work; no input value is rewritten and general satisfiability remains open.

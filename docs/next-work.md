@@ -1,4 +1,4 @@
-# Next work after P048
+# Next work during P049
 
 ## Current checkpoint
 
@@ -18,14 +18,20 @@ P048 adds the requested harder determinant, rollback and weighted-counter proofs
 See the [extended domains](adversarial-proofs.md#p048-nonlinear-exceptional-and-weighted-reasoning);
 full review/validation and publication are recorded in its task evidence.
 
-## Next reasoning decision
+## Current reasoning increment
 
-Keep both sets of three examples as regression/unknown controls. Useful next steps are
-sound heap equivalence for harmless local allocation (currently a conservative
-summary decline), broader verified affine loop invariants, and bounded merge work
-on failed proof attempts. Each needs its own adversarial contract; do not weaken
-purity or treat a stopped broken program as a proof. API coverage below remains
-queued alongside reasoning; no new work is implied to be complete.
+P049 is implemented, pending final validation: bounded in-place compaction, binary search and competing
+callbacks. [The contracts](adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state)
+state each fixed array length0..4, symbolic value domains and explicit0..3 event
+horizon with optional single reentry. Complete independent semantic review,
+full validation and exact-candidate CI before publication. All declared binary-search lengths0..4 now pass focused
+checks; unknown controls remain distinct from concrete counterexamples.
+
+After acceptance, useful extensions include mutable sequence/store relations for
+unknown lengths, writes after unequal-length ordinary-array merges, and broader
+callback event horizons through the shared runtime. Each requires its own proof
+contract. Existing harmless-allocation heap equivalence, general loop invariants
+and bounded merge work remain open. Security CLI work stays deferred.
 
 ## Next package execution decision
 

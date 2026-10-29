@@ -139,6 +139,35 @@ export function propertyName(key: Any): string {
   return String(unsafeCast<TESNumber | TESString>(key).value);
 }
 
+// Enumerate only explicit finite choices, never numeric intervals. Preflight the
+// complete choice tree before invoking a continuation so excessive or cyclic
+// inputs cannot perform partial user work. This bounds local dispatch, not work
+// performed by the continuation or the generic context merge.
+function withMemberChoices(value: Any, context: TExecutionContext,
+  continuation: (leaf: Any, context: TExecutionContext) => BranchResult): BranchResult {
+  let nodes = 0;
+  const ancestors = new Set<Any>();
+  function check(current: Any, depth: number): void {
+    if (++nodes > 256 || depth > 16 || ancestors.has(current)) {
+      throw new ExecutionBudgetError("Conditional member dispatch exceeds its finite-choice budget");
+    }
+    const choice = choiceOf(current);
+    if (!choice) return;
+    ancestors.add(current);
+    check(choice.consequent, depth + 1);
+    check(choice.alternate, depth + 1);
+    ancestors.delete(current);
+  }
+  check(value, 0);
+  function visit(current: Any, branch: TExecutionContext): BranchResult {
+    const choice = choiceOf(current);
+    return choice ? evaluateBranches(choice.condition, branch,
+      yes => visit(choice.consequent, yes), no => visit(choice.alternate, no)) :
+      continuation(current, branch);
+  }
+  return visit(value, context);
+}
+
 // A reference is VM bookkeeping, not a JavaScript value. Consume it within
 // each normal continuation rather than joining references with selectValue.
 export function withMemberReference(
@@ -148,13 +177,14 @@ export function withMemberReference(
 ): BranchResult {
   return bindNormal(evaluate(ast.object, context), (object, afterObject) =>
     ast.computed
-      ? bindNormal(evaluate(ast.property, afterObject), (key, afterKey) => {
+      ? bindNormal(evaluate(ast.property, afterObject), (evaluatedKey, afterKey) =>
+        withMemberChoices(evaluatedKey, afterKey, (key, afterChoice) => {
         if (symbolicRead && isESNumber(key) && key.value === undefined &&
-            (getSymbolicArrayShape(object, afterKey) || choiceOf(object))) {
-          return symbolicRead(object, key, afterKey);
+            (getSymbolicArrayShape(object, afterChoice) || choiceOf(object))) {
+          return symbolicRead(object, key, afterChoice);
         }
-        return continuation(object, propertyName(key), afterKey);
-      })
+        return continuation(object, propertyName(key), afterChoice);
+      }))
       : continuation(object, unsafeCast<ESTree.Identifier>(ast.property).name, afterObject));
 }
 
@@ -204,8 +234,12 @@ export function readMember(object: Any, name: string, context: TExecutionContext
     }, branch) : tuple(property, branch);
   }, branch => {
     assertModeledOwnAbsence(object as WithProperties, name);
+    // A merged ordinary array retains exact per-key presence even when its
+    // branches have different lengths/holes and no shared elements vector.
+    // Unknown and segmented shapes still lack that complete position model.
     if (isArray(object) && isArrayIndex(name) &&
         getArrayElements(object as TArray<any>, branch) === undefined &&
+        (object as TArray<any>).shape.kind !== "elements" &&
         !getSymbolicArrayShape(object, branch)) {
       throw new Error("Indexed reads require known element positions or a symbolic dense array");
     }
@@ -355,6 +389,10 @@ export function assignMember(object: Any, name: string, assigned: Any, context: 
   if (choice) return evaluateBranches(choice.condition, context,
     branch => assignMember(choice.consequent, name, assigned, branch),
     branch => assignMember(choice.alternate, name, assigned, branch));
+  if (isArray(object) && name === "length" && choiceOf(assigned)) {
+    return withMemberChoices(assigned, context,
+      (length, branch) => assignMember(object, name, length, branch));
+  }
   const unmodeledWrites = (object as WithProperties).unmodeledPropertyWrites;
   if (unmodeledWrites && unmodeledWrites.includes(name)) {
     throw unsupportedPropertyError(object, `Unmodeled host property write '${name}'`);

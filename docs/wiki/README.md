@@ -71,4 +71,4 @@ until review is recorded; a model-generated article is not independent evidence.
 
 - [Package matching/prefix semantics](package-apis.md): ASCII ignoreCase, ordered startsWith conversion, intrinsic match precedence and strict URI decoding.
 
-- [Adversarial proof lessons](adversarial-proofs.md): exact arithmetic, aliases and verified joint counters.
+- [Adversarial proof lessons](adversarial-proofs.md): exact arithmetic, aliases, verified joint counters, and bounded mutable-state contracts.

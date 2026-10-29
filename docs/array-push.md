@@ -275,3 +275,20 @@ atomic mutation; this is a conservative boundary, not a simulation of partial
 setter execution. Sparse support must fix shared array deletion bookkeeping
 before using it. See [core](../test/array-unshift.spec.ts) and
 [review](../test/array-unshift-review.spec.ts) controls.
+
+
+## P049: conditional member keys and lengths
+
+Ordinary array member reads/writes now dispatch explicit finite choices of
+concrete numeric/string keys; conditional length values use the same bounded
+choice dispatch before truncation. The evaluated receiver/key are retained across
+RHS execution. Dispatch caps are256 expanded nodes/depth16, with cycle rejection
+before continuation. Merging different ordinary lengths retains exact own-key
+presence, allowing absent reads to consult the prototype even though no shared
+elements vector survives. This does not reconstruct a vector for later mutation:
+such writes remain unsupported. Unknown/segmented arrays retain their indexed
+absence guard, and immutable symbolic-array snapshots remain nonmutable. Invalid
+length assignment still uses a legacy assertion rather than guest RangeError.
+See [conditional-member specs](../test/conditional-member-keys.spec.ts) and the
+[bounded compaction contract](adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state).
+Full review and validation are pending.

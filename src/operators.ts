@@ -115,6 +115,9 @@ function numericComparison(operator: "<" | "<=" | ">" | ">="): BinaryOperatorRes
     if (isESNumber(left) && isESNumber(right)) return compareNumbers(left, right, operator, knowledge);
     return liftBinary(left, right, knowledge, (a, b, facts) => {
       if (isESNumber(a) && isESNumber(b)) return compareNumbers(a, b, operator, facts);
+      // Undefined converts to NaN; comparison against any Number is false.
+      // Restrict to primitives so this cannot skip observable object conversion.
+      if (isUndefined(a) && isESNumber(b) || isESNumber(a) && isUndefined(b)) return ESBoolean(false);
       const x = concrete(a), y = concrete(b);
       if (x.known && y.known) {
         const l: any = x.value, r: any = y.value;
