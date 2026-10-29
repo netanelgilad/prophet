@@ -140,6 +140,7 @@ test('independent finite comparison review: depth and node limits retain opaque 
  const result=compareNumbers(value,ESNumber(1),'<');
  expect(result.value).toBeUndefined();expect(choiceOf(result)).toBeUndefined();
  expect(result.expression).toMatchObject({kind:'compare'});
+ expect(result.expression).not.toHaveProperty('refinement');
  }
 });
 test('independent finite comparison review: excessive assumptions decline guarded expansion',()=>{
@@ -147,12 +148,14 @@ test('independent finite comparison review: excessive assumptions decline guarde
  for(let i=0;i<257;i++)facts.push({kind:'truth',condition:ESBoolean(),truth:true});
  const result=compareNumbers(numericChoice(ESNumber(0),ESNumber(2)),ESNumber(1),'<',facts);
  expect(result.value).toBeUndefined();expect(choiceOf(result)).toBeUndefined();
+ expect(result.expression).not.toHaveProperty('refinement');
 });
-test('independent finite comparison review: Cartesian expansion budget declines without a partial proof',()=>{
+test('independent finite comparison review: large paired choice inputs decline without a partial proof',()=>{
  function tree(depth:number):TESNumber{return depth===0?numericChoice(ESNumber(0),ESNumber(2)):numericChoice(tree(depth-1),tree(depth-1));}
  const result=compareNumbers(tree(3),tree(3),'<');
  expect(result.value).toBeUndefined();expect(choiceOf(result)).toBeUndefined();
  expect(result.expression).toMatchObject({kind:'compare'});
+ expect(result.expression).not.toHaveProperty('refinement');
 });
 
 import {TESBoolean} from '../src/types';
@@ -292,4 +295,39 @@ test('independent inference lifetime review: assumption and resolution depth rec
  expect(priorDependentProof()).toBe(true);
  expect(()=>resolveBoolean(malformed,[])).toThrow('review-only metadata failure');
  expect(priorDependentProof()).toBe(true);
+});
+
+import {encodeGraph} from '../src/cli/graph';
+test('independent comparison refinement review: assumptions retain both original order and selected guard',()=>{
+ const guard=ESBoolean(),selected=selectValue(guard,ESNumber(0),ESNumber(2)) as TESNumber;
+ const limit=ESNumber(1),condition=compareNumbers(selected,limit,'<');
+ expect(condition.expression).toMatchObject({kind:'compare',left:selected,right:limit});
+ const facts=assume([],condition,true);
+ expect(facts.some(f=>f.kind==='order'&&f.left===selected&&f.right===limit&&f.strict)).toBe(true);
+ expect(resolveBoolean(guard,facts)).toBe(true);
+});
+test('independent comparison refinement review: false NaN alternative does not invent a reversed order',()=>{
+ const guard=ESBoolean(),selected=selectValue(guard,ESNumber(NaN),ESNumber(0)) as TESNumber;
+ const limit=ESNumber(1),condition=compareNumbers(selected,limit,'<');
+ const facts=assume([],condition,false);
+ expect(facts.some(f=>f.kind==='order'&&f.left===limit&&f.right===selected)).toBe(false);
+ expect(resolveBoolean(guard,facts)).toBe(true);
+});
+test('independent comparison refinement review: inspection graph retains original operands and refinement identity',()=>{
+ const selected=numericChoice(ESNumber(0),ESNumber(2)),limit=ESNumber(1);
+ const condition=compareNumbers(selected,limit,'<');
+ if(!condition.expression||condition.expression.kind!=='compare')throw Error('expected compare');
+ const refinement=condition.expression.refinement;
+ expect(refinement).toBeDefined();
+ const graph=encodeGraph({condition,selected,limit,refinement});
+ const root=graph.roots.condition as {ref:string};
+ const node=graph.nodes.find(n=>n.id===root.ref)!;
+ if(node.kind!=='record')throw Error('expected record');
+ const expressionRef=node.entries.find(e=>e[0]==='expression')![1] as {ref:string};
+ const expression=graph.nodes.find(n=>n.id===expressionRef.ref)!;
+ if(expression.kind!=='record')throw Error('expected expression record');
+ expect(expression.entries).toContainEqual(['kind','compare']);
+ expect(expression.entries).toContainEqual(['left',graph.roots.selected]);
+ expect(expression.entries).toContainEqual(['right',graph.roots.limit]);
+ expect(expression.entries).toContainEqual(['refinement',graph.roots.refinement]);
 });

@@ -67,3 +67,34 @@ inside assumption construction restored all16 search/direct cases. The final
 correction also stops on the first unknown/disagreeing leaf and appends a guard
 truth already entailed by its enumerated selector/leaf path. Independent review
 accepted those semantics; refreshed combined/full validation follows source freeze.
+
+Final independent review approved source90231ea: eight suites/103 tests in
+18.887seconds, typecheck0, all15 source/spec hashes unchanged. The42 independent
+review cases include exhausted-budget isolation and try/finally restoration after
+metadata exceptions. No outstanding soundness finding within declared domains.
+Exact commands/environment/log hashes are in independent-review.json. No broad
+trust promotion or global solver runtime guarantee follows.
+
+The full suite at90231ea subsequently exposed a second performance regression in
+the original ten-input minimum proof. It was stopped after3m27s with the earlier
+CLI/Node suites passing and no complete validation result. A targeted V8 profile
+isolated repeated structural truth lookups from order-edge strengthening. The
+new rule must use bounded explicit disequality facts rather than invoke general
+Boolean matching for every edge; renewed review and complete validation follow.
+
+The full-expression preflight initially restored runtime but lost four original
+minimum proofs. Root corrected the representation to retain the original
+comparison plus an equivalent Boolean refinement, preserving aggregate order
+facts. Selection guards use the compact equivalent form while numeric facts
+are derived from the original relation. All25 minimum/search/finite-choice tests
+passed in18.968seconds (`/tmp/p049-refinement-compact.log`). Binary subagent's
+read-only review approved the equivalence and fact derivation; final independent
+review and full regression validation follow. Earlier failed/stopped runs remain
+regression evidence, never successful validation.
+
+Final independent semantic review approved the compact-guard correction. Nine
+suites/115 tests passed in35.019seconds, including all9 original minimum proofs
+and45 independent review cases; typecheck exited0. All17 source/spec hashes
+remained unchanged. Exact commands, runtime and log hashes are retained in
+[independent-review.json](independent-review.json). No outstanding soundness
+finding within the declared domains; full regression and publication follow.

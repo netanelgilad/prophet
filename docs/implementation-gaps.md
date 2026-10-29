@@ -2162,3 +2162,10 @@ facts need no repeated disjunction merge; unknown/disagreeing leaves decline
 early. This is a precision budget, not a restricted input domain or a global
 bound on inherited direct solving. Timing regressions and interrupted runs are
 recorded in the task review; all three proof contracts must survive the correction.
+
+P049 minimum-proof regression correction retains aggregate comparison operands
+and an equivalent optional refinement in the expression graph. Joined values
+store compact equivalent guards, while numeric facts derive from the original
+comparison. Relation preflight counts the full expression closure including
+guards/refinements; explicit endpoint equality facts alone strengthen order edges.
+This preserves existing minimum proofs without lifting SYM-001 or SYM-004.

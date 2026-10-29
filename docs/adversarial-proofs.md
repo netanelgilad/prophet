@@ -150,7 +150,7 @@ separate gaps; an unsupported branch is never silently discarded.
 including finite alternatives and coercion effects/throws. Open symbolic rounding
 remains a typed boundary. The CLI exposes the same intrinsic.
 
-The new search-related inference is generic and under semantic review: finite
+The new search-related inference is generic and independently reviewed: finite
 choice comparison/equality trees preserve guards; established nonstrict order
 plus explicit disequality can strengthen an edge; bounded Boolean selection
 priors can prove a result only when every retained leaf agrees. Unknown leaves
@@ -160,10 +160,12 @@ alternatives even when their result is known, so a guard's value does not erase
 the disjunction needed for a later proof. Numeric leaves may themselves remain
 symbolic: their ordinary comparison stays unknown unless separately established.
 
-Current local caps: finite-choice relation preflight64 nodes/depth8, at most256
+Current local caps: finite-choice relation preflight64 expanded expression nodes/depth8 (including guards), at most256
 input facts,256 dispatch visits and512 branch facts. Boolean equivalence and
 complement checks use64 visits/depth8; complement lookup admits at most128 facts.
-Order-edge strengthening admits at most256 collected facts. Selection-prior
+Order-edge strengthening admits at most256 collected facts and matches explicit
+equality truth endpoints. Comparisons retain their original operands and an
+equivalent refinement, preserving aggregate order facts across joins. Selection-prior
 inference admits at most128 input facts/four prior selections,128 shared traversal
 steps/depth8 and512 branch facts, with reentrant prior exploration disabled.
 These caps bound the added work, not the inherited solver or merge globally;

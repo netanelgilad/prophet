@@ -105,12 +105,14 @@ leaves agree. Known nonstrict order plus disequality can strengthen transitive
 order edges. A selected guard's known Boolean result does not identify its
 alternative: compatible paths are retained before applying the prior. Numeric
 choice leaves can be symbolic; their normal comparisons stay unknown until proven.
-Final soundness review and full validation remain pending.
+Final validation evidence is recorded in the P049 task review.
 
-Finite-choice relation preflight is capped at64 nodes/depth8 and256 input facts;
+Finite-choice relation preflight traverses the complete expression closure, including
+guards and refinements, capped at64 expanded nodes/depth8 and256 input facts;
 dispatch at256 visits/512 branch facts. Boolean same/complement tree checks use
 64 visits/depth8, with complement lookup limited to128 facts. Nonstrict-order
-strengthening admits256 collected facts. Prior inference admits128 input facts,
+strengthening admits256 collected facts and uses only explicit strict-equality
+truth facts with matching endpoints, avoiding general Boolean-tree matching. Prior inference admits128 input facts,
 four priors,128 traversal visits/depth8 and512 branch facts. The128-visit budget
 is shared across an entire outer Boolean-resolution call, including recursive
 queries. Prior inference is disabled during assumption construction and reentrant
@@ -118,3 +120,11 @@ prior exploration; a fresh outer query resets its optional inference budget.
 An unknown or disagreeing compatible leaf declines that prior immediately. Unknown leaves, empty evidence and exhausted work
 cannot become proofs. This bounds added reasoning, not all inherited solver or
 merge work; no input value is rewritten and general satisfiability remains open.
+
+Comparisons retain original operands alongside an optional equivalent Boolean
+`refinement`. Assuming the comparison preserves aggregate order facts and the
+refined branch relationship; a false comparison reverses order only when NaN is
+excluded. Joined values store the equivalent compact guard, while numeric fact
+derivation uses the original comparison. This avoids duplicating both forms
+through every joined value and preserves the original minimum proofs. The graph
+serializer retains both forms when a comparison itself is serialized.

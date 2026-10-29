@@ -1,0 +1,89 @@
+{
+  "cwd": "/Users/netanelgilad/.codex/worktrees/p035-longcat-environment/prophet",
+  "environment": {
+    "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+    "PATHPrefix": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin"
+  },
+  "sourceAndSpecHashesBefore": {
+    "src/ASTResolvers.ts": "4f42a5ebac723f3dc94f71f9a4a8b2aa2395593d8afbede4476cc2c26b438cd5",
+    "src/cli/runtime.ts": "04061005cc8461cdf95fbb8c44ca04df5f8accbeb5ce0165f2686361d264acf0",
+    "src/math/Math.ts": "1a1d41421412984f6692b50b531f46a8afeb3db9968cdf5d6e03b905bfe194fb",
+    "src/math/floor.ts": "49068c8e07f619587e79b9642d314fe00e7d389a44f33a7b9671f678795d4009",
+    "src/operators.ts": "ff81c7051df8250415852643fbfcf59580f1b161d9e30bfe0b946856c382a2e0",
+    "src/symbolic/index.ts": "9057ba4085c279d2a03a2528cb9b91c97a47e66a8ba942c4f3331065ed3a9aab",
+    "src/symbolic/model.ts": "d40cd89c43ea5e87b1a0272c53130d5bf132daf169eed249b3bacda16caf5dbb",
+    "test/test262.spec.ts": "8f6e7481a93f68c76de02d96e1d051940f450e0cddbf3e4fc51f1fa90683dee7",
+    "test/adversarial-binary-search.spec.ts": "384883117362f1a93896fc900b67212e8bedd0ff86e57df095121086b6b49776",
+    "test/adversarial-compaction.spec.ts": "a053c002833542695801b2c0a7cb37c0eb0450fe95a5bd5686d73bd786aea692",
+    "test/adversarial-p049-review.spec.ts": "54fd54239529ad20ced24b0926ecec90b358ba753a4f2ee38701a99a818f3436",
+    "test/adversarial-settlement.spec.ts": "54601c85602676cad4a8501d9d65937dd94d1b9c59daa8492f8383dd7d1ec1a3",
+    "test/conditional-member-keys.spec.ts": "51acc2533db1085a3f9868ba01fea59088e471915bd7c10a8ea8acf6a455a073",
+    "test/math-floor.spec.ts": "903e8ade788b9e85e266f7b7f304a65764098d8100dd70071dbd2aeb3a61034a",
+    "test/symbolic-undefined-comparison.spec.ts": "b4174285f50e714fc7a628419d49ec59d946f5951befc0ba83d72b6b793cdc23",
+    "test/finite-choice-order.spec.ts": "de8c91adeabfdfd8dae4aae1c7686bc7f74e9154c7cc3bba580145102b1929b6",
+    "test/loop-min.spec.ts": "c8ea4affb8fa1a1f2714393f1ae70eec307128a7bf1b2a6b8e9857afe0b52b13"
+  },
+  "sourceAndSpecHashesAfter": {
+    "src/ASTResolvers.ts": "4f42a5ebac723f3dc94f71f9a4a8b2aa2395593d8afbede4476cc2c26b438cd5",
+    "src/cli/runtime.ts": "04061005cc8461cdf95fbb8c44ca04df5f8accbeb5ce0165f2686361d264acf0",
+    "src/math/Math.ts": "1a1d41421412984f6692b50b531f46a8afeb3db9968cdf5d6e03b905bfe194fb",
+    "src/math/floor.ts": "49068c8e07f619587e79b9642d314fe00e7d389a44f33a7b9671f678795d4009",
+    "src/operators.ts": "ff81c7051df8250415852643fbfcf59580f1b161d9e30bfe0b946856c382a2e0",
+    "src/symbolic/index.ts": "9057ba4085c279d2a03a2528cb9b91c97a47e66a8ba942c4f3331065ed3a9aab",
+    "src/symbolic/model.ts": "d40cd89c43ea5e87b1a0272c53130d5bf132daf169eed249b3bacda16caf5dbb",
+    "test/test262.spec.ts": "8f6e7481a93f68c76de02d96e1d051940f450e0cddbf3e4fc51f1fa90683dee7",
+    "test/adversarial-binary-search.spec.ts": "384883117362f1a93896fc900b67212e8bedd0ff86e57df095121086b6b49776",
+    "test/adversarial-compaction.spec.ts": "a053c002833542695801b2c0a7cb37c0eb0450fe95a5bd5686d73bd786aea692",
+    "test/adversarial-p049-review.spec.ts": "54fd54239529ad20ced24b0926ecec90b358ba753a4f2ee38701a99a818f3436",
+    "test/adversarial-settlement.spec.ts": "54601c85602676cad4a8501d9d65937dd94d1b9c59daa8492f8383dd7d1ec1a3",
+    "test/conditional-member-keys.spec.ts": "51acc2533db1085a3f9868ba01fea59088e471915bd7c10a8ea8acf6a455a073",
+    "test/math-floor.spec.ts": "903e8ade788b9e85e266f7b7f304a65764098d8100dd70071dbd2aeb3a61034a",
+    "test/symbolic-undefined-comparison.spec.ts": "b4174285f50e714fc7a628419d49ec59d946f5951befc0ba83d72b6b793cdc23",
+    "test/finite-choice-order.spec.ts": "de8c91adeabfdfd8dae4aae1c7686bc7f74e9154c7cc3bba580145102b1929b6",
+    "test/loop-min.spec.ts": "c8ea4affb8fa1a1f2714393f1ae70eec307128a7bf1b2a6b8e9857afe0b52b13"
+  },
+  "unchanged": true,
+  "runs": [
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/adversarial-binary-search.spec.ts",
+        "test/adversarial-compaction.spec.ts",
+        "test/adversarial-p049-review.spec.ts",
+        "test/adversarial-settlement.spec.ts",
+        "test/conditional-member-keys.spec.ts",
+        "test/math-floor.spec.ts",
+        "test/symbolic-undefined-comparison.spec.ts",
+        "test/finite-choice-order.spec.ts",
+        "test/loop-min.spec.ts"
+      ],
+      "log": "/tmp/p049-independent-final-tests.log",
+      "exitCode": 0,
+      "logSha256": "5fa85ecb0ae34a3b31ae3543b2604e338338bc9dd628f24477f9f406305237e2"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "log": "/tmp/p049-independent-final-types.log",
+      "exitCode": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "counts": {
+    "suitesPassed": 9,
+    "testsPassed": 115,
+    "reviewerTests": 45
+  },
+  "reviewStatus": "approved within documented input and resource domains; no outstanding findings",
+  "observedTimesSeconds": {
+    "allSuites": 35.019,
+    "loopMinimum": 18.163,
+    "compaction": 15.342
+  }
+}

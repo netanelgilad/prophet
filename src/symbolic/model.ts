@@ -12,7 +12,7 @@ export type SelectExpression = {
 // Expressions describe computations. Facts below describe what is established
 // about those computations; an unevaluated comparison is not itself a fact.
 export type Expression =
-  | { kind: "compare"; operator: NumberOperator; left: TESNumber; right: TESNumber }
+  | { kind: "compare"; operator: NumberOperator; left: TESNumber; right: TESNumber; refinement?: TESBoolean }
   | { kind: "strict-equal"; left: Any; right: Any }
   | { kind: "not"; operand: TESBoolean }
   | { kind: "typeof"; operand: Any }

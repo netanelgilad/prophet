@@ -485,10 +485,26 @@ function hasOrder(left: TESNumber, right: TESNumber, strict: boolean, knowledge:
   // An established <= edge excludes NaN. A known inequality between the same
   // endpoints therefore strengthens it to <, including for transitive paths.
   // Bound only this refinement; oversized facts retain the existing graph.
-  const edges = facts.length <= 256 ? originalEdges.map(edge => {
+  const equalities:Array<{left:Any;right:Any;truth:boolean}>=[];
+  if (facts.length<=256) for (const fact of facts) {
+    if (fact.kind === "truth" && fact.condition.expression &&
+        fact.condition.expression.kind === "strict-equal") {
+      const equality=fact.condition.expression;
+      equalities.push({left:equality.left,right:equality.right,truth:fact.truth});
+    }
+  }
+  // Only explicit equality facts participate in this refinement. Scanning
+  // arbitrary Boolean trees through truthIn for every order edge duplicates
+  // unrelated structural reasoning throughout the transitive-order solver.
+  const edges = equalities.length ? originalEdges.map(edge => {
     if (edge.strict) return edge;
-    const equality = { ...ESBoolean(), expression: {kind:"strict-equal" as "strict-equal",left:edge.left,right:edge.right} };
-    return truthIn(equality,facts) === false ? {...edge,strict:true} : edge;
+    for (let i=equalities.length-1;i>=0;i--) {
+      const equality=equalities[i];
+      if (sameValue(equality.left,edge.left) && sameValue(equality.right,edge.right) ||
+          sameValue(equality.right,edge.left) && sameValue(equality.left,edge.right))
+        return equality.truth ? edge : {...edge,strict:true};
+    }
+    return edge;
   }) : originalEdges;
   const numbers: TESNumber[] = [];
   const add = (number: TESNumber) => {
@@ -749,11 +765,12 @@ function assumeDirect(knowledge: Knowledge, condition: TESBoolean, truth: boolea
     const left = reversed ? expression.right : expression.left;
     const right = reversed ? expression.left : expression.right;
     const strict = expression.operator === "<" || expression.operator === ">";
-    if (truth) return facts.concat({ kind: "order", left, right, strict });
+    if (truth) facts = facts.concat({ kind: "order", left, right, strict });
     // JavaScript's false relational comparisons may also mean NaN.
-    if (notNaN(left, facts) && notNaN(right, facts)) {
-      return facts.concat({ kind: "order", left: right, right: left, strict: !strict });
+    else if (notNaN(left, facts) && notNaN(right, facts)) {
+      facts = facts.concat({ kind: "order", left: right, right: left, strict: !strict });
     }
+    return expression.refinement ? assume(facts, expression.refinement, truth) : facts;
   }
   if (expression.kind === "strict-equal" && truth && isESNumber(expression.left) && isESNumber(expression.right)) {
     facts = facts.concat(
@@ -828,13 +845,31 @@ function finiteChoiceRelation(left: Any, right: Any,
   operator: NumberOperator | "===", knowledge: Knowledge): TESBoolean | undefined {
   let inspected = 0;
   const active = new Set<Any>();
-  const check = (value: Any, depth: number): boolean => {
+  // Guard expressions are part of the work too: a small value-choice spine
+  // can carry recursively shared symbolic comparisons with a huge expansion.
+  // Bound the complete expression traversal before any relation is evaluated.
+  const check = (value: Any, depth: number, numeric = operator !== "==="): boolean => {
     if (++inspected > 64 || depth > 8 || active.has(value)) return false;
-    const choice = choiceOf(value);
-    if (!choice) return operator === "===" || isESNumber(value);
-    if (operator !== "===" && (!isESNumber(choice.consequent) || !isESNumber(choice.alternate))) return false;
+    if (numeric && !isESNumber(value)) return false;
+    const expression=expressionOf(value);
+    if (!expression) return true;
     active.add(value);
-    const valid = check(choice.consequent, depth+1) && check(choice.alternate, depth+1);
+    let valid:boolean;
+    switch(expression.kind) {
+      case "select": valid=check(expression.condition,depth+1,false) &&
+        check(expression.consequent,depth+1,numeric) && check(expression.alternate,depth+1,numeric);break;
+      case "compare":
+        valid=check(expression.left,depth+1,false) && check(expression.right,depth+1,false) &&
+          (!expression.refinement || check(expression.refinement,depth+1,false));break;
+      case "strict-equal": case "binary":
+        valid=check(expression.left,depth+1,false) && check(expression.right,depth+1,false);break;
+      case "not": case "typeof": case "truthy": case "unary":
+        valid=check(expression.operand,depth+1,false);break;
+      case "indexed-element": valid=check(expression.index,depth+1,false);break;
+      case "string-slice": valid=check(expression.operand,depth+1,false) &&
+        check(expression.start,depth+1,false) && (!expression.end || check(expression.end,depth+1,false));break;
+      default: valid=false;
+    }
     active.delete(value);
     return valid;
   };
@@ -870,11 +905,12 @@ function finiteChoiceRelation(left: Any, right: Any,
 export function compareNumbers(left: TESNumber, right: TESNumber, operator: NumberOperator, knowledge: Knowledge = []): TESBoolean {
   const result = ESBoolean(resolveComparison(left, right, operator, knowledge));
   if (result.value === undefined) {
-    if (choiceOf(left) || choiceOf(right)) {
-      const finite = finiteChoiceRelation(left,right,operator,knowledge);
-      if (finite) return finite;
-    }
-    result.expression = { kind: "compare", left, right, operator };
+    const finite = choiceOf(left) || choiceOf(right) ? finiteChoiceRelation(left,right,operator,knowledge) : undefined;
+    if (finite && finite.value !== undefined) return finite;
+    // Preserve the original relation as well as its equivalent guard tree.
+    // Assumptions about either representation must retain aggregate order facts.
+    result.expression = finite ? { kind: "compare", left, right, operator, refinement: finite } :
+      { kind: "compare", left, right, operator };
   }
   return result;
 }
@@ -886,7 +922,10 @@ function resolveBooleanDirect(condition: TESBoolean, knowledge: Knowledge): bool
   const expression = condition.expression;
   if (!expression) return undefined;
   switch (expression.kind) {
-    case "compare": return resolveComparison(expression.left, expression.right, expression.operator, knowledge);
+    case "compare": {
+      const direct = resolveComparison(expression.left, expression.right, expression.operator, knowledge);
+      return direct === undefined && expression.refinement ? resolveBoolean(expression.refinement, knowledge) : direct;
+    }
     case "strict-equal": return resolveEquality(expression.left, expression.right, knowledge);
     case "not": {
       const value = resolveBoolean(expression.operand, knowledge);
@@ -942,7 +981,8 @@ function resolveFromSelectionPrior(query: TESBoolean, knowledge: Knowledge): boo
             if (declined) return;
             if (++work>128 || --remainingPriorWork<0 || guardDepth>8 || branchFacts.length>512) {declined=true;return;}
             const known=resolveBooleanDirect(guard,branchFacts);
-            const selected=guard.expression;
+            const selected=guard.expression && guard.expression.kind === "compare" && guard.expression.refinement ?
+              guard.expression.refinement.expression : guard.expression;
             if (selected && selected.kind === "select" &&
                 isESBoolean(selected.consequent) && isESBoolean(selected.alternate)) {
               // A known result does not identify the selected alternative.
@@ -1049,6 +1089,9 @@ function resolveEquality(left: Any, right: Any, knowledge: Knowledge): boolean |
     const second = resolveBoolean(right, knowledge);
     if (first !== undefined && second !== undefined) return first === second;
     if (boundedSameCondition(left,right,{remaining:64})) return true;
+    const firstRefinement = left.expression && left.expression.kind === "compare" ? left.expression.refinement : undefined;
+    const secondRefinement = right.expression && right.expression.kind === "compare" ? right.expression.refinement : undefined;
+    if (firstRefinement || secondRefinement) return resolveEquality(firstRefinement || left, secondRefinement || right, knowledge);
     return undefined;
   }
   if (a.type === "null" || a.type === "undefined") return true;
@@ -1104,7 +1147,11 @@ export function selectValue(condition: TESBoolean, consequent: Any, alternate: A
   const resolved = resolveBoolean(condition, knowledge);
   if (resolved !== undefined) return resolved ? consequent : alternate;
   if (sameValue(consequent, alternate)) return consequent;
-  const expression: SelectExpression = { kind: "select", condition, consequent, alternate };
+  // Use an equivalent compact guard in joined values, while numberSelection
+  // below still receives the original relation for aggregate order inference.
+  const guard = condition.expression && condition.expression.kind === "compare" && condition.expression.refinement ?
+    condition.expression.refinement : condition;
+  const expression: SelectExpression = { kind: "select", condition: guard, consequent, alternate };
   if (isESNumber(consequent) && isESNumber(alternate)) {
     const result: TESNumber = { ...ESNumber(), expression };
     numberSelection(result, condition, consequent, alternate, knowledge);
