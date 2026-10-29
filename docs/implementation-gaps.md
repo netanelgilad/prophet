@@ -1999,3 +1999,10 @@ BUFFER-002 and HTTP gaps. No policy/security CLI was introduced.
 TEST-002 adds13 complete startsWith files/26 variants; no admissible full /i case
 was found among reviewed exec/capture/global candidates, retained in regexp docs.
 Historical46 skipped files and parse-negative inventory remain open/unchanged.
+
+P045 final frozen-source validation:207 suites/5827 passes/46 historical skips,
+typecheck0. Complete active corpus507 files/1005 variants;43 parse-negative
+files/85 variants and historical skipped-file inventory unchanged. Final four
+scans and log/source hashes are recorded in [evidence](agent-tasks/P045-package-apis/evidence.json).
+The inventory migrations change support classification only, preserving residual
+guards and native own-name checks. No residual gap above is closed by this run.

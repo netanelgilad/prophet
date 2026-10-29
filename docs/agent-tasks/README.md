@@ -9,7 +9,8 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 [P045](P045-package-apis/task.md) implements bounded RegExp ignoreCase and
 String.startsWith for unchanged sirv Brotli and development-mode paths. Independent
-review accepted; full validation/publication pending. Prior P044 is published at
+review accepted at8a82a68;207 suites/5827 passes/46 skips/typecheck0.
+Exact-candidate CI/publication pending; [evidence](P045-package-apis/evidence.json). Prior P044 is published at
 0f5060b after CI40901033465; [publication](P044-array-map/publication.json).
 
 ## Real-package coverage resumed — 2026-10-29

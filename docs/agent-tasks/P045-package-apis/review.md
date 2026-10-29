@@ -50,3 +50,19 @@ mixed Map value inference and own toString typing. These were corrected with
 explicit partial-model metadata and types; focused86 tests/typecheck passed.
 Root restarted full validation detached from tool-session hangups, retaining
 original logs. Production code was unchanged by these corrections.
+
+The second full run passed205/207 suites and5825 tests, with two stale String
+prototype inventories still classifying startsWith as unsupported. Root migrated
+the name into supported inventories and retained native own-name checks, adding
+a native/interpreted positive and negative prefix assertion. Both affected suites
+then passed104 tests. Correction commit8a82a68 changes tests only; full validation
+restarted against that frozen source. Earlier failures/logs are retained.
+
+The corrected detached run also ended with exit129 after138.97s, with no recorded
+assertion failure; typecheck passed and source hashes were unchanged. Root retained
+this as second-hangup evidence and restarted with SIGHUP ignored by the launcher.
+An interrupted run is not counted as a passing full-suite result.
+
+Final frozen8a82a68 validation completed:207 suites,5827 passes,46 historical
+skips; typecheck0 and source/test hashes unchanged. Independent reviewer approved
+the two inventory migrations and unchanged cumulative production.
