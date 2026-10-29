@@ -5,6 +5,13 @@ independent review and integration. Keep actual thread IDs, model invocation,
 base/tested/published commits and archive status here; do not imply a queued task
 has run. Review depth changes require a recorded decision, not a growing test count.
 
+## Joined ordinary-array stores — P050
+
+[P050](P050-joined-array-writes/task.md) removes the post-join write restriction
+using persistent properties/presence rather than enumerated element vectors.
+Independent review and final validation are pending. Unknown-length sequence
+mutation and vector-dependent methods remain separate gaps.
+
 ## Adversarial mutable state — P049
 
 [P049](P049-adversarial-state/task.md) implements bounded in-place compaction,
@@ -12,7 +19,7 @@ binary search and competing-callback contracts. Shared conditional member keys,
 array-length dispatch and Math.floor extend the VM; search-related generic
 inference passed independent semantic review. Frozen source f39fb04 passed226
 suites/6238 tests with46 unchanged historical skips; typecheck passed.
-Exact-candidate CI and publication follow the evidence commit. See [declared domains](../adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state).
+Published44af211 with exact-candidate CI success; see its publication record. See [declared domains](../adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state).
 
 ## Harder adversarial proofs — P048
 

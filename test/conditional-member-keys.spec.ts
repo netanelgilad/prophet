@@ -67,8 +67,8 @@ test('a throwing key skips RHS and preserves the earlier receiver effect',()=>{
  const proof=flag?(trace==='ok' && caught && a[1]===2):(trace==='okr' && !caught && a[1]===9);`);
 });
 
-test('mixed-length heap remains conservative for a later array mutation',()=>{
- expect(()=>run(`const a=[1,2];a.length=flag?0:1;a[0]=7;`)).toThrow('Array assignment requires known element structure');
+test('mixed-length heap supports a later array mutation',()=>{
+ proof(`const a=[1,2];a.length=flag?0:1;a[0]=7;const proof=a.length===1 && a[0]===7 && a[1]===undefined;`);
 });
 
 function choice(yes:Any,no:Any):Any {

@@ -819,3 +819,9 @@ finite-choice reasoning preserves aggregate order facts and bounded refinements.
 cover each fixed length0..4 and an explicit0..3 event horizon with single optional
 reentry. Arbitrary-length mutable induction and automatic unbounded Node event
 exploration are subsequent work, not consequences of these examples.
+
+P050 adds direct persistent stores to ordinary arrays whose conditional layouts
+have no shared element vector. This preserves mutation after finite length joins
+and sparse holes, an incremental prerequisite toward unknown-length sequence
+stores. It does not yet change symbolic snapshot mutability or prove compaction
+for arbitrary lengths. See [task](agent-tasks/P050-joined-array-writes/task.md).

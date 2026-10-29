@@ -2105,13 +2105,13 @@ closed solely by passing examples or the selected corpus count.
 
 ## P049 reconciliation — mutable sequences, search and callback state
 
-The scoped implementation passes its focused specs. Final validation and semantic
-review are pending; no residual gap is closed by these examples.
+P049 passed independent review,226 suites/6238 tests and typecheck, then exact-head
+CI and publication at44af211. No residual gap group is closed by these examples.
 OBJ-003: member references split explicit finite key choices without re-evaluating
 receiver/key; generic symbolic numeric keys, Boolean/object key conversion and
 other ToPropertyKey cases remain unsupported. ARRAY-001/SYM-002: conditional length
 assignment and exact per-key presence allow reads after mixed-length ordinary
-array merges; a missing shared elements vector still blocks subsequent writes.
+array merges; P050 subsequently adds direct property-based stores when no shared vector remains.
 Unknown/segmented array missing positions and immutable symbolic-array writes
 remain boundaries. Compaction proves only each dense ordinary length0..4 with
 independent finite values; arbitrary-length mutable sequence/store relations remain.
@@ -2126,7 +2126,7 @@ exposes the same intrinsic. Math.ceil and other Math methods remain separate wor
 Number/undefined relational comparison preserves NaN's false result for primitive
 operands only, without skipping observable object coercion.
 
-SYM-001: new finite-choice Boolean/order inference is under review. Comparison
+SYM-001: P049 finite-choice Boolean/order inference passed independent review. Comparison
 and equality retain finite branch guards; order plus disequality can strengthen
 an edge. Bounded selection-prior inference requires agreement on all retained
 leaves and nonempty evidence. This is not complete satisfiability checking;
@@ -2169,3 +2169,28 @@ store compact equivalent guards, while numeric facts derive from the original
 comparison. Relation preflight counts the full expression closure including
 guards/refinements; explicit endpoint equality facts alone strengthen order edges.
 This preserves existing minimum proofs without lifting SYM-001 or SYM-004.
+
+## P050 reconciliation — joined ordinary-array stores
+
+ARRAY-001/OBJ-003: complete ordinary element-shape heap entries can retain exact
+properties even without a common vector. Index writes now update own presence
+and branch-correlated length; numeric length stores truncate indexed properties,
+presence and key-order branches, or grow holes. Named properties and older heap
+snapshots survive. No vector reconstruction is implied: push and other methods
+requiring a vector remain unsupported after these joins. Object.keys on arrays
+remains an explicit separate API gap; stored key order is tested directly.
+
+SYM-002: immutable unknown-length symbolic snapshots, opaque lengths/indices and
+segmented arrays remain unsupported for mutation. This is a prerequisite toward
+mutable sequences, not a proof over arbitrary-length compaction or general loop
+invariants. LANG-003 retains numeric-only valid length assignment and the legacy
+invalid-length assertion on vector-backed arrays; the new joined path uses typed
+unsupported boundaries for coercion/invalid lengths, not guest RangeError.
+Custom receiver/descriptors and unresolved inherited write hooks remain guarded.
+
+SYM-004: joined storage preflight bounds stored properties/presence/key-order
+work before copying; sparse uint32 length alone never induces a length-sized
+allocation. Finite length choices and recursive key-order graphs have separate
+depth/cycle guards. These are analysis-work bounds, not JavaScript input rules or
+a global inherited solver runtime guarantee. Exact final caps and evidence are
+recorded in the P050 review. Historical skipped tests remain unchanged.

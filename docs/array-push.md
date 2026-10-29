@@ -285,10 +285,33 @@ choice dispatch before truncation. The evaluated receiver/key are retained acros
 RHS execution. Dispatch caps are256 expanded nodes/depth16, with cycle rejection
 before continuation. Merging different ordinary lengths retains exact own-key
 presence, allowing absent reads to consult the prototype even though no shared
-elements vector survives. This does not reconstruct a vector for later mutation:
-such writes remain unsupported. Unknown/segmented arrays retain their indexed
+elements vector survives. P050 adds property-based writes for these joined ordinary arrays; see below.
+This does not reconstruct a vector for vector-dependent methods. Unknown/segmented arrays retain their indexed
 absence guard, and immutable symbolic-array snapshots remain nonmutable. Invalid
 length assignment still uses a legacy assertion rather than guest RangeError.
 See [conditional-member specs](../test/conditional-member-keys.spec.ts) and the
 [bounded compaction contract](adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state).
-Full review and validation are pending.
+P049 review and validation passed; publication is recorded in its task.
+
+## P050: joined ordinary-array storage
+
+Index and concrete numeric length stores after ordinary-array joins update the
+existing persistent property map, conditional presence and key order. Growing
+length creates holes; truncating removes indexed properties and their presence
+records. Index writes establish own presence and grow length only on paths where
+needed. Aliases retain receiver identity and earlier contexts retain old storage.
+The optional dense/sparse vector stays absent when layouts differ; push and other
+vector-dependent methods are not thereby expanded.
+
+Unknown/segmented arrays and immutable symbolic sequences are separate domains.
+General unknown-length mutable sequence induction, length coercion, guest invalid
+length RangeError, custom descriptors and inherited setter execution remain gaps.
+New admission guards and final validation are recorded in the P050 task.
+
+Current work limits:256 expanded length-choice nodes/depth16;1024 expanded
+expression nodes/depth32 including guards and refinements;4096 combined stored
+property/presence/key-order entries/nodes with key-order depth32;256 entries per
+inherited read/write metadata list. Cycles reject. Guards precede heap copying;
+these caps do not bound all inherited solver knowledge traversal. Even an index
+already known own currently requires the admitted intrinsic prototype write
+model, a conservative precision boundary.

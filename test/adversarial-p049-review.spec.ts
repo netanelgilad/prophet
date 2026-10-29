@@ -31,9 +31,9 @@ test('independent conditional member review: negative zero and noncanonical nume
  prove(`const a=[4];a[flag?-0:'01']=9;
  const proof=flag?a[0]===9&&a['01']===undefined:a[0]===4&&a['01']===9;`);
 });
-test('independent conditional length review: regrowth after divergent shape join remains unsupported',()=>{
- expect(()=>run('const a=[1,2,3];a.length=flag?0:1;a.length=3;'))
- .toThrow('Array assignment requires known element structure');
+test('independent conditional length review: regrowth after divergent shape join preserves holes',()=>{
+ prove(`const a=[1,2,3];a.length=flag?0:1;a.length=3;
+ const proof=a.length===3&&a[1]===undefined&&a[2]===undefined&&(flag?a[0]===undefined:a[0]===1);`);
 });
 test('independent conditional length review: branch-local truncation removes old elements after regrowth',()=>{
  prove(`const a=[1,2,3];const alias=a;

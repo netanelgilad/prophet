@@ -25,7 +25,8 @@ import assert from "assert";
 import { ESTree } from "cherow";
 import { withAnalysisFailureContext } from "./execution-context/analysis-failure";
 import { unimplemented } from "@deaven/unimplemented";
-import { Array as ESArray, TArray } from "./array/Array";
+import { Array as ESArray, TArray, ArrayValue } from "./array/Array";
+import { assignJoinedArray } from "./array/joined-write";
 import { ordinarySpreadElements } from "./array/spread";
 import { choiceOf } from "./symbolic";
 import { evaluateBranches, BranchResult } from "./execution-context/branches";
@@ -393,6 +394,12 @@ export function assignMember(object: Any, name: string, assigned: Any, context: 
     return withMemberChoices(assigned, context,
       (length, branch) => assignMember(object, name, length, branch));
   }
+  // A joined ordinary array must establish its write model before invoking
+  // any receiver hook; unsupported metadata cannot execute a hidden mutation.
+  if (isArray(object) && (object as ArrayValue).shape.kind === "elements" &&
+      (name === "length" || isArrayIndex(name)) && getArrayElements(object as ArrayValue, context) === undefined) {
+    return assignJoinedArray(object as ArrayValue, name, assigned, context);
+  }
   const unmodeledWrites = (object as WithProperties).unmodeledPropertyWrites;
   if (unmodeledWrites && unmodeledWrites.includes(name)) {
     throw unsupportedPropertyError(object, `Unmodeled host property write '${name}'`);
@@ -407,7 +414,7 @@ export function assignMember(object: Any, name: string, assigned: Any, context: 
   if (isArray(object) && (name === "length" || isArrayIndex(name))) {
     const array = unsafeCast<TArray<Any>>(object);
     const current = getArrayElements(array, context);
-    assert(current, "Array assignment requires known element structure");
+    if (!current) return assignJoinedArray(array as ArrayValue, name, assigned, context);
     const elements = current!.slice();
     if (name === "length") {
       assert(isESNumber(assigned) && typeof assigned.value === "number" &&

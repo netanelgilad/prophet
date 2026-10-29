@@ -1,0 +1,43 @@
+{
+  "files": {
+    "src/ASTResolvers.ts": "69cc1429f76323929e2b2ab3d11e8250d5434489666c01ee9e39fa89881319f1",
+    "src/execution-context/Heap.ts": "6cc897578516a6269c075dc17260577d2faf7bc7c565fa01b54eb0fc8f33f586",
+    "src/array/joined-write.ts": "6ca158bdfdd5fd7ffe8109924f82628e3eac8bdb56b9d296faf9d4f6cf38c111",
+    "test/joined-array-writes.spec.ts": "c0ecc8e61a9aa51b066aeb5fa90da30a3d72e027930598a10d7969705b2663f7",
+    "test/joined-array-writes-review.spec.ts": "06564b25089c086f0c1da951e5dbc033d886656ae288ecfdd6e7153b28c03365",
+    "test/conditional-member-keys.spec.ts": "12ec7108289dcfc6997e4c4f33bd88d1e00d34686fb11df8380a169ca417a694",
+    "test/adversarial-p049-review.spec.ts": "659de7e293945d499c60d94bc03e0d01108d2d6d89b3dc56a50220d6fa8a85a6"
+  },
+  "hashesUnchanged": true,
+  "results": [
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/joined-array-writes.spec.ts",
+        "test/joined-array-writes-review.spec.ts",
+        "test/conditional-member-keys.spec.ts",
+        "test/adversarial-p049-review.spec.ts"
+      ],
+      "exitCode": 0,
+      "seconds": 2.780545949935913,
+      "log": "/tmp/p050-independent-tests.log",
+      "logSha256": "0c42edcc93a86a00c6907b92b55d16a79b4e7f3cebd444cc32ee9f34d5876404"
+    },
+    {
+      "command": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 2.0190789699554443,
+      "log": "/tmp/p050-independent-types.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "node": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+  "scope": "Independent holdout and semantic review; full suite belongs to root."
+}

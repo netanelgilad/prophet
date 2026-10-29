@@ -19,6 +19,7 @@ not add fields to Prophet's runtime output.
 - [Captured program identities](program-identities.md): exact byte identities, acquisition unions, immutable snapshots and publication limits.
 - [Interpreted activations](interpreted-activations.md): dynamic call origins, branch restoration, proof exclusion and honest generated sources.
 - [CLI environment inputs](cli-environment.md): named correlations, fresh arrival templates, normalized state and bounded validation.
+- [Joined ordinary-array writes](joined-array-writes.md): conditional presence, length, holes and persistent mutations.
 - [Bounded Array.concat](array-concat.md): current heap, holes, branches and host work limits.
 - [Bounded Array.forEach](array-foreach.md): captured length, current-state visits and flat host iteration.
 - [Bounded generic UTF-16 substring](string-substring.md): ordered conversion, late admission and the measured Stats.size frontier.

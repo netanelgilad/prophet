@@ -4,7 +4,7 @@ import { TArray } from "../array/Array";
 import { ExecutionContext, TExecutionContext } from "./ExecutionContext";
 import assert from "assert";
 import { PropertyKeys, appendPropertyKey, isArrayIndex } from "./PropertyKeys";
-import { markUnsupportedBoundaryObject, unsupportedPropertyError } from "./analysis-failure";
+import { markUnsupportedBoundaryObject, unsupportedPropertyError, UnsupportedAnalysisError } from "./analysis-failure";
 export { isArrayIndex } from "./PropertyKeys";
 
 export type HeapEntry = {
@@ -140,4 +140,46 @@ export function writeProperty(
       ? getArrayElements(value as WithProperties & TArray<any>, context)
       : undefined
   }, context);
+}
+
+// This operation is for complete ordinary array storage whose layout became
+// conditional at a join. The caller validates array semantics and length.
+export function writeJoinedArrayProperty(
+  value: TArray<any> & WithProperties, name: string, assigned: Any, length: Any,
+  context: TExecutionContext
+): TExecutionContext {
+  const prior = context.value.heap!.get(value)!;
+  const limit = 4096;
+  let work = 0;
+  const count = (): void => {
+    if (++work > limit) throw new UnsupportedAnalysisError("Joined array storage exceeds the supported work limit");
+  };
+  // Count before Object.keys, spreads, or recursive key-order copies. Indexed
+  // ranges are never enumerated: a large sparse length costs only stored keys.
+  for (const key in prior.properties) if (Object.prototype.hasOwnProperty.call(prior.properties, key)) count();
+  for (const key in prior.presence) if (Object.prototype.hasOwnProperty.call(prior.presence, key)) count();
+  const order = getPropertyKeys(value, context);
+  const active = new Set<PropertyKeys>();
+  const checkOrder = (current: PropertyKeys, depth: number): void => {
+    count();
+    if (depth > 32 || active.has(current)) throw new UnsupportedAnalysisError("Joined array key order exceeds the supported work limit");
+    if (current.kind === 'keys') { for (let i = 0; i < current.keys.length; i++) count(); return; }
+    active.add(current); checkOrder(current.consequent, depth + 1); checkOrder(current.alternate, depth + 1); active.delete(current);
+  };
+  checkOrder(order, 0);
+  const truncates = name === 'length';
+  const newLength = (length as ReturnType<typeof ESNumber>).value!;
+  const retained = (key: string): boolean => !truncates || !isArrayIndex(key) || Number(key) < newLength;
+  const properties: { [key: string]: Any } = Object.create(null);
+  const presence: { [key: string]: TESBoolean } = Object.create(null);
+  Object.keys(prior.properties).forEach(key => { if (retained(key)) properties[key] = prior.properties[key]; });
+  Object.keys(prior.presence || {}).forEach(key => { if (retained(key)) presence[key] = prior.presence![key]; });
+  properties.length = length;
+  presence.length = ESBoolean(true);
+  if (!truncates) { properties[name] = assigned; presence[name] = ESBoolean(true); }
+  const updateOrder = (current: PropertyKeys): PropertyKeys => current.kind === 'choice' ? {
+    ...current, consequent: updateOrder(current.consequent), alternate: updateOrder(current.alternate)
+  } : { kind: 'keys', keys: current.keys.filter(retained) };
+  const keyOrder = truncates ? updateOrder(order) : appendPropertyKey(order, name);
+  return writeEntry(value, { properties, presence, keyOrder }, context);
 }

@@ -1,4 +1,4 @@
-# Next work after P049
+# Next work during P050
 
 ## Current checkpoint
 
@@ -27,11 +27,13 @@ horizon with optional single reentry. Independent semantic review is complete; t
 and exact-candidate CI before publication. All declared binary-search lengths0..4 now pass focused
 checks; unknown controls remain distinct from concrete counterexamples.
 
-After acceptance, useful extensions include mutable sequence/store relations for
-unknown lengths, writes after unequal-length ordinary-array merges, and broader
-callback event horizons through the shared runtime. Each requires its own proof
-contract. Existing harmless-allocation heap equivalence, general loop invariants
-and bounded merge work remain open. Security CLI work stays deferred.
+P050 implements the first prerequisite: subsequent index/length writes after
+ordinary-array branches retain different lengths or holes. It updates exact
+property/presence storage without reconstructing a vector. Full validation and
+publication are recorded in its task. Next scope mutable sequence/store relations
+for unknown lengths, then verified stable compaction invariants. Broader callback
+horizons are separate work. Harmless-allocation heap equivalence, general loop
+invariants and inherited merge work remain open. Security CLI stays deferred.
 
 ## Next package execution decision
 

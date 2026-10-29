@@ -451,3 +451,11 @@ before publication. [The complete ten-file candidate inventory](../../docs/math-
 keeps A7 (ceil/2000-iteration loop), length/name metadata and descriptor helpers
 inactive whole. Conditional member choices and search-related symbolic inference
 have dedicated symbolic controls; they are not claims of new syntax conformance.
+
+P050 activates two whole ordinary-array files: S15.4.5.2_A2_T1 (index growth)
+and S15.4.5.2_A3_T1 (numeric length growth and sparse retention). These already
+pass concrete execution and anchor the symbolic storage extension; they are not
+newly implemented syntax. Total527 files/1045 variants,43 parse-negative files/85
+variants,46 historical skips unchanged. A3_T2 includes Number-wrapper coercion,
+A3_T3 catchable invalid-length RangeError, A2.2/A2.3 constructor overloads, and
+S15.4.5.1_A2.1_T1 Boolean computed keys; all remain inactive whole.
