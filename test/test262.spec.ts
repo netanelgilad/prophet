@@ -13,6 +13,17 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  "built-ins/Array/prototype/unshift/S15.4.4.13_A1_T1.js",
+  "built-ins/Array/prototype/map/15.4.4.19-1-1.js",
+  "built-ins/Array/prototype/map/15.4.4.19-1-2.js",
+  "built-ins/Array/prototype/map/15.4.4.19-2-2.js",
+  "built-ins/Array/prototype/map/15.4.4.19-5-2.js",
+  "built-ins/Array/prototype/map/15.4.4.19-8-1.js",
+  "built-ins/Array/prototype/map/15.4.4.19-8-2.js",
+  "built-ins/Array/prototype/map/15.4.4.19-8-4.js",
+  "built-ins/Array/prototype/map/15.4.4.19-9-1.js",
+  "built-ins/Array/prototype/map/15.4.4.19-9-2.js",
+
   // P012: whole unmodified bounded generic substring candidates.
   "built-ins/String/prototype/substring/S15.5.4.15_A1_T10.js",
   "built-ins/String/prototype/substring/S15.5.4.15_A1_T11.js",

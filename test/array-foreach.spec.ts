@@ -202,7 +202,7 @@ test('a guest throw on one symbolic path survives beside its normal sibling', ()
 test('a supported sibling survives a typed unsupported conditional callback', () => {
   const selected = ESBoolean();
   const seen = ESArray([]);
-  const outcomes = leaves(run(`[0].forEach(selected ? (value) => { seen.push(value); } : (value) => { seen.push(value); [].map((item) => item); });`,
+  const outcomes = leaves(run(`[0].forEach(selected ? (value) => { seen.push(value); } : (value) => { seen.push(value); [].filter((item) => item); });`,
     { selected, seen }));
   expect(outcomes.some(([value]) => isExecutionBoundary(value))).toBe(true);
   const survived = outcomes.filter(([value]) => !isExecutionBoundary(value));
@@ -319,7 +319,7 @@ test('typed unsupported, budget and guest-throw completions stay distinct', () =
   const thrown = run('[1, 2, 3].forEach((value, index) => { if (index === 1) throw 9; });');
   expect(isExecutionBoundary(thrown[0])).toBe(false);
   expect(isThrownValue(thrown[0])).toBe(true);
-  const unsupported = run('[1].forEach(() => [].map((item) => item));');
+  const unsupported = run('[1].forEach(() => [].filter((item) => item));');
   expect(isThrownValue(unsupported[0])).toBe(false);
   expect(unsupported[0]).toMatchObject({ type: 'ExecutionBoundary', kind: 'unsupported' });
   const [, base] = run('const cb = (value) => value;');
@@ -354,7 +354,7 @@ test.each([
   'Array(1)', 'new Array(1, 2)', 'Array.prototype.forEach.call({ length: 1, 0: 7 }, () => {})',
   'Array.prototype.forEach.call("text", () => {})', 'Array.prototype.forEach.call(Array.prototype, () => {})',
   'Array.prototype.forEach = function() {}', 'Array.prototype[0] = 1',
-  'Array.prototype.map', '[].filter', 'Array.from'
+  'Array.prototype.every', '[].filter', 'Array.from'
 ])('remaining constructor, receiver, prototype and descriptor boundary: %s', source => {
   const result = run(source);
   expect(isExecutionBoundary(result[0])).toBe(true);

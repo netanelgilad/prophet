@@ -5,6 +5,15 @@ independent review and integration. Keep actual thread IDs, model invocation,
 base/tested/published commits and archive status here; do not imply a queued task
 has run. Review depth changes require a recorded decision, not a growing test count.
 
+## Real-package coverage resumed — 2026-10-29
+
+[P044: shared Array.prototype.map](P044-array-map/task.md) is in development
+against bcb4b14. Codex owns implementation, independent package controls and
+semantic review. The owner explicitly deferred the security CLI and prioritized
+shared runtime/syntax/API support exposed by unchanged packages. Current target:
+sirv compression extension preparation. Validation/publication remain pending.
+P043 was published at bcb4b14 after CI39825115797 (196 suites/5518 passes/46 skips).
+
 ## Sustained roadmap run — 2026-10-21
 
 **Latest checkpoint:** P042 is published at `45416bd`; full193 suites /

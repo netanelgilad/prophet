@@ -28,6 +28,12 @@ now has a bounded CLI proof **without an environment file**: the unchanged scrip
 either reaches a waiting server and its startup message or throws an unhandled
 bind Error. Explicit environment input and future-request exploration remain work.
 
+Shared bounded `Array.prototype.map` and `unshift` now advance unchanged sirv
+through gzip extension setup, compressed-file selection and fallback. Pinned Node
+references cover text-safe selected bytes and headers; Brotli case-insensitive
+matching and broader binary/transport behavior remain gaps. See the
+[sirv target](docs/sirv-target.md) and [next work](docs/next-work.md).
+
 ## First CLI slice
 
 From an installed checkout:

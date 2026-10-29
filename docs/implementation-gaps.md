@@ -1940,3 +1940,34 @@ Independent review and full196-suite/5518-pass/46-historical-skip run with
 typecheck passed; source hashes stayed stable. Four scans and complete unchanged
 Test262/skipped inventory are reconciled in P043 evidence. Exact-candidate CI
 precedes publication. No stable gap is closed.
+
+
+## P044 reconciliation — shared map and sirv compression setup
+
+ARRAY-001/LIB-001 now include bounded ordinary map: captured length, current
+HasProperty/Get, holes versus own undefined, inherited indices, callbacks and
+fresh results with symbolic correlations. Generic ToLength receivers, Array
+constructor overloads, custom species/descriptors/prototypes and unknown layouts
+remain open. Constructor shadows conservatively stop even when native behavior
+would use default creation; conditional layout loss remains an explicit boundary.
+SYM-004 retains uncapped symbolic branch volume; map bounds 1024 positions before
+allocation, with bounded quadratic private snapshot copying. LEGACY-002 retains
+other inherited-hook assumptions; this increment guards map's reached sparse
+lookup only and does not claim a repository-wide fix. LANG-001/LANG-004 and
+TEST-002 retain delete, rest, generic subclass/harness and deferred whole upstream
+cases. Nine new complete map files add18 variants; historical skips remain open.
+TARGET-002 advances unchanged sirv gzip/brotli factory options with real extension
+arrays and EMFILE siblings. Brotli dispatch still reaches the existing RegExp /i
+boundary; no source rewrite, gzip codec support or all-path package proof is claimed.
+See [task](agent-tasks/P044-array-map/task.md) for final validation/audit evidence.
+
+P044 substep B adds dense ordinary unshift within ARRAY-001/LIB-001. Current
+heap identity and symbolic values survive atomic persistent writes only after
+proving ordinary indexed Get/Set. New destination prototype hooks/unknown
+setter state stop before writes. Sparse/conditional presence, generic coercion,
+accessors/descriptors, overflow partial mutation and >1024 total positions remain
+open. Even no-argument sparse/large calls conservatively stop. Shared removeProperty
+currently does not synchronize array element storage; sparse unshift is deferred
+rather than treating that helper as sufficient (ARRAY-001/LEGACY-002). Target
+fixtures use text-safe .gz file contents to establish selection and headers;
+arbitrary binary/codec behavior remains outside this evidence (BUFFER-002/FS-002).

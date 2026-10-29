@@ -6,8 +6,10 @@ import { Any, ESNumber, FunctionBinding, isArray } from '../types';
 import { ESString } from '../string/String';
 import { Array as ESArray, ArrayValue, TArray } from './Array';
 import { push } from './push';
+import { unshift } from './unshift';
 import { concat } from './concat';
 import { forEach } from './forEach';
+import { map } from './map';
 import { reverse } from './reverse';
 import { join } from './join';
 import { slice } from './slice';
@@ -15,9 +17,10 @@ import { slice } from './slice';
 let prototype: ArrayValue | undefined;
 let constructor: FunctionBinding | undefined;
 const defaultIndexedRead = () => undefined;
+const defaultIndexedWrite = () => arrayBoundary('Array.prototype mutation');
 const defaultIndexedLookup = {
   read: defaultIndexedRead,
-  write() { return arrayBoundary('Array.prototype mutation'); }
+  write: defaultIndexedWrite
 };
 
 // Both identities are trust premises. A caller can replace the hook object
@@ -26,6 +29,14 @@ export function hasDefaultArrayPrototypeIndexedLookup(value: Any): boolean {
   return value === getArrayPrototype() &&
     (value as ArrayValue).propertyAccess === defaultIndexedLookup &&
     defaultIndexedLookup.read === defaultIndexedRead;
+}
+
+// Mutation algorithms must separately prove the write hook, since read-only
+// algorithms do not observe it and must not reject unrelated write metadata.
+export function hasDefaultArrayPrototypeIndexedWrite(value: Any): boolean {
+  return value === getArrayPrototype() &&
+    (value as ArrayValue).propertyAccess === defaultIndexedLookup &&
+    defaultIndexedLookup.write === defaultIndexedWrite;
 }
 
 export function arrayBoundary(detail: string): never {
@@ -37,9 +48,9 @@ export function arrayBoundary(detail: string): never {
 // the shared Symbol boundary. Arbitrary absent string properties stay absent.
 const deferred = ['at', 'copyWithin', 'entries', 'every', 'fill', 'filter',
   'find', 'findIndex', 'findLast', 'findLastIndex', 'flat', 'flatMap',
-  'includes', 'indexOf', 'keys', 'lastIndexOf', 'map', 'pop', 'reduce', 'reduceRight',
+  'includes', 'indexOf', 'keys', 'lastIndexOf', 'pop', 'reduce', 'reduceRight',
   'shift', 'some', 'sort', 'splice', 'toLocaleString', 'toReversed', 'toSorted',
-  'toSpliced', 'toString', 'unshift', 'values', 'with', '__proto__'];
+  'toSpliced', 'toString', 'values', 'with', '__proto__'];
 
 function method(name: string, length: number, implementation: Parameters<typeof ESBuiltinFunction>[0]) {
   const fn = markUnsupportedBoundaryObject(ESBuiltinFunction(implementation));
@@ -61,6 +72,7 @@ export function getArrayPrototype(): ArrayValue {
     propertyAccess: defaultIndexedLookup });
   Object.assign(prototype.properties, {
     push: method('push', 1, function*(self, args, context) { return push(self, args, context); }),
+    unshift: method('unshift', 1, function*(self, args, context) { return unshift(self, args, context); }),
     reverse: method('reverse', 0, function*(self, args, context) {
       if (self === prototype) return arrayBoundary('Array.prototype mutation');
       if (!isArray(self)) return arrayBoundary('generic non-array reverse receivers');
@@ -75,7 +87,8 @@ export function getArrayPrototype(): ArrayValue {
       return yield* slice(self as TArray<Any>, args, context);
     }),
     concat: method('concat', 1, function*(self, args, context) { return concat(self, args, context); }),
-    forEach: method('forEach', 1, function*(self, args, context) { return forEach(self, args, context); })
+    forEach: method('forEach', 1, function*(self, args, context) { return forEach(self, args, context); }),
+    map: method('map', 1, function*(self, args, context) { return map(self, args, context); })
   });
   // Both lazy getters publish identities before following the constructor link.
   Object.assign(prototype.properties, { constructor: getArrayConstructor() });

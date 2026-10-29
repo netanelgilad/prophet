@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **484 complete files / 959 strictness variants**,
+The active corpus contains **494 complete files / 979 strictness variants**,
 including 43 parse-negative files / 85 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -419,3 +419,11 @@ whole; seven incompatible files remain inactive without new skip sites.
 [Exact dispositions](../../docs/agent-tasks/P011-number-bitwise-not/upstream-candidates.md)
 retain wrapper, function, shift and BigInt/parser boundaries. Existing baseline
 and all 46 historical skipped files remain. This is no full conformance claim.
+
+P044 adds nine complete map files (18 variants) and unshift
+S15.4.4.13_A1_T1.js (2 variants). Native controls run each selected whole source
+in an independent pinned Node context; no test sources are trimmed. Map delete,
+Array(n), generic subclass/species/descriptor cases remain inactive. Unshift
+generic receivers, Number constants, sparse and descriptor cases remain inactive.
+The full46 historical skipped-file inventory is unchanged; see
+[P044 reconciliation](../agent-tasks/P044-array-map/test262-inventory.json).

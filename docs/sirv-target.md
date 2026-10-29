@@ -110,6 +110,23 @@ has reached those later operations. A nonempty custom ignores list would next
 reach the `RegExp` constructor inside the forEach callback, which remains
 separate work alongside loops.
 
+## Compression options (P044)
+
+The unchanged factory's `extensions.map` now completes for gzip, Brotli or both,
+preserving original extensions, distinct derived arrays and filesystem-failure
+siblings. Tests compare gzip-enabled missing-file and ordinary GET paths against
+pinned Node; source acquisition retains exact published package bytes. Brotli
+request dispatch still reaches `/(br|brotli)/i` even without accept-encoding;
+case-insensitive RegExp semantics are not established by factory completion.
+Shared bounded unshift now completes gzip candidate ordering. The actual handler
+selects an existing .gz file with Content-Encoding:gzip, falls back to the original
+when absent, and keeps the original when gzip is not accepted. Pinned Node
+Writable references agree on status, headers and selected text-safe bytes;
+[delivery specs](../test/sirv-gzip.spec.ts) use modeled HTTP/filesystem streaming.
+This proves routing and byte preservation for the declared text-safe fixture,
+not a gzip codec, arbitrary binary fidelity, network transport or all-path coverage.
+See [package cases](../test/sirv-map.spec.ts).
+
 ## Incremental acceptance
 
 1. Import the complete unchanged dependency graph through normal CommonJS

@@ -65,3 +65,6 @@ until review is recorded; a model-generated article is not independent evidence.
 - [Normal callback prefixes and pending input](pending-read.md): preserve symbolic histories when a previous boundary becomes normal.
 
 - [Shutdown arrival and writable finalization](shutdown-finalization.md): ignored native status, synchronous prefinish and queued finish ordering.
+
+- [Bounded map](array-map.md): fresh sparse results, current callback state and reached inherited lookup guards.
+- P044 unshift: dense snapshot writes require proving new destination Set cannot invoke inherited setters; constructor/species are irrelevant. See [array boundary](../array-push.md#shared-bounded-unshift-p044).

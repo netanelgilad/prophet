@@ -166,7 +166,7 @@ test.each([
   'Array(1)', 'new Array(1, 2)', 'Array.prototype.push.call({ length: 0 }, 1)',
   'Array.prototype.push.call("text", 1)', 'Array.prototype.push(1)',
   'Array.prototype.push = function() {}', 'Array.prototype[0] = 1', 'Array.prototype.length = 1',
-  'Array.prototype.reverse.call(Array.prototype)', 'Array.prototype.map', '[].filter', 'Array.from'
+  'Array.prototype.reverse.call(Array.prototype)', 'Array.prototype.every', '[].filter', 'Array.from'
 ])('remaining constructor, receiver, prototype and descriptor boundary: %s', source => {
   const result = run(source);
   expect(isExecutionBoundary(result[0])).toBe(true);

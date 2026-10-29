@@ -211,7 +211,7 @@ test.each([
   'Array(1)', 'new Array(1, 2)', 'Array.prototype.concat.call({ length: 0 }, 1)',
   'Array.prototype.concat.call("text", 1)', 'Array.prototype.concat.call(Array.prototype, 1)',
   'Array.prototype.concat = function() {}', 'Array.prototype[0] = 1', 'Array.prototype.length = 1',
-  'Array.prototype.map', '[].filter', 'Array.from'
+  'Array.prototype.every', '[].filter', 'Array.from'
 ])('remaining constructor, receiver, prototype and descriptor boundary: %s', source => {
   const result = run(source);
   expect(isExecutionBoundary(result[0])).toBe(true);

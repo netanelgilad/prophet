@@ -768,3 +768,15 @@ its one-event domain cannot fabricate the prior arming request. This is a bounde
 history result, not a general callback summary or proof over arbitrary timelines.
 
 Current continuation plan: [next work after P043](next-work.md).
+
+
+## 2026-10-29 owner priority: broader unchanged-package coverage
+
+The owner deferred the security CLI and requested continued generic syntax and
+API support from real packages. [P044](agent-tasks/P044-array-map/task.md) follows
+sirv's actual compression path: shared map for extension setup, then unshift for
+gzip candidate order. Retain other TCP input/timer work as open, and select
+further increments from reached package execution or concrete semantic defects.
+This does not change the agnostic runtime/state contract or establish entire
+Node/npm coverage. Brotli dispatch, percent-encoded paths, dev filesystem mode
+and broader syntax remain useful future target paths with explicit boundaries.

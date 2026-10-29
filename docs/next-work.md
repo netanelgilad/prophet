@@ -1,11 +1,29 @@
-# Next work after P043
+# Next work after P044
 
 ## Current checkpoint
 
 Instinct draft work is integrated and reviewed. The CLI exposes conditional state/effect graphs with exact source/package identity and actual call origins. It evaluates the unchanged node-notifier5.4.0 checkGrowl helper on explicit IPv4 inputs through TCP submission, selected connection completion, its actual empty end and user callback, first read registration, and selected empty-shutdown finalization. Pending input
 and timer work remain visible. Tests retain waiting/failure/partial histories and bounded HTTP/TCP combinations. This is one package subpath, not full npm coverage or Shai-Hulud detection.
 
-## Next implementation decision
+## Current owner priority — 2026-10-29
+
+Continue generic JavaScript syntax and Node/API coverage driven by unchanged
+real packages. Defer the security CLI. P044 implements Array.prototype.map for sirv gzip/Brotli extension setup and
+bounded unshift for actual gzip selection/fallback. Validate actual package behavior
+and select the next reached blocker rather than extending host models speculatively.
+The pending network events below remain roadmap work, not the only next path.
+
+## Next package execution decision
+
+Scope case-insensitive RegExp.test from sirv's actual Brotli dispatch, including
+ASCII/non-ASCII case-fold boundaries and complete Test262 evidence. Alternatively
+follow dev-mode startsWith/filesystem paths or percent-encoded URL decoding when
+those are the chosen package scenario. Do not label gzip text-safe selection tests
+as binary compression support. Sparse unshift needs correct array deletion
+bookkeeping; implicit arguments, rest and other syntax remain open and should be
+prioritized when an unchanged package reaches them.
+
+## Pending network event decision
 
 P043 implements the pending shutdown callback and synchronous prefinish/queued
 finish sequence. afterShutdown ignores its asynchronous status: writable finish

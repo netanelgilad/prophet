@@ -213,3 +213,65 @@ freezing, descriptors and the propertyHelper harness. The unchanged sirv
 factory now evaluates its default empty ignores forEach with zero visits and
 retains its state inside totalist's directory loop beside a sibling
 filesystem throw; loops and `RegExp` construction remain separate work.
+
+## Shared bounded map (P044)
+
+`map` is a shared nonconstructible intrinsic (name map, length1). It captures
+ordinary receiver length once, validates callability even on empty arrays,
+then verifies the default constructor/species domain before allocating output.
+Each visited index checks current HasProperty/Get after earlier callbacks;
+holes remain absent, own undefined is visited, and ordinary inherited indexed
+values become own output values. The callback receives value/index/receiver and
+thisArg through shared invocation. Input aliases, callback writes, guest throws,
+symbolic results and typed-stop siblings retain the current persistent state.
+A fresh output is returned. Within the default-species domain no callback can
+observe the intermediate output; private sparse snapshots preserve branch shape
+without exposing extra allocation identities. This implementation copies bounded
+snapshots per visited index (quadratic work within the fixed limit).
+
+Generic receivers/ToLength, Array.prototype itself, custom species/constructors,
+exotic receiver/accessor layouts and unknown length remain unsupported. Own
+constructor shadows conservatively stop, including otherwise benign shadows.
+Constructor prototype/symbol state must establish default species; unrelated
+known hasInstance is ignored. Per-index inherited lookup guards run only when
+an own index is not definitely present; a custom inherited hook stops at that
+reached index, preserving prior callback effects. Conditional length mutation
+can lose the layout and stop after a completed prefix. The 1024-index budget
+precedes allocation/copying; total symbolic branch volume remains unbounded.
+
+[Core specs](../test/array-map.spec.ts) and
+[independent review](../test/array-map-review.spec.ts) retain concrete/native,
+symbolic/unknown, mutation, sparse, failure, species and resource controls.
+Nine complete unmodified Test262 map files are active: 15.4.4.19-1-1,
+-1-2, -2-2, -5-2, -8-1, -8-2, -8-4, -9-1 and -9-2 (18 variants).
+Other cases remain whole/inactive: -8-3 requires delete, -8-5 Array(n), -8-6
+prototype mutation/delete, -9-3 generic subclassing/Array.isArray; broader
+species, descriptor, proxy, generic-length and callback harness cases remain
+work. Existing historical skips are not used to hide these deferred candidates.
+
+## Shared bounded unshift (P044)
+
+`unshift` is inherited with name unshift, length1 and no construct capability.
+For a known dense ordinary receiver, it prepends argument values in order,
+returns the new length, preserves receiver/element identities and updates only
+the current persistent heap. Earlier snapshots are unchanged. Symbolic argument
+values and conditional receiver alternatives use the shared machinery.
+Arguments are evaluated before the builtin observes the current receiver length.
+
+A single persistent write represents descending indexed moves, argument writes
+and length Set only after proving those reached operations cannot run hooks or
+fail: ordinary writable receiver data, dense own source elements, and a known
+Array/Object prototype chain without unresolved setters at newly created target
+indices. Ordinary inherited data does not intercept Set. Constructor/species and
+spreadability are unobserved and impose no restriction. Zero arguments retains
+length after proving an ordinary writable length; the current implementation
+still conservatively requires a bounded dense source.
+
+Generic receivers, sparse or conditional-presence layouts (requiring deletion),
+custom accessors/descriptors/prototypes, unknown lengths and overflow/maximum-
+length partial writes remain unsupported. The 1024-total-position limit precedes
+scans, copying and writes. Unknown inherited destination state stops before any
+atomic mutation; this is a conservative boundary, not a simulation of partial
+setter execution. Sparse support must fix shared array deletion bookkeeping
+before using it. See [core](../test/array-unshift.spec.ts) and
+[review](../test/array-unshift-review.spec.ts) controls.
