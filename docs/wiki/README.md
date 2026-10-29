@@ -70,3 +70,5 @@ until review is recorded; a model-generated article is not independent evidence.
 - P044 unshift: dense snapshot writes require proving new destination Set cannot invoke inherited setters; constructor/species are irrelevant. See [array boundary](../array-push.md#shared-bounded-unshift-p044).
 
 - [Package matching/prefix semantics](package-apis.md): ASCII ignoreCase, ordered startsWith conversion, intrinsic match precedence and strict URI decoding.
+
+- [Adversarial proof lessons](adversarial-proofs.md): exact arithmetic, aliases and verified joint counters.

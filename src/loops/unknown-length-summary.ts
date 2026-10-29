@@ -19,7 +19,7 @@ import { Any, ESNumber, TESNumber, isESNumber, isReturnValue, isThrownValue,
 // real base, arbitrary body/update transition, exact successor and exit.
 type Direction = "lower" | "upper";
 type Candidate = Direction | "member" | "finite" | "range";
-type Slot = { environment: Environment; name: string; binding: Binding };
+export type Slot = { environment: Environment; name: string; binding: Binding };
 const maximumCandidates = 5;
 const maximumProofNodes = 96;
 const maximumProofBudget = 2400;
@@ -30,18 +30,18 @@ const maximumProofHeapEntries = 128;
 
 function decline(): never { throw new UnsupportedAnalysisError("Unknown-length loop proof declined"); }
 
-function slot(context: TExecutionContext, name: string): Slot | undefined {
+export function slot(context: TExecutionContext, name: string): Slot | undefined {
   const resolved = resolveBinding(context, name);
   return resolved && { ...resolved, name };
 }
 
-function valueAt(context: TExecutionContext, target: Slot): Any | undefined {
+export function valueAt(context: TExecutionContext, target: Slot): Any | undefined {
   const record = context.value.environments.get(target.environment);
   const binding = record && record.get(target.name);
   return binding && binding.value;
 }
 
-function replace(context: TExecutionContext, target: Slot, value: Any): TExecutionContext {
+export function replace(context: TExecutionContext, target: Slot, value: Any): TExecutionContext {
   const record = context.value.environments.get(target.environment);
   const binding = record && record.get(target.name);
   if (!binding) decline();
@@ -49,14 +49,14 @@ function replace(context: TExecutionContext, target: Slot, value: Any): TExecuti
     { ...binding, value, initialized: true });
 }
 
-function normal(result: BranchResult): TExecutionContext | undefined {
+export function normal(result: BranchResult): TExecutionContext | undefined {
   const value = result[0];
   return hasExecutionBoundary(value) || isForkedCompletion(value) ||
     isReturnValue(value) || isThrownValue(value) || isBreakValue(value) ||
     isContinueValue(value) ? undefined : result[1];
 }
 
-function inspect(node: any, budget: { remaining: number }): boolean {
+export function inspect(node: any, budget: { remaining: number }): boolean {
   if (!node || typeof node !== "object") return true;
   if (--budget.remaining < 0) return false;
   // Abrupt/nested control needs a larger proof tree. Decline before executing
@@ -73,7 +73,7 @@ function inspect(node: any, budget: { remaining: number }): boolean {
   });
 }
 
-function guardedHeader(ast: ESTree.ForStatement):
+export function guardedHeader(ast: ESTree.ForStatement):
   { indexName: string; arrayName: string } | undefined {
   const test = ast.test;
   if (!test || test.type !== "BinaryExpression" || test.operator !== "<" ||
@@ -83,7 +83,7 @@ function guardedHeader(ast: ESTree.ForStatement):
   return { indexName: test.left.name, arrayName: test.right.object.name };
 }
 
-function localEnvironments(context: TExecutionContext): Set<Environment> | undefined {
+export function localEnvironments(context: TExecutionContext): Set<Environment> | undefined {
   const result = new Set<Environment>();
   for (let env: Environment | undefined = context.value.environment; env; env = env.parent) {
     if (result.size >= maximumProofEnvironments) return undefined;
@@ -129,7 +129,7 @@ function cloneSnapshotAliases(context: TExecutionContext, array: SymbolicNumberA
     array: clone(array) as SymbolicNumberArray };
 }
 
-function proofContext(reached: TExecutionContext, array: SymbolicNumberArray):
+export function proofContext(reached: TExecutionContext, array: SymbolicNumberArray):
   { context: TExecutionContext; array: SymbolicNumberArray } | undefined {
   const locals = localEnvironments(reached);
   if (!locals) return undefined;
@@ -153,7 +153,7 @@ function proofContext(reached: TExecutionContext, array: SymbolicNumberArray):
   return { context, array: copied.array };
 }
 
-function pure(before: TExecutionContext, after: TExecutionContext): boolean {
+export function pure(before: TExecutionContext, after: TExecutionContext): boolean {
   if (after.value.effects !== before.value.effects) return false;
   const original = before.value.heap || new Map();
   const current = after.value.heap || new Map();

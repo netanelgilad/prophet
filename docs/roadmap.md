@@ -767,7 +767,7 @@ one. A stateful `/arm` then `/fire` spec now reaches the second-request failure;
 its one-event domain cannot fabricate the prior arming request. This is a bounded
 history result, not a general callback summary or proof over arbitrary timelines.
 
-Current continuation plan: [next work after P046](next-work.md).
+Current continuation plan: [next work after P047](next-work.md).
 
 
 ## 2026-10-29 owner priority: broader unchanged-package coverage
@@ -796,3 +796,11 @@ String.toLowerCase boundary, retained beside completed cases. Next: bounded
 Unicode default lowercase from pinned Unicode data, with contextual sigma,
 expansions, surrogate preservation and independent native/table validation.
 RegExp construction for custom ignores remains another demonstrated path.
+
+P047 follows the user's three approved adversarial proof examples. Conditional
+sorting already reduces through order facts; bounded exact-integer comparison
+normalization proves transfer conservation across aliases, and a verified joint
+counter invariant proves classification totals for symbolic length0..1000000.
+Broken counterparts remain nonconstant or explicitly unfinished. This extends
+reasoning rather than Node API surface; [domains and residuals](adversarial-proofs.md)
+include IEEE restrictions, conservative heap checks and fallback merge limits.

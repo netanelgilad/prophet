@@ -2043,3 +2043,27 @@ typecheck0. Active519 whole Test262 files/1029 variants;43 parse-negative files/
 variants and full historical skip inventory unchanged. Four scans and exact
 source/log hashes are bound in [evidence](agent-tasks/P046-decode-uri/evidence.json).
 Passing counts do not close residual scopes above or establish whole Node coverage.
+
+## P047 reconciliation — adversarial relational proofs
+
+SYM-001 adds bounded exact-safe-integer affine difference comparisons for
++, - and unary minus, only with independent direct integer/bound facts at every
+intermediate. No Number value rewriting; rounding, fractional/NaN/unbounded and
+unsafe arithmetic stay unknown. MAX128 visits/depth24/facts256 and cycles decline;
+general linear solving, transitive bounds and arbitrary floating algebra remain.
+SYM-002/SYM-003 add verified two-counter sum=index induction using actual VM
+base/body/update/exit over dense immutable finite arrays, including length0..1m.
+Admission needs index0, two zero mutable locals among at most4 candidates, exact
+index+1 and each counter unchanged/+1; at most256 scanned bindings/96 AST nodes
+perbody/update/choice depth8, shared proof2400/32env/128heap caps. Calls, nested or
+abrupt loops, views, unrelated writes/effects and other invariant families decline.
+SYM-004 retains conservative heap identity after unrelated object allocation,
+ordinary fallback merge-work growth and caller budget boundaries. Private proof
+caches do not mutate caller array caches; unknown counters remain unknown.
+LEGACY-002 retains member UpdateExpression unsupported behavior; independent
+fixtures use explicit equivalent assignment rather than expand syntax here.
+REPORT-001 retains unfinished-path/resumption limits: broken full-domain loops
+may stop, never count as a concrete false proof. TEST-002 remains519 active whole
+files/1029 variants,43 parse-negative/85 variants and46 historical skips; no new
+syntax/host semantics or new selected upstream files in this reasoning increment.
+All residuals above remain open; focused successes are not universal coverage.

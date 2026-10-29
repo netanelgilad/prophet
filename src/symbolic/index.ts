@@ -5,6 +5,7 @@ import {
 import { ESBoolean } from "../boolean/ESBoolean";
 import { ESString } from "../string/String";
 import * as Model from "./model";
+import { exactIntegerDifference } from "./affine";
 
 export type Expression = Model.Expression;
 export type Fact = Model.Fact;
@@ -738,6 +739,8 @@ function resolveComparison(left: TESNumber, right: TESNumber, operator: NumberOp
       return operator === "<" ? a.offset < b.offset : a.offset <= b.offset;
     }
   }
+  const affineDifference = exactIntegerDifference(left, right, knowledge);
+  if (affineDifference !== undefined) return operator === "<" ? affineDifference < 0 : affineDifference <= 0;
   if (sameNumber(left, right)) return operator === "<" ? false : notNaN(left, knowledge) ? true : undefined;
   if (sameIndexedPosition(left, right, knowledge)) {
     return operator === "<" ? false :
@@ -838,6 +841,8 @@ function resolveEquality(left: Any, right: Any, knowledge: Knowledge): boolean |
   if (a.type !== b.type) return false;
   if (isESNumber(left) && isESNumber(right)) {
     if (typeof left.value === "number" && typeof right.value === "number") return left.value === right.value;
+    const affineDifference = exactIntegerDifference(left, right, knowledge);
+    if (affineDifference !== undefined) return affineDifference === 0;
     if (sameNumber(left, right)) return notNaN(left, knowledge) ? true : undefined;
     if (sameIndexedPosition(left, right, knowledge)) {
       return notNaN(left, knowledge) && notNaN(right, knowledge) ? true : undefined;

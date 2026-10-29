@@ -58,3 +58,8 @@ positive proofs, wrong reducers, late index-dependent deviation, observable
 counter, alias and changed-call controls, guest throw leaves, and pinned-Node
 edge comparisons. The [design](../agent-tasks/P006-unknown-loop/design.md)
 records the exact obligations and residual limits.
+
+P047 adds a separate verified two-counter family, reusing P006's private snapshot
+and purity machinery without expanding the min/max family above. It starts at
+index0 with two zero mutable locals and proves their joint sum by executing an
+arbitrary transition. See [adversarial proof domains](../adversarial-proofs.md).

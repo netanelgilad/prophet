@@ -1,4 +1,4 @@
-# Next work after P046
+# Next work after P047
 
 ## Current checkpoint
 
@@ -7,11 +7,21 @@ and timer work remain visible. Tests retain waiting/failure/partial histories an
 
 ## Current owner priority — 2026-10-29
 
-Continue generic JavaScript syntax and Node/API coverage driven by unchanged
-real packages. Defer the security CLI. P044 implements Array.prototype.map for sirv gzip/Brotli extension setup and
-bounded unshift for actual gzip selection/fallback. Validate actual package behavior
-and select the next reached blocker rather than extending host models speculatively.
-The pending network events below remain roadmap work, not the only next path.
+The user approved three adversarial reasoning examples after the API work:
+conditional sorting, aliased transfer conservation, and two-counter classification
+with symbolic array length. P047 adds exact-integer comparison normalization and
+verified joint counter induction; sorting already passes through existing order
+facts. [Proof domains](adversarial-proofs.md) and broken controls are explicit.
+The security CLI remains deferred.
+
+## Next reasoning decision
+
+Keep the three examples as regression/unknown controls. Useful next steps are
+sound heap equivalence for harmless local allocation (currently a conservative
+summary decline), broader verified affine loop invariants, and bounded merge work
+on failed proof attempts. Each needs its own adversarial contract; do not weaken
+purity or treat a stopped broken program as a proof. API coverage below remains
+queued alongside reasoning; no new work is implied to be complete.
 
 ## Next package execution decision
 

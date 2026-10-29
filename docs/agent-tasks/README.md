@@ -5,6 +5,14 @@ independent review and integration. Keep actual thread IDs, model invocation,
 base/tested/published commits and archive status here; do not imply a queued task
 has run. Review depth changes require a recorded decision, not a growing test count.
 
+## Three adversarial proofs — P047
+
+[P047](P047-adversarial-proofs/task.md) follows the user-approved sorting,
+aliased-transfer and unknown-length classification examples. Correct flags prove
+false; broken controls remain nonconstant or explicitly unfinished. Independent
+solver review accepted in scope; full validation/publication pending.
+See [proof domains](../adversarial-proofs.md) and [review](P047-adversarial-proofs/review.md).
+
 ## URI decoding — P046
 
 [P046](P046-decode-uri/task.md) implements shared bounded decodeURI through

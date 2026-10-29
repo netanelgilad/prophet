@@ -37,6 +37,12 @@ resolves encoded ASCII sirv paths, preserves reserved escapes and retains caught
 malformed paths; Unicode filenames reach a separate lowercase boundary. See the
 [sirv target](docs/sirv-target.md) and [next work](docs/next-work.md).
 
+The [adversarial proof specs](docs/adversarial-proofs.md) cover conditional sorting,
+transfer conservation through aliases, and two-counter classification over a
+symbolic array length up to one million. Correct violation flags reduce to false;
+broken controls remain nonconstant or explicitly unfinished within documented
+numeric, heap and induction boundaries.
+
 ## First CLI slice
 
 From an installed checkout:
