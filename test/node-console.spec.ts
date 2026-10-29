@@ -286,26 +286,52 @@ test("log metadata and nonconstructibility match the bound native function", () 
   expect(model.inspectOutput(context)[0].chunks).toEqual([]);
 });
 
+// Typed intrinsic reflection boundaries retain the unfinished path beside any
+// completed receiver choice. Earlier state remains visible and guest catch does
+// not mistake an analysis limit for a program exception.
+function tagOutcomes(source: string, inputs: { [name: string]: Any } = {}) {
+  const model = createConsoleModel();
+  const initial = setVariablesInScope(nodeInitialExecutionContext, { console: model.module, ...inputs });
+  const result = evaluateCode('let trace="before";let caught=false;try {' + source +
+    ';trace="after";}catch(error){caught=true;}', initial);
+  const paths: Array<ReturnType<typeof evaluateCode>> = [];
+  const collect = (path: ReturnType<typeof evaluateCode>) => {
+    if (isForkedCompletion(path[0])) { collect(path[0].consequent); collect(path[0].alternate); }
+    else paths.push(path);
+  };
+  collect(result);
+  for (const [completion, context] of paths) {
+    expect(context.value.scope.caught).toMatchObject({value:false});
+    expect(model.inspectOutput(context)[0].chunks).toEqual([]);
+    if (completion === Undefined) expect(context.value.scope.trace).toMatchObject({value:"after"});
+    else {
+      expect(completion).toMatchObject({type:"ExecutionBoundary",kind:"unsupported"});
+      expect(context.value.scope.trace).toMatchObject({value:"before"});
+    }
+  }
+  return paths.map(path => path[0]);
+}
+
 test("borrowed object formatting cannot invent a tag for a partial console host model", () => {
   const source = 'const observation = Object.prototype.toString.call(console);';
   expect(native(source)).toEqual({ stdout: "", observation: "[object console]" });
-  expect(() => run(source)).toThrow("Unmodeled host Symbol.toStringTag read: Node console API");
+  expect(tagOutcomes(source)).toEqual([expect.objectContaining({type:"ExecutionBoundary", message:"Unmodeled host Symbol.toStringTag read: Node console API"})]);
 
   const logSource = 'const observation = Object.prototype.toString.call(console.log);';
   expect(native(logSource)).toEqual({ stdout: "", observation: "[object Function]" });
-  expect(() => run(logSource)).toThrow("Unmodeled host Symbol.toStringTag read: Node console.log function API");
+  expect(tagOutcomes(logSource)).toEqual([expect.objectContaining({type:"ExecutionBoundary", message:"Unmodeled host Symbol.toStringTag read: Node console.log function API"})]);
 });
 
 test("a conditional receiver cannot bypass partial-host reflection guards", () => {
   const source = 'const observation = Object.prototype.toString.call(selected ? {} : console);';
-  expect(() => run(source, { selected: ESBoolean() }))
-    .toThrow("Unmodeled host Symbol.toStringTag read: Node console API");
+  expect(tagOutcomes(source, { selected: ESBoolean() })).toEqual([Undefined,
+    expect.objectContaining({type:"ExecutionBoundary", message:"Unmodeled host Symbol.toStringTag read: Node console API"})]);
   const ordinary = run(source, { selected: ESBoolean(true) });
   expect(ordinary.context.value.scope.observation).toMatchObject({ value: "[object Object]" });
 
   const opaque = Object.assign(ESObject(), { unknownProperties: "A partially modeled host API" });
-  expect(() => run('Object.prototype.toString.call(opaque);', { opaque }))
-    .toThrow("Unmodeled host Symbol.toStringTag read: A partially modeled host API");
+  expect(tagOutcomes('Object.prototype.toString.call(opaque);', { opaque })).toEqual([
+    expect.objectContaining({type:"ExecutionBoundary", message:"Unmodeled host Symbol.toStringTag read: A partially modeled host API"})]);
 });
 
 test("ordinary object formatting still reports modeled receiver tags", () => {
@@ -330,8 +356,9 @@ test("inherited partial-host tags remain unsupported through ordinary constructi
     `;
     expect(native(`const selected = false;\n${source}`))
       .toEqual({ stdout: "", observation: "[object console]" });
-    expect(() => run(source, { selected: ESBoolean() }))
-      .toThrow("Unmodeled host Symbol.toStringTag read: Node console API");
+    const expectedBoundary = expect.objectContaining({type:"ExecutionBoundary", message:"Unmodeled host Symbol.toStringTag read: Node console API"});
+    expect(tagOutcomes(source, { selected: ESBoolean() })).toEqual(
+      prototype === "console" ? [expectedBoundary] : [Undefined, expectedBoundary]);
     if (prototype !== "console") {
       expect(run(source, { selected: ESBoolean(true) }).context.value.scope.observation)
         .toMatchObject({ value: "[object Object]" });

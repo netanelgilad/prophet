@@ -1,4 +1,4 @@
-# Next work after P045
+# Next work after P046
 
 ## Current checkpoint
 
@@ -21,14 +21,28 @@ Brotli precedence/fallback and dev plain/gzip/missing/outside-site scenarios now
 pass pinned Node controls. Keep text-safe selection distinct from codec/binary
 or transport support; non-ASCII /i remains an explicit boundary.
 
-Next, follow percent-encoded request paths into the shared decodeURI gap, with
-valid UTF-8 sequences, malformed encodings, reserved characters and symbolic
-alternatives tested before implementation. A separate useful path is custom
-ignores reaching the RegExp constructor. Prioritize the next reached operation;
-do not rewrite package code. Full Unicode matching, sparse unshift deletion,
-implicit arguments/rest and other syntax remain open. The older includes helper
-retains its inherited Symbol.match limitation; startsWith's scoped correction
-is not a repository-wide repair.
+P046 executes shared decodeURI for percent-encoded paths: ASCII hits, reserved
+escapes, once-decoding and caught malformed paths have pinned native/package
+controls. Unicode filenames still stop in mrmime's toLowerCase, after successful
+decoding in development mode. That is the next demonstrated package blocker.
+
+Next: implement bounded locale-insensitive Unicode lowercase. Pinned Node24.21.0
+reports Unicode17.0 and ICU78.3; the installed regenerate-unicode-properties
+package is Unicode12.0 and cannot silently serve as matching data. Acquire and
+hash pinned Unicode17 UnicodeData, SpecialCasing and DerivedCoreProperties;
+retain provenance for generated mappings/Cased/Case_Ignorable tables. Handle
+unconditional expansions, contextual final sigma and lone surrogates, with linear
+context passes and explicit input/output budgets. Compare tables and contextual
+cases independently with pinned Node, activate whole special-casing/supplementary
+Test262 cases, and replace both sirv Unicode stop specs with actual outcomes.
+This is scoped next work, not an implemented capability.
+
+A separate path is custom ignores reaching new RegExp(x,'i'). Construction needs
+IsRegExp, call/construct identity, coercion order, source/flags and syntax-validity
+handling beyond the matcher's supported grammar; do not turn an unsupported valid
+pattern into SyntaxError. Sparse unshift deletion, implicit arguments/rest and
+other syntax remain open. Older includes/startsWith conversion and lookup limits
+are not globally repaired by P046's scoped and intrinsic tag guards.
 
 ## Pending network event decision
 

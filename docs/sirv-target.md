@@ -131,6 +131,22 @@ This proves routing and byte preservation for the declared text-safe fixture,
 not a gzip codec, arbitrary binary fidelity, network transport or all-path coverage.
 See [package cases](../test/sirv-map.spec.ts).
 
+## Percent-encoded paths (P046)
+
+Shared decodeURI executes sirv's actual try/catch around percent-containing
+pathnames. [Package specs](../test/sirv-decode-uri.spec.ts) compare pinned Node
+with modeled HTTP/filesystem execution: encoded ASCII filenames resolve,
+reserved slash escapes retain their spelling, percent escapes decode once, and
+malformed escapes are caught while preserving the original pathname. Successful
+streams are declared, with text-safe bytes and no network transport claim.
+
+Unicode filenames remain a separate stopped path: cached factory initialization
+hits ASCII-only String.toLowerCase; development mode successfully decodes the
+pathname and later reaches that same limitation inside mrmime. The specs preserve
+the decoded activation state and absence of a started stream. Native success does
+not turn this unfinished VM path into a proof. Broader Unicode casing is the next
+demonstrated package blocker, alongside custom-ignore RegExp construction.
+
 ## Incremental acceptance
 
 1. Import the complete unchanged dependency graph through normal CommonJS

@@ -32,7 +32,9 @@ Shared bounded `Array.prototype.map` and `unshift` now advance unchanged sirv
 through gzip extension setup, compressed-file selection and fallback. Pinned Node
 references cover text-safe selected bytes and headers; P045 adds bounded ASCII RegExp ignoreCase and generic UTF-16 startsWith,
 advancing Brotli selection and development-mode file lookup. Full Unicode
-matching and broader binary/transport behavior remain gaps. See the
+matching and broader binary/transport behavior remain gaps. Shared decodeURI now
+resolves encoded ASCII sirv paths, preserves reserved escapes and retains caught
+malformed paths; Unicode filenames reach a separate lowercase boundary. See the
 [sirv target](docs/sirv-target.md) and [next work](docs/next-work.md).
 
 ## First CLI slice

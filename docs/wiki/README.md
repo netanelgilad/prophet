@@ -69,4 +69,4 @@ until review is recorded; a model-generated article is not independent evidence.
 - [Bounded map](array-map.md): fresh sparse results, current callback state and reached inherited lookup guards.
 - P044 unshift: dense snapshot writes require proving new destination Set cannot invoke inherited setters; constructor/species are irrelevant. See [array boundary](../array-push.md#shared-bounded-unshift-p044).
 
-- [Package matching/prefix semantics](package-apis.md): ASCII ignoreCase, ordered startsWith conversion, intrinsic match precedence.
+- [Package matching/prefix semantics](package-apis.md): ASCII ignoreCase, ordered startsWith conversion, intrinsic match precedence and strict URI decoding.

@@ -7,7 +7,7 @@ files from the installed Test262 package. `yarn.lock` pins that package to commi
 `47bf9d1db9f6e7632120ac1b1946ad092e6c214e`. It is a small conformance baseline;
 the remaining historical selections are explicitly skipped.
 
-The active corpus contains **507 complete files / 1005 strictness variants**,
+The active corpus contains **519 complete files / 1029 strictness variants**,
 including 43 parse-negative files / 85 variants. The 46 historical skipped files
 remain unchanged. The installed pinned `test/` tree contains 36,091 `.js` files,
 or **35,960 after excluding names ending `_FIXTURE.js`**: 19,328 under language,
@@ -433,3 +433,11 @@ whole-file controls. RegExp /i candidates requiring exec/capture/global state
 remain whole and inactive; native matrices supplement existing upstream coverage.
 All46 historical skipped files and43 parse-negative files/85 variants are unchanged.
 See [P045 inventory](../agent-tasks/P045-package-apis/test262-inventory.json).
+
+P046 adds12 complete decodeURI files/24 variants: incomplete escapes, reserved
+character preservation, ASCII/Cyrillic/control decoding, ordinary ToString and
+readable length/prototype absence/nonconstruction. The full source runs unchanged.
+Remaining descriptor/deletion/name cases, String.fromCharCode dependencies,
+decimalToHexString.js includes and exhaustive loops stay unselected; see
+[decoder boundary](../../docs/decode-uri.md). Local UTF8 matrices do not replace
+those upstream files or establish whole decodeURI conformance.

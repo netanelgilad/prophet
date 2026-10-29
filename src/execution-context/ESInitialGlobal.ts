@@ -7,6 +7,7 @@ import { ESBooleanConstructor } from "../boolean/ESBoolean";
 import { ObjectConstructor } from "../Object/ObjectConstructor";
 import { ESNumber, Undefined } from "../types";
 import { parseIntGlobal } from "../number/parse-int";
+import { decodeURIGlobal } from "../string/decode-uri";
 import { getErrorConstructor } from "../error/Error";
 import { getObjectPrototype } from "../Object/prototype";
 import { getFunctionPrototype } from "../Function/prototype";
@@ -33,6 +34,7 @@ export const ESInitialGlobal = ESObject({
   undefined: Undefined,
   NaN: ESNumber(NaN),
   parseInt: parseIntGlobal,
+  decodeURI: decodeURIGlobal,
   Infinity: ESNumber(Infinity),
   Math,
   Function: FunctionConstructor,

@@ -1,4 +1,4 @@
-import { unsupportedPropertyError } from "../execution-context/analysis-failure";
+import { unsupportedPropertyError, UnsupportedAnalysisError, ExecutionBudgetError } from "../execution-context/analysis-failure";
 import { ESObject, TESObject } from "../Object";
 import { ESBuiltinFunction } from "../Function/Function";
 import { Any, ESNull, Undefined, Type, ThrownValue, WithProperties, TESBoolean, isESNull, isUndefined } from "../types";
@@ -23,12 +23,16 @@ function withModeledStringTag(
   return withValue(value, context, (object, branch) => {
     // Symbol.toStringTag is inherited. A partial host model anywhere in the
     // prototype chain cannot establish that the property is absent.
+    if (seen.length >= 256) throw new ExecutionBudgetError("Object.prototype.toString symbol tag lookup exceeds 256 prototype objects");
     const unknown = (object as WithProperties).unknownProperties;
-    if (unknown) throw unsupportedPropertyError(object, `Unmodeled host Symbol.toStringTag read: ${unknown}`);
-    if (seen.includes(object)) throw new Error("Cyclic prototype graphs are not yet supported");
-    const prototype = prototypeOf(object);
-    return isESNull(prototype) ? continuation(branch) :
-      withModeledStringTag(prototype, branch, continuation, seen.concat([object]));
+    if (unknown) throw new UnsupportedAnalysisError(`Unmodeled host Symbol.toStringTag read: ${unknown}`);
+    if (seen.includes(object)) throw new UnsupportedAnalysisError("Cyclic prototype graphs are not yet supported");
+    if ((object as WithProperties).unmodeledPrototype) throw new UnsupportedAnalysisError("Object.prototype.toString unmodeled symbol tag lookup prototype");
+    return withValue(prototypeOf(object), branch, (prototype, after) => {
+      if (!isESNull(prototype) && !isObjectValue(prototype)) throw new UnsupportedAnalysisError("Object.prototype.toString invalid symbol tag lookup prototype");
+      return isESNull(prototype) ? continuation(after) :
+        withModeledStringTag(prototype, after, continuation, seen.concat([object]));
+    });
   });
 }
 

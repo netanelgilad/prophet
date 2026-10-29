@@ -2006,3 +2006,29 @@ files/85 variants and historical skipped-file inventory unchanged. Final four
 scans and log/source hashes are recorded in [evidence](agent-tasks/P045-package-apis/evidence.json).
 The inventory migrations change support classification only, preserving residual
 guards and native own-name checks. No residual gap above is closed by this run.
+
+## P046 reconciliation — decodeURI
+
+LIB-001/STRING-001 now admit bounded global decodeURI with primitive/ordinary
+ToString, exact reserved escape preservation, UTF8 scalar validation, raw UTF16
+preservation and guest URIError. The65536-unit postconversion cap is a budget,
+not a JS restriction; finite alternatives branch, open/chunk strings stop.
+LEGACY-002 retains array/function/exotic conversion and custom Symbol.toPrimitive
+gaps. The scoped symbol traversal rejects partial/cyclic/unmodeled chains and
+budgets acyclic depth; older helpers are not globally repaired. Metadata
+descriptors/writes and other URI globals remain LIB-001/OBJ-003 work.
+SYM-004 retains coercion/branch budgets; REPORT-001 retains general resumption.
+TARGET-002 gains unchanged sirv ASCII encoded hits, reserved escapes, once-decoding
+and caught malformed paths. Unicode cached setup and postdecode dev lookup stop
+at mrmime's ASCII-only toLowerCase: STRING-001 stays open, with actual decoded
+state retained. Stream success, text-safe bytes and modeled HTTP delivery remain
+declared FS-002/BUFFER-002/HTTP boundaries rather than established external facts.
+TEST-002 adds12 whole decodeURI files/24 variants; harness includes, descriptors
+and larger exhaustive cases remain unselected. The historical46 skips and
+parse-negative inventory stay unchanged. No blanket UTF8/URL/Node coverage claim.
+
+P046 R1/R2 audit: per-reached ordinary toString/valueOf lookup now uses current
+heap presence and typed guards, preserving own shadows and delayed fallback.
+The intrinsic Object.prototype.toString tag traversal receives its own typed
+partial/cycle/prototype and depth guards. These are narrow LEGACY-002/SYM-004
+corrections, not closure of all shared lookup or callback failure paths.

@@ -13,6 +13,20 @@ import {
 // (47bf9d1db9f6e7632120ac1b1946ad092e6c214e). This deliberately small corpus
 // is an active conformance baseline, not a claim of full compliance.
 const activeCorpus = [
+  // P046: whole decodeURI reserved, malformed, conversion and metadata cases.
+  "built-ins/decodeURI/S15.1.3.1_A1.1_T1.js",
+  "built-ins/decodeURI/S15.1.3.1_A3_T1.js",
+  "built-ins/decodeURI/S15.1.3.1_A3_T2.js",
+  "built-ins/decodeURI/S15.1.3.1_A3_T3.js",
+  "built-ins/decodeURI/S15.1.3.1_A4_T1.js",
+  "built-ins/decodeURI/S15.1.3.1_A4_T2.js",
+  "built-ins/decodeURI/S15.1.3.1_A4_T3.js",
+  "built-ins/decodeURI/S15.1.3.1_A4_T4.js",
+  "built-ins/decodeURI/S15.1.3.1_A5.4.js",
+  "built-ins/decodeURI/S15.1.3.1_A5.6.js",
+  "built-ins/decodeURI/S15.1.3.1_A5.7.js",
+  "built-ins/decodeURI/S15.1.3.1_A6_T1.js",
+
   // P045: complete bounded generic startsWith cases.
   "built-ins/String/prototype/startsWith/coerced-values-of-position.js",
   "built-ins/String/prototype/startsWith/out-of-bounds-position.js",

@@ -1,0 +1,10 @@
+{
+  "published": "a5d687b0f94222114402c5624cae4b31107064e7",
+  "branch": "master",
+  "ci": 40912216372,
+  "ciConclusion": "success",
+  "remoteReadback": "a5d687b0f94222114402c5624cae4b31107064e7",
+  "preservedOwnerFiles": 19,
+  "integration": "fast-forward; no force; exact successful CI head",
+  "source": "8a82a68a4e89d8387a56c5d84ea603da7bb28d78"
+}

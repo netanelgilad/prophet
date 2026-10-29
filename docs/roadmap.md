@@ -767,7 +767,7 @@ one. A stateful `/arm` then `/fire` spec now reaches the second-request failure;
 its one-event domain cannot fabricate the prior arming request. This is a bounded
 history result, not a general callback summary or proof over arbitrary timelines.
 
-Current continuation plan: [next work after P045](next-work.md).
+Current continuation plan: [next work after P046](next-work.md).
 
 
 ## 2026-10-29 owner priority: broader unchanged-package coverage
@@ -788,3 +788,11 @@ paths complete with pinned Node references. Non-ASCII case folding, codec/binary
 fidelity and wider failures remain explicit. Next concrete API target: decodeURI
 for percent-encoded request paths; custom-ignore RegExp construction is another
 reached path. Continue generic VM support; security CLI remains deferred.
+
+P046 adds shared bounded decodeURI and typed intrinsic tag-traversal boundaries.
+Unchanged sirv now resolves encoded ASCII filenames and preserves reserved or
+caught malformed paths. Decoded Unicode filenames reach mrmime's ASCII-only
+String.toLowerCase boundary, retained beside completed cases. Next: bounded
+Unicode default lowercase from pinned Unicode data, with contextual sigma,
+expansions, surrogate preservation and independent native/table validation.
+RegExp construction for custom ignores remains another demonstrated path.
