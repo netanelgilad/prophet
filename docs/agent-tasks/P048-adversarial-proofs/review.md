@@ -36,5 +36,11 @@ positive-summary cache-isolation checks. Cubic/quartic association, unsafe
 intermediate cancellation, atom identity, exhausted domains, weighted alternate
 scales/invalid transitions and finally overriding returns are covered.
 
-Final frozen source review/rerun and full validation are recorded in evidence.
+Final frozen source review accepted all production source with no outstanding
+soundness finding;62 tests across four new suites and typecheck passed. Reviewer
+also corrected unsupported optional chaining in the TypeScript fixture before
+its passing run. Full validation and exact source hashes are recorded in evidence.
 All narrowed domains and resource limits remain explicit in the gap backlog.
+
+Full frozen validation at f36f433:218 suites/6120 passing tests/46 unchanged
+historical skips and typecheck0. Source/test hashes unchanged across both runs.

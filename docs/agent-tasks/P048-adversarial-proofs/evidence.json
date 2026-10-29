@@ -1,0 +1,223 @@
+{
+  "implementation": "f36f43390c59d1e4259d5104ed2c63e70ac4fe05",
+  "base": "6eac2191131efb86fda0a1e43ac70ca97a375f9f",
+  "runtime": "v24.21.0",
+  "validation": {
+    "results": [
+      {
+        "name": "full-suite",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "test",
+          "--runInBand"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 158.7,
+        "log": "/tmp/prophet-p048/full-suite.log",
+        "sha256": "ea1798b659623478f3ecce84509c36b784fe74dd301201e405d0b1e9fe4b2b71"
+      },
+      {
+        "name": "typecheck",
+        "argv": [
+          "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+          ".yarn/releases/yarn-3.1.1.cjs",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 1.91,
+        "log": "/tmp/prophet-p048/typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "hashesUnchanged": true,
+    "suites": 218,
+    "passed": 6120,
+    "historicalSkips": 46
+  },
+  "reviewedHashes": {
+    "src/loops/counter-summary.ts": "f4876643e271eeaab1cdabf31ba2adf15261031323e758cce592cb4ef07461ea",
+    "src/symbolic/affine.ts": "0d4feb28305d155e4e96fa3b46fc95793278d4f2884fa500267e7be1a3c6c771",
+    "src/symbolic/index.ts": "4abf2fe6255245a69718046af0d1cf2d0d41c05d2e6e80f8fc5256fc49567390",
+    "src/symbolic/integer-domain.ts": "20bb7a90be79e4f5593940b778262855aecbf3ecd511213eab5589d9d2df1baa",
+    "test/adversarial-p048-review.spec.ts": "fc2db7893b9690a519dae00802a43b0278b25ee278621e7d59b1e4207de7a6ab",
+    "test/adversarial-polynomial.spec.ts": "e944ec022211a55954de57700137ce8233a07b06a67959ef73928e1a64debd3e",
+    "test/adversarial-rollback.spec.ts": "5664badabf3d0d1f71aa09c7ad30009af43c3361255c25b6d28389163f098bb8",
+    "test/adversarial-weighted-counters.spec.ts": "2021cc6ea6883d1121e8e5c579c7fc2248a5aef0f1baa696d4134a674a7546a0"
+  },
+  "audit": [
+    {
+      "name": "guards",
+      "argv": [
+        "rg",
+        "-n",
+        "throw new|unsupported|unmodeled|TODO|FIXME|not supported|not implemented",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 895,
+      "sha256": "47c37ae46904b32689587411f884a23c08dd36647895058af9d2c7e09201c670",
+      "log": "/tmp/prophet-p048/audit-guards.log"
+    },
+    {
+      "name": "assertions",
+      "argv": [
+        "rg",
+        "-n",
+        "assert\\(|unimplemented\\(",
+        "src",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 23,
+      "sha256": "5cbe2d523a3cbc030c335d3954f25aa07dfdb62b2dffd250b130b89232089699",
+      "log": "/tmp/prophet-p048/audit-assertions.log"
+    },
+    {
+      "name": "skips",
+      "argv": [
+        "rg",
+        "-n",
+        "\\b(test|it|describe)\\.(skip|todo)\\s*\\(",
+        "test",
+        "--glob",
+        "*.ts"
+      ],
+      "exitCode": 0,
+      "lines": 1,
+      "sha256": "90e16d440d4807cfac49061fbd0f91b4dfaa7f61c18f6196d5a09683d09695eb",
+      "log": "/tmp/prophet-p048/audit-skips.log"
+    },
+    {
+      "name": "boundaries",
+      "argv": [
+        "rg",
+        "-n",
+        "gap|unsupported|assum|remain|limit|not yet|not modeled",
+        "README.md",
+        "docs",
+        "test/commonjs/README.md",
+        "test/test262/README.md"
+      ],
+      "exitCode": 0,
+      "lines": 2920,
+      "sha256": "2bc6bdf08e8f152b5fc50b3da1ade6bba1c1e96f3309946fa9bcb4159a968c77",
+      "log": "/tmp/prophet-p048/audit-boundaries.log"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/tmp/prophet-p048/rollback-baseline.log",
+      "sha256": "d4c610a7dfa6328a37ac646d22612b23fa4cfd7bf87116ffdb858387b007d48e"
+    },
+    {
+      "path": "/tmp/prophet-p048/rollback-focused.log",
+      "sha256": "2837d25570d1556b9311ec292b2f450ae1ddfc9fcb35d9e0b6edecefb6910e5c"
+    },
+    {
+      "path": "/tmp/p048-polynomial-red.log",
+      "sha256": "bb0df5209f344fbd6920bcc7da77fc4f2b522d85c0d4614443647a93944e0e5d"
+    },
+    {
+      "path": "/tmp/p048-polynomial-green.log",
+      "sha256": "30a63df0cc8cd3013e3b02275a58db0d92474220c26b7be7116215d41bcc5822"
+    },
+    {
+      "path": "/tmp/p048-polynomial-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/p048-weighted-red.log",
+      "sha256": "8c101830a2b89bbcf4046bea216f6815ea268aa9e49e5b79d639a0e3e9a9a894"
+    },
+    {
+      "path": "/tmp/p048-weighted-induction-red.log",
+      "sha256": "b2f37b8b439c8a9885a693175d7d6453812610acdf9f40046e3cf944ad68319a"
+    },
+    {
+      "path": "/tmp/p048-weighted-green.log",
+      "sha256": "94855ea571bc779098bc7c93bba0262796811ed227fec67f202ca9680c88dddb"
+    },
+    {
+      "path": "/tmp/p048-weighted-types.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/p048-independent-review.log",
+      "sha256": "0b46fbf07036c326b70b3adb30cc8bee4d9a33e89bd401d92ee973a6f78b0ef2"
+    },
+    {
+      "path": "/tmp/p048-final-independent-review.log",
+      "sha256": "45b76a2580e4a2b636e580f92c1503d0107c0de6ba9c3f666bce062f2687529e"
+    },
+    {
+      "path": "/tmp/p048-final-independent-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "test262": {
+    "before": {
+      "activeFiles": 519,
+      "variants": 1029
+    },
+    "activeFiles": 519,
+    "variants": 1029,
+    "parseFiles": 43,
+    "parseVariants": 85,
+    "historic": [
+      "built-ins/Boolean/S15.6.1.1_A1_T1.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T2.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T3.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T4.js",
+      "built-ins/Boolean/S15.6.1.1_A1_T5.js",
+      "built-ins/Boolean/S15.6.1.1_A2.js",
+      "built-ins/Boolean/S15.6.2.1_A1.js",
+      "language/statements/if/if-async-fun-else-async-fun.js",
+      "language/statements/if/if-async-fun-else-stmt.js",
+      "language/statements/if/if-async-fun-no-else.js",
+      "language/statements/if/if-async-gen-else-async-gen.js",
+      "language/statements/if/if-async-gen-else-stmt.js",
+      "language/statements/if/if-async-gen-no-else.js",
+      "language/statements/if/if-cls-else-cls.js",
+      "language/statements/if/if-cls-else-stmt.js",
+      "language/statements/if/if-cls-no-else.js",
+      "language/statements/if/if-const-else-const.js",
+      "language/statements/if/if-decl-else-decl-strict.js",
+      "language/statements/if/if-decl-else-stmt-strict.js",
+      "language/statements/if/if-decl-no-else-strict.js",
+      "language/statements/if/if-fun-else-fun-strict.js",
+      "language/statements/if/if-fun-else-stmt-strict.js",
+      "language/statements/if/if-fun-no-else-strict.js",
+      "language/statements/if/if-gen-else-gen.js",
+      "language/statements/if/if-gen-else-stmt.js",
+      "language/statements/if/if-gen-no-else.js",
+      "language/statements/if/if-let-else-let.js",
+      "language/statements/if/if-let-else-stmt.js",
+      "language/statements/if/if-let-no-else.js",
+      "language/statements/if/if-stmt-else-async-fun.js",
+      "language/statements/if/if-stmt-else-async-gen.js",
+      "language/statements/if/if-stmt-else-cls.js",
+      "language/statements/if/if-stmt-else-const.js",
+      "language/statements/if/if-stmt-else-decl-strict.js",
+      "language/statements/if/if-stmt-else-fun-strict.js",
+      "language/statements/if/if-stmt-else-gen.js",
+      "language/statements/if/if-stmt-else-let.js",
+      "language/statements/if/labelled-fn-stmt-first.js",
+      "language/statements/if/labelled-fn-stmt-lone.js",
+      "language/statements/if/labelled-fn-stmt-second.js",
+      "language/statements/if/let-array-with-newline.js",
+      "language/statements/if/let-block-with-newline.js",
+      "language/statements/if/let-identifier-with-newline.js",
+      "language/types/boolean/S8.3_A1_T1.js",
+      "language/types/boolean/S8.3_A1_T2.js",
+      "language/types/boolean/S8.3_A3.js"
+    ],
+    "skipsUnchanged": true,
+    "addedFiles": []
+  },
+  "review": "Independent full cumulative source review accepted;62 focused tests and typecheck passed. Initial invalid native witness, unsupported += fixture and reviewer fallback-cache expectation corrected; see review.md.",
+  "publication": "Exact candidate CI and fast-forward master gate follow this evidence-only commit."
+}

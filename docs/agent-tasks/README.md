@@ -9,8 +9,9 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 [P048](P048-adversarial-proofs/task.md) adds determinant preservation, exception
 rollback and three-way weighted partition examples. Shared polynomial and bounded
-integer-domain inference plus verified weighted induction are under independent
-full semantic review. Full validation/publication pending.
+integer-domain inference plus verified weighted induction passed independent
+full semantic review. Frozen source:218 suites/6120 passes/46 historical skips,
+typecheck0. Exact-candidate CI/publication pending.
 
 ## Three adversarial proofs — P047
 

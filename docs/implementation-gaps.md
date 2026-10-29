@@ -2096,3 +2096,8 @@ REPORT-001: broken full-domain loops may remain unfinished; absence of a result 
 not an all-path claim. TEST-002: unchanged519 whole Test262 files/1029variants,
 43parse-negative files/85variants and46 historical skips. No new syntax/host API.
 Every residual above remains open. See P048 evidence for scans and validation.
+
+P048 final local validation:218 suites/6120 passes/46 historical skips/typecheck0.
+Four scans and full unchanged Test262 skip inventory are recorded in
+[evidence](agent-tasks/P048-adversarial-proofs/evidence.json). No residual gap is
+closed solely by passing examples or the selected corpus count.
