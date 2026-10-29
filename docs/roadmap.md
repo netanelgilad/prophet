@@ -804,3 +804,8 @@ counter invariant proves classification totals for symbolic length0..1000000.
 Broken counterparts remain nonconstant or explicitly unfinished. This extends
 reasoning rather than Node API surface; [domains and residuals](adversarial-proofs.md)
 include IEEE restrictions, conservative heap checks and fallback merge limits.
+
+P048 advances the user-prioritized adversarial reasoning track with bounded
+nonlinear determinant preservation, alias-aware exception rollback and weighted
+three-counter induction. [Domains and residual limits](adversarial-proofs.md#p048-nonlinear-exceptional-and-weighted-reasoning)
+remain explicit; these do not imply general nonlinear or loop theorem proving.

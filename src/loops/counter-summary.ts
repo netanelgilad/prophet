@@ -81,6 +81,10 @@ export function trySummarizeCounters(ast: ESTree.ForStatement, reached: TExecuti
       if (candidates.length > 4) return undefined;
     }
     if (candidates.length<2 || candidates.length>4) return undefined;
+    if (candidates.length === 3) {
+      const weighted = summarizeWeighted(ast,reached,copy,header,index,array,shape.maximumLength,candidates);
+      if (weighted) return weighted;
+    }
     for(let x=0;x<candidates.length;x++) for(let y=x+1;y<candidates.length;y++) {
       const first=candidates[x], second=candidates[y], isolated=proofContext(reached,array);
       if (!isolated) return undefined;
@@ -121,4 +125,102 @@ export function trySummarizeCounters(ast: ESTree.ForStatement, reached: TExecuti
     }
   } catch (_) { /* Disposable proof: ordinary execution retains all boundaries. */ }
   return undefined;
+}
+
+// Literals propose a scale; they never establish an invariant. The actual VM
+// verifies the complete body, including every symbolic branch and write.
+function proposedScales(body: ESTree.Node, counters: Slot[]): number[] | undefined {
+  const scales = new Map<string,number>();
+  let remaining=96;
+  function visit(node:any): boolean {
+    if(!node || typeof node!=="object") return true;
+    if(--remaining<0) return false;
+    if(node.type==="AssignmentExpression" && node.operator==="=" &&
+        node.left.type==="Identifier" && counters.some(s=>s.name===node.left.name) &&
+        node.right.type==="BinaryExpression" && node.right.operator==="+" &&
+        node.right.left.type==="Identifier" && node.right.left.name===node.left.name &&
+        node.right.right.type==="Literal") {
+      const value=node.right.right.value, previous=scales.get(node.left.name);
+      if(!Number.isSafeInteger(value) || value<1 || value>16 ||
+          (previous!==undefined && previous!==value)) return false;
+      scales.set(node.left.name,value);
+    }
+    return Object.keys(node).every(key=> {
+      if(key==="loc" || key==="start" || key==="end") return true;
+      const child=node[key];
+      return Array.isArray(child)?child.every(visit):
+        child && typeof child==="object"?visit(child):true;
+    });
+  }
+  if(!visit(body) || counters.some(s=>!scales.has(s.name))) return undefined;
+  return counters.map(s=>scales.get(s.name)!);
+}
+function weightedSum(values:TESNumber[], coefficients:number[]):TESNumber {
+  return values.map((v,i)=>binary("*",ESNumber(coefficients[i]),v))
+    .reduce((a,b)=>binary("+",a,b));
+}
+function weightedStep(values:TESNumber[], previous:TESNumber[], scales:number[],
+  next:TESNumber,knowledge:Knowledge,depth=0):boolean {
+  if(depth>8) return false;
+  const choice=values.map(choiceOf).find(Boolean);
+  if(choice) return [true,false].every(truth=> {
+    const selected=values.map(value=> {
+      const own=choiceOf(value);
+      return own && own.condition===choice.condition?
+        (truth?own.consequent:own.alternate):value;
+    });
+    return selected.every(isESNumber) && weightedStep(selected as TESNumber[],previous,scales,next,
+      knowledge.concat({kind:"truth",condition:choice.condition,truth}),depth+1);
+  });
+  const product=scales.reduce((a,b)=>a*b,1);
+  return values.every((value,i)=>strictEquality(value,previous[i],knowledge).value===true ||
+    strictEquality(value,binary("+",previous[i],ESNumber(scales[i])),knowledge).value===true) &&
+    strictEquality(weightedSum(values,scales.map(w=>product/w)),binary("*",ESNumber(product),next),knowledge).value===true;
+}
+function weightedState(index:TESNumber,maximum:number,scales:number[]):TESNumber[] {
+  const a=integer(0,maximum), b=integer(0,maximum);
+  // Inductive hypotheses: normalized counts are nonnegative integers whose
+  // sum is index. Bounds on the dependent third count are part of that invariant.
+  const c=binary("-",binary("-",index,a),b);
+  c.knowledge=[{kind:"integer",subject:c},{kind:"finite",subject:c},
+    {kind:"order",left:ESNumber(0),right:c,strict:false},
+    {kind:"order",left:c,right:ESNumber(maximum),strict:false}];
+  return [a,b,c].map((n,i)=>binary("*",ESNumber(scales[i]),n));
+}
+function summarizeWeighted(ast:ESTree.ForStatement,reached:TExecutionContext,
+  copy:(context:TExecutionContext)=>BranchResult,
+  header:{indexName:string;arrayName:string},index:Slot,array:SymbolicNumberArray,
+  maximum:number,counters:Slot[]):TExecutionContext|undefined {
+  const scales=proposedScales(ast.body,counters);
+  // Product <=4096, and every arithmetic intermediate must remain a safe
+  // integer. This precheck prevents creating unsafe hypotheses at large horizons.
+  if(!scales || !Number.isSafeInteger(maximum*16384)) return undefined;
+  const isolated=proofContext(reached,array); if(!isolated) return undefined;
+  const length=array.properties.length, k=integer(0,maximum-1);
+  const previous=weightedState(k,maximum-1,scales);
+  let proof=replace(isolated.context,index,k);
+  counters.forEach((counter,i)=> { proof=replace(proof,counter,previous[i]); });
+  proof=ExecutionContext({...proof.value,knowledge:(proof.value.knowledge||[]).concat(
+    {kind:"order",left:k,right:length,strict:true})});
+  const testedResult=evaluate(ast.test!,proof),tested=normal(testedResult);
+  if(!tested || (testedResult[0] as any).value!==true || !pure(proof,tested)) return undefined;
+  const body=normal(evaluate(ast.body,tested));
+  if(!body || !pure(proof,body) || !unchanged(proof,body,[index,...counters])) return undefined;
+  const copied=normal(copy(body)); if(!copied || !pure(proof,copied)) return undefined;
+  const copiedIndex=slot(copied,header.indexName);
+  const after=normal(evaluate(ast.update!,copied));
+  if(!after || !copiedIndex || !pure(proof,after) || !unchanged(copied,after,[copiedIndex]) ||
+      !unchanged(proof,after,[index,...counters])) return undefined;
+  const next=slot(after,header.indexName), values=counters.map(c=>valueAt(after,c));
+  if(!next || !isESNumber(next.binding.value) || !values.every(isESNumber)) return undefined;
+  const endpoint=exactIntegerEndpoint(next.binding.value,after.value.knowledge||[]);
+  if(!endpoint || endpoint.base!==k || endpoint.offset!==1 ||
+      !weightedStep(values as TESNumber[],previous,scales,next.binding.value,after.value.knowledge||[])) return undefined;
+  const exit=proofContext(reached,array); if(!exit) return undefined;
+  const head=replace(exit.context,index,length), checked=evaluate(ast.test!,head),done=normal(checked);
+  if(!done || (checked[0] as any).value!==false || !pure(head,done)) return undefined;
+  const results=weightedState(length,maximum,scales);
+  let result=replace(reached,index,length);
+  counters.forEach((counter,i)=> { result=replace(result,counter,results[i]); });
+  return result;
 }

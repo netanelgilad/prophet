@@ -1,4 +1,4 @@
-# Next work after P047
+# Next work after P048
 
 ## Current checkpoint
 
@@ -14,9 +14,13 @@ verified joint counter induction; sorting already passes through existing order
 facts. [Proof domains](adversarial-proofs.md) and broken controls are explicit.
 The security CLI remains deferred.
 
+P048 adds the requested harder determinant, rollback and weighted-counter proofs.
+See the [extended domains](adversarial-proofs.md#p048-nonlinear-exceptional-and-weighted-reasoning);
+full review/validation and publication are recorded in its task evidence.
+
 ## Next reasoning decision
 
-Keep the three examples as regression/unknown controls. Useful next steps are
+Keep both sets of three examples as regression/unknown controls. Useful next steps are
 sound heap equivalence for harmless local allocation (currently a conservative
 summary decline), broader verified affine loop invariants, and bounded merge work
 on failed proof attempts. Each needs its own adversarial contract; do not weaken

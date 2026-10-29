@@ -6,6 +6,7 @@ import { ESBoolean } from "../boolean/ESBoolean";
 import { ESString } from "../string/String";
 import * as Model from "./model";
 import { exactIntegerDifference } from "./affine";
+import { integerDomainEquality } from "./integer-domain";
 
 export type Expression = Model.Expression;
 export type Fact = Model.Fact;
@@ -841,6 +842,8 @@ function resolveEquality(left: Any, right: Any, knowledge: Knowledge): boolean |
   if (a.type !== b.type) return false;
   if (isESNumber(left) && isESNumber(right)) {
     if (typeof left.value === "number" && typeof right.value === "number") return left.value === right.value;
+    const finiteDomain = integerDomainEquality(left, right, knowledge);
+    if (finiteDomain !== undefined) return finiteDomain;
     const affineDifference = exactIntegerDifference(left, right, knowledge);
     if (affineDifference !== undefined) return affineDifference === 0;
     if (sameNumber(left, right)) return notNaN(left, knowledge) ? true : undefined;

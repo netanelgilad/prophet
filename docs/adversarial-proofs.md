@@ -71,3 +71,45 @@ deviations, skipped zeros, unrelated writes and proof-cache isolation. Pinned
 Node24.21.0 supplies concrete witnesses. No new JS syntax or host API is introduced;
 the complete selected Test262 corpus and its historical skip inventory remain
 regression coverage, not justification for a universal proof engine.
+
+## P048: nonlinear, exceptional and weighted reasoning
+
+The next three examples increase the reasoning burden while keeping their input
+assumptions explicit. All source and expectations remain executable specs.
+
+| Example | Domain and proof | Broken control |
+| --- | --- | --- |
+| [Row-operation determinant](../test/adversarial-polynomial.spec.ts) | Independent integer a,b,c,d,t in[-100,100]; `(a+t*c)*d-(b+t*d)*c === a*d-b*c` | Missing row update/wrong sign stays unknown; fractional arithmetic can break the identity |
+| [Exception rollback](../test/adversarial-rollback.spec.ts) | Ordinary data fields, integer balances[-1000000,1000000], amount[0,1000], stage0..2; same/distinct/symbolic aliases; finally restores both snapshots, closure reads and returned references observe restoration | Inverse operations cannot undo a credit skipped by an exception; a returned primitive captures its pre-finally value |
+| [Weighted partition](../test/adversarial-weighted-counters.spec.ts) | Dense immutable finite-number array length0..1000000; increments1/2/3 in negative/zero/positive branches; `6*low+3*mid+2*high === 6*length` | Skipped zeros, wrong weight, late deviation or unrelated mutation cannot establish the requested invariant |
+
+The determinant rule extends the shared comparison normalizer to integer
+polynomials, with safe intervals checked at **every evaluated intermediate**.
+Monomials use actual symbolic identities, not equal-looking bounds. Limits are
+degree4,64 terms,512 term operations,128 visits,depth24,256 direct facts peratom.
+The operation budget can conservatively decline expensive formerly admitted
+linear expressions. Unsupported operators remain opaque only if independently
+bounded integers; no floating cancellation or numeric-value rewrite is added.
+
+Rollback uses the existing heap and abrupt-completion machinery. A new bounded
+integer-domain equality rule closes the return-identity proof: excluding0 and1
+from an integer in[0,2] leaves2. It scans at most256 direct facts and enumerates
+at most64 integer values, never samples a larger domain. Empty/inconsistent
+domains decline; no integer fact means no exhaustive integer-domain inference.
+Signed-zero equality never rewrites the input value. Unrestricted/NaN values
+cannot use ordinary strict equality as a universal restored-value test.
+
+Weighted induction proposes positive scales1..16 from `counter=counter+literal`
+assignments for exactly three zero mutable locals. This syntax only proposes a
+hypothesis: the actual VM body must preserve it on every admitted transition.
+Normalized counts are represented as a,b,k-a-b, with nonnegative integer bounds.
+Each actual counter must stay unchanged or increase by its scale, and the
+weighted sum must equal the product of scales times the successor index. Base,
+exact index+1, unchanged persistent state/effects and the exit guard are checked.
+The result preserves symbolic counters with their joint relation to length.
+Alternate2/3/5 scales are tested; no particular names/classification source are
+recognized. Compound assignment, four-counter candidates, arbitrary coefficients,
+nonzero initializers, general recurrences and mutable arrays remain unsupported
+by this verifier. Existing AST96/choice-depth8/private-proof2400 and heap/environment
+caps apply; candidate bindings are bounded before scanning. Harmless local-object
+heap identity and ordinary fallback merge-work limits remain open.

@@ -2071,3 +2071,28 @@ All residuals above remain open; focused successes are not universal coverage.
 P047 final local validation:214 suites/6058 passes/46 historical skips and
 typecheck0, frozen source hashes unchanged. Four scans and complete skip inventory
 are recorded in [evidence](agent-tasks/P047-adversarial-proofs/evidence.json).
+
+## P048 reconciliation — nonlinear, exceptional and weighted proofs
+
+SYM-001: comparison-only exact integer polynomial normalization extends +,-,unary
+minus to multiplication; every intermediate and coefficient must be safe. Degree4,
+terms64,termwork512,visits128,depth24,facts256 caps decline before growth. Direct
+bounds only; floating algebra, division/powers expansion and general constraints
+remain. Expensive linear expressions can now conservatively exceed termwork.
+Bounded integer-domain equality uses at most256 direct facts and64 integer values;
+no transitive search, no narrowing unconstrained/fractional inputs, empty domains
+never provide vacuous proofs. No signed-zero Number rewriting.
+SYM-002/SYM-003: exactly three zero locals with literal positive increments1..16
+can propose scaled partition induction, checked via actual VM body/update/exit.
+Normalized counts remain symbolic and sum to original length. Other candidate
+counts, nonzero initializers, negative/dynamic scales, nested/abrupt/calling bodies
+and general recurrences remain. Nonfinite-array admission remains conservative.
+SYM-004: inherited private-proof/AST/frontier/heap limits remain, as do conservative
+unrelated-object heap identity and ordinary fallback merge growth. Polynomial
+termwork and integer-domain bounds add explicit precision limits.
+LEGACY-002: += remains unsupported; specs use explicit assignment, with original
+syntax failure separately attributed rather than treated as induction-red evidence.
+REPORT-001: broken full-domain loops may remain unfinished; absence of a result is
+not an all-path claim. TEST-002: unchanged519 whole Test262 files/1029variants,
+43parse-negative files/85variants and46 historical skips. No new syntax/host API.
+Every residual above remains open. See P048 evidence for scans and validation.
