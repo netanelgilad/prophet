@@ -10,8 +10,11 @@ unfinished analysis result with the state reached before that boundary.
 The first argument undergoes ordinary string-hint conversion, including inherited
 `toString`/`valueOf` calls, their effects and throws. Missing input converts to
 `"undefined"`; argument expressions are evaluated normally before invocation.
-Finite symbolic alternatives retain conditional success, exception and stopped
-siblings. An open converted string remains unknown rather than a successful
+Finite symbolic argument/conversion alternatives retain conditional success,
+exception and stopped siblings. The decoder admission helpers still conservatively
+reject a symbolic choice used directly as an internal prototype link; the shared
+intrinsic tag helper branches those links. This is not general symbolic-prototype
+coverage. An open converted string remains unknown rather than a successful
 validation. Ordinary objects need a known symbol/prototype chain: custom
 `Symbol.toPrimitive`, partial or cyclic chains and exotic array/function
 conversion remain explicit boundaries. An own undefined/null symbol slot shadows

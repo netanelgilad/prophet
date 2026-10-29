@@ -9,7 +9,8 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 [P046](P046-decode-uri/task.md) implements shared bounded decodeURI through
 unchanged sirv encoded paths. Spec-first red evidence retained; scoped conversion
-correction and independent review in progress. Full validation/publication pending.
+and shared intrinsic corrections accepted at f581992.210 suites/6003 passes/46
+skips/typecheck0; exact-candidate CI/publication pending. [Evidence](P046-decode-uri/evidence.json).
 
 ## Continued package API coverage — P045
 

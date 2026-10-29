@@ -49,3 +49,17 @@ expanded6-suite1256-pass validation, with46 unchanged historical skips/typecheck
 Root migrated three console tests from legacy thrown errors to typed boundaries,
 checking retained prefix state, absent guest catch/output and completed siblings.
 Console+opaque suites pass84 tests; opaque specs needed no change.
+
+Final read-only review accepts frozenf581992, including root's console migrations:
+original native tags and exact guard messages remain, with typed boundary, prefix,
+no-catch/no-output and completed sibling assertions added. One precision residual
+is documented: decoder admission conservatively rejects direct symbolic internal
+prototype links; the shared tag helper's branch support is not universal lookup
+support. Full validation remains the final local gate.
+
+Frozenf581992 full validation completed:210 suites,6003 passes,46 historical
+skips, typecheck0; tracked/untracked source and test hashes unchanged across
+validation. Four gap scans and complete inventory accompany evidence.json.
+Final documentation-only changes describe residual conditional-prototype limits
+and correct the historical standard-library summary; tested runtime source is
+unchanged. Exact candidate CI is required before publication.
