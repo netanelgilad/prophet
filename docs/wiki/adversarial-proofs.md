@@ -43,5 +43,7 @@ sortedness belongs in the proof premise, and a no-match sentinel must retain its
 relationship to the selected index. Callback guards must be set before calling
 user code because synchronous reentry and throws can otherwise defeat cleanup
 and single-settlement assertions. The explicit event driver has a finite horizon;
-its local cleanup counter proves no external cleanup success. Full semantic review
-and final validation remain pending.
+its local cleanup counter proves no external cleanup success. Independent semantic review passed; final validation evidence is in the P049 task.
+Retain aggregate order operands when adding equivalent conditional refinements:
+replacing the comparison outright can regress older minimum proofs. Bound guard
+expression traversal as well as choice leaves before optional inference.

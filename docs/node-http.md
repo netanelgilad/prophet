@@ -233,8 +233,9 @@ HTTP environment owns an ordinary mutable table; aliases share it and mutations
 remain in persistent state. Default reason lookup uses the original table even
 if application code replaces the exported `http.STATUS_CODES` property.
 Inherited values and conditional mutations follow shared lookup rules. Full
-descriptor reflection, deletion and symbolic computed property keys remain
-shared VM gaps; selecting between concrete lookups is supported separately.
+descriptor reflection, deletion and opaque symbolic computed property keys remain
+shared VM gaps. Bounded conditional string/number keys now use shared lookup
+dispatch and preserve their correlation with the selecting guard (P049).
 
 ## Writing a response body
 

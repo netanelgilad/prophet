@@ -109,9 +109,9 @@ test("a repeated nested leaf does not choose between two feasible selecting path
     const stillUncertain = value === "same" ? guard : false;
   `);
   certain(scope.uniqueLeaf);
-  // This is true in JavaScript, but retaining a disjunctive relation and
-  // reapplying it after a later guard is still a tracked precision gap.
-  uncertain(scope.disjunction);
+  // Either selecting path can produce "same". Preserve their disjunction
+  // without choosing one of the still-feasible guards.
+  certain(scope.disjunction);
   uncertain(scope.stillUncertain);
 });
 
@@ -215,7 +215,7 @@ test("independent choices retain all four combinations", () => {
   certain(scope.proof);
 });
 
-test("equality between independent choices keeps unresolved guard relationships unknown", () => {
+test("equality between independent choices proves their relationship without fixing equality", () => {
   const scope = run(`
     const left = guard ? "left" : "right";
     const right = other ? "left" : "right";
@@ -225,9 +225,8 @@ test("equality between independent choices keeps unresolved guard relationships 
       : guard ? !other : other;
   `);
   uncertain(scope.equal);
-  // All four concrete inputs satisfy this relationship. The solver currently
-  // keeps only facts common to feasible branches, not a relation between guards.
-  uncertain(scope.relationship);
+  // All four inputs satisfy the relationship; equality itself has both results.
+  certain(scope.relationship);
 });
 
 test("a partially accepting result remains unknown when both outcomes are possible", () => {
@@ -316,23 +315,40 @@ test("finite-choice proofs agree with exhaustive pinned Node executions", () => 
     const left = guard ? NaN : -0;
     const right = other ? NaN : 0;
     const equal = left === right;
+    const repeated = guard ? "same" : other ? "same" : "different";
+    const disjunction = repeated === "different" ? !guard && !other : guard || other;
+    const stillUncertain = repeated === "same" ? guard : false;
+    const first = guard ? "left" : "right";
+    const second = other ? "left" : "right";
+    const choiceEqual = first === second;
+    const relationship = choiceEqual
+      ? guard ? other : !other
+      : guard ? !other : other;
   `;
   const native = JSON.parse(execFileSync(process.env.PROPHET_NODE_BINARY || process.execPath,
     ["-e", `const results = [];
       for (const guard of [false, true]) for (const other of [false, true]) {
         ${source}
-        results.push({ exhaustive, rejection, discriminated, equal });
+        results.push({ exhaustive, rejection, discriminated, equal, disjunction, stillUncertain, choiceEqual, relationship });
       }
       process.stdout.write(JSON.stringify(results));`],
     { encoding: "utf8", timeout: 10000, env: { ...process.env, NODE_OPTIONS: "", NODE_PATH: "" } }
-  )) as Array<{ exhaustive: boolean; rejection: boolean; discriminated: boolean; equal: boolean }>;
+  )) as Array<{ exhaustive: boolean; rejection: boolean; discriminated: boolean; equal: boolean; disjunction: boolean; stillUncertain: boolean; choiceEqual: boolean; relationship: boolean }>;
   expect(native.map(result => result.exhaustive)).toEqual([true, true, true, true]);
   expect(native.map(result => result.rejection)).toEqual([false, false, false, false]);
   expect(native.map(result => result.discriminated)).toEqual([true, true, true, true]);
   expect(native.map(result => result.equal)).toEqual([true, false, false, false]);
+  expect(native.map(result => result.disjunction)).toEqual([true, true, true, true]);
+  expect(native.map(result => result.relationship)).toEqual([true, true, true, true]);
+  expect(native.map(result => result.stillUncertain)).toEqual([false, false, true, true]);
+  expect(native.map(result => result.choiceEqual)).toEqual([true, false, false, true]);
   const scope = run(source);
   certain(scope.exhaustive);
   certain(scope.rejection, false);
   certain(scope.discriminated);
   uncertain(scope.equal);
+  certain(scope.disjunction);
+  certain(scope.relationship);
+  uncertain(scope.stillUncertain);
+  uncertain(scope.choiceEqual);
 });

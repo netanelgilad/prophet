@@ -1,4 +1,4 @@
-# Next work during P049
+# Next work after P049
 
 ## Current checkpoint
 
@@ -20,11 +20,11 @@ full review/validation and publication are recorded in its task evidence.
 
 ## Current reasoning increment
 
-P049 is implemented, pending final validation: bounded in-place compaction, binary search and competing
+P049 implements bounded in-place compaction, binary search and competing
 callbacks. [The contracts](adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state)
 state each fixed array length0..4, symbolic value domains and explicit0..3 event
-horizon with optional single reentry. Complete independent semantic review,
-full validation and exact-candidate CI before publication. All declared binary-search lengths0..4 now pass focused
+horizon with optional single reentry. Independent semantic review is complete; task evidence records full validation
+and exact-candidate CI before publication. All declared binary-search lengths0..4 now pass focused
 checks; unknown controls remain distinct from concrete counterexamples.
 
 After acceptance, useful extensions include mutable sequence/store relations for

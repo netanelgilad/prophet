@@ -1,0 +1,37 @@
+{
+  "cwd": "/Users/netanelgilad/.codex/worktrees/p035-longcat-environment/prophet",
+  "environment": {
+    "PROPHET_NODE_BINARY": "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node"
+  },
+  "files": {
+    "test/node-http-status-codes.spec.ts": "2414d611160ee798f3b093c3151aa5170b1b9db53a919d835e7666bf2817f65a",
+    "test/symbolic-choice-equality.spec.ts": "a888fc6a5124d45ea58b9d67019436a5e6dfeec7abd6c55837ed69ca0b8d7892"
+  },
+  "runs": [
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "test",
+        "--runInBand",
+        "test/node-http-status-codes.spec.ts",
+        "test/symbolic-choice-equality.spec.ts"
+      ],
+      "exitCode": 0,
+      "suitesPassed": 2,
+      "testsPassed": 34,
+      "log": "/tmp/p049-boundary-migration.log",
+      "logSha256": "5a52e8d9232f3f052447d4d711a24d48b04512daaba1d63dec4474a922b04c3f"
+    },
+    {
+      "argv": [
+        "/tmp/prophet-node-24.21.0/node-v24.21.0-darwin-arm64/bin/node",
+        ".yarn/releases/yarn-3.1.1.cjs",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/p049-boundary-migration-types.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

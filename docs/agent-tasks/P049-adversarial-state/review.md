@@ -98,3 +98,16 @@ and45 independent review cases; typecheck exited0. All17 source/spec hashes
 remained unchanged. Exact commands, runtime and log hashes are retained in
 [independent-review.json](independent-review.json). No outstanding soundness
 finding within the declared domains; full regression and publication follow.
+
+Full regression at423bd87 completed224 passing suites and2 failing suites: three
+obsolete limitation assertions expected conditional computed lookup to reject or
+two valid Boolean relationships to remain unknown. The run had6235 passes,3
+failures and46 historical skips (`/tmp/prophet-p049/full-suite-old-boundaries.log`);
+it is not accepted validation. Reviewer owns replacement behavior specs and
+independent concrete checks; production source is unchanged.
+
+Reviewer replaced the three obsolete expectations and exhaustively checked both
+status-key choices and all four Boolean assignments in pinned Node. Variable
+guards/equalities remain unknown and opaque numeric keys still reject. Both
+suites passed34 tests in0.929seconds; typecheck0. Root reviewed the complete
+spec diff. See boundary-review.json; no production source changed.

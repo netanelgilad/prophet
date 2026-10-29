@@ -62,14 +62,11 @@ content headers, declared filesystem domain and healthy consume-at-end transport
 assumption remain unchanged. This is a bounded application proof, not all
 request, filesystem or scheduling behavior.
 
-Some relationships still remain unknown. If a comparison can succeed through
-either of two alternatives and no individual fact is common to both, the solver
-does not generally revisit the comparison after later learning another guard.
-For example, equality between two independently chosen strings can imply that
-their guards agree, without identifying either guard. Repeated matching leaves
-can similarly imply a disjunction. The specs retain these as mandatory unknowns,
-alongside positive unique-leaf and common-fact proofs. General disjunctive
-propagation and a full equality solver remain open under SYM-001.
+P049 proves the small repeated-leaf disjunction and independent-string-choice
+guard-agreement examples through bounded relation/prior inference. Individual
+guards and equality outcomes remain unknown when both concrete outcomes are
+possible. General disjunctive propagation and a full equality solver remain open
+under SYM-001; bounded work can conservatively decline further inference.
 
 Finite selection membership is now proved within an explicit bound, in any
 candidate order. A nested selection of finite symbolic values proves the

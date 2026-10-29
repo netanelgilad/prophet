@@ -713,7 +713,8 @@ Continue in these increments, each with specs and a focused commit to `master`:
    presence distinguishes successful bytes from escaping ENOENT. Shared equality
    refinement now proves the combined GET/HEAD domain too, preserving method/body
    correlation and excluding the impossible 405 without filtering paths. General
-   disjunctive relationships remain mandatory unknowns (SYM-001).
+   disjunctive reasoning remains incomplete (SYM-001); P049 proves additional
+   bounded guard relationships while retaining variable-result unknowns.
    Byte mutations reuse the persistent heap and retain symbolic correlations.
    Effective access and baseline descriptor availability now establish EACCES,
    EMFILE, 404 and successful GET/HEAD outcomes with native witnesses. Credential
@@ -811,10 +812,10 @@ three-counter induction. [Domains and residual limits](adversarial-proofs.md#p04
 remain explicit; these do not imply general nonlinear or loop theorem proving.
 
 
-P049 (implemented, final review/validation pending) follows with bounded mutable-array
+P049 (independently reviewed; validation recorded in its task) follows with bounded mutable-array
 compaction, sorted binary search and callback settlement. Shared conditional
 member references and Math.floor remove demonstrated execution blockers; generic
-finite-choice reasoning is under review. [Contracts](adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state)
+finite-choice reasoning preserves aggregate order facts and bounded refinements. [Contracts](adversarial-proofs.md#p049-mutable-sequences-search-and-callback-state)
 cover each fixed length0..4 and an explicit0..3 event horizon with single optional
 reentry. Arbitrary-length mutable induction and automatic unbounded Node event
 exploration are subsequent work, not consequences of these examples.

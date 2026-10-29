@@ -5,7 +5,7 @@ import { setVariablesInScope } from "../src/execution-context/ExecutionContext";
 import { getProperties } from "../src/execution-context/Heap";
 import { createHTTPStatusCodes } from "../src/node/http-status-codes";
 import { TESString } from "../src/string/String";
-import { Any, isThrownValue } from "../src/types";
+import { Any, ESNumber, isThrownValue } from "../src/types";
 import { assertPinnedNode, nodeModuleObservation, withModuleFixture } from "./commonjs/oracle";
 
 beforeAll(assertPinnedNode);
@@ -142,7 +142,20 @@ test("branch-selected reason strings preserve the choice instead of becoming one
   expect(context.value.scope.uncertain).toMatchObject({ value: undefined });
 });
 
-test("symbolic computed property keys retain the shared VM's explicit lookup gap", () => {
-  expect(() => run('const reason = codes[selected ? 200 : 405];', { selected: ESBoolean() }))
+test("finite conditional status keys retain both reasons while opaque numeric keys remain unsupported", () => {
+  const { context } = run(`
+    const reason = codes[selected ? 200 : 405];
+    const proof = selected ? reason === "OK" : reason === "Method Not Allowed";
+    const uncertain = reason === "OK";
+  `, { selected: ESBoolean() });
+  expect(context.value.scope.proof).toMatchObject({ value: true });
+  expect(context.value.scope.uncertain).toMatchObject({ value: undefined });
+  expect(context.value.scope.selected).toMatchObject({ value: undefined });
+  for (const selected of [false, true]) compare(`
+    const selected = ${selected};
+    const reason = require("node:http").STATUS_CODES[selected ? 200 : 405];
+    module.exports = selected ? reason === "OK" : reason === "Method Not Allowed";
+  `);
+  expect(() => run('const reason = codes[code];', { code: ESNumber() }))
     .toThrow("Computed property access requires a concrete number or string");
 });
