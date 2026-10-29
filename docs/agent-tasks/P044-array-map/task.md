@@ -2,6 +2,9 @@
 
 Base: bcb4b148a50233306768ac838335f5e80e0c3fe5. Branch: agent/p044-array-map.
 Worktree: /Users/netanelgilad/.codex/worktrees/p035-longcat-environment/prophet.
+Status: implementation and semantic review accepted; full202 suites/5637 passes/46
+historical skips and typecheck passed. Exact-candidate CI/publication pending.
+
 User 2026-10-29 prioritizes more generic syntax/API coverage from real packages;
 the security CLI is deferred. This increment implements map used by unchanged
 sirv3.0.2 build.js:128–129 to prepare compression extension lists.

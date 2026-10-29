@@ -1971,3 +1971,9 @@ currently does not synchronize array element storage; sparse unshift is deferred
 rather than treating that helper as sufficient (ARRAY-001/LEGACY-002). Target
 fixtures use text-safe .gz file contents to establish selection and headers;
 arbitrary binary/codec behavior remains outside this evidence (BUFFER-002/FS-002).
+
+P044 final validation:202 suites/5637 passes/46 historical skips and typecheck
+passed. Active Test262494 files/979 variants includes10 new files/20 variants;
+43 parse-negative files/85 variants and the full historical46-file inventory
+remain unchanged. Four documented scans were reconciled against93145f9; all
+new guards map to the residual IDs above. No broad gap is closed.

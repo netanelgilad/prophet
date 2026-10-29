@@ -7,11 +7,12 @@ has run. Review depth changes require a recorded decision, not a growing test co
 
 ## Real-package coverage resumed — 2026-10-29
 
-[P044: shared Array.prototype.map](P044-array-map/task.md) is in development
-against bcb4b14. Codex owns implementation, independent package controls and
+[P044: shared Array.prototype.map](P044-array-map/task.md) is implemented at93145f9 against bcb4b14. Codex owns implementation, independent package controls and
 semantic review. The owner explicitly deferred the security CLI and prioritized
 shared runtime/syntax/API support exposed by unchanged packages. Current target:
-sirv compression extension preparation. Validation/publication remain pending.
+sirv compression extension preparation and gzip selection/fallback. Independent
+reviews and full202 suites/5637 passes/46 skips plus typecheck passed.
+Exact-candidate CI/publication pending; [evidence](P044-array-map/evidence.json).
 P043 was published at bcb4b14 after CI39825115797 (196 suites/5518 passes/46 skips).
 
 ## Sustained roadmap run — 2026-10-21

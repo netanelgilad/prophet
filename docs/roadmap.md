@@ -767,7 +767,7 @@ one. A stateful `/arm` then `/fire` spec now reaches the second-request failure;
 its one-event domain cannot fabricate the prior arming request. This is a bounded
 history result, not a general callback summary or proof over arbitrary timelines.
 
-Current continuation plan: [next work after P043](next-work.md).
+Current continuation plan: [next work after P044](next-work.md).
 
 
 ## 2026-10-29 owner priority: broader unchanged-package coverage
